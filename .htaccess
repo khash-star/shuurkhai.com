@@ -1,0 +1,18 @@
+DirectoryIndex index.php
+#RewriteCond %{HTTPS} off
+#RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteEngine On
+RewriteRule ^home?$ index.php
+RewriteRule ^index?$ index.php
+RewriteRule ^contact?$ contact.php
+RewriteRule ^faqs?$ faqs.php
+
+RewriteRule ^news?$ news.php
+RewriteRule ^about?$ about.php
+
+ErrorDocument 404 underconstruction
+
+
+RewriteRule ^shop?$ shop.php
+RewriteRule ^qpay?$ qpay.php
+RewriteRule ^privacy?$ privacy.php

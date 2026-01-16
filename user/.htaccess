@@ -1,0 +1,25 @@
+DirectoryIndex dashboard.php
+#RewriteCond %{HTTPS} off
+#RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteEngine On
+RewriteRule ^dashboard?$ dashboard.php
+RewriteRule ^home?$ dashboard.php
+RewriteRule ^login?$ login.php
+RewriteRule ^terminate?$ terminate.php
+RewriteRule ^logout?$ logout.php
+RewriteRule ^register?$ register.php
+RewriteRule ^recover?$ recover.php
+
+
+
+RewriteRule ^profile?$ profile.php
+RewriteRule ^online?$ online.php
+RewriteRule ^tracks?$ tracks.php
+RewriteRule ^packages?$ packages.php
+RewriteRule ^envoices?$ envoices.php
+RewriteRule ^extra?$ extra.php
+RewriteRule ^shops?$ shops.php
+RewriteRule ^products?$ products.php
+
+
+ErrorDocument 404 PageNotFound

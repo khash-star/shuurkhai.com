@@ -1,0 +1,8 @@
+.widgets { min-height: calc(100vh - 108px); }
+
+.nav-link.paid  {background: lightgray;}
+.nav-link.paid.active  {background: lightgray !important;}
+
+ul.banks {list-style: none;} 
+ul.banks li {display: block; float: left; margin-right: 10px;}
+ul.banks li img {width: 50px; height: 50px; } 

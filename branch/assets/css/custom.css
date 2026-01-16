@@ -1,0 +1,12 @@
+#pietimerholder {
+    text-align : center;
+    padding : 2em;
+    margin : 2em;
+}
+
+.text-right {text-align: right;}
+
+#map {
+    width: 100%;
+    min-height: 400px;
+}

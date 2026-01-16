@@ -1,0 +1,18 @@
+DirectoryIndex branch.php
+RewriteEngine On
+RewriteRule ^home?$ branch.php
+RewriteRule ^index?$ branch.php
+
+ErrorDocument 404 underconstruction
+
+RewriteRule ^faqs?$ faqs.php
+RewriteRule ^login?$ login.php
+RewriteRule ^logout?$ views/logout.php
+RewriteRule ^register?$ register.php
+RewriteRule ^contact?$ contact.php
+RewriteRule ^news?$ news.php
+RewriteRule ^about?$ about.php
+RewriteRule ^profile?$ profile.php
+RewriteRule ^inventory?$ inventory.php
+RewriteRule ^logout?$ views/logout.php
+RewriteRule ^branch?$ branch.php

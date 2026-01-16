@@ -1,0 +1,4 @@
+﻿*.sql
+*.log
+error_log
+user/error_log

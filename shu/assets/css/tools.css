@@ -1,0 +1,103 @@
+/*--------------------------------------------------
+	  **Tech And All Social Icons Roll Over**
+---------------------------------------------------*/
+.tools {
+	position:fixed;
+	left:0px;
+	top:300px;
+	width:40px;
+	background:url(../images/tools_bg.jpg);
+	
+	 border-top-right-radius:8px;
+	-webkit-border-top-right-radius:8px;
+	-moz-border-top-right-radius:8px;
+	border-bottom-right-radius:8px;
+	-webkit-border-bottom-right-radius:8px;
+	-moz-border-bottom-right-radius:8px;
+	z-index:10000;
+}
+.tools_nav {padding:0px; margin:0px;}
+.tools_nav a { font-weight:bold; color:#FFF; width:30px; height:30px; text-decoration:none; margin:10px 0px 10px 0px;  }
+
+.tools_nav a li{ line-height:30px;
+	width:30px;
+	height:30px;
+	background:#CCC;
+	
+	border-top-right-radius:8px;
+	-webkit-border-top-right-radius:8px;
+	-moz-border-top-right-radius:8px;
+	border-bottom-right-radius:8px;
+	-webkit-border-bottom-right-radius:8px;
+	-moz-border-bottom-right-radius:8px;
+	
+	margin:10px 0px 10px 0px
+}
+.tools_nav a li span {display:none; margin-left:50px;}	
+
+.tools_nav a li:hover 
+{
+	width:250px;
+	background-position: 0 -30px!important;
+	-webkit-transition: all 0.3s ease 0s;
+	-moz-transition: all 0.3s ease 0s;
+	-ms-transition: all 0.3s ease 0s;
+	o-transition: all 0.3s ease 0s;
+	
+}
+.tools_nav a li:hover span {display:block;}
+
+.tools_nav li:hover a {display:block; }
+
+
+.tools_nav li.facebook  {
+	background: url(../images/icons/facebook.png) no-repeat 0 0;
+}
+.tools_nav li.facebook:hover {
+	background-color: #3b5998;
+	
+}
+
+.tools_nav li.facebook:hover<a{
+	color:#FFF !important;
+}
+
+.tools_nav li.email {
+	background: url(../images/icons/email.png) no-repeat 0 0;
+}
+.tools_nav li.email:hover {
+	background-color: #fce702;
+}
+.tools_nav li.email:hover span{
+	color:#000 !important;
+}
+.tools_nav li.calc {
+	background: url(../images/icons/calc.png) no-repeat 0 0;
+}
+.tools_nav li.calc:hover {
+	background-color: #26d05e;
+}
+.tools_nav li.calc:hover <a{
+	color:#FFF !important;
+}
+
+.tools_nav li.dollar {
+	background: url(../images/icons/dollar.png) no-repeat 0 0;
+}
+.tools_nav li.dollar:hover {
+	background-color: #ca1919;
+}
+.tools_nav li.dollar:hover span{
+	color:#FFF !important;
+}
+
+.tools_nav li.comments {
+	background: url(../images/icons/pen.png) no-repeat 0 0;
+}
+.tools_nav li.comments:hover {
+	background-color: #cd2afc;
+}
+
+.tools_nav li.comments:hover span{
+	color:#000 !important;
+}

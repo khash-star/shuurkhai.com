@@ -1,0 +1,19 @@
+.product-outside-image {height:200px; width:200px;}
+
+.text-large {font-size: 28px !important; font-weight: 500;}
+
+.product-listing {background:#eeeeee; margin-top: 230px;}
+
+.login-button {position: absolute; right:100px; top:21px; font-size: smaller;}
+
+a.proxy_list {font-weight: 600;    font-size: 15px;    color: #1b55e2;}
+
+@media screen and (max-width:767px) /*  SM */
+{
+    .login-button {right:27px}
+}
+
+
+.header-appear>ul.top-info {display: none !important;}
+
+

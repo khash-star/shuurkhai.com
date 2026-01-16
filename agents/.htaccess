@@ -1,0 +1,34 @@
+DirectoryIndex index.php
+RewriteEngine On
+
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# ErrorDocument 404 https://ubrobotic.com/404
+# ErrorDocument 404 https://localhost/ubrobotic/login/404
+
+RewriteRule ^index?$ index.php
+RewriteRule ^404?$ 404.php
+
+RewriteRule ^login?$ login.php
+RewriteRule ^logining?$ views/logining.php
+RewriteRule ^logout?$ views/logout.php
+
+RewriteRule ^dashboard?$ dashboard.php
+RewriteRule ^settings?$ settings.php
+RewriteRule ^profile?$ profile.php
+RewriteRule ^products?$ products.php
+RewriteRule ^report?$ report.php
+RewriteRule ^customers?$ customers.php
+RewriteRule ^orders?$ orders.php
+RewriteRule ^order_cp72?$ order_cp72.php
+RewriteRule ^tracks?$ tracks.php
+RewriteRule ^cp72?$ cp72.php
+RewriteRule ^mini?$ mini.php
+RewriteRule ^container_cp72?$ container_cp72.php
+RewriteRule ^container_item_print?$ container_item_print.php
+RewriteRule ^boxes_preview?$ boxes_preview.php
+RewriteRule ^combine_preview?$ combine_preview.php
+RewriteRule ^customers_check2?$ views/customers_check2.php
+RewriteRule ^containers?$ containers.php
+RewriteRule ^boxes?$ boxes.php
+RewriteRule ^barcode?$ barcode.php

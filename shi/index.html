@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treno - Home</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <!-- Nav bar -->
+  <div class="mobile-nav-back"></div>
+  <div class="nav">
+    <div style="justify-content: flex-start; align-items: center; gap: 16px; display: flex">
+      <div
+        style="width: 123px; height: 38px; padding-left: 11px; padding-right: 11px; overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 10px; display: inline-flex">
+        <a href="index.html"> <img style="width: 102px; height: 30.97px"
+            src="data:image/png;base64,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" />
+        </a>
+      </div>
+      <div class="cute-text nav-1" style="justify-content: flex-start; align-items: center">
+        <div
+          style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+          Арилжаа</div>
+        <div data-svg-wrapper style="position: relative">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 10.2666L4 6.26665L4.93333 5.33331L8 8.39998L11.0667 5.33331L12 6.26665L8 10.2666Z"
+              fill="#404040" />
+          </svg>
+        </div>
+      </div>
+      <div class="cute-text nav-2" style="justify-content: flex-start; align-items: center">
+        <div
+          style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+          Зах Зээл</div>
+        <div data-svg-wrapper style="position: relative">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 10.2666L4 6.26665L4.93333 5.33331L8 8.39998L11.0667 5.33331L12 6.26665L8 10.2666Z"
+              fill="#404040" />
+          </svg>
+        </div>
+      </div>
+      <div class="cute-text nav-3" style="justify-content: flex-start; align-items: center">
+        <div
+          style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+          Платформ</div>
+        <div data-svg-wrapper style="position: relative">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 10.2666L4 6.26665L4.93333 5.33331L8 8.39998L11.0667 5.33331L12 6.26665L8 10.2666Z"
+              fill="#404040" />
+          </svg>
+        </div>
+      </div>
+      <div class="cute-text nav-4" style="justify-content: flex-start; align-items: center">
+        <div
+          style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+          Урамшуулал</div>
+        <div data-svg-wrapper style="position: relative">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 10.2666L4 6.26665L4.93333 5.33331L8 8.39998L11.0667 5.33331L12 6.26665L8 10.2666Z"
+              fill="#404040" />
+          </svg>
+        </div>
+      </div>
+      <div class="cute-text nav-5" style="justify-content: flex-start; align-items: center">
+        <div
+          style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+          IB Хөтөлбөр</div>
+      </div>
+      <div class="cute-text nav-6" style="justify-content: flex-start; align-items: center">
+        <div
+          style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+          Бидний тухай</div>
+      </div>
+      <div class="cute-text nav-7"
+        style="width: 144px; height: 34px; background: #00FFED; border-radius: 5px; justify-content: center; align-items: center">
+        <div
+          style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+          Асуулт хариулт</div>
+      </div>
+    </div>
+    <div class="nav-8" style="justify-content: flex-end; align-items: center">
+      <div class="cute-text" style="height: 50px; justify-content: center; align-items: center; display: flex;">
+        <div
+          style="align-self: stretch; padding-left: 10px; padding-right: 10px; padding-top: 13px; padding-bottom: 13px; overflow: hidden; border-radius: 50px; justify-content: center; align-items: center; gap: 6px; display: flex">
+          <div data-svg-wrapper style="position: relative">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M17.2166 19.3323C15.9349 17.9008 14.0727 17 12 17C9.92734 17 8.06492 17.9008 6.7832 19.3323M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21ZM12 14C10.3431 14 9 12.6569 9 11C9 9.34315 10.3431 8 12 8C13.6569 8 15 9.34315 15 11C15 12.6569 13.6569 14 12 14Z"
+                stroke="#434343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div
+            style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+            Бүртгүүлэх</div>
+        </div>
+      </div>
+      <div class="nav-9" style="height: 50px; justify-content: center; align-items: center">
+        <div class="cute-text"
+          style="align-self: stretch; padding-left: 10px; padding-right: 10px; padding-top: 13px; padding-bottom: 13px; overflow: hidden; border-radius: 50px; justify-content: center; align-items: center; gap: 6px; display: flex">
+          <div data-svg-wrapper style="position: relative">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M13 15L16 12M16 12L13 9M16 12H8M21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12Z"
+                stroke="var(--Labels---Vibrant---Controls-Primary--, #404040)" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div
+            style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+            Нэвтрэх</div>
+        </div>
+      </div>
+      <div class="nav-10" style="width: 30px; height: 30px; justify-content: center; align-items: center; gap: 16px">
+        <div
+          style="width: 30px; align-self: stretch; background: var(--Background-Grey, #F6F6F6); overflow: hidden; border-radius: 50px; justify-content: center; align-items: center; display: flex">
+          <div data-svg-wrapper style="position: relative">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M15 9.99981L11 13.9998L8.99995 11.9998M13.246 3.45879L14.467 4.49929C14.7746 4.76143 15.1566 4.91991 15.5594 4.95206L17.1585 5.0795C18.0986 5.15452 18.8453 5.9008 18.9204 6.84093L19.0475 8.44024C19.0797 8.8431 19.2387 9.22559 19.5008 9.53319L20.5409 10.7538C21.1526 11.4716 21.1527 12.5275 20.541 13.2454L19.5009 14.4662C19.2388 14.7738 19.08 15.1564 19.0478 15.5593L18.9199 17.1583C18.8449 18.0984 18.0993 18.8452 17.1591 18.9202L15.5595 19.0478C15.1567 19.08 14.7744 19.2381 14.4667 19.5002L13.246 20.5407C12.5282 21.1525 11.4717 21.1526 10.7539 20.5409L9.53316 19.5003C9.22555 19.2382 8.84325 19.0798 8.44038 19.0477L6.84077 18.9202C5.90064 18.8452 5.15505 18.0986 5.08003 17.1585L4.9521 15.5594C4.91995 15.1565 4.76111 14.7742 4.49898 14.4666L3.45894 13.2454C2.84721 12.5276 2.84693 11.472 3.45865 10.7542L4.49963 9.53301C4.76176 9.22541 4.91908 8.84311 4.95122 8.44024L5.07915 6.84112C5.15417 5.90099 5.90192 5.15442 6.84205 5.0794L8.43989 4.95196C8.84276 4.91981 9.22525 4.76146 9.53285 4.49932L10.754 3.45879C11.4718 2.84707 12.5282 2.84707 13.246 3.45879Z"
+                stroke="#434343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a style="color: #434343;" href="javascript:void(0);" onclick="navbarShowMenu()" class="menu"><i
+        class="fa fa-bars"></i></a>
+  </div>
+  <div class="mobile-nav">
+    <!-- <a href="javascript:void(0);" onclick="navbarShowMenu()" class="close-menu"><i class="fa fa-close"></i></a> -->
+    <ul>
+      <li class="mobile-nav-1">
+        <a href="#">Арилжаа</a>
+        <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 10.2666L4 6.26665L4.93333 5.33331L8 8.39998L11.0667 5.33331L12 6.26665L8 10.2666Z"
+            fill="#404040" />
+        </svg>
+      </li>
+      <li class="mobile-nav-2">
+        <a href="#">Зах Зээл</a>
+        <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 10.2666L4 6.26665L4.93333 5.33331L8 8.39998L11.0667 5.33331L12 6.26665L8 10.2666Z"
+            fill="#404040" />
+        </svg>
+      </li>
+      <li class="mobile-nav-3">
+        <a href="#">Платформ</a>
+        <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 10.2666L4 6.26665L4.93333 5.33331L8 8.39998L11.0667 5.33331L12 6.26665L8 10.2666Z"
+            fill="#404040" />
+        </svg>
+      </li>
+      <li class="mobile-nav-4">
+        <a href="#">Урамшуулал</a>
+        <svg width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 10.2666L4 6.26665L4.93333 5.33331L8 8.39998L11.0667 5.33331L12 6.26665L8 10.2666Z"
+            fill="#404040" />
+        </svg>
+      </li>
+      <li class="mobile-nav-5"><a href="index.html">IB Хөтөлбөр</a></li>
+      <li class="mobile-nav-6"><a href="index.html">Бидний тухай</a></li>
+      <li><a href="index.html">Холбоо барих</a></li>
+      <div
+        style="border-top: 1px var(--Line-Grey, #E1E6EA) solid; border-bottom: 1px var(--Line-Grey, #E1E6EA) solid; align-items: start; justify-content: start; display: flex; padding-left: 14px; padding-top: 10px; padding-bottom: 10px;">
+        <div style="flex-direction: row; display: flex;">
+          <div style="width: 40px; height: 40px; position: relative ">
+            <div data-svg-wrapper style="left: 0px; top: 0px; position: absolute">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20Z"
+                  fill="#00FFED" />
+              </svg>
+            </div>
+            <div data-svg-wrapper style="left: 11.25px; top: 10px; position: absolute">
+              <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_8_30651)">
+                  <path
+                    d="M10.7188 3.12499H13.0625C13.2782 3.12499 13.4532 2.95009 13.4532 2.73435V0.390601C13.4532 0.174902 13.2782 0 13.0625 0H10.7188C8.34674 0.0026001 6.42446 1.92484 6.4219 4.29686V7.03125H3.68751C3.47178 7.03125 3.29688 7.20615 3.29688 7.42189V9.76564C3.29688 9.98137 3.47178 10.1563 3.68751 10.1563H6.4219V18.3594C6.4219 18.5751 6.5968 18.75 6.81254 18.75H9.15629C9.37202 18.75 9.54693 18.5751 9.54693 18.3594V10.1563H12.2813C12.4494 10.1562 12.5985 10.0485 12.6516 9.88909L13.4329 7.54534C13.5011 7.34066 13.3904 7.11947 13.1857 7.05128C13.146 7.03806 13.1044 7.03129 13.0626 7.03125H9.54693V4.29686C9.54689 3.64966 10.0716 3.12499 10.7188 3.12499Z"
+                    fill="var(--White, white)" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_8_30651">
+                    <rect width="18.75" height="18.75" fill="var(--White, white)" transform="translate(0.25)" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </div>
+          </div>
+          <div style="margin-left: 20px; width: 40px; height: 40px; position: relative">
+            <div data-svg-wrapper style="left: 0px; top: 0px; position: absolute">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20Z"
+                  fill="#00FFED" />
+              </svg>
+            </div>
+            <div data-svg-wrapper style="left: 8.75px; top: 8.75px; position: absolute">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M21.375 6.18757C20.6703 6.49329 19.9251 6.69538 19.1625 6.78757C19.967 6.30694 20.5699 5.55081 20.8594 4.65945C20.1033 5.10951 19.2757 5.4266 18.4125 5.59695C17.8355 4.97124 17.0672 4.55473 16.2279 4.41275C15.3887 4.27077 14.5261 4.41135 13.7754 4.81244C13.0247 5.21353 12.4284 5.85245 12.0799 6.62898C11.7315 7.40552 11.6506 8.27575 11.85 9.1032C10.3213 9.02588 8.82604 8.62784 7.46124 7.93494C6.09644 7.24205 4.89267 6.26979 3.92813 5.08132C3.58982 5.67211 3.41205 6.34116 3.4125 7.02195C3.4113 7.65418 3.56645 8.2769 3.86415 8.83467C4.16184 9.39243 4.59283 9.86793 5.11875 10.2188C4.50748 10.2022 3.90927 10.0382 3.375 9.7407V9.78757C3.37958 10.6734 3.68999 11.5305 4.25373 12.2138C4.81747 12.8971 5.59993 13.3647 6.46875 13.5376C6.1343 13.6394 5.78707 13.693 5.4375 13.6969C5.19552 13.6941 4.95415 13.6722 4.71563 13.6313C4.96304 14.3933 5.44183 15.0593 6.08538 15.5365C6.72893 16.0137 7.50523 16.2784 8.30625 16.2938C6.95363 17.3581 5.28364 17.939 3.5625 17.9438C3.24913 17.9449 2.936 17.9261 2.625 17.8876C4.38228 19.0222 6.43014 19.6245 8.52187 19.6219C9.96534 19.6369 11.3973 19.3642 12.7342 18.8195C14.071 18.2749 15.286 17.4693 16.308 16.4499C17.33 15.4305 18.1387 14.2176 18.6868 12.8822C19.2348 11.5467 19.5113 10.1154 19.5 8.67195C19.5 8.51257 19.5 8.34382 19.5 8.17507C20.2357 7.62646 20.8701 6.95391 21.375 6.18757Z"
+                  fill="var(--White, white)" />
+              </svg>
+            </div>
+          </div>
+          <div data-svg-wrapper style="margin-left: 20px; position: relative">
+            <svg width="40" height="41" viewBox="0 0 40 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20Z"
+                fill="#00FFED" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M8.75 11.6298C8.75 11.1312 8.94805 10.6531 9.30057 10.3006C9.6531 9.94805 10.1312 9.75 10.6298 9.75H29.3682C29.6152 9.7496 29.86 9.79793 30.0883 9.89223C30.3167 9.98653 30.5242 10.1249 30.699 10.2996C30.8738 10.4742 31.0124 10.6815 31.107 10.9098C31.2015 11.138 31.2501 11.3827 31.25 11.6298V30.3682C31.2503 30.6153 31.2018 30.86 31.1074 31.0884C31.013 31.3168 30.8745 31.5243 30.6998 31.6991C30.5251 31.8738 30.3177 32.0125 30.0893 32.107C29.861 32.2015 29.6163 32.2501 29.3692 32.25H10.6298C10.3828 32.25 10.1383 32.2013 9.91018 32.1068C9.68205 32.0123 9.47478 31.8737 9.30021 31.6991C9.12564 31.5244 8.9872 31.3171 8.8928 31.0889C8.79839 30.8607 8.74987 30.6161 8.75 30.3692V11.6298ZM17.6559 18.3286H20.7026V19.8586C21.1424 18.9791 22.2674 18.1875 23.958 18.1875C27.199 18.1875 27.967 19.9394 27.967 23.1539V29.1082H24.6872V23.8861C24.6872 22.0555 24.2474 21.0225 23.1306 21.0225C21.5811 21.0225 20.9368 22.1363 20.9368 23.8861V29.1082H17.6559V18.3286ZM12.0309 28.9681H15.3118V18.1875H12.0309V28.967V28.9681ZM15.7812 14.6714C15.7874 14.9523 15.7374 15.2316 15.6342 15.4929C15.531 15.7543 15.3766 15.9924 15.1801 16.1932C14.9836 16.3941 14.749 16.5537 14.49 16.6626C14.231 16.7716 13.9529 16.8277 13.6719 16.8277C13.3909 16.8277 13.1127 16.7716 12.8537 16.6626C12.5947 16.5537 12.3601 16.3941 12.1636 16.1932C11.9671 15.9924 11.8128 15.7543 11.7095 15.4929C11.6063 15.2316 11.5563 14.9523 11.5625 14.6714C11.5746 14.12 11.8022 13.5952 12.1965 13.2096C12.5907 12.8239 13.1203 12.6079 13.6719 12.6079C14.2234 12.6079 14.753 12.8239 15.1473 13.2096C15.5415 13.5952 15.7691 14.12 15.7812 14.6714Z"
+                fill="var(--White, white)" />
+            </svg>
+          </div>
+          <div data-svg-wrapper style="position: relative; margin-left: 20px;">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20Z"
+                fill="#00FFED" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M20.0017 9.3335C17.1047 9.3335 16.7412 9.34616 15.6034 9.39794C14.4678 9.44994 13.6927 9.62972 13.0145 9.8935C12.3129 10.1659 11.7178 10.5304 11.1249 11.1235C10.5316 11.7164 10.1671 12.3115 9.89377 13.0129C9.62932 13.6913 9.44932 14.4667 9.39821 15.6018C9.34732 16.7396 9.33398 17.1034 9.33398 20.0003C9.33398 22.8972 9.34687 23.2596 9.39843 24.3974C9.45065 25.533 9.63043 26.3081 9.89399 26.9863C10.1667 27.6879 10.5311 28.283 11.1242 28.8759C11.7169 29.4693 12.312 29.8346 13.0131 30.107C13.6918 30.3708 14.4671 30.5506 15.6025 30.6026C16.7403 30.6544 17.1036 30.667 20.0003 30.667C22.8975 30.667 23.2599 30.6544 24.3977 30.6026C25.5333 30.5506 26.3093 30.3708 26.9879 30.107C27.6893 29.8346 28.2835 29.4693 28.8762 28.8759C29.4695 28.283 29.834 27.6879 30.1073 26.9866C30.3695 26.3081 30.5495 25.5328 30.6029 24.3977C30.654 23.2599 30.6673 22.8972 30.6673 20.0003C30.6673 17.1034 30.654 16.7398 30.6029 15.602C30.5495 14.4664 30.3695 13.6913 30.1073 13.0131C29.834 12.3115 29.4695 11.7164 28.8762 11.1235C28.2828 10.5302 27.6895 10.1657 26.9873 9.8935C26.3073 9.62972 25.5317 9.44994 24.3961 9.39794C23.2584 9.34616 22.8961 9.3335 19.9983 9.3335H20.0017ZM19.0447 11.2557C19.3287 11.2553 19.6456 11.2557 20.0016 11.2557C22.8496 11.2557 23.1872 11.2659 24.3119 11.317C25.3519 11.3646 25.9163 11.5384 26.2923 11.6844C26.7901 11.8777 27.145 12.1088 27.5181 12.4822C27.8915 12.8555 28.1226 13.2111 28.3164 13.7088C28.4624 14.0844 28.6364 14.6489 28.6837 15.6889C28.7348 16.8133 28.7459 17.1511 28.7459 19.9978C28.7459 22.8445 28.7348 23.1823 28.6837 24.3067C28.6361 25.3467 28.4624 25.9112 28.3164 26.2868C28.123 26.7845 27.8915 27.139 27.5181 27.5121C27.1448 27.8854 26.7903 28.1166 26.2923 28.3099C25.9168 28.4566 25.3519 28.6299 24.3119 28.6774C23.1874 28.7286 22.8496 28.7397 20.0016 28.7397C17.1534 28.7397 16.8158 28.7286 15.6913 28.6774C14.6513 28.6294 14.0869 28.4557 13.7107 28.3097C13.2129 28.1163 12.8573 27.8852 12.484 27.5119C12.1106 27.1385 11.8795 26.7839 11.6857 26.2859C11.5397 25.9103 11.3657 25.3459 11.3184 24.3058C11.2673 23.1814 11.2571 22.8436 11.2571 19.9951C11.2571 17.1467 11.2673 16.8107 11.3184 15.6862C11.366 14.6462 11.5397 14.0817 11.6857 13.7057C11.8791 13.208 12.1106 12.8524 12.484 12.4791C12.8573 12.1057 13.2129 11.8746 13.7107 11.6808C14.0867 11.5342 14.6513 11.3608 15.6913 11.313C16.6753 11.2686 17.0567 11.2553 19.0447 11.253V11.2557ZM25.6954 13.0268C24.9888 13.0268 24.4154 13.5995 24.4154 14.3064C24.4154 15.0131 24.9888 15.5864 25.6954 15.5864C26.4021 15.5864 26.9755 15.0131 26.9755 14.3064C26.9755 13.5997 26.4021 13.0268 25.6954 13.0268ZM20.0017 14.5224C16.9765 14.5224 14.5238 16.9751 14.5238 20.0002C14.5238 23.0254 16.9765 25.477 20.0017 25.477C23.0268 25.477 25.4786 23.0254 25.4786 20.0002C25.4786 16.9751 23.0268 14.5224 20.0017 14.5224ZM20.0016 16.4447C21.9652 16.4447 23.5572 18.0364 23.5572 20.0002C23.5572 21.9638 21.9652 23.5558 20.0016 23.5558C18.0378 23.5558 16.446 21.9638 16.446 20.0002C16.446 18.0364 18.0378 16.4447 20.0016 16.4447Z"
+                fill="var(--White, white)" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      <li><a href="index.html">Terms and Conditions</a></li>
+      <li><a href="index.html">Policy Privacy</a></li>
+      <div
+        style="border-top: 1px var(--Line-Grey, #E1E6EA) solid; align-items: start; justify-content: start; display: flex; padding-left: 5px;  padding-top: 5px; padding-bottom: 5px;">
+        <div class="cute-text"
+          style="margin-right: 10px; height: 50px; justify-content: center; align-items: center; display: flex;">
+          <div
+            style="align-self: stretch; padding-left: 10px; padding-right: 10px; padding-top: 13px; padding-bottom: 13px; overflow: hidden; border-radius: 50px; justify-content: center; align-items: center; gap: 6px; display: flex">
+            <div data-svg-wrapper style="position: relative">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M17.2166 19.3323C15.9349 17.9008 14.0727 17 12 17C9.92734 17 8.06492 17.9008 6.7832 19.3323M12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21ZM12 14C10.3431 14 9 12.6569 9 11C9 9.34315 10.3431 8 12 8C13.6569 8 15 9.34315 15 11C15 12.6569 13.6569 14 12 14Z"
+                  stroke="#434343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div
+              style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+              Бүртгүүлэх</div>
+          </div>
+        </div>
+        <div style="margin-left: 10px; height: 50px; justify-content: center; align-items: center">
+          <div class="cute-text"
+            style="align-self: stretch; padding-left: 10px; padding-right: 10px; padding-top: 13px; padding-bottom: 13px; overflow: hidden; border-radius: 50px; justify-content: center; align-items: center; gap: 6px; display: flex">
+            <div data-svg-wrapper style="position: relative">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M13 15L16 12M16 12L13 9M16 12H8M21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12Z"
+                  stroke="var(--Labels---Vibrant---Controls-Primary--, #404040)" stroke-width="1.5"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div
+              style="color: #434343; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 16px; word-wrap: break-word">
+              Нэвтрэх</div>
+          </div>
+        </div>
+    </ul>
+  </div>
+  <!-- Nav bar end -->
+  <!-- Banner -->
+  <div class="banner">
+    <img class="banner-image" src="images/banner.png">
+    <div class="banner-detail stagger-section stagger-self">
+      <div class="banner-main-text">
+        Global reach, local support
+      </div>
+
+      <div class="banner-image-container">
+        <img src="images/Dashboard.png" alt="Dashboard">
+      </div>
+
+      <div class="banner-desc-text">
+        Our cutting-edge trading engine processes <br />thousands of orders per second.
+      </div>
+
+      <div class="banner-btn-container">
+        <div data-property-1="Default" class="banner-btn-primary cute-text">
+          <div class="banner-btn-primary-text">Join Now</div>
+        </div>
+        <div data-property-1="Variant2" class="banner-btn-secondary cute-text">
+          <div class="banner-btn-secondary-text">Notify Me</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Banner end -->
+  <!-- Market watch -->
+  <div class="market-watch stagger-section stagger-self">
+    <div class="watch-container">
+      <div class="watch-left">
+        <div class="watch-image-container">
+          <img src="images/names.png" alt="names">
+        </div>
+      </div>
+      <div class="cute-text watch-text-container">
+        <div class="watch-text">Дэлгэрэнгүй үзэх</div>
+      </div>
+    </div>
+    <div class="market-watch-wrapper">
+      <div
+        style="align-self: stretch; overflow: hidden; justify-content: space-between; align-items: flex-start; display: inline-flex">
+        <div class="market-watch-column"
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; display: inline-flex">
+          <div
+            style="align-self: stretch; height: 41px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: flex-start; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+              Symbol</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: flex-start; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 18px; font-family: GIP; font-weight: 600; line-height: 18px; word-wrap: break-word">
+              XAUUSD</div>
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              Gold</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: flex-start; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 18px; font-family: GIP; font-weight: 600; line-height: 18px; word-wrap: break-word">
+              NVDA</div>
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              Nvidia Co</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: flex-start; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 18px; font-family: GIP; font-weight: 600; line-height: 18px; word-wrap: break-word">
+              AMZN</div>
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              Amazon.com</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: flex-start; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 18px; font-family: GIP; font-weight: 600; line-height: 18px; word-wrap: break-word">
+              AAPL</div>
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              Apple Inc</div>
+          </div>
+        </div>
+        <div class="market-watch-column2"
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; display: inline-flex">
+          <div
+            style="align-self: stretch; height: 41px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; justify-content: center; align-items: center; display: inline-flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+              Ask</div>
+            <div data-svg-wrapper style="position: relative">
+              <svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.91683 8.125L6.75016 10.2917L4.5835 8.125M4.5835 4.87499L6.75016 2.70833L8.91683 4.87499"
+                  stroke="#404040" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $4,026.53</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $205.15</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $222.86</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $271.40</div>
+          </div>
+        </div>
+        <div class="market-watch-column2"
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; display: inline-flex">
+          <div
+            style="align-self: stretch; height: 41px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; justify-content: center; align-items: center; display: inline-flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+              Bid</div>
+            <div data-svg-wrapper style="position: relative">
+              <svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.16683 8.125L7.00016 10.2917L4.8335 8.125M4.8335 4.87499L7.00016 2.70833L9.16683 4.87499"
+                  stroke="#404040" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $4,026.09</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $204.42</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $212.48</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $267.52</div>
+          </div>
+        </div>
+        <div class="market-watch-column2"
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; display: inline-flex">
+          <div
+            style="align-self: stretch; height: 41px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; justify-content: center; align-items: center; display: inline-flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+              Spread</div>
+            <div data-svg-wrapper style="position: relative">
+              <svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8.91659 8.125L6.74992 10.2917L4.58325 8.125M4.58325 4.87499L6.74992 2.70833L8.91659 4.87499"
+                  stroke="#404040" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $4114.09</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $216.05</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $242.54</div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 600; line-height: 14px; word-wrap: break-word">
+              $289.52</div>
+          </div>
+        </div>
+        <div class="market-watch-column2"
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; display: inline-flex">
+          <div
+            style="align-self: stretch; height: 41px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; justify-content: center; align-items: center; display: inline-flex">
+            <div
+              style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+              Action</div>
+            <div data-svg-wrapper style="position: relative">
+              <svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9.16659 8.125L6.99992 10.2917L4.83325 8.125M4.83325 4.87499L6.99992 2.70833L9.16659 4.87499"
+                  stroke="#404040" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div class="cute-text"
+              style="padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px; background: #00FFED; overflow: hidden; border-radius: 5px; justify-content: center; align-items: center; gap: 10px; display: inline-flex">
+              <div
+                style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+                Trade now</div>
+            </div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div class="cute-text"
+              style="padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px; background: #00FFED; overflow: hidden; border-radius: 5px; justify-content: center; align-items: center; gap: 10px; display: inline-flex">
+              <div
+                style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+                Trade now</div>
+            </div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div class="cute-text"
+              style="padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px; background: #00FFED; overflow: hidden; border-radius: 5px; justify-content: center; align-items: center; gap: 10px; display: inline-flex">
+              <div
+                style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+                Trade now</div>
+            </div>
+          </div>
+          <div
+            style="align-self: stretch; height: 59px; padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; background: white; overflow: hidden; outline: 0.20px rgba(0, 0, 0, 0.10) solid; outline-offset: -0.20px; flex-direction: column; justify-content: space-between; align-items: center; display: flex">
+            <div class="cute-text"
+              style="padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px; background: #00FFED; overflow: hidden; border-radius: 5px; justify-content: center; align-items: center; gap: 10px; display: inline-flex">
+              <div
+                style="justify-content: center; display: flex; flex-direction: column; color: black; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+                Trade now</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Market watch end -->
+  <!-- Promotion bonus -->
+  <div class="promotion stagger-section stagger-self">
+    <div class="promotion-container">
+      <div class="promotion-left">
+        <img src="images/promotion.png" alt="Promotion">
+        <div>
+          <span class="promotion-text">Switch to Vantage and claim up to </span>
+          <span class="promotion-highlight">$700</span>
+          <span class="promotion-text"> in cash bonuses.*</span>
+        </div>
+      </div>
+
+      <div class="cute-text promotion-right">
+        <div>Дэлгэрэнгүй үзэх</div>
+      </div>
+    </div>
+    <div class="promotion-content">
+      <div class="promo-card" role="article" aria-label="Copy Trade - Growth Shield">
+        <div class="content">
+          <div>
+            <div class="promo-subtitle">Growth Shield</div>
+            <div class="promo-title">Copy Trade</div>
+          </div>
+
+          <div class="cute-text cute-text2">Start Trading Now</div>
+        </div>
+        <img class="promo-image" src="images/logo-clay.png" alt="logo">
+      </div>
+
+      <div class="promo-card" role="article" aria-label="5X Deposit - Promotion">
+        <div class="content">
+          <div>
+            <div class="promo-subtitle">Promotion</div>
+            <div class="promo-title">5X Deposit</div>
+          </div>
+
+          <div class="cute-text cute-text2">Start Trading Now</div>
+        </div>
+        <img class="promo-image" src="images/logo-clay.png" alt="logo">
+      </div>
+
+      <div class="promo-card" role="article" aria-label="Copy Trade - Growth Shield 2">
+        <div class="content">
+          <div>
+            <div class="promo-subtitle">Growth Shield</div>
+            <div class="promo-title">Copy Trade</div>
+          </div>
+
+          <div class="cute-text cute-text2">Start Trading Now</div>
+        </div>
+        <img class="promo-image" src="images/logo-clay.png" alt="logo">
+      </div>
+
+      <div class="promo-card" role="article" aria-label="Copy Trade - Growth Shield 3">
+        <div class="content">
+          <div>
+            <div class="promo-subtitle">Growth Shield</div>
+            <div class="promo-title">Copy Trade</div>
+          </div>
+
+          <div class="cute-text cute-text2">Start Trading Now</div>
+        </div>
+        <img class="promo-image" src="images/logo-clay.png" alt="logo">
+      </div>
+    </div>
+  </div>
+  <!-- Promotion bonus end -->
+  <!-- See our spreads -->
+  <div class="spreads stagger-section stagger-self">
+    <div class="spreads-container">
+      <div class="spreads-left">
+        <img src="images/see.png" alt="See">
+        <div>
+          <span class="spreads-text">Switch to Vantage and claim up to </span>
+          <span class="spreads-highlight">$700</span>
+          <span class="spreads-text"> in cash bonuses.*</span>
+        </div>
+      </div>
+    </div>
+    <div class="spreads-content">
+
+      <!-- Row 1 -->
+      <div class="spread-row">
+        <div class="spread-column">
+          <div class="top-bar"></div>
+          <div class="cell">
+            <div class="text-main">Symbol</div>
+            <div class="text-sub">Market</div>
+          </div>
+          <div class="cell">
+            <div class="text-main">XAUUSD</div>
+            <div class="text-sub">Gold</div>
+          </div>
+          <div class="cell">
+            <div class="text-main">NVDA</div>
+            <div class="text-sub">Nvidia Co</div>
+          </div>
+          <div class="cell">
+            <div class="text-main">AMZN</div>
+            <div class="text-sub">Amazon.com</div>
+          </div>
+          <div class="cell">
+            <div class="text-main">AAPL</div>
+            <div class="text-sub">Apple Inc</div>
+          </div>
+        </div>
+
+        <div class="spread-column">
+          <div class="top-bar green"></div>
+          <div class="cell gray center">
+            <img class="img-main" src="images/treno-small.png">
+          </div>
+          <div class="cell gray center">
+            <div class="text-main">0.75</div>
+          </div>
+          <div class="cell gray center">
+            <div class="text-main">0.52</div>
+          </div>
+          <div class="cell gray center">
+            <div class="text-main">0.24</div>
+          </div>
+          <div class="cell gray center">
+            <div class="text-main">0.64</div>
+          </div>
+        </div>
+
+        <div class="spread-column">
+          <div class="top-bar grey"></div>
+          <div class="cell shadow center">
+            <div class="text-top">Market Average</div>
+          </div>
+          <div class="cell center">
+            <div class="text-main">0.89</div>
+          </div>
+          <div class="cell center">
+            <div class="text-main">0.64</div>
+          </div>
+          <div class="cell center">
+            <div class="text-main">0.34</div>
+          </div>
+          <div class="cell center">
+            <div class="text-main">0.72</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+  <!-- See our spreads end -->
+  <!-- Trading accounts -->
+  <div class="trading stagger-section stagger-self">
+    <img class="trading-img" src="images/trade.png">
+    <div class="trading-content">
+      <div class="trading-1"
+        style="background: linear-gradient(130deg, #00D9FF 0%, #313131 44%); overflow: hidden; border-radius: 20px; flex-direction: column; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: column"><span
+              style="color: white; font-size: 32px; font-family: GIP; font-weight: 500; text-transform: capitalize; line-height: 38.40px; word-wrap: break-word">
+            </span><img src="images/pro.png"></div>
+        </div>
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            High Volume Trades</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 24px; font-family: GIP; font-weight: 500; line-height: 24px; word-wrap: break-word">
+            0.0 Pip</div>
+        </div>
+        <img style="width: 96px; height: 93px"
+          src="data:image/png;base64,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" />
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            Minimum Deposit</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+            $10,000</div>
+        </div>
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            Commission</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+            From $1.50</div>
+        </div>
+        <div class="trading-content-1-2"
+          style="text-align: center; justify-content: center; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+          Account Base Currencies</div>
+        <div class="trading-content-1-2"
+          style="overflow: hidden; justify-content: flex-start; align-items: flex-start; gap: 8px">
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+        </div>
+        <div class="cute-text"
+          style="width: 204px; height: 43px; padding-left: 10px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; background: rgba(255, 255, 255, 0.22); overflow: hidden; border-radius: 33px; outline: 0.40px rgba(149.57, 198.77, 255, 0.25) solid; outline-offset: -0.40px; justify-content: center; align-items: center; gap: 10px; display: inline-flex">
+          <div
+            style="width: 148px; height: 14px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #E0F9FF; font-size: 20px; font-family: GIP; font-weight: 500; line-height: 20px; word-wrap: break-word">
+            Try now</div>
+        </div>
+      </div>
+      <div class="trading-1"
+        style="background: linear-gradient(360deg, #00D9FF 0.1%, #313131 10%); overflow: hidden; border-radius: 20px; flex-direction: column; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
+        <div class="trading-content-1"
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: column"><span
+              style="color: white; font-size: 32px; font-family: GIP; font-weight: 500; text-transform: capitalize; line-height: 38.40px; word-wrap: break-word">
+            </span><img src="images/pro.png"></div>
+        </div>
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            Razor sharp spreads</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 24px; font-family: GIP; font-weight: 500; line-height: 24px; word-wrap: break-word">
+            0.0 Pip</div>
+        </div>
+        <img style="width: 96px; height: 93px"
+          src="data:image/png;base64,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" />
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            Minimum Deposit</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+            $10,000</div>
+        </div>
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            Commission</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+            From $1.50</div>
+        </div>
+        <div class="trading-content-1-2"
+          style="text-align: center; justify-content: center; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+          Account Base Currencies</div>
+        <div class="trading-content-1-2"
+          style="overflow: hidden; justify-content: flex-start; align-items: flex-start; gap: 8px">
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+        </div>
+        <div class="cute-text"
+          style="margin-bottom: 24px; width: 204px; height: 43px; padding-left: 10px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; background: rgba(255, 255, 255, 0.22); overflow: hidden; border-radius: 33px; outline: 0.40px rgba(149.57, 198.77, 255, 0.25) solid; outline-offset: -0.40px; justify-content: center; align-items: center; gap: 10px; display: inline-flex">
+          <div
+            style="width: 148px; height: 14px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #E0F9FF; font-size: 20px; font-family: GIP; font-weight: 500; line-height: 20px; word-wrap: break-word">
+            Try now</div>
+        </div>
+      </div>
+      <div class="trading-1"
+        style="background: linear-gradient(230deg, #00D9FF 0%, #313131 44%); overflow: hidden; border-radius: 20px; flex-direction: column; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
+        <div class="trading-content-1"
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: column"><span
+              style="color: white; font-size: 32px; font-family: GIP; font-weight: 500; text-transform: capitalize; line-height: 38.40px; word-wrap: break-word">
+            </span><img src="images/pro.png"></div>
+        </div>
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            No commissions trades</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 24px; font-family: GIP; font-weight: 500; line-height: 24px; word-wrap: break-word">
+            1.1 Pip</div>
+        </div>
+        <img style="width: 96px; height: 93px"
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABdCAYAAABafGNLAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAXLSURBVHgB7ZxbaBxVGMf/s5srjZRWK4oPaaGg4q0gFlr7ohYrCEpFajGCSlWwIF5REbxQpAp5qH0IXkB9ab29WFQUq0VRQQPFS9UgmijReKu2+hCatbuZ4/90ppAu2c3M7reHc+acHxzOZGczO/P9v+87t5kBAoFAIBAIBAKBQCAQCASMEcFjlFL9MfAoS6/+Ex2Gxu4qA7ujKBqd85m/1JTaRAO8CnNUSsAgBTh4/IMSPIXe38WLvwcGUYnYf839zFsBZoENNMhqmKPCVPcUvf+EVOelAPT+Ei/8ARhMwbT6Oz1R9GX95961Adr4NeAyCrAX5lD8vXPp/WP1O3yMgBJ7IvfBIPTyt1n90GCfX1SUWtkNfA+D104vX0/v39dgn1/Q+HfCrON9wfJRo51eCTCj1CCr62EQNr47WcWN9nfBE9j4RrTCvdxcCnOMsb15CU0E8CYCjgCns7oJBqH3D7Oq1ff95+KNAH3AFlYnwRyT9P5dzYyv8UIAph9t+LthlidwbMDdnMILQOPTETHEsgTmOHQ040DPh0a4xBxwO8yyqz+KfsryxcJHAHPAjRTgfJijwgZ/e9YvF1oAnX54gXfBLC8OMAVl/XJbKUj3rWGviDG9fyNP8ByYY7oK7OjNsbrWsgA0/imsBvRmxcI5pb7EMYZ4Yr8rM+enf+M9Gn98oa5n/T/lIvX6Xg7tPmd9FuzlNyqwZgr4u2ZgvXd5YssqjV/L838tRQBD+zr+2tmwGDrIs+Uo+gWW00oE9PDivoLF3s+LOsiygt54BJaTuwFlfF0Eu1PP8RnIKhwglwD6TgIOKx+C3fw6AzxP7y+eAPT+tfSuDbAYXtDTA1H0JxwhswDpnQS3cbMMe9E9kD1wiMwCVJPh/LWwGEbna6zG4BCZBSgnq0m9sJeY5zicZxBkA5m6oUw/S9n11HnV2tlTWv1NCnC1awJkioBaMqFl89T1LB1km2vG1ywYAfT+Jby4r7l5BiyFF/EZy8UUIIZjLBgBvKJbYLHxNYzQ52BgvqcTNI0Aev9iCjDBzZNhLwfoRatcTD+aphFA498Mu42v3X6Hq8bXzBsB6ZSzTqjjrFfAUniSP05ywYWzbhU4SsMI4JTzVbDY+Bo6yPblwH9wmEYRUKYAH3LnOtjLRJr7p+EwjSLgUt2tg92867rxNfNGQFWpK6jMBRBaS+VBLmcreQnk0E8b6gWXP1BU0oa47WOw9M0qNcGipEpNqWfSY3tzd3fL0GBbJY3P8g+rlSgIHb2nJ42irZDlLSSDw0LQ0ftlKMBqdhVHIQg95jzm/m9QEDoSAXr1LO3KPgxB6C0fsPpWon2yhU42YhfSSldCEEbTcJfD0w7z0bE2IE7ewyDmqbT6KBdc9qFgdEqAVSybIMs2ODrl3AzxFKTzf5w8iS7m/TzQ/lLi/bnuu3SBTrQBp7KshyAU9Enmfqcn3RohmoLSZ3H1k+jLIMcUc//rKCiiAvwLLGZ1KwSJk+XGwr7TQlSAAeAOyK6gHWaOHOHAa8HHPV1FTACmn2Ul+WkHfaPVYRQYMQGqwGZWp0GOQ2x1d6PgiPSCjk09AFuEO+kv97MBRsFpOwLSeZmNKlnAkUK/4mvE5bsdsiKRgvpVcuOuGFT0DRr/O3iAhAD6oY01kKNaS6YdvKAtAXT6Yf/wEQhC79/bDRzQ7Qo8oOUBTpr713Kg9DHkBkoxj7eOPYP9rjzj1S5t9YLi5JElyUm3Pd1R9Ck8op0w13dMb4YgFOAFeEbLAqRTzj2Q42eW9+EZLQnA/H8mkucGxGBP6jFWR+EZuQVIF1z0nM8iyDHOKedXfBh41dNKBOjX1AxBEP1iDRp/Bh7SigDXQHDKmQ3vFLtiO9OX63lHrm4ojaTfE/QgBNEPV5c86fPPR2YB0oHXDSyDEIIHnGYZgcfkSUGL6P33QxCVvFd5Eh6TJwXVaLDHIYRO+BXgkz4EAoFAIBAIBAKBQCAQ8If/AbnpMGT9VJV/AAAAAElFTkSuQmCC" />
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            Minimum Deposit</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+            $10,000</div>
+        </div>
+        <div class="trading-content-1"
+          style="overflow: hidden; justify-content: flex-start; align-items: center; gap: 8px; display: flex">
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+            Commission</div>
+          <div
+            style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+            From $1.50</div>
+        </div>
+        <div class="trading-content-1-2"
+          style="text-align: center; justify-content: center; color: #DFDFDF; font-size: 14px; font-family: GIP; font-weight: 500; line-height: 14px; word-wrap: break-word">
+          Account Base Currencies</div>
+        <div class="trading-content-1-2"
+          style="overflow: hidden; justify-content: flex-start; align-items: flex-start; gap: 8px">
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+          <div style="text-align: center; justify-content: center; display: flex; flex-direction: row"><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">$
+              AUD </span><span
+              style="color: #00FFED; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">&nbsp;|&nbsp;</span><span
+              style="color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+              $ USD</span></div>
+        </div>
+        <div class="cute-text"
+          style="width: 204px; height: 43px; padding-left: 10px; padding-right: 10px; padding-top: 5px; padding-bottom: 5px; background: rgba(255, 255, 255, 0.22); overflow: hidden; border-radius: 33px; outline: 0.40px rgba(149.57, 198.77, 255, 0.25) solid; outline-offset: -0.40px; justify-content: center; align-items: center; gap: 10px; display: inline-flex">
+          <div
+            style="width: 148px; height: 14px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #E0F9FF; font-size: 20px; font-family: GIP; font-weight: 500; line-height: 20px; word-wrap: break-word">
+            Try now</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Trading accounts end -->
+  <!-- Profit with Purpose -->
+  <div class="profit stagger-section stagger-self">
+    <img class="profit-logo" src="images/logo_large.png" alt="Logo">
+
+    <div class="profit-title-container">
+      <span class="profit-title-main">Profit with purpose — </span>
+      <div class="profit-title-sub">
+        <span class="profit-sub-green">invest smarter</span>
+        <span class="profit-sub-white">, not harder</span>
+      </div>
+    </div>
+
+    <div class="profit-desc">
+      Ухаалаг шийдвэр, нарийн тооцоолол, баталгаатай технологийн нэгдлээр <br> бид таны хөрөнгийг зүгээр өсгөх бус — үнэ
+      цэнтэй болгож<br>таны амжилтыг тогтвортой ирээдүй рүү чиглүүлдэг.
+    </div>
+
+    <div data-property-1="Variant3" class="cute-text profit-btn">
+      <div class="profit-btn-text">Start Trading Now</div>
+      <svg class="profit-btn-icon" data-svg-wrapper viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21.5 12L16.5 7M21.5 12L16.5 17M21.5 12H3.5" stroke="var(--icon-color, white)" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <div class="profit-card1"
+      style="width: 160px; height: 165px; padding-left: 56px; padding-right: 56px; left: 896px; top: 217px; position: absolute; background: rgba(255, 255, 255, 0.18); overflow: hidden; border-radius: 20px; outline: 0.40px rgba(255, 255, 255, 0.36) solid; outline-offset: -0.40px; flex-direction: column; justify-content: center; align-items: center; gap: 8px; display: inline-flex">
+      <img style="width: 66px; height: 63.94px"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAABBCAYAAABlwHJGAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAOWSURBVHgB7Zo7aBRBHMa/PROjiBhUVERR4yMS8UEsErASVBAERbv4qCxs1PgqgqWkilhYWNgEbSSFMZWCgo/KV5MiYowxktgYU0QUjOjdjd+YCyT33JkbZmeX+cGfye1dbne++f7/mZ09wOPxeDwej0ePADFCCFGfAW7yomtQJYJ9nwf0BEHQh7iREeIcQxiKNJvGme9OISbwouezuQBz9DKGZl7ERgimRBub9TAEO97BtBCzXrsP3VDHunAZhmDvn1OET7OPxUIIumEfm20wBIvktfxjzgtBN9TyIs/AEHTDGzbP8o/HwRHNvPhDMATd0FnsuPNCZIGzMEc/4+HsIjmD00L8FmITm+MwBHt/iyKkESdYGwIueu4YXEANsyk58C47YjXjFMxxnW7IlnpTac1eTlHDCF5xBwzBNch3xv1ynwklBAVYwMRqtZhcdazumynGa5ihLxUEE6iGXK62G8zVMNEtzwsDhP2eih+SCxqOzCD/bIAlmH+NzOchWCRMzh+FRRE4Mg/YDMMyZR0hb305975l7IAlODJNdMN7WKasI3izc8CmCDzXoyhEkKQqvHkJFuFM0YWIKJkaTIu9LJJPYQl5V1gTBC2IiJKOYFpcgV1uIEIKHCHn3b/Abtr0JQzsFodkkCPSzPowhYgocIS8RaUI7bAngkyLrihFkBRzxDrWhg/8sw52GOFobKcQvxAhBY6gCBdhTwTJ7ahFkMxxBN2wPLecXgYL8ORjjBYK8RURk18HAlrkSFrxUSBrynnm+TEowpmplxcwjiRAFy3l3eK4xh3mjynWIzhC1Rst2eldpBVQp2dhEIwiCXBgF3FkP2u4QTZb4BDajshteJyA3vPIe4yPSApZ7gzr7ED9EaIVSYH9OawjAsV7YmobLnJkR9ihVzpCpIU4iKTA/uzR3JQdSJQbOKqPNd3QBkdRHh32p4lrh3dQhCcaZWwo9gDWBZSmz/+1AbgKDfh/na6KIFFyBIXYyg7pbK5+o+KrXBZCyREZzeeRqSI/1YktdMNaTpmTGkVygs1iOE7o7bjs9O+Y6qFON1PiJxwnVI3giC7Jbd+thBoZpkUDhRiD44SqERThNNRFkNxlfEEMCPU0nKV+hLEGilDljXTDCGJAWUfIdQNnipM6IojpW+3EbLzUsur36yynyS7EiEpPw/ez2QlFmG8v2AwgRlT6fYScLmWorgjldDnp8krS4/F4PB5P1fwD1DIK15qqjw0AAAAASUVORK5CYII=" />
+      <div
+        style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+        Live Support</div>
+      <div
+        style="width: 140px; height: 34px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+        Арилжаа хэзээ ч унтдаггүй.</div>
+    </div>
+    <div class="profit-card2"
+      style="width: 160px; height: 165px; padding-left: 56px; padding-right: 56px; left: 1100px; top: 309px; position: absolute; background: rgba(255, 255, 255, 0.18); overflow: hidden; border-radius: 20px; outline: 0.40px rgba(255, 255, 255, 0.36) solid; outline-offset: -0.40px; flex-direction: column; justify-content: center; align-items: center; gap: 8px; display: inline-flex">
+      <img style="width: 66px; height: 63.94px"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAABBCAYAAABlwHJGAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAOWSURBVHgB7Zo7aBRBHMa/PROjiBhUVERR4yMS8UEsErASVBAERbv4qCxs1PgqgqWkilhYWNgEbSSFMZWCgo/KV5MiYowxktgYU0QUjOjdjd+YCyT33JkbZmeX+cGfye1dbne++f7/mZ09wOPxeDwej0ePADFCCFGfAW7yomtQJYJ9nwf0BEHQh7iREeIcQxiKNJvGme9OISbwouezuQBz9DKGZl7ERgimRBub9TAEO97BtBCzXrsP3VDHunAZhmDvn1OET7OPxUIIumEfm20wBIvktfxjzgtBN9TyIs/AEHTDGzbP8o/HwRHNvPhDMATd0FnsuPNCZIGzMEc/4+HsIjmD00L8FmITm+MwBHt/iyKkESdYGwIueu4YXEANsyk58C47YjXjFMxxnW7IlnpTac1eTlHDCF5xBwzBNch3xv1ynwklBAVYwMRqtZhcdazumynGa5ihLxUEE6iGXK62G8zVMNEtzwsDhP2eih+SCxqOzCD/bIAlmH+NzOchWCRMzh+FRRE4Mg/YDMMyZR0hb305975l7IAlODJNdMN7WKasI3izc8CmCDzXoyhEkKQqvHkJFuFM0YWIKJkaTIu9LJJPYQl5V1gTBC2IiJKOYFpcgV1uIEIKHCHn3b/Abtr0JQzsFodkkCPSzPowhYgocIS8RaUI7bAngkyLrihFkBRzxDrWhg/8sw52GOFobKcQvxAhBY6gCBdhTwTJ7ahFkMxxBN2wPLecXgYL8ORjjBYK8RURk18HAlrkSFrxUSBrynnm+TEowpmplxcwjiRAFy3l3eK4xh3mjynWIzhC1Rst2eldpBVQp2dhEIwiCXBgF3FkP2u4QTZb4BDajshteJyA3vPIe4yPSApZ7gzr7ED9EaIVSYH9OawjAsV7YmobLnJkR9ihVzpCpIU4iKTA/uzR3JQdSJQbOKqPNd3QBkdRHh32p4lrh3dQhCcaZWwo9gDWBZSmz/+1AbgKDfh/na6KIFFyBIXYyg7pbK5+o+KrXBZCyREZzeeRqSI/1YktdMNaTpmTGkVygs1iOE7o7bjs9O+Y6qFON1PiJxwnVI3giC7Jbd+thBoZpkUDhRiD44SqERThNNRFkNxlfEEMCPU0nKV+hLEGilDljXTDCGJAWUfIdQNnipM6IojpW+3EbLzUsur36yynyS7EiEpPw/ez2QlFmG8v2AwgRlT6fYScLmWorgjldDnp8krS4/F4PB5P1fwD1DIK15qqjw0AAAAASUVORK5CYII=" />
+      <div
+        style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+        Live Support</div>
+      <div
+        style="width: 140px; height: 34px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+        Арилжаа хэзээ ч унтдаггүй.</div>
+    </div>
+    <div class="profit-card3"
+      style="width: 160px; height: 165px; padding-left: 56px; padding-right: 56px; left: 896px; top: 26px; position: absolute; background: rgba(255, 255, 255, 0.18); box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25); overflow: hidden; border-radius: 20px; outline: 0.40px rgba(255, 255, 255, 0.36) solid; outline-offset: -0.40px; flex-direction: column; justify-content: center; align-items: center; gap: 8px; display: inline-flex">
+      <img style="width: 66px; height: 63.94px"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAABBCAYAAABlwHJGAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAOWSURBVHgB7Zo7aBRBHMa/PROjiBhUVERR4yMS8UEsErASVBAERbv4qCxs1PgqgqWkilhYWNgEbSSFMZWCgo/KV5MiYowxktgYU0QUjOjdjd+YCyT33JkbZmeX+cGfye1dbne++f7/mZ09wOPxeDwej0ePADFCCFGfAW7yomtQJYJ9nwf0BEHQh7iREeIcQxiKNJvGme9OISbwouezuQBz9DKGZl7ERgimRBub9TAEO97BtBCzXrsP3VDHunAZhmDvn1OET7OPxUIIumEfm20wBIvktfxjzgtBN9TyIs/AEHTDGzbP8o/HwRHNvPhDMATd0FnsuPNCZIGzMEc/4+HsIjmD00L8FmITm+MwBHt/iyKkESdYGwIueu4YXEANsyk58C47YjXjFMxxnW7IlnpTac1eTlHDCF5xBwzBNch3xv1ynwklBAVYwMRqtZhcdazumynGa5ihLxUEE6iGXK62G8zVMNEtzwsDhP2eih+SCxqOzCD/bIAlmH+NzOchWCRMzh+FRRE4Mg/YDMMyZR0hb305975l7IAlODJNdMN7WKasI3izc8CmCDzXoyhEkKQqvHkJFuFM0YWIKJkaTIu9LJJPYQl5V1gTBC2IiJKOYFpcgV1uIEIKHCHn3b/Abtr0JQzsFodkkCPSzPowhYgocIS8RaUI7bAngkyLrihFkBRzxDrWhg/8sw52GOFobKcQvxAhBY6gCBdhTwTJ7ahFkMxxBN2wPLecXgYL8ORjjBYK8RURk18HAlrkSFrxUSBrynnm+TEowpmplxcwjiRAFy3l3eK4xh3mjynWIzhC1Rst2eldpBVQp2dhEIwiCXBgF3FkP2u4QTZb4BDajshteJyA3vPIe4yPSApZ7gzr7ED9EaIVSYH9OawjAsV7YmobLnJkR9ihVzpCpIU4iKTA/uzR3JQdSJQbOKqPNd3QBkdRHh32p4lrh3dQhCcaZWwo9gDWBZSmz/+1AbgKDfh/na6KIFFyBIXYyg7pbK5+o+KrXBZCyREZzeeRqSI/1YktdMNaTpmTGkVygs1iOE7o7bjs9O+Y6qFON1PiJxwnVI3giC7Jbd+thBoZpkUDhRiD44SqERThNNRFkNxlfEEMCPU0nKV+hLEGilDljXTDCGJAWUfIdQNnipM6IojpW+3EbLzUsur36yynyS7EiEpPw/ez2QlFmG8v2AwgRlT6fYScLmWorgjldDnp8krS4/F4PB5P1fwD1DIK15qqjw0AAAAASUVORK5CYII=" />
+      <div
+        style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+        Live Support</div>
+      <div
+        style="width: 140px; height: 34px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+        Арилжаа хэзээ ч унтдаггүй.</div>
+    </div>
+    <div class="profit-card4"
+      style="width: 160px; height: 165px; padding-left: 56px; padding-right: 56px; left: 1100px; top: 118px; position: absolute; background: rgba(255, 255, 255, 0.18); overflow: hidden; border-radius: 20px; outline: 0.40px rgba(255, 255, 255, 0.36) solid; outline-offset: -0.40px; flex-direction: column; justify-content: center; align-items: center; gap: 8px; display: inline-flex">
+      <img style="width: 66px; height: 63.94px"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAABBCAYAAABlwHJGAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAOWSURBVHgB7Zo7aBRBHMa/PROjiBhUVERR4yMS8UEsErASVBAERbv4qCxs1PgqgqWkilhYWNgEbSSFMZWCgo/KV5MiYowxktgYU0QUjOjdjd+YCyT33JkbZmeX+cGfye1dbne++f7/mZ09wOPxeDwej0ePADFCCFGfAW7yomtQJYJ9nwf0BEHQh7iREeIcQxiKNJvGme9OISbwouezuQBz9DKGZl7ERgimRBub9TAEO97BtBCzXrsP3VDHunAZhmDvn1OET7OPxUIIumEfm20wBIvktfxjzgtBN9TyIs/AEHTDGzbP8o/HwRHNvPhDMATd0FnsuPNCZIGzMEc/4+HsIjmD00L8FmITm+MwBHt/iyKkESdYGwIueu4YXEANsyk58C47YjXjFMxxnW7IlnpTac1eTlHDCF5xBwzBNch3xv1ynwklBAVYwMRqtZhcdazumynGa5ihLxUEE6iGXK62G8zVMNEtzwsDhP2eih+SCxqOzCD/bIAlmH+NzOchWCRMzh+FRRE4Mg/YDMMyZR0hb305975l7IAlODJNdMN7WKasI3izc8CmCDzXoyhEkKQqvHkJFuFM0YWIKJkaTIu9LJJPYQl5V1gTBC2IiJKOYFpcgV1uIEIKHCHn3b/Abtr0JQzsFodkkCPSzPowhYgocIS8RaUI7bAngkyLrihFkBRzxDrWhg/8sw52GOFobKcQvxAhBY6gCBdhTwTJ7ahFkMxxBN2wPLecXgYL8ORjjBYK8RURk18HAlrkSFrxUSBrynnm+TEowpmplxcwjiRAFy3l3eK4xh3mjynWIzhC1Rst2eldpBVQp2dhEIwiCXBgF3FkP2u4QTZb4BDajshteJyA3vPIe4yPSApZ7gzr7ED9EaIVSYH9OawjAsV7YmobLnJkR9ihVzpCpIU4iKTA/uzR3JQdSJQbOKqPNd3QBkdRHh32p4lrh3dQhCcaZWwo9gDWBZSmz/+1AbgKDfh/na6KIFFyBIXYyg7pbK5+o+KrXBZCyREZzeeRqSI/1YktdMNaTpmTGkVygs1iOE7o7bjs9O+Y6qFON1PiJxwnVI3giC7Jbd+thBoZpkUDhRiD44SqERThNNRFkNxlfEEMCPU0nKV+hLEGilDljXTDCGJAWUfIdQNnipM6IojpW+3EbLzUsur36yynyS7EiEpPw/ez2QlFmG8v2AwgRlT6fYScLmWorgjldDnp8krS4/F4PB5P1fwD1DIK15qqjw0AAAAASUVORK5CYII=" />
+      <div
+        style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+        Live Support</div>
+      <div
+        style="width: 140px; height: 34px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+        Арилжаа хэзээ ч унтдаггүй.</div>
+    </div>
+    <div class="profit-card5"
+      style="width: 160px; height: 165px; padding-left: 56px; padding-right: 56px; left: 1100px; top: -73px; position: absolute; background: rgba(255, 255, 255, 0.18); overflow: hidden; border-radius: 20px; outline: 0.40px rgba(255, 255, 255, 0.36) solid; outline-offset: -0.40px; flex-direction: column; justify-content: center; align-items: center; gap: 8px; display: inline-flex">
+      <img style="width: 66px; height: 63.94px"
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEIAAAAICAYAAABNlyniAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAxSURBVHgB7cuxCQAwDANBa4Psv2SKDKDYCxhcGv7gUSVFw/bJqRwzL7uSpj8AALDHB3v0BwIgBlZKAAAAAElFTkSuQmCC" />
+      <div
+        style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+        Live Support</div>
+      <div
+        style="width: 140px; height: 34px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 12px; font-family: GIP; font-weight: 500; line-height: 12px; word-wrap: break-word">
+        Арилжаа хэзээ ч унтдаггүй.</div>
+    </div>
+  </div>
+  <!-- Profit with Purpose end -->
+  <!-- 24/7 -->
+  <div class="help stagger-section stagger-self">
+    <img class="help-img" src="images/24.png">
+    <div class="help-content">
+      <div class="help-1"
+        style="background: linear-gradient(223deg, #00D9FF 0%, #313131 64%); overflow: hidden; border-radius: 20px; flex-direction: column; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
+        <img
+          src="data:image/png;base64,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" />
+        <div
+          style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+          Асуудал үү? Бид таны талд байна.</div>
+        <div
+          style="width: 234px; height: 54px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+          Бидний дэмжлэгийн баг өдөр бүр таны арилжааг амжилттай байлгахын төлөө ажилладаг.</div>
+      </div>
+      <div class="help-1"
+        style="background: linear-gradient(223deg, #00D9FF 0%, #313131 64%); overflow: hidden; border-radius: 20px; flex-direction: column; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
+        <img
+          src="data:image/png;base64,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" />
+        <div style="text-align: center; justify-content: center; display: flex; flex-direction: column"><span
+            style="color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+            24 / 7 Live Chat Support</span></div>
+        <div
+          style="width: 208px; height: 54px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+          Арилжаа хэзээ ч унтдаггүй. Live chat, и-мэйл, эсвэл FAQ-аар дамжуулан хүссэн үедээ тусламж ав.</div>
+      </div>
+      <div class="help-1"
+        style="background: linear-gradient(223deg, #00D9FF 0%, #313131 64%); overflow: hidden; border-radius: 20px; flex-direction: column; justify-content: center; align-items: center; gap: 20px; display: inline-flex">
+        <img
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHQAAAByCAYAAACCw/U6AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAdDSURBVHgB7Z1riBVlGMf/c866q5U3LBCli62CmGmmIpW6QUSK2cUoIbpoIPWhT30oqA9iBhEUWJGXblBBECZlqNFVMRUqSrOwiNQMKSlaa9221V3P9H93ZnM9ey4zc+Y5c96Z5wez77B7ds6Z+c//eZ95bwdQFEVRFEVRFEVRFEVRFEVRFEVRouNACY3ruleyaD2NRGnJA0cdx9kx8JcqaEgoZosL7OM2GcnzYA7YQFF7+3/RBCUwFDNXAJajMcQ8SDE3szwrUOSgBOZvYCSduQwNAIVbS2eakOsW/V4JynnAYtZRc5A83dw2MWIMqjI15AaEF28orXCXi4ZgDZ15pNQf1KEBYdbRRjGvQ/J0ULTXy/1RHVoFP6w5zDweQGMYYCu3w+X+qA6tjhF0Dn8sRPKcYpb9oinLvUAFrY5Ld97HsgUJw5tqG0PqZ6w/CxVeo1SCIXcir96X3B2FZDnNz9E2xHF2V3qR1qFl8OvOYbyI9yB5McGEbBfF2lftderQClDUiyjoT9wdgmRxKeitbLt9r7ghoRitQ8vgN/MtRfJiGtftpZhbEMCA6tAyUNALaIUD3M5Hwhh3NjnOu0Feq3VoGXx3Ji4m+YXu3Bb0xRpyS0B3jmDoegiNwWvoa6gKhgpaBMXM87nzDoa5CUie4xRoTZh/0JA7mCa682E0BquZ1baH+Qd1aBF05/UsJiF5Ov6p0AhfDhV0MI+hMdg4HPgLIdHHlgGw/pzF7PYLJH9duum0GSwPMeSeCvOPsdWh/d1MsPMm6Wt9Ybhd5TTG59/I7Uf4nysMsXx4imlujIRHNdYGbTDFbytNOlHs5TPKzBbH2Y8I1CRo/5gWhqm3WMyG3axnmNvZA3QhIdjGmOeN1dVMd1bqIqtEHILO5ztvh931samzWnkRf4Xl1Jrl5inm/bA/uVqXBjENNQnK8DSdxU2wmz94HuuQEmoSNOcNzTgXFsM08p0WNoAjJUQKlaavkMUkhtvvYXe4LfBE2ljuiZqENBpRU3RTd66A5XUn3fk+i93VRgHYRFSHXkhBv+XuSNiLcecCivkRUkToOtR/VFkGu8U0d7IZPbcdKSNKUjSm4I0itxkzJPIFWN66VYoodehibuNgMXTnN7kAI+hsJJRDGW6bC43TvRQZCvo8xfwXKSRsyF3ErRUW43gTfd5ASgklKN35BCzH9UYBpOKZsxSBH1t6XLeN6u+A3fzGc7iM4fY4UkqgpMi0DPHOXp2CDOIl9C2VkF6qOtRv5ruGMeoTNMC0gBo4xhOZSnf+iRQTqA51vWGNNotpzmFL2sU0lHXogBU2WunOvehbBMRaunqBWc3AD2l89hxIVYdSzEdht5iGzVkQ01BJ0Bw7fmeyvAWWw5N8BhmhkqAmG7qX5WhYjOMlc19nwZ2GSnWoaeY7xN3xsBiew9xq6xKkibLPoeyGWOp4z2wnnAgDfqvBA57D4mIIwvfYwxP8ChmiWpZrQrJIMxlvmBV8gw0QhIIuygOfMtx2IyMkMoSEN4tZ1XInt2mQ4zvejdPTMlYoKInMPqM7b6aYl0MQHv/JrIlpqPs8Dn9F6LtdwejAA/+e8waAZY66O5QtNvMo5rUQhII+jQhzK9NA3Rzqz1DrX9VS8n3NFPa3s/LcWUw9HWrqs9l0z40QpOAtqn+41GrPWaCegjr+4GzJVS2P9Hp9nlCHymO+SeF2CMKT2ToUOIoMUzdB6Zw7ITux6SR8d2YZ8XrGr8vGMdz+DMFkiPF1U96PAFkNt4a6ZLkFr9dG8r0KFPORLAvZj7hDO1137DB2LkNwLgxV/KDJcRZAka9Dh3l1p+TEJpfuXJnVx5RiRC8CL/LwgrdUzKUQgu78nILOM/sMuT3IOKJ1KK/ukrygmAYe/zkV8gwiDvXH8jb7k4InQgh++P3crtBk6AwidajfbTUXgmIaqOLLKubZSDnUNMLv4sGvhhxmnspkCtoB5X+kstwZFPMqyLJWxRxMrA4d8MVv27hzA4Tgsbu5jUvzLLKoxJ3lNjPdnJL3VoUWg5XmUzkVsyRxh9xe3iGPQ7bBwiy0+CqUksR94cfW4UtTn+V2DEpJYhPUrz9Xoq+1TwyzWNQrSOFyNHERi6C+mGbtvyWQZT23g7B8rqoksQhqHu79LrIxkMO40zyqFLI0Ej4scTl0vOP1qojBuvlDFgegVCSWxxb/i98ugSAUdI0281WnZofSnaPpzuUQxCzl1mT/kjp1oSZBTa8K083baJupkMNkXKvozpNQqlKrQ0fA+xIBMUwHNouPoQSiVkHbHG8dBjEc7/szO6EEInLjvN9FtluyV4XHPsBtPnfbNSEKRiSHGjF72YEt3UVmOrDhTT7SAWABifytEGZgsyu75E0777YJ2ucZjkhrzrOLbJorP4vMLCF+AkooooTcoU1eI7zkiMFOHvxNaJttaEKHXD8ZWsjdURCC7j/mNyS4mgwpiqIoiqIoiqIoiqIoiqIoitLQ/Ae2mOuex2+DFAAAAABJRU5ErkJggg==" />
+        <div
+          style="text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 18px; font-family: GIP; font-weight: 500; line-height: 18px; word-wrap: break-word">
+          Асуудал бүр шийдэлтэй.</div>
+        <div
+          style="width: 302px; height: 54px; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 14px; font-family: GIP; font-weight: 200; line-height: 14px; word-wrap: break-word">
+          Таны асуулт хичнээн төвөгтэй байсан чбид хариулттай. Платформын тухай юу ч бай туслахаас татгалзахгүй.</div>
+      </div>
+    </div>
+  </div>
+  <!-- 24/7 end -->
+  <!-- Trust -->
+  <div class="trust stagger-section stagger-self">
+    <img class="trust-img" src="images/trust.png">
+    <div class="trust-content">
+      <img src="images/binance.png" alt="Binance" />
+      <img src="images/binance.png" alt="Binance" />
+      <img src="images/binance.png" alt="Binance" />
+      <img src="images/binance.png" alt="Binance" />
+      <img src="images/binance.png" alt="Binance" />
+      <img src="images/binance.png" alt="Binance" />
+      <img src="images/binance.png" alt="Binance" />
+      <img src="images/binance.png" alt="Binance" />
+      <img src="images/binance.png" alt="Binance" />
+    </div>
+  </div>
+  <!-- Trust end -->
+  <!-- Half million -->
+  <div class="half stagger-section stagger-self">
+    <div class="half-container">
+      Half a million investors can’t be wrong
+    </div>
+
+    <div class="half-stats-row">
+      <div class="half-stat">
+        <div class="half-stat-number">50’000</div>
+        <div class="half-stat-label">Registered Users</div>
+      </div>
+      <div class="half-divider"></div>
+      <div class="half-stat">
+        <div class="half-stat-number">50’000</div>
+        <div class="half-stat-label">Registered Users</div>
+      </div>
+      <div class="half-divider"></div>
+      <div class="half-stat">
+        <div class="half-stat-number">50’000</div>
+        <div class="half-stat-label">Registered Users</div>
+      </div>
+      <div class="half-divider"></div>
+      <div class="half-stat">
+        <div class="half-stat-number">50’000</div>
+        <div class="half-stat-label">Registered Users</div>
+      </div>
+      <div class="half-divider"></div>
+      <div class="half-stat">
+        <div class="half-stat-number">50’000</div>
+        <div class="half-stat-label">Registered Users</div>
+      </div>
+    </div>
+
+    <div class="cute-text half-btn">
+      <div class="half-btn-text">Start Trading Now</div>
+      <div class="half-btn-icon" data-svg-wrapper>
+        <svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21.5 12L16.5 7M21.5 12L16.5 17M21.5 12H3.5" stroke="var(--icon-color, white)" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+    </div>
+  </div>
+  <!-- Half million end -->
+  <!-- Footer -->
+  <div class="footer stagger-section stagger-self">
+    <div
+      style="width: 100%; justify-content: space-between; align-items: flex-start; display: inline-flex; padding-left: 10%; padding-right: 10%;">
+      <div
+        style="flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 24px; display: inline-flex">
+        <div
+          style="width: 160px; color: var(--Labels---Vibrant---Controls-Primary-√, #404040); font-size: 20px; font-family: GIP; font-weight: 500; line-height: 30px; word-wrap: break-word">
+          Холбоо барих</div>
+        <div
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 12px; display: flex">
+          <div
+            style="width: 221px; color: var(--Labels---Vibrant---Controls-Primary-√, #404040); font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Хаяг: Чингэлтэй дүүрэг, 1-р хороо, Бага тойруу 7/1</div>
+          <div
+            style="width: 160px; color: var(--Labels---Vibrant---Controls-Primary-√, #404040); font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Лавлах: 1800-1881</div>
+        </div>
+        <div style="flex-direction: row; display: flex;">
+          <div style="width: 40px; height: 40px; position: relative ">
+            <div data-svg-wrapper style="left: 0px; top: 0px; position: absolute">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20Z"
+                  fill="#00FFED" />
+              </svg>
+            </div>
+            <div data-svg-wrapper style="left: 11.25px; top: 10px; position: absolute">
+              <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#clip0_8_30651)">
+                  <path
+                    d="M10.7188 3.12499H13.0625C13.2782 3.12499 13.4532 2.95009 13.4532 2.73435V0.390601C13.4532 0.174902 13.2782 0 13.0625 0H10.7188C8.34674 0.0026001 6.42446 1.92484 6.4219 4.29686V7.03125H3.68751C3.47178 7.03125 3.29688 7.20615 3.29688 7.42189V9.76564C3.29688 9.98137 3.47178 10.1563 3.68751 10.1563H6.4219V18.3594C6.4219 18.5751 6.5968 18.75 6.81254 18.75H9.15629C9.37202 18.75 9.54693 18.5751 9.54693 18.3594V10.1563H12.2813C12.4494 10.1562 12.5985 10.0485 12.6516 9.88909L13.4329 7.54534C13.5011 7.34066 13.3904 7.11947 13.1857 7.05128C13.146 7.03806 13.1044 7.03129 13.0626 7.03125H9.54693V4.29686C9.54689 3.64966 10.0716 3.12499 10.7188 3.12499Z"
+                    fill="var(--White, white)" />
+                </g>
+                <defs>
+                  <clipPath id="clip0_8_30651">
+                    <rect width="18.75" height="18.75" fill="var(--White, white)" transform="translate(0.25)" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </div>
+          </div>
+          <div style="margin-left: 10px; width: 40px; height: 40px; position: relative">
+            <div data-svg-wrapper style="left: 0px; top: 0px; position: absolute">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20Z"
+                  fill="#00FFED" />
+              </svg>
+            </div>
+            <div data-svg-wrapper style="left: 8.75px; top: 8.75px; position: absolute">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M21.375 6.18757C20.6703 6.49329 19.9251 6.69538 19.1625 6.78757C19.967 6.30694 20.5699 5.55081 20.8594 4.65945C20.1033 5.10951 19.2757 5.4266 18.4125 5.59695C17.8355 4.97124 17.0672 4.55473 16.2279 4.41275C15.3887 4.27077 14.5261 4.41135 13.7754 4.81244C13.0247 5.21353 12.4284 5.85245 12.0799 6.62898C11.7315 7.40552 11.6506 8.27575 11.85 9.1032C10.3213 9.02588 8.82604 8.62784 7.46124 7.93494C6.09644 7.24205 4.89267 6.26979 3.92813 5.08132C3.58982 5.67211 3.41205 6.34116 3.4125 7.02195C3.4113 7.65418 3.56645 8.2769 3.86415 8.83467C4.16184 9.39243 4.59283 9.86793 5.11875 10.2188C4.50748 10.2022 3.90927 10.0382 3.375 9.7407V9.78757C3.37958 10.6734 3.68999 11.5305 4.25373 12.2138C4.81747 12.8971 5.59993 13.3647 6.46875 13.5376C6.1343 13.6394 5.78707 13.693 5.4375 13.6969C5.19552 13.6941 4.95415 13.6722 4.71563 13.6313C4.96304 14.3933 5.44183 15.0593 6.08538 15.5365C6.72893 16.0137 7.50523 16.2784 8.30625 16.2938C6.95363 17.3581 5.28364 17.939 3.5625 17.9438C3.24913 17.9449 2.936 17.9261 2.625 17.8876C4.38228 19.0222 6.43014 19.6245 8.52187 19.6219C9.96534 19.6369 11.3973 19.3642 12.7342 18.8195C14.071 18.2749 15.286 17.4693 16.308 16.4499C17.33 15.4305 18.1387 14.2176 18.6868 12.8822C19.2348 11.5467 19.5113 10.1154 19.5 8.67195C19.5 8.51257 19.5 8.34382 19.5 8.17507C20.2357 7.62646 20.8701 6.95391 21.375 6.18757Z"
+                  fill="var(--White, white)" />
+              </svg>
+            </div>
+          </div>
+          <div data-svg-wrapper style="margin-left: 10px; position: relative">
+            <svg width="40" height="41" viewBox="0 0 40 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20Z"
+                fill="#00FFED" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M8.75 11.6298C8.75 11.1312 8.94805 10.6531 9.30057 10.3006C9.6531 9.94805 10.1312 9.75 10.6298 9.75H29.3682C29.6152 9.7496 29.86 9.79793 30.0883 9.89223C30.3167 9.98653 30.5242 10.1249 30.699 10.2996C30.8738 10.4742 31.0124 10.6815 31.107 10.9098C31.2015 11.138 31.2501 11.3827 31.25 11.6298V30.3682C31.2503 30.6153 31.2018 30.86 31.1074 31.0884C31.013 31.3168 30.8745 31.5243 30.6998 31.6991C30.5251 31.8738 30.3177 32.0125 30.0893 32.107C29.861 32.2015 29.6163 32.2501 29.3692 32.25H10.6298C10.3828 32.25 10.1383 32.2013 9.91018 32.1068C9.68205 32.0123 9.47478 31.8737 9.30021 31.6991C9.12564 31.5244 8.9872 31.3171 8.8928 31.0889C8.79839 30.8607 8.74987 30.6161 8.75 30.3692V11.6298ZM17.6559 18.3286H20.7026V19.8586C21.1424 18.9791 22.2674 18.1875 23.958 18.1875C27.199 18.1875 27.967 19.9394 27.967 23.1539V29.1082H24.6872V23.8861C24.6872 22.0555 24.2474 21.0225 23.1306 21.0225C21.5811 21.0225 20.9368 22.1363 20.9368 23.8861V29.1082H17.6559V18.3286ZM12.0309 28.9681H15.3118V18.1875H12.0309V28.967V28.9681ZM15.7812 14.6714C15.7874 14.9523 15.7374 15.2316 15.6342 15.4929C15.531 15.7543 15.3766 15.9924 15.1801 16.1932C14.9836 16.3941 14.749 16.5537 14.49 16.6626C14.231 16.7716 13.9529 16.8277 13.6719 16.8277C13.3909 16.8277 13.1127 16.7716 12.8537 16.6626C12.5947 16.5537 12.3601 16.3941 12.1636 16.1932C11.9671 15.9924 11.8128 15.7543 11.7095 15.4929C11.6063 15.2316 11.5563 14.9523 11.5625 14.6714C11.5746 14.12 11.8022 13.5952 12.1965 13.2096C12.5907 12.8239 13.1203 12.6079 13.6719 12.6079C14.2234 12.6079 14.753 12.8239 15.1473 13.2096C15.5415 13.5952 15.7691 14.12 15.7812 14.6714Z"
+                fill="var(--White, white)" />
+            </svg>
+          </div>
+          <div data-svg-wrapper style="position: relative; margin-left: 10px;">
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M0 20C0 8.9543 8.9543 0 20 0C31.0457 0 40 8.9543 40 20C40 31.0457 31.0457 40 20 40C8.9543 40 0 31.0457 0 20Z"
+                fill="#00FFED" />
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M20.0017 9.3335C17.1047 9.3335 16.7412 9.34616 15.6034 9.39794C14.4678 9.44994 13.6927 9.62972 13.0145 9.8935C12.3129 10.1659 11.7178 10.5304 11.1249 11.1235C10.5316 11.7164 10.1671 12.3115 9.89377 13.0129C9.62932 13.6913 9.44932 14.4667 9.39821 15.6018C9.34732 16.7396 9.33398 17.1034 9.33398 20.0003C9.33398 22.8972 9.34687 23.2596 9.39843 24.3974C9.45065 25.533 9.63043 26.3081 9.89399 26.9863C10.1667 27.6879 10.5311 28.283 11.1242 28.8759C11.7169 29.4693 12.312 29.8346 13.0131 30.107C13.6918 30.3708 14.4671 30.5506 15.6025 30.6026C16.7403 30.6544 17.1036 30.667 20.0003 30.667C22.8975 30.667 23.2599 30.6544 24.3977 30.6026C25.5333 30.5506 26.3093 30.3708 26.9879 30.107C27.6893 29.8346 28.2835 29.4693 28.8762 28.8759C29.4695 28.283 29.834 27.6879 30.1073 26.9866C30.3695 26.3081 30.5495 25.5328 30.6029 24.3977C30.654 23.2599 30.6673 22.8972 30.6673 20.0003C30.6673 17.1034 30.654 16.7398 30.6029 15.602C30.5495 14.4664 30.3695 13.6913 30.1073 13.0131C29.834 12.3115 29.4695 11.7164 28.8762 11.1235C28.2828 10.5302 27.6895 10.1657 26.9873 9.8935C26.3073 9.62972 25.5317 9.44994 24.3961 9.39794C23.2584 9.34616 22.8961 9.3335 19.9983 9.3335H20.0017ZM19.0447 11.2557C19.3287 11.2553 19.6456 11.2557 20.0016 11.2557C22.8496 11.2557 23.1872 11.2659 24.3119 11.317C25.3519 11.3646 25.9163 11.5384 26.2923 11.6844C26.7901 11.8777 27.145 12.1088 27.5181 12.4822C27.8915 12.8555 28.1226 13.2111 28.3164 13.7088C28.4624 14.0844 28.6364 14.6489 28.6837 15.6889C28.7348 16.8133 28.7459 17.1511 28.7459 19.9978C28.7459 22.8445 28.7348 23.1823 28.6837 24.3067C28.6361 25.3467 28.4624 25.9112 28.3164 26.2868C28.123 26.7845 27.8915 27.139 27.5181 27.5121C27.1448 27.8854 26.7903 28.1166 26.2923 28.3099C25.9168 28.4566 25.3519 28.6299 24.3119 28.6774C23.1874 28.7286 22.8496 28.7397 20.0016 28.7397C17.1534 28.7397 16.8158 28.7286 15.6913 28.6774C14.6513 28.6294 14.0869 28.4557 13.7107 28.3097C13.2129 28.1163 12.8573 27.8852 12.484 27.5119C12.1106 27.1385 11.8795 26.7839 11.6857 26.2859C11.5397 25.9103 11.3657 25.3459 11.3184 24.3058C11.2673 23.1814 11.2571 22.8436 11.2571 19.9951C11.2571 17.1467 11.2673 16.8107 11.3184 15.6862C11.366 14.6462 11.5397 14.0817 11.6857 13.7057C11.8791 13.208 12.1106 12.8524 12.484 12.4791C12.8573 12.1057 13.2129 11.8746 13.7107 11.6808C14.0867 11.5342 14.6513 11.3608 15.6913 11.313C16.6753 11.2686 17.0567 11.2553 19.0447 11.253V11.2557ZM25.6954 13.0268C24.9888 13.0268 24.4154 13.5995 24.4154 14.3064C24.4154 15.0131 24.9888 15.5864 25.6954 15.5864C26.4021 15.5864 26.9755 15.0131 26.9755 14.3064C26.9755 13.5997 26.4021 13.0268 25.6954 13.0268ZM20.0017 14.5224C16.9765 14.5224 14.5238 16.9751 14.5238 20.0002C14.5238 23.0254 16.9765 25.477 20.0017 25.477C23.0268 25.477 25.4786 23.0254 25.4786 20.0002C25.4786 16.9751 23.0268 14.5224 20.0017 14.5224ZM20.0016 16.4447C21.9652 16.4447 23.5572 18.0364 23.5572 20.0002C23.5572 21.9638 21.9652 23.5558 20.0016 23.5558C18.0378 23.5558 16.446 21.9638 16.446 20.0002C16.446 18.0364 18.0378 16.4447 20.0016 16.4447Z"
+                fill="var(--White, white)" />"{=}"
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="footer-hide"
+        style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 24px;">
+        <div
+          style="color: var(--Labels---Vibrant---Controls-Primary-√, #404040); font-size: 20px; font-family: GIP; font-weight: 500; line-height: 30px; word-wrap: break-word">
+          Тусламж</div>
+        <div
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 12px; display: flex">
+          <div
+            style="color: var(--Labels---Vibrant---Controls-Primary-√, #404040); font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Үйлчилгээний нөхцөл</div>
+          <div style="font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Нууцлалын бодлого</div>
+          <div
+            style="color: var(--Labels---Vibrant---Controls-Primary-√, #404040); font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+          <div
+            style="color: var(--Labels---Vibrant---Controls-Primary-√, #404040); font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+          <div
+            style="color: var(--Labels---Vibrant---Controls-Primary-√, #404040); font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+        </div>
+      </div>
+      <div class="footer-hide"
+        style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 24px;">
+        <div
+          style="color: #404040; font-size: 20px; font-family: GIP; font-weight: 500; line-height: 30px; word-wrap: break-word">
+          Тусламж</div>
+        <div
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 12px; display: flex">
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Үйлчилгээний нөхцөл</div>
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Нууцлалын бодлого</div>
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+        </div>
+      </div>
+      <div class="footer-hide"
+        style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 24px;">
+        <div
+          style="color: #404040; font-size: 20px; font-family: GIP; font-weight: 500; line-height: 30px; word-wrap: break-word">
+          Тусламж</div>
+        <div
+          style="overflow: hidden; flex-direction: column; justify-content: flex-start; align-items: flex-start; gap: 12px; display: flex">
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Үйлчилгээний нөхцөл</div>
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Нууцлалын бодлого</div>
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+          <div
+            style="color: #404040; font-size: 16px; font-family: GIP; font-weight: 500; line-height: 26px; word-wrap: break-word">
+            Түгээмэл асуултууд</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-left">Vantage Mongolia @ 2025</div>
+      <div class="footer-right">Арилжаа ухаалгаар.</div>
+    </div>
+  </div>
+  <!-- Footer end-->
+</body>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+  integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"
+  integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"
+  integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="main.js"></script>
+
+</html>

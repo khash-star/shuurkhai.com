@@ -1,0 +1,6 @@
+DirectoryIndex index.php
+#RewriteCond %{HTTPS} off
+#RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteEngine On
+RewriteRule ^index?$ index.php
+RewriteRule ^short?$ gaali_api_short.php

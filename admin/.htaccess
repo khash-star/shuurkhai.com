@@ -1,0 +1,60 @@
+DirectoryIndex dashboard.php
+RewriteEngine On
+RewriteRule ^home?$ index.php
+RewriteRule ^index?$ index.php
+
+RewriteRule ^login?$ login.php
+RewriteRule ^logining?$ logining.php
+RewriteRule ^logout?$ logout.php
+
+RewriteRule ^dashboard?$ dashboard.php
+RewriteRule ^settings?$ settings.php
+RewriteRule ^settings_old?$ settings_old.php
+RewriteRule ^agents?$ agents.php
+RewriteRule ^news?$ news.php
+RewriteRule ^news_category?$ news_category.php
+
+RewriteRule ^customers?$ customers.php
+RewriteRule ^position?$ position.php
+RewriteRule ^faqs?$ faqs.php
+RewriteRule ^profile?$ profile.php
+RewriteRule ^courses?$ courses.php
+RewriteRule ^pages?$ pages.php
+
+RewriteRule ^facts?$ facts.php
+
+RewriteRule ^services?$ services.php
+RewriteRule ^feedback?$ feedback.php
+RewriteRule ^products?$ products.php
+RewriteRule ^shops?$ shops.php
+
+
+RewriteRule ^slides?$ slides.php
+RewriteRule ^testimonial?$ testimonial.php
+RewriteRule ^advantages?$ advantages.php
+RewriteRule ^faqs?$ faqs.php
+
+RewriteRule ^envoices?$ envoices.php
+RewriteRule ^videos?$ videos.php
+
+RewriteRule ^upost?$ upost.php
+RewriteRule ^orders?$ orders.php
+
+RewriteRule ^reports?$ reports.php
+RewriteRule ^barcodes?$ barcodes.php
+RewriteRule ^online?$ online.php
+RewriteRule ^tracks?$ tracks.php
+RewriteRule ^boxes?$ boxes.php
+RewriteRule ^handover?$ handover.php
+RewriteRule ^deliver?$ deliver.php
+RewriteRule ^customers_check2?$ views/customers_check2.php
+RewriteRule ^later_check?$ views/later_check.php
+RewriteRule ^bill?$ bill.php
+RewriteRule ^cp72?$ cp72.php
+RewriteRule ^handover_bill?$ handover_bill.php
+RewriteRule ^notification?$ notification.php
+RewriteRule ^loghistory?$ loghistory.php
+RewriteRule ^appsettings?$ appsettings.php
+RewriteRule ^sms?$ sms.php
+RewriteRule ^gaali?$ gaali.php
+RewriteRule ^container?$ container.php

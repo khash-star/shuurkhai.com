@@ -1,0 +1,26 @@
+RewriteEngine On
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+SetEnvIf Authorization .+ HTTP_AUTHORIZATION=$0
+RewriteRule ^index?$ index.php
+RewriteRule ^init?$ shuurkhai_init.php
+RewriteRule ^login?$ shuurkhai_login.php
+RewriteRule ^logout?$ shuurkhai_logout.php
+RewriteRule ^register?$ shuurkhai_register.php
+RewriteRule ^password?$ shuurkhai_change_password.php
+RewriteRule ^forget_password?$ shuurkhai_forget_password.php
+RewriteRule ^terminate?$ shuurkhai_terminate.php
+RewriteRule ^profile?$ shuurkhai_profile.php
+RewriteRule ^username?$ shuurkhai_change_username.php
+RewriteRule ^address?$ shuurkhai_address.php
+RewriteRule ^log?$ shuurkhai_log.php
+RewriteRule ^proxies?$ shuurkhai_proxies.php
+RewriteRule ^shops?$ shuurkhai_shops.php
+RewriteRule ^contact_us?$ shuurkhai_contact_us.php
+RewriteRule ^tracks?$ shuurkhai_tracks.php
+RewriteRule ^online?$ shuurkhai_online.php
+RewriteRule ^orders?$ shuurkhai_orders.php
+RewriteRule ^invoice?$ shuurkhai_invoice.php
+RewriteRule ^notification?$ shuurkhai_notification.php
+RewriteRule ^container?$ shuurkhai_container.php
+RewriteRule ^send-noti?$ shuurkhai_send_notification.php
+RewriteRule ^send-noti-user?$ shuurkhai_send_notification_user.php
