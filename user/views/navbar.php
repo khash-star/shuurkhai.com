@@ -114,12 +114,93 @@
                 </li> -->
                 <?php
                 $has_alert = 0;
+                $recent_feedbacks = array();
+                
                 if (isset($conn) && $user_id > 0) {
                     $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                    
+                    // Check alerts
                     $sql = "SELECT * FROM alert WHERE customer_id='".$user_id_escaped."' AND `read`=0 ORDER BY alert_id DESC LIMIT 1";
                     $result = mysqli_query($conn,$sql);
                     if ($result) {
                         $has_alert = mysqli_num_rows($result);
+                    }
+                    
+                    // Check for admin replies in feedback (for this user's messages)
+                    $check_role_sql = "SHOW COLUMNS FROM feedback LIKE 'role'";
+                    $role_exists = false;
+                    $check_result = mysqli_query($conn, $check_role_sql);
+                    if ($check_result && mysqli_num_rows($check_result) > 0) {
+                        $role_exists = true;
+                    }
+                    
+                    // Get user phone number to match feedback (users login with phone number, not email)
+                    $user_tel = isset($_SESSION["c_tel"]) ? trim($_SESSION["c_tel"]) : '';
+                    if (empty($user_tel) && isset($conn) && $conn && $user_id > 0 && isset($user_id_escaped)) {
+                        try {
+                            // Try to get tel from customer table (singular, not plural)
+                            $tel_sql = "SELECT tel FROM customer WHERE customer_id='".$user_id_escaped."' LIMIT 1";
+                            $tel_result = mysqli_query($conn, $tel_sql);
+                            if ($tel_result !== false && $tel_data = mysqli_fetch_array($tel_result)) {
+                                $user_tel = isset($tel_data["tel"]) && !empty($tel_data["tel"]) ? trim($tel_data["tel"]) : '';
+                            }
+                        } catch (Exception $e) {
+                            // Silently fail if tel query fails
+                            $user_tel = '';
+                        }
+                    }
+                    
+                    // Count unread admin replies for this user (match by contact/phone number)
+                    $admin_replies_count = 0;
+                    if (!empty($user_tel)) {
+                        $user_tel_escaped = mysqli_real_escape_string($conn, trim($user_tel));
+                        
+                        // Always try to get recent admin replies first (to populate dropdown)
+                        if ($role_exists) {
+                            // Get recent admin replies by contact and role='admin'
+                            $recent_sql = "SELECT id, title, content, name, timestamp, `read` FROM feedback WHERE contact='".$user_tel_escaped."' AND role='admin' AND archive=0 ORDER BY timestamp DESC LIMIT 5";
+                        } else {
+                            // Fallback: check by admin name patterns or title patterns
+                            $recent_sql = "SELECT id, title, content, name, timestamp, `read` FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 AND (name LIKE '%admin%' OR name LIKE '%Admin%' OR title LIKE '%Admin Reply%' OR title LIKE '%Re:%') ORDER BY timestamp DESC LIMIT 5";
+                        }
+                        
+                        $recent_result = @mysqli_query($conn, $recent_sql);
+                        if ($recent_result) {
+                            while ($recent_data = mysqli_fetch_array($recent_result)) {
+                                $recent_feedbacks[] = $recent_data;
+                                // Count unread replies
+                                if (isset($recent_data["read"]) && intval($recent_data["read"]) == 0) {
+                                    $admin_replies_count++;
+                                }
+                            }
+                        }
+                        
+                        // Also get count of unread admin replies
+                        if ($role_exists) {
+                            $feedback_sql = "SELECT COUNT(*) as count FROM feedback WHERE contact='".$user_tel_escaped."' AND role='admin' AND archive=0 AND `read`=0";
+                        } else {
+                            $feedback_sql = "SELECT COUNT(*) as count FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 AND `read`=0 AND (name LIKE '%admin%' OR name LIKE '%Admin%' OR title LIKE '%Admin Reply%' OR title LIKE '%Re:%')";
+                        }
+                        
+                        $feedback_result = @mysqli_query($conn, $feedback_sql);
+                        if ($feedback_result && $feedback_row = mysqli_fetch_array($feedback_result)) {
+                            $admin_replies_count_db = isset($feedback_row["count"]) ? intval($feedback_row["count"]) : 0;
+                            // Use the higher count (either from DB or from array)
+                            if ($admin_replies_count_db > $admin_replies_count) {
+                                $admin_replies_count = $admin_replies_count_db;
+                            }
+                        }
+                        
+                        // Update has_alert with admin replies count
+                        if ($admin_replies_count > 0 || count($recent_feedbacks) > 0) {
+                            // Only add if not already counted
+                            if ($admin_replies_count > 0) {
+                                $has_alert += $admin_replies_count;
+                            } else if (count($recent_feedbacks) > 0) {
+                                // If we have messages but count is 0, add at least 1
+                                $has_alert += 1;
+                            }
+                        }
                     }
                 }
                 ?>
@@ -131,8 +212,78 @@
                     if ($has_alert > 0)
                     {
                         ?>
-                        <div class="dropdown-menu position-absolute animated fadeInUp" aria-labelledby="notificationDropdown">
-                            <div class="notification-scroll">
+                        <div class="dropdown-menu dropdown-menu-right animated fadeInUp" aria-labelledby="notificationDropdown" style="width: 350px; max-width: 90vw;">
+                            <div class="dropdown-header" style="padding: 12px 16px; border-bottom: 1px solid #eee; background: #f8f9fa;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h6 class="mb-0" style="font-weight: 600; font-size: 14px;">Мэдэгдэл</h6>
+                                    <?php if ($has_alert > 0): ?>
+                                    <span class="badge badge-primary" style="font-size: 11px;"><?php echo $has_alert; ?> Шинэ</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="notification-scroll" style="max-height: 400px; overflow-y: auto;">
+                                
+                                <?php if (count($recent_feedbacks) > 0): ?>
+                                    <?php foreach ($recent_feedbacks as $feedback): ?>
+                                        <?php
+                                        $feedback_id = isset($feedback["id"]) ? intval($feedback["id"]) : 0;
+                                        $feedback_title = isset($feedback["title"]) ? htmlspecialchars($feedback["title"]) : 'Админ-аас хариу';
+                                        $feedback_content = isset($feedback["content"]) ? htmlspecialchars($feedback["content"]) : '';
+                                        $feedback_name = isset($feedback["name"]) ? htmlspecialchars($feedback["name"]) : 'Админ';
+                                        $feedback_timestamp = isset($feedback["timestamp"]) ? htmlspecialchars($feedback["timestamp"]) : '';
+                                        
+                                        // Time ago
+                                        $time_ago = '';
+                                        if ($feedback_timestamp) {
+                                            $timestamp = strtotime($feedback_timestamp);
+                                            $diff = time() - $timestamp;
+                                            if ($diff < 3600) {
+                                                $time_ago = floor($diff / 60) . ' мин өмнө';
+                                            } elseif ($diff < 86400) {
+                                                $time_ago = floor($diff / 3600) . ' цаг өмнө';
+                                            } else {
+                                                $time_ago = date('Y-m-d H:i', $timestamp);
+                                            }
+                                        }
+                                        
+                                        // Short content
+                                        $short_content = mb_substr($feedback_content, 0, 60, 'UTF-8');
+                                        if (mb_strlen($feedback_content, 'UTF-8') > 60) {
+                                            $short_content .= '...';
+                                        }
+                                        ?>
+                                        <a href="extra?action=contact" class="dropdown-item" style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0; display: block; text-decoration: none; color: #333;">
+                                            <div class="d-flex align-items-start">
+                                                <div class="mr-3" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                                </div>
+                                                <div class="flex-grow-1" style="min-width: 0;">
+                                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                                        <strong style="font-size: 13px; color: #333;"><?php echo $feedback_name; ?></strong>
+                                                        <small class="text-muted" style="font-size: 11px; white-space: nowrap;"><?php echo $time_ago; ?></small>
+                                                    </div>
+                                                    <p class="mb-0" style="font-size: 12px; color: #666; line-height: 1.4;">
+                                                        <?php echo $short_content; ?>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="dropdown-item text-center" style="padding: 40px 20px;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle" style="margin-bottom: 12px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                        <p class="mb-0" style="color: #999; font-size: 14px;">Шинэ мэдэгдэл байхгүй</p>
+                                    </div>
+                                <?php endif; ?>
+                                
+                            </div>
+                            <?php if ($has_alert > 0 && count($recent_feedbacks) > 0): ?>
+                            <div class="dropdown-footer text-center" style="padding: 12px; border-top: 1px solid #eee; background: #f8f9fa;">
+                                <a href="extra?action=contact" style="color: #5e72e4; text-decoration: none; font-weight: 500; font-size: 13px;">
+                                    Бүх мессежийг харах →
+                                </a>
+                            </div>
+                            <?php endif; ?>
 
                                 <!-- <div class="dropdown-item">
                                     <div class="media server-log">

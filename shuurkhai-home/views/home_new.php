@@ -193,16 +193,6 @@
                 }
                 ?>
                 <img src="<?php echo htmlspecialchars($slide['image']); ?>" alt="<?php echo htmlspecialchars($slide['name'] ?: 'Slider ' . ($index + 1)); ?>" class="absolute inset-0 w-full h-full object-cover object-center z-0" style="width: 100%; height: 100%; object-fit: cover; object-position: center; min-width: 100%;">
-                <?php if (!empty($slide['name']) || !empty($slide['text'])): ?>
-                <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-slate-900 bg-gradient-to-t from-white/95 via-white/80 to-transparent z-20 pointer-events-none">
-                    <?php if (!empty($slide['name'])): ?>
-                    <h3 class="text-2xl sm:text-3xl font-bold mb-2"><?php echo $slide['name']; ?></h3>
-                    <?php endif; ?>
-                    <?php if (!empty($slide['text'])): ?>
-                    <p class="text-base sm:text-lg opacity-90"><?php echo $slide['text']; ?></p>
-                    <?php endif; ?>
-                </div>
-                <?php endif; ?>
                 <?php if ($is_valid_link): ?>
                 <a href="<?php echo htmlspecialchars($slide_link); ?>" class="absolute inset-0 z-10"></a>
                 <?php endif; ?>
@@ -220,76 +210,6 @@
         <?php endif; ?>
     </section>
     <?php endif; ?>
-
-    <!-- Hero Section -->
-    <section class="relative min-h-[90vh] flex items-center overflow-hidden bg-white <?php echo empty($slider_images) ? 'pt-16' : ''; ?>">
-        <!-- Background Elements -->
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute top-20 left-0 sm:left-10 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-blue-500/5 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-20 right-0 sm:right-10 w-[350px] h-[350px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] bg-emerald-500/5 rounded-full blur-3xl"></div>
-        </div>
-
-        <!-- Subtle Grid Pattern -->
-        <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.01)_1px,transparent_1px)] bg-[size:80px_80px]"></div>
-
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
-            <div class="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-20 items-center">
-                <!-- Left Content -->
-                <div>
-                    <p class="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed max-w-xl">
-                        Amazon, Walmart болон бусад дэлгүүрээс захиалаад агаар болон далайн каргоор шуурхай хүргүүлээрэй
-                    </p>
-
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <?php
-                        // Check if user is logged in as admin for hero section
-                        $is_admin_hero_section = isset($_SESSION['logged']) && $_SESSION['logged'] === true && 
-                                                (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == 0 || 
-                                                 (isset($_SESSION['name']) && !empty($_SESSION['name'])));
-                        ?>
-                        <a href="<?= $is_admin_hero_section ? '/shuurkhai/admin/online?action=all' : '/shuurkhai/user/' ?>" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white px-8 py-6 text-lg rounded-2xl shadow-lg shadow-slate-900/10 group transition-all inline-block text-center">
-                            Бараа захиалах
-                            <i data-lucide="arrow-right" class="w-5 h-5 inline ml-2 group-hover:translate-x-1 transition-transform"></i>
-                        </a>
-                        <a href="/shuurkhai/calculator" class="w-full sm:w-auto border-2 border-slate-200 text-slate-700 hover:bg-slate-50 px-8 py-6 text-lg rounded-2xl transition-colors inline-block text-center">
-                            Карго үнийн тооцоо
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Right Visual -->
-                <div class="relative hidden lg:block">
-                    <div class="relative w-full aspect-square max-w-lg mx-auto">
-                        <!-- Main Circle -->
-                        <div class="absolute inset-0 rounded-full bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200"></div>
-                        
-                        <!-- Floating Icons -->
-                        <div class="absolute top-12 left-1/2 -translate-x-1/2 p-6 bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 animate-float">
-                            <i data-lucide="plane" class="w-12 h-12 text-blue-600"></i>
-                        </div>
-
-                        <div class="absolute bottom-20 left-8 p-5 bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 animate-float-reverse">
-                            <i data-lucide="ship" class="w-10 h-10 text-emerald-600"></i>
-                        </div>
-
-                        <div class="absolute bottom-32 right-8 p-4 bg-gradient-to-br from-slate-900 to-slate-700 rounded-2xl shadow-xl shadow-slate-900/20 animate-float">
-                            <i data-lucide="package" class="w-8 h-8 text-white"></i>
-                        </div>
-
-                        <!-- Center Globe Illustration -->
-                        <div class="absolute inset-12 rounded-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex items-center justify-center shadow-2xl">
-                            <div class="text-center text-white p-8">
-                                <div class="text-5xl font-bold mb-2">🌏</div>
-                                <div class="text-sm font-medium opacity-80">USA → Mongolia</div>
-                            </div>
-                            <!-- Orbit Ring -->
-                            <div class="absolute inset-0 rounded-full border-2 border-dashed border-white/20 animate-spin-slow"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Store Partners Section -->
     <section class="py-4 sm:py-6 md:py-8 bg-gradient-to-b from-white via-slate-50 to-white relative overflow-hidden">

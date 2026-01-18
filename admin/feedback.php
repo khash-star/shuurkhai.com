@@ -51,13 +51,14 @@
                 $role_exists = true;
               }
               
-              // Insert admin reply
+              // Insert admin reply - use user's email so they can see it in notifications
+              $reply_email = $orig_email; // Use original user's email, not admin's email
               if ($role_exists) {
                 $reply_sql = "INSERT INTO feedback (title, content, name, contact, email, archive, `read`, role, timestamp) 
-                             VALUES ('Re: Admin Reply', '$message', '$admin_name', '$orig_contact', '$admin_email', 0, 0, 'admin', NOW())";
+                             VALUES ('Re: Admin Reply', '$message', '$admin_name', '$orig_contact', '$reply_email', 0, 0, 'admin', NOW())";
               } else {
                 $reply_sql = "INSERT INTO feedback (title, content, name, contact, email, archive, `read`, timestamp) 
-                             VALUES ('Re: Admin Reply', '$message', '$admin_name', '$orig_contact', '$admin_email', 0, 0, NOW())";
+                             VALUES ('Re: Admin Reply', '$message', '$admin_name', '$orig_contact', '$reply_email', 0, 0, NOW())";
               }
               
               if (mysqli_query($conn, $reply_sql)) {
@@ -128,7 +129,7 @@
               <div class="col-12">
                 <div class="card" style="min-height: 500px;">
                   <div class="card-body">
-                    <div class="chat-messages" style="max-height: 600px; overflow-y: auto; padding: 20px;">
+                    <div class="chat-messages" id="chatMessagesContainer" style="max-height: 600px; overflow-y: auto; padding: 20px; background: #fafafa; border-radius: 8px;">
                       <?php
                       if ($result && mysqli_num_rows($result) > 0)
                       {
@@ -140,6 +141,7 @@
                           $content = isset($data["content"]) ? htmlspecialchars($data["content"]) : '';
                           $read = isset($data["read"]) ? intval($data["read"]) : 0;
                           $name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                          $contact = isset($data["contact"]) ? htmlspecialchars($data["contact"]) : '';
                           $email = isset($data["email"]) ? htmlspecialchars($data["email"]) : '';
                           $timestamp = isset($data["timestamp"]) ? htmlspecialchars($data["timestamp"]) : '';
                           // Backward compatibility: treat NULL/empty as 'user'
@@ -152,15 +154,28 @@
                           $is_admin = ($role == "admin");
                           $align_class = $is_admin ? "text-right" : "text-left";
                           $badge_class = $is_admin ? "badge-danger" : "badge-primary";
-                          $badge_text = $is_admin ? "ADMIN" : "USER";
-                          $bg_color = $is_admin ? "background-color: #e3f2fd; border-left: 4px solid #2196F3; margin-left: 20%;" : "background-color: #f5f5f5; border-left: 4px solid #4CAF50; margin-right: 20%;";
+                          // For user messages, show phone number instead of "USER"
+                          $badge_text = $is_admin ? "ADMIN" : ($contact ? $contact : "USER");
+                          
+                          // Better styling with shadows and transitions
+                          if ($is_admin) {
+                            $bg_color = "background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196F3; margin-left: 20%; box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);";
+                          } else {
+                            $bg_color = "background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%); border-left: 4px solid #4CAF50; margin-right: 20%; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);";
+                          }
+                          
+                          // Add unread indicator
+                          $unread_indicator = ($read == 0 && !$is_admin) ? "border-top: 3px solid #ff9800;" : "";
+                          
+                          // Display name - for user messages show phone number, for admin messages show "Admin"
+                          $display_name = $is_admin ? "Admin" : ($contact ? $contact : $name);
                           
                           ?>
-                          <div class="message-item mb-3" style="<?php echo $bg_color; ?> padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                          <div class="message-item mb-3 message-<?php echo $is_admin ? 'admin' : 'user'; ?>" style="<?php echo $bg_color; ?> <?php echo $unread_indicator; ?> padding: 15px; border-radius: 12px; margin-bottom: 15px; transition: all 0.3s ease; position: relative;">
                             <div class="<?php echo $align_class; ?>">
                               <span class="badge <?php echo $badge_class; ?> mb-2"><?php echo $badge_text; ?></span>
                               <div class="message-header" style="margin-bottom: 8px;">
-                                <strong><?php echo $name; ?></strong>
+                                <strong><?php echo $display_name; ?></strong>
                                 <small class="text-muted ml-2"><?php echo date("M d, Y H:i", strtotime($timestamp)); ?></small>
                               </div>
                               <?php if (!empty($title) && $title != "Re: Admin Reply"): ?>
@@ -233,7 +248,100 @@
                 document.getElementById('reply-form-container').scrollIntoView({ behavior: 'smooth' });
               });
             });
+            
+            // Enhanced chat interface
+            const chatContainer = document.getElementById('chatMessagesContainer');
+            if (chatContainer) {
+              // Auto-scroll to bottom on load
+              setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+              }, 100);
+              
+              // Add hover effects to messages
+              const messages = document.querySelectorAll('.message-item');
+              messages.forEach(msg => {
+                msg.addEventListener('mouseenter', function() {
+                  this.style.transform = 'translateX(5px)';
+                  this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                });
+                msg.addEventListener('mouseleave', function() {
+                  this.style.transform = 'translateX(0)';
+                  this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                });
+              });
+              
+              // Auto-refresh chat every 30 seconds (only if on chat page)
+              if (window.location.href.indexOf('action=chat') > -1 || window.location.href.indexOf('action=display') > -1 || !window.location.href.includes('action=')) {
+                let autoRefreshInterval = setInterval(function() {
+                  // Only refresh if user hasn't scrolled up significantly
+                  const scrollFromBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
+                  if (scrollFromBottom < 200) {
+                    // Show loading indicator
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = 'text-center p-2';
+                    loadingDiv.innerHTML = '<small class="text-muted">Шинэчлэж байна...</small>';
+                    chatContainer.appendChild(loadingDiv);
+                    
+                    // Reload page to get new messages
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 500);
+                  }
+                }, 30000); // Refresh every 30 seconds
+                
+                // Clear interval when page is about to unload
+                window.addEventListener('beforeunload', function() {
+                  clearInterval(autoRefreshInterval);
+                });
+              }
+              
+              // Smooth scroll to bottom when new messages arrive
+              const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                  if (mutation.addedNodes.length) {
+                    // Check if user is near bottom
+                    const scrollFromBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
+                    if (scrollFromBottom < 300) {
+                      setTimeout(() => {
+                        chatContainer.scrollTo({
+                          top: chatContainer.scrollHeight,
+                          behavior: 'smooth'
+                        });
+                      }, 100);
+                    }
+                  }
+                });
+              });
+              
+              observer.observe(chatContainer, { childList: true, subtree: true });
+            }
             </script>
+            
+            <style>
+            .chat-messages::-webkit-scrollbar {
+              width: 8px;
+            }
+            .chat-messages::-webkit-scrollbar-track {
+              background: #f1f1f1;
+              border-radius: 10px;
+            }
+            .chat-messages::-webkit-scrollbar-thumb {
+              background: #888;
+              border-radius: 10px;
+            }
+            .chat-messages::-webkit-scrollbar-thumb:hover {
+              background: #555;
+            }
+            .message-item:hover {
+              transform: translateX(5px) !important;
+            }
+            .message-user:hover {
+              border-left-color: #66bb6a !important;
+            }
+            .message-admin:hover {
+              border-left-color: #42a5f5 !important;
+            }
+            </style>
             <?php
           }
           ?>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { Plane, Ship, Package, ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
 export default function Hero() {
   return (
@@ -93,73 +93,6 @@ export default function Hero() {
             </div>
           </motion.div>
 
-          {/* Right Visual */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="relative hidden lg:block"
-          >
-            <div className="relative w-full aspect-square max-w-lg mx-auto">
-              {/* Main Circle */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200" />
-              
-              {/* Floating Icons */}
-              <motion.div
-                animate={{ y: [-10, 10, -10] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute top-12 left-1/2 -translate-x-1/2 p-6 bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100"
-              >
-                <Plane className="w-12 h-12 text-blue-600" />
-              </motion.div>
-
-              <motion.div
-                animate={{ y: [10, -10, 10] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute bottom-20 left-8 p-5 bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100"
-              >
-                <Ship className="w-10 h-10 text-emerald-600" />
-              </motion.div>
-
-              <motion.div
-                animate={{ y: [-8, 8, -8] }}
-                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute bottom-32 right-8 p-4 bg-gradient-to-br from-slate-900 to-slate-700 rounded-2xl shadow-xl shadow-slate-900/20"
-              >
-                <Package className="w-8 h-8 text-white" />
-              </motion.div>
-
-              {/* Center Globe Illustration */}
-              <div className="absolute inset-12 rounded-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex items-center justify-center shadow-2xl">
-                <div className="text-center text-white p-8">
-                  <div className="text-5xl font-bold mb-2">🌏</div>
-                  <div className="text-sm font-medium opacity-80">USA → Mongolia</div>
-                </div>
-                {/* Orbit Ring */}
-                <div className="absolute inset-0 rounded-full border-2 border-dashed border-white/20 animate-spin" style={{ animationDuration: '30s' }} />
-              </div>
-
-              {/* Route Line */}
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 400">
-                <motion.path
-                  d="M 100 200 Q 200 100 300 200"
-                  fill="none"
-                  stroke="url(#gradient)"
-                  strokeWidth="3"
-                  strokeDasharray="8 4"
-                  initial={{ pathLength: 0 }}
-                  animate={{ pathLength: 1 }}
-                  transition={{ duration: 2, delay: 1 }}
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#3b82f6" />
-                    <stop offset="100%" stopColor="#10b981" />
-                  </linearGradient>
-                </defs>
-              </svg>
-            </div>
-          </motion.div>
         </div>
       </div>
 

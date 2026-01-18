@@ -30,9 +30,9 @@
 				
 				// Build query - backward compatible: if role column doesn't exist, don't select it
 				if ($role_exists) {
-					$recent_feedback_sql = "SELECT id, title, content, name, email, timestamp, `read` AS read_status, COALESCE(role, 'user') AS role FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 8";
+					$recent_feedback_sql = "SELECT id, title, content, name, contact, email, timestamp, `read` AS read_status, COALESCE(role, 'user') AS role FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 8";
 				} else {
-					$recent_feedback_sql = "SELECT id, title, content, name, email, timestamp, `read` AS read_status FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 8";
+					$recent_feedback_sql = "SELECT id, title, content, name, contact, email, timestamp, `read` AS read_status FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 8";
 				}
 				$recent_feedback_result = mysqli_query($conn, $recent_feedback_sql);
 				if ($recent_feedback_result) {
@@ -214,10 +214,12 @@
 								$feedback_title = isset($recent_feedback["title"]) ? htmlspecialchars($recent_feedback["title"]) : '';
 								$feedback_content = isset($recent_feedback["content"]) ? htmlspecialchars($recent_feedback["content"]) : '';
 								$feedback_name = isset($recent_feedback["name"]) ? htmlspecialchars($recent_feedback["name"]) : '';
+								$feedback_contact = isset($recent_feedback["contact"]) ? htmlspecialchars($recent_feedback["contact"]) : '';
 								$feedback_email = isset($recent_feedback["email"]) ? htmlspecialchars($recent_feedback["email"]) : '';
 								$feedback_read = isset($recent_feedback["read"]) ? intval($recent_feedback["read"]) : 0;
 								$feedback_timestamp = isset($recent_feedback["timestamp"]) ? htmlspecialchars($recent_feedback["timestamp"]) : '';
 								$feedback_role = isset($recent_feedback["role"]) && !empty($recent_feedback["role"]) ? htmlspecialchars($recent_feedback["role"]) : "user";
+								$is_admin_notif = ($feedback_role == "admin");
 								
 								// Хугацааны тооцоо
 								$time_ago = '';
@@ -264,8 +266,8 @@
 												<p class="mb-0" style="font-size: 14px; font-weight: 500; color: #333; line-height: 1.4;">
 													<?php echo $feedback_title; ?>
 												</p>
-												<span class="badge badge-<?php echo $feedback_role == 'admin' ? 'danger' : 'primary'; ?>" style="font-size: 10px; margin-top: 4px;">
-													<?php echo strtoupper($feedback_role); ?>
+												<span class="badge badge-<?php echo $is_admin_notif ? 'danger' : 'primary'; ?>" style="font-size: 10px; margin-top: 4px;">
+													<?php echo $is_admin_notif ? 'ADMIN' : ($feedback_contact ? $feedback_contact : 'USER'); ?>
 												</span>
 											</div>
 											<?php if ($feedback_read == 0): ?>

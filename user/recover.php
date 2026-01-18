@@ -1,6 +1,6 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once(__DIR__ . "/../config.php");?>
+<?php require_once(__DIR__ . "/../views/helper.php");?>
+<?php require_once(__DIR__ . "/../views/init.php");?>
     <link href="assets/css/authentication/form-1.css" rel="stylesheet" type="text/css" />
     <!-- END GLOBAL MANDATORY STYLES -->
     <link rel="stylesheet" type="text/css" href="assets/css/forms/theme-checkbox-radio.css">
@@ -13,7 +13,7 @@
         <div class="form-form">
             <div class="form-form-wrap">
 
-                <?
+                <?php
                     if (isset($_POST["search"]))
                         {
                             $search=protect($_POST["search"]);
@@ -29,13 +29,13 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                     Бүртгэл олдсонгүй. <b>Та шинээр бүртгүүлэн нэвтэрнэ үү <a href="login"> энд дар</a></b> 
                                 </div>
-                                <?
+                                <?php
                             }
                             if (mysqli_num_rows($result)==1)
                              
                            {
                                $data = mysqli_fetch_array($result);
-                               $usernmae = $data["username"];
+                               $username = $data["username"];
                                $password = $data["password"];
                                $email = $data["email"];
                             
@@ -46,7 +46,7 @@
                                     $message .= 'Хэрэглэгч таны системд нэвтрэх мэдээллийг илгээж байна.';
                                     $message .= '<table rules="all" style="border-color: #666;" cellpadding="10">';
                                     if ($with_username)
-                                    $message .= "<tr><td><strong>Нэвтрэх нэр:</strong> </td><td>" . $usernmae . "</td></tr>";
+                                    $message .= "<tr><td><strong>Нэвтрэх нэр:</strong> </td><td>" . $username . "</td></tr>";
                                     $message .= "<tr><td><strong>Нууц үг:</strong> </td><td>" . $password . "</td></tr>";
                                     $message .= "</table>";
                                     $message .= "</body></html>";
@@ -69,7 +69,7 @@
                                                 Бүртгэлтэй имэйлрүү нэвтрэх нууц үгийг явууллаа.
                                                 
                                             </div>
-                                            <?
+                                            <?php
                                             
                                         }
                                         else 
@@ -80,7 +80,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                                 Алдаа гарлаа. Шууд холбогдож нэвтрэх нууц үгийг сэргээлгэж авна уу.
                                             </div>
-                                            <?
+                                            <?php
                                         }
                                 }
                                 else
@@ -91,7 +91,7 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                         Бүртгэлтэй харилцагчид имэйл бүртгээгүй байна. 
                                     </div>
-                                    <?
+                                    <?php
                                 }
                                
                            }

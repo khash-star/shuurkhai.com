@@ -1,11 +1,50 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once(__DIR__ . "/../config.php");?>
+<?php require_once(__DIR__ . "/../views/helper.php");?>
+<?php require_once(__DIR__ . "/../views/init.php");?>
     <link href="assets/css/authentication/form-1.css" rel="stylesheet" type="text/css" />
     <!-- END GLOBAL MANDATORY STYLES -->
     <link rel="stylesheet" type="text/css" href="assets/css/forms/theme-checkbox-radio.css">
     <link rel="stylesheet" type="text/css" href="assets/css/forms/switches.css">
     <link rel="stylesheet" type="text/css" href="assets/css/elements/alert.css">
+    <style>
+        /* Fix icon and input alignment and width */
+        .field-wrapper.input {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .field-wrapper.input svg {
+            flex-shrink: 0 !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+        .field-wrapper.input input,
+        .field-wrapper.input .form-control {
+            flex: 1 !important;
+            min-width: 0 !important;
+            max-width: calc(100% - 34px) !important;
+            width: auto !important;
+            box-sizing: border-box !important;
+        }
+        .form-content {
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .form-container {
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        form .form {
+            max-width: 100% !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+    </style>
 
 
 <body class="form">
@@ -13,7 +52,7 @@
         <div class="form-form">
             <div class="form-form-wrap">
 
-                <?
+                <?php
                     if (isset($_POST["username"]) && $_POST["username"]<>"" && $_POST["tel"]<>"" && $_POST["name"]<>"" && $_POST["password"]<>"")
                         {
                             $username=protect($_POST["username"]);
@@ -33,7 +72,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                     Нэвтрэх нэр, утас бүртгэлтэй байна. <b>Та нууц үгээ сэргээх авах боломжтой <a href="recover"> энд дар уу</a></b> 
                                 </div>
-                                <?
+                                <?php
                             }
                             else 
                            {
@@ -50,7 +89,7 @@
                                         Амжилттай бүртгэлээ. Та <a href="login">энд дарж</a> нэвтрэн орж өөрийн хаягаа оруулна уу. 
                                         
                                     </div>
-                                    <?
+                                    <?php
                                     //header("location:login",2);
                                     
                                 }
@@ -60,9 +99,9 @@
                                     <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                        Алдаа гарлаа: <?=mysqli_error($conn);?>
+                                        Алдаа гарлаа: <?=isset($conn) ? mysqli_error($conn) : "Database connection not found";?>
                                     </div>
-                                    <?
+                                    <?php
                                 }
                            }
 
@@ -96,7 +135,7 @@
                                 </div>
                                 <div id="username-field" class="field-wrapper input">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                    <input id="username" name="username" type="text" class="form-control" placeholder="Нэвтрэх нэр (*)" required>
+                                    <input id="username" name="username" type="text" class="form-control" placeholder="Нэвтрэх нэр (*)" autocomplete="off" required>
                                 </div>
                                 <div id="password-field" class="field-wrapper input mb-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-lock"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>

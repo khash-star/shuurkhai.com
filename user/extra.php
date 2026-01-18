@@ -30,11 +30,11 @@
             <div class="layout-px-spacing">
                 <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="contact"; ?>
 
-                <?
+                <?php
                 if ($action=="contact")
                 {
                     
-                    if (isset($_POST["title"]) && isset($_POST["content"]) && !empty(trim($_POST["title"])) && !empty(trim($_POST["content"])))
+                    if (isset($_POST["content"]) && !empty(trim($_POST["content"])))
                     {
                         // Хэрэглэгчийн мэдээлэл авах
                         $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
@@ -61,8 +61,8 @@
                         
                         // SQL injection хамгаалалт
                         if (isset($conn) && $conn) {
-                            $title = mysqli_real_escape_string($conn, protect(trim($_POST["title"])));
-                            $content = mysqli_real_escape_string($conn, protect(trim($_POST["content"])));
+                            $title_escaped = mysqli_real_escape_string($conn, 'Зурвас'); // Default title
+                            $content_escaped = mysqli_real_escape_string($conn, protect(trim($_POST["content"])));
                             $name_escaped = mysqli_real_escape_string($conn, $name);
                             $tel_escaped = mysqli_real_escape_string($conn, $tel);
                             $email_escaped = mysqli_real_escape_string($conn, $email);
@@ -91,7 +91,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                     Амжилттай илгээлээ
                                 </div>
-                                <?
+                                <?php
                             }
                             else 
                             {
@@ -101,7 +101,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                     Алдаа гарлаа: <?php echo (isset($conn) && $conn) ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error'; ?>
                                 </div>
-                                <?
+                                <?php
                             }
                         }
                         else
@@ -112,7 +112,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                 Database холболт алдаатай байна.
                             </div>
-                            <?
+                            <?php
                         }
                     }
                     ?>
@@ -121,14 +121,6 @@
                             <div class="contact-form">
                                 <form action="extra?action=contact" method="post">
                                     <h4>Send us a Message</h4>
-                                    <div class="row">
-                                        <div class="col-sm-12 col-12 input-fields mb-4 mb-sm-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-3"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                                            <input type="text" class="form-control" placeholder="Гарчиг" name="title" required>
-                                        </div>
-                                    </div>
-                                    
-
                                     <div class="row">
                                         <div class="col">
                                             <div class="form-group input-fields">
@@ -147,11 +139,146 @@
                             </div>
                         </div>
                     </div>
-                   <?
+                    
+                    <!-- Messages History (All Messages) -->
+                    <?php
+                    // Get user phone number for matching messages
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    $user_tel = isset($_SESSION["c_tel"]) ? trim($_SESSION["c_tel"]) : '';
+                    
+                    if (empty($user_tel) && isset($conn) && $conn && $user_id > 0) {
+                        $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                        $tel_sql = "SELECT tel FROM customer WHERE customer_id='".$user_id_escaped."' LIMIT 1";
+                        $tel_result = mysqli_query($conn, $tel_sql);
+                        if ($tel_result !== false && $tel_data = mysqli_fetch_array($tel_result)) {
+                            $user_tel = isset($tel_data["tel"]) && !empty($tel_data["tel"]) ? trim($tel_data["tel"]) : '';
+                        }
+                    }
+                    
+                    // Check if role column exists
+                    $check_role_sql = "SHOW COLUMNS FROM feedback LIKE 'role'";
+                    $role_exists = false;
+                    $check_result = mysqli_query($conn, $check_role_sql);
+                    if ($check_result && mysqli_num_rows($check_result) > 0) {
+                        $role_exists = true;
+                    }
+                    
+                    // Get all messages for this user (by contact/phone number)
+                    if (!empty($user_tel) && isset($conn) && $conn) {
+                        $user_tel_escaped = mysqli_real_escape_string($conn, $user_tel);
+                        
+                        if ($role_exists) {
+                            // Get all messages (user messages and admin replies) for this contact
+                            $messages_sql = "SELECT * FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 ORDER BY timestamp ASC";
+                        } else {
+                            // Fallback: get messages by contact only (role column doesn't exist)
+                            $messages_sql = "SELECT * FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 ORDER BY timestamp ASC";
+                        }
+                        
+                        $messages_result = mysqli_query($conn, $messages_sql);
+                        ?>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Бүх мессежүүд</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="chat-messages" style="max-height: 600px; overflow-y: auto; padding: 20px; background: #fafafa; border-radius: 8px;">
+                                            <?php
+                                            if ($messages_result && mysqli_num_rows($messages_result) > 0) {
+                                                while ($msg_data = mysqli_fetch_array($messages_result)) {
+                                                    if (!$msg_data) continue;
+                                                    
+                                                    $msg_id = isset($msg_data["id"]) ? intval($msg_data["id"]) : 0;
+                                                    $msg_title = isset($msg_data["title"]) ? htmlspecialchars($msg_data["title"]) : '';
+                                                    $msg_content = isset($msg_data["content"]) ? htmlspecialchars($msg_data["content"]) : '';
+                                                    $msg_read = isset($msg_data["read"]) ? intval($msg_data["read"]) : 0;
+                                                    $msg_name = isset($msg_data["name"]) ? htmlspecialchars($msg_data["name"]) : '';
+                                                    $msg_contact = isset($msg_data["contact"]) ? htmlspecialchars($msg_data["contact"]) : '';
+                                                    $msg_timestamp = isset($msg_data["timestamp"]) ? htmlspecialchars($msg_data["timestamp"]) : '';
+                                                    
+                                                    // Determine if this is an admin reply
+                                                    $msg_role = "user";
+                                                    if ($role_exists && isset($msg_data["role"]) && !empty($msg_data["role"])) {
+                                                        $msg_role = htmlspecialchars($msg_data["role"]);
+                                                    }
+                                                    
+                                                    $is_admin_msg = ($msg_role == "admin");
+                                                    
+                                                    // Fallback: if role column doesn't exist, check by name or title patterns
+                                                    if (!$is_admin_msg && (!$role_exists || empty($msg_data["role"]))) {
+                                                        // Check if name contains "admin" or title is "Re: Admin Reply"
+                                                        $name_lower = strtolower($msg_name);
+                                                        $title_lower = strtolower($msg_title);
+                                                        if (strpos($name_lower, 'admin') !== false || 
+                                                            $title_lower == 're: admin reply' || 
+                                                            strpos($title_lower, 'admin reply') !== false) {
+                                                            $is_admin_msg = true;
+                                                        }
+                                                    }
+                                                    
+                                                    // Styling based on role
+                                                    if ($is_admin_msg) {
+                                                        $bg_style = "background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196F3; margin-left: 20%; box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);";
+                                                    } else {
+                                                        $bg_style = "background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%); border-left: 4px solid #4CAF50; margin-right: 20%; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);";
+                                                    }
+                                                    
+                                                    // Unread indicator
+                                                    $unread_style = ($msg_read == 0 && $is_admin_msg) ? "border-top: 3px solid #ff9800;" : "";
+                                                    ?>
+                                                    <div class="message-item mb-3" style="<?php echo $bg_style; ?> <?php echo $unread_style; ?> padding: 15px; border-radius: 12px; margin-bottom: 15px;">
+                                                        <div style="<?php echo $is_admin_msg ? 'text-right' : 'text-left'; ?>">
+                                                            <span class="badge <?php echo $is_admin_msg ? 'badge-danger' : 'badge-primary'; ?> mb-2">
+                                                                <?php echo $is_admin_msg ? 'АДМИН' : ($msg_contact ? $msg_contact : 'ХЭРЭГЛЭГЧ'); ?>
+                                                            </span>
+                                                            <div style="margin-bottom: 8px;">
+                                                                <strong><?php echo $is_admin_msg ? 'Админ' : ($msg_contact ? $msg_contact : $msg_name); ?></strong>
+                                                                <small class="text-muted ml-2"><?php echo date("Y-m-d H:i", strtotime($msg_timestamp)); ?></small>
+                                                            </div>
+                                                            <?php if (!empty($msg_title) && $msg_title != "Re: Admin Reply"): ?>
+                                                            <div style="font-weight: 600; margin-bottom: 5px; color: #333;">
+                                                                <?php echo $msg_title; ?>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                            <div style="color: #555; line-height: 1.5;">
+                                                                <?php echo nl2br($msg_content); ?>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <?php
+                                                }
+                                            } else {
+                                                ?>
+                                                <div class="alert alert-info" role="alert" style="text-align: center;">
+                                                    Мессеж байхгүй байна.
+                                                </div>
+                                                <?php
+                                            }
+                                            ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                        // Auto-scroll to bottom on load
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const chatContainer = document.querySelector('.chat-messages');
+                            if (chatContainer) {
+                                chatContainer.scrollTop = chatContainer.scrollHeight;
+                            }
+                        });
+                        </script>
+                        <?php
+                    }
+                    ?>
+                   <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="faqs")
                 {
                     $user_id = $_SESSION["c_user_id"];
@@ -168,7 +295,7 @@
                     <div class="row layout-spacing">
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 layout-top-spacing">
                             <div id="toggleAccordion">
-                                <?
+                                <?php
                                     if (isset($conn) && $conn) {
                                         $sql = "SELECT *FROM faqs ORDER BY dd";
                                         $result = mysqli_query($conn,$sql);
@@ -212,7 +339,7 @@
                                                     </div>
                                                 </div>
 
-                                                    <?
+                                                    <?php
                                                 }
                                             }
                                         }
@@ -221,11 +348,11 @@
                             </div>   
                         </div>                                
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="privacy")
                 {
                     $user_id = $_SESSION["c_user_id"];
@@ -265,12 +392,12 @@
                         </div>
                         
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
 
-                <?
+                <?php
                 if ($action=="report")
                 {
                     
@@ -304,7 +431,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                     Амжилттай илгээлээ
                                 </div>
-                                <?
+                                <?php
                             }
                             else 
                             {
@@ -314,7 +441,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                     Алдаа гарлаа: <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error'; ?>
                                 </div>
-                                <?
+                                <?php
                             }
                     }
                     ?>
@@ -351,11 +478,11 @@
                             </div>
                         </div>
                     </div>
-                   <?
+                   <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="collaboration")
                 {
                     $user_id = $_SESSION["c_user_id"];
@@ -395,7 +522,7 @@
                         </div>
                         
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
@@ -417,7 +544,19 @@
     <script>
         $(document).ready(function() {
             App.init();
-
+            
+            // Fix notification dropdown position to show below the bell icon
+            $('#notificationDropdown').on('show.bs.dropdown', function() {
+                var $dropdown = $(this).next('.dropdown-menu');
+                $dropdown.css({
+                    'position': 'absolute',
+                    'top': '100%',
+                    'right': '0',
+                    'left': 'auto',
+                    'margin-top': '0',
+                    'transform': 'none'
+                });
+            });
         });
     </script>
     <script src="plugins/highlight/highlight.pack.js"></script>
