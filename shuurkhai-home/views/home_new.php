@@ -1,7 +1,7 @@
     
     <!-- Navbar -->
     <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <!-- Logo -->
                 <a href="/shuurkhai/" class="flex items-center gap-3 hover:scale-105 transition-transform">
@@ -53,11 +53,11 @@
                                     </div>
                                     <span class="font-medium text-slate-700">Онлайн захиалга</span>
                                 </a>
-                                <a href="/shuurkhai/calculator" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <a href="/shuurkhai/shop" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors">
                                     <div class="w-10 h-10 rounded-lg bg-[#1e3a5f]/5 flex items-center justify-center">
-                                        <i data-lucide="calculator" class="w-5 h-5 text-[#1e3a5f]"></i>
+                                        <i data-lucide="store" class="w-5 h-5 text-[#1e3a5f]"></i>
                                     </div>
-                                    <span class="font-medium text-slate-700">Үнийн тооцоолуур</span>
+                                    <span class="font-medium text-slate-700">Бүх дэлгүүр</span>
                                 </a>
                             </div>
                         </div>
@@ -116,9 +116,9 @@
                             <i data-lucide="ship" class="w-4 h-4 text-[#1e3a5f]"></i>
                             Далайн карго
                         </button>
-                        <a href="/shuurkhai/calculator" class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
-                            <i data-lucide="calculator" class="w-4 h-4 text-[#1e3a5f]"></i>
-                            Үнийн тооцоолуур
+                        <a href="/shuurkhai/shop" class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
+                            <i data-lucide="store" class="w-4 h-4 text-[#1e3a5f]"></i>
+                            Бүх дэлгүүр
                         </a>
                     </div>
                     <a href="/shuurkhai/shop" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">Үнийн мэдээлэл</a>
@@ -147,19 +147,93 @@
         </div>
     </div>
 
+    <!-- Hero Slider Section -->
+    <?php
+    // Get slider images from database (from admin slides table)
+    $slider_images = [];
+    if (isset($conn)) {
+        // Use 'slides' table (same as admin/slides.php) instead of 'sliders'
+        $sql_slider = "SELECT * FROM slides ORDER BY dd LIMIT 5";
+        $result_slider = mysqli_query($conn, $sql_slider);
+        if ($result_slider) {
+            while ($slider_data = mysqli_fetch_array($result_slider)) {
+                if ($slider_data && isset($slider_data["image"]) && !empty($slider_data["image"])) {
+                    $slider_image = fix_image_path($slider_data["image"]);
+                    if (!empty($slider_image)) {
+                        $slider_images[] = [
+                            'image' => $slider_image,
+                            'name' => isset($slider_data["name"]) ? htmlspecialchars($slider_data["name"]) : '',
+                            'text' => isset($slider_data["text"]) ? htmlspecialchars($slider_data["text"]) : '',
+                            'link' => isset($slider_data["link"]) ? htmlspecialchars($slider_data["link"]) : '',
+                        ];
+                    }
+                }
+            }
+        }
+    }
+    ?>
+    <?php if (!empty($slider_images)): ?>
+    <section class="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-screen max-h-[100vh] overflow-x-hidden overflow-y-hidden mt-20">
+        <div id="heroSlider" class="relative w-full h-full overflow-hidden">
+            <?php foreach ($slider_images as $index => $slide): ?>
+            <div class="hero-slide <?php echo $index === 0 ? 'active' : ''; ?>" style="display: <?php echo $index === 0 ? 'block' : 'none'; ?>; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden;">
+                <?php 
+                // Validate and format link - if it's just a single character or relative path, make it absolute or skip it
+                $slide_link = isset($slide['link']) ? trim($slide['link']) : '';
+                $is_valid_link = false;
+                if (!empty($slide_link)) {
+                    // Check if it's a full URL (http/https) or absolute path starting with /
+                    if (preg_match('/^https?:\/\//', $slide_link) || preg_match('/^\//', $slide_link)) {
+                        $is_valid_link = true;
+                    } elseif (strlen($slide_link) > 1) {
+                        // If it's a relative path, make it absolute from root
+                        $slide_link = '/shuurkhai/' . ltrim($slide_link, '/');
+                        $is_valid_link = true;
+                    }
+                }
+                ?>
+                <img src="<?php echo htmlspecialchars($slide['image']); ?>" alt="<?php echo htmlspecialchars($slide['name'] ?: 'Slider ' . ($index + 1)); ?>" class="absolute inset-0 w-full h-full object-cover object-center z-0" style="width: 100%; height: 100%; object-fit: cover; object-position: center; min-width: 100%;">
+                <?php if (!empty($slide['name']) || !empty($slide['text'])): ?>
+                <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-slate-900 bg-gradient-to-t from-white/95 via-white/80 to-transparent z-20 pointer-events-none">
+                    <?php if (!empty($slide['name'])): ?>
+                    <h3 class="text-2xl sm:text-3xl font-bold mb-2"><?php echo $slide['name']; ?></h3>
+                    <?php endif; ?>
+                    <?php if (!empty($slide['text'])): ?>
+                    <p class="text-base sm:text-lg opacity-90"><?php echo $slide['text']; ?></p>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+                <?php if ($is_valid_link): ?>
+                <a href="<?php echo htmlspecialchars($slide_link); ?>" class="absolute inset-0 z-10"></a>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        
+        <!-- Slider Controls -->
+        <?php if (count($slider_images) > 1): ?>
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            <?php foreach ($slider_images as $index => $slider_img): ?>
+            <button onclick="showSlide(<?php echo $index; ?>)" class="w-2 h-2 rounded-full bg-white/50 hover:bg-white transition-colors slider-dot <?php echo $index === 0 ? 'bg-white' : ''; ?>"></button>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+    </section>
+    <?php endif; ?>
+
     <!-- Hero Section -->
-    <section class="relative min-h-[90vh] flex items-center overflow-hidden bg-white pt-20">
+    <section class="relative min-h-[90vh] flex items-center overflow-hidden bg-white <?php echo empty($slider_images) ? 'pt-20' : ''; ?>">
         <!-- Background Elements -->
         <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute top-20 left-10 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-20 right-10 w-[600px] h-[600px] bg-emerald-500/5 rounded-full blur-3xl"></div>
+            <div class="absolute top-20 left-0 sm:left-10 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-blue-500/5 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-20 right-0 sm:right-10 w-[350px] h-[350px] sm:w-[500px] sm:h-[500px] md:w-[600px] md:h-[600px] bg-emerald-500/5 rounded-full blur-3xl"></div>
         </div>
 
         <!-- Subtle Grid Pattern -->
         <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.01)_1px,transparent_1px)] bg-[size:80px_80px]"></div>
 
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-            <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
+            <div class="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-20 items-center">
                 <!-- Left Content -->
                 <div>
                     <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-emerald-50 border border-slate-200/50 mb-6">
@@ -196,22 +270,6 @@
                             Карго үнийн тооцоо
                         </a>
                     </div>
-
-                    <!-- Stats -->
-                    <div class="grid grid-cols-3 gap-6 mt-12 pt-8 border-t border-slate-200/60">
-                        <div>
-                            <div class="text-2xl sm:text-3xl font-bold text-slate-900">50K+</div>
-                            <div class="text-sm text-slate-500 mt-1">Сэтгэл ханамжтай хэрэглэгч</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl sm:text-3xl font-bold text-slate-900">5-10</div>
-                            <div class="text-sm text-slate-500 mt-1">Хоногт агаарын карго</div>
-                        </div>
-                        <div>
-                            <div class="text-2xl sm:text-3xl font-bold text-slate-900">99%</div>
-                            <div class="text-sm text-slate-500 mt-1">Хүргэлтийн амжилт</div>
-                        </div>
-                    </div>
                 </div>
 
                 <!-- Right Visual -->
@@ -246,35 +304,23 @@
                 </div>
             </div>
         </div>
-
-        <!-- Scroll Indicator -->
-        <div class="absolute bottom-8 left-1/2 -translate-x-1/2">
-            <div class="w-6 h-10 rounded-full border-2 border-slate-300 flex items-start justify-center p-2">
-                <div class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-scroll-indicator"></div>
-            </div>
-        </div>
     </section>
 
     <!-- Store Partners Section -->
-    <section class="py-20 bg-gradient-to-b from-white via-slate-50 to-white relative overflow-hidden">
-        <div class="absolute top-10 left-20 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-10 right-20 w-96 h-96 bg-purple-200/20 rounded-full blur-3xl"></div>
+    <section class="py-6 sm:py-8 md:py-12 bg-gradient-to-b from-white via-slate-50 to-white relative overflow-hidden">
+        <div class="absolute top-10 left-0 sm:left-10 md:left-20 w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 bg-blue-200/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-0 sm:right-10 md:right-20 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-purple-200/20 rounded-full blur-3xl"></div>
         
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-            <div class="text-center mb-12">
-                <span class="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-slate-700 text-sm font-semibold mb-4">
-                    Онлайн дэлгүүрүүд
-                </span>
-                <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
-                    Манай хамтрагч онлайн дэлгүүрүүд
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative">
+            <!-- Section Title -->
+            <div class="text-center mb-3 sm:mb-4">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">
+                    Бүх онлайн дэлгүүр
                 </h2>
-                <p class="text-base text-slate-600 max-w-2xl mx-auto">
-                    Америкийн найдвартай онлайн дэлгүүрүүдээс шууд захиална
-                </p>
             </div>
 
             <!-- Scroll Buttons -->
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
                 <div class="flex gap-2">
                     <button onclick="scrollStores('left')" class="w-10 h-10 rounded-xl bg-white/60 backdrop-blur-sm border border-white/80 shadow-sm hover:shadow-md hover:bg-white/80 transition-all duration-200 flex items-center justify-center">
                         <i data-lucide="chevron-left" class="w-5 h-5 text-slate-700"></i>
@@ -310,9 +356,11 @@
                 </a>
                 <?php endif; ?>
             </div>
-
-            <!-- Horizontal Scroll Container -->
-            <div id="storesContainer" class="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 cursor-grab active:cursor-grabbing select-none">
+        </div>
+        
+        <!-- Horizontal Scroll Container - Full Width -->
+        <div class="w-full overflow-hidden">
+            <div id="storesContainer" class="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 cursor-grab active:cursor-grabbing select-none px-3 sm:px-4 md:px-6 lg:px-8" style="max-width: 100vw; box-sizing: border-box;">
                 <?php
                 // Get shops from database
                 $shops_array = [];
@@ -450,8 +498,10 @@
                 </a>
                 <?php endforeach; ?>
             </div>
-
-            <!-- Trust Badge -->
+        </div>
+        
+        <!-- Trust Badge -->
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative">
             <div class="mt-8 text-center">
                 <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/60 backdrop-blur-sm border border-emerald-200/60 shadow-sm">
                     <span class="text-emerald-500 text-base">✓</span>
@@ -462,11 +512,11 @@
     </section>
 
     <!-- How It Works Section -->
-    <section class="py-20 bg-white relative overflow-hidden">
-        <div class="absolute top-20 left-10 w-64 h-64 bg-blue-100/30 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-20 right-10 w-80 h-80 bg-purple-100/30 rounded-full blur-3xl"></div>
+    <section class="py-12 sm:py-16 md:py-20 bg-white relative overflow-hidden">
+        <div class="absolute top-20 left-0 sm:left-10 w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 bg-blue-100/30 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-0 sm:right-10 w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 bg-purple-100/30 rounded-full blur-3xl"></div>
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative">
             <div class="text-center mb-12">
                 <span class="inline-block px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 text-slate-700 text-sm font-semibold mb-4">
                     Хэрхэн ажилладаг вэ?
@@ -542,11 +592,11 @@
     </section>
 
     <!-- Benefits Section -->
-    <section class="py-20 bg-gradient-to-b from-slate-50 via-slate-100 to-slate-50 relative overflow-hidden">
-        <div class="absolute top-20 right-10 w-[500px] h-[500px] bg-blue-300/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-0 left-10 w-[500px] h-[500px] bg-purple-300/20 rounded-full blur-3xl"></div>
+    <section class="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-slate-50 via-slate-100 to-slate-50 relative overflow-hidden">
+        <div class="absolute top-20 right-0 sm:right-10 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-blue-300/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 sm:left-10 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-purple-300/20 rounded-full blur-3xl"></div>
 
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative">
             <div class="text-center mb-12">
                 <span class="inline-block px-4 py-1.5 rounded-full bg-white/60 backdrop-blur-sm border border-white/80 text-slate-700 text-sm font-semibold mb-4 shadow-sm">
                     Яагаад биднийг сонгох вэ?
@@ -625,9 +675,9 @@
     </section>
 
     <!-- Call To Action Section -->
-    <section class="py-20 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 relative overflow-hidden">
-        <div class="absolute top-10 left-20 w-[600px] h-[600px] bg-blue-300/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-10 right-20 w-[600px] h-[600px] bg-purple-300/20 rounded-full blur-3xl"></div>
+    <section class="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 relative overflow-hidden">
+        <div class="absolute top-10 left-0 sm:left-10 md:left-20 w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] bg-blue-300/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-0 sm:right-10 md:right-20 w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] bg-purple-300/20 rounded-full blur-3xl"></div>
 
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="bg-white/40 backdrop-blur-2xl rounded-[2.5rem] p-8 sm:p-12 border border-white/60 shadow-2xl relative overflow-hidden">

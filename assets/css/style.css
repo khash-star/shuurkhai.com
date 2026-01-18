@@ -98,8 +98,8 @@ text-decoration: none;
 
 .upper-nav{
     background-color: rgba(255, 255, 255, 0.9);
-    padding-top: 20px;
-    padding-bottom: 10px;
+    padding-top: 10px;
+    padding-bottom: 5px;
 }
 
 .upper-nav .navbar-brand{
@@ -166,7 +166,7 @@ text-decoration: none;
    ====================================== */
 #header-svg{
     position: absolute;
-    bottom: -59px;
+    bottom: -30px;
     left:0;
     right: 0;
     z-index: 11;

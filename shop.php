@@ -20,13 +20,14 @@
 </div>
 <!-- Preloader End -->
 
-<? require_once("views/header.php");?>
-
-
-
 <!--Product Line Up Start -->
 <div class="product-listing">
-    <div class="container">
+    <div class="container" style="padding-top: 20px;">
+        <div class="mb-3">
+            <a href="/shuurkhai/" class="btn btn-secondary btn-sm">
+                <i class="las la-arrow-left"></i> Нүүр рүү буцах
+            </a>
+        </div>
         <div class="row">
 
             <!-- START STICKY NAV -->

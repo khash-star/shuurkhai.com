@@ -25,6 +25,63 @@ require_once(__DIR__ . "/../views/helper.php");
         
         * {
             font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        /* Prevent horizontal scroll on mobile - STRONGEST */
+        html {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            position: relative;
+        }
+        
+        body {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            width: 100% !important;
+            position: relative;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Prevent all sections from overflowing */
+        section {
+            max-width: 100vw !important;
+            overflow-x: hidden !important;
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        
+        /* Ensure all containers respect viewport width */
+        .max-w-7xl, .max-w-6xl, .max-w-xl, .max-w-2xl, .max-w-lg {
+            max-width: 100% !important;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        
+        /* Ensure all images are responsive */
+        img {
+            max-width: 100% !important;
+            height: auto;
+            display: block;
+            box-sizing: border-box;
+        }
+        
+        /* Prevent flex containers from overflowing */
+        .flex {
+            min-width: 0;
+            max-width: 100%;
+        }
+        
+        /* Prevent absolute positioned elements from causing overflow */
+        [class*="absolute"] {
+            max-width: 100vw;
+        }
+        
+        /* Ensure all divs respect width */
+        div {
+            box-sizing: border-box;
         }
         
         .scrollbar-hide {
@@ -214,6 +271,37 @@ require_once(__DIR__ . "/../views/helper.php");
             closeCargoInfo();
         }
     });
+
+    // Hero Slider Functionality
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.hero-slide');
+    const dots = document.querySelectorAll('.slider-dot');
+    const totalSlides = slides.length;
+
+    function showSlide(index) {
+        if (index < 0 || index >= totalSlides) return;
+        
+        // Hide all slides
+        slides.forEach((slide, i) => {
+            slide.style.display = i === index ? 'block' : 'none';
+        });
+        
+        // Update dots
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('bg-white', i === index);
+            dot.classList.toggle('bg-white/50', i !== index);
+        });
+        
+        currentSlide = index;
+    }
+
+    // Auto-rotate slides every 5 seconds
+    if (totalSlides > 1) {
+        setInterval(() => {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            showSlide(currentSlide);
+        }, 5000);
+    }
 </script>
 </body>
 </html>
