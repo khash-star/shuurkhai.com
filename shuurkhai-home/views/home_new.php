@@ -11,7 +11,7 @@
                             <i data-lucide="ship" class="w-4 h-4 text-emerald-400 -ml-0.5"></i>
                         </div>
                     </div>
-                    <span class="text-xl font-bold text-slate-900">Shuurkhai</span>
+                    <span class="text-xl font-bold text-slate-900">www.SHUURKHAI.com</span>
                 </a>
 
                 <!-- Desktop Navigation -->
@@ -173,7 +173,7 @@
     }
     ?>
     <?php if (!empty($slider_images)): ?>
-    <section class="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-screen max-h-[100vh] overflow-x-hidden overflow-y-hidden mt-20">
+    <section class="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-screen max-h-[100vh] overflow-x-hidden overflow-y-hidden mt-16">
         <div id="heroSlider" class="relative w-full h-full overflow-hidden">
             <?php foreach ($slider_images as $index => $slide): ?>
             <div class="hero-slide <?php echo $index === 0 ? 'active' : ''; ?>" style="display: <?php echo $index === 0 ? 'block' : 'none'; ?>; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden;">
@@ -222,7 +222,7 @@
     <?php endif; ?>
 
     <!-- Hero Section -->
-    <section class="relative min-h-[90vh] flex items-center overflow-hidden bg-white <?php echo empty($slider_images) ? 'pt-20' : ''; ?>">
+    <section class="relative min-h-[90vh] flex items-center overflow-hidden bg-white <?php echo empty($slider_images) ? 'pt-16' : ''; ?>">
         <!-- Background Elements -->
         <div class="absolute inset-0 overflow-hidden">
             <div class="absolute top-20 left-0 sm:left-10 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-blue-500/5 rounded-full blur-3xl"></div>
@@ -232,25 +232,10 @@
         <!-- Subtle Grid Pattern -->
         <div class="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.01)_1px,transparent_1px)] bg-[size:80px_80px]"></div>
 
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 md:py-12">
             <div class="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-20 items-center">
                 <!-- Left Content -->
                 <div>
-                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-emerald-50 border border-slate-200/50 mb-6">
-                        <i data-lucide="sparkles" class="w-4 h-4 text-emerald-600"></i>
-                        <span class="text-sm font-medium text-slate-700">Монголын #1 карго үйлчилгээ</span>
-                    </div>
-
-                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight mb-6">
-                        Америк онлайн дэлгүүрээс Монголд — 
-                        <span class="relative">
-                            <span class="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-emerald-600">
-                                хурдан, найдвартай
-                            </span>
-                            <span class="absolute bottom-2 left-0 right-0 h-3 bg-emerald-100/60 -z-0 rounded"></span>
-                        </span>
-                    </h1>
-
                     <p class="text-lg sm:text-xl text-slate-600 mb-8 leading-relaxed max-w-xl">
                         Amazon, Walmart болон бусад дэлгүүрээс захиалаад агаар болон далайн каргоор шуурхай хүргүүлээрэй
                     </p>
@@ -307,7 +292,7 @@
     </section>
 
     <!-- Store Partners Section -->
-    <section class="py-6 sm:py-8 md:py-12 bg-gradient-to-b from-white via-slate-50 to-white relative overflow-hidden">
+    <section class="py-4 sm:py-6 md:py-8 bg-gradient-to-b from-white via-slate-50 to-white relative overflow-hidden">
         <div class="absolute top-10 left-0 sm:left-10 md:left-20 w-48 h-48 sm:w-64 sm:h-64 md:w-72 md:h-72 bg-blue-200/20 rounded-full blur-3xl"></div>
         <div class="absolute bottom-10 right-0 sm:right-10 md:right-20 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-purple-200/20 rounded-full blur-3xl"></div>
         
@@ -512,7 +497,7 @@
     </section>
 
     <!-- How It Works Section -->
-    <section class="py-12 sm:py-16 md:py-20 bg-white relative overflow-hidden">
+    <section class="py-6 sm:py-8 md:py-10 bg-white relative overflow-hidden">
         <div class="absolute top-20 left-0 sm:left-10 w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 bg-blue-100/30 rounded-full blur-3xl"></div>
         <div class="absolute bottom-20 right-0 sm:right-10 w-56 h-56 sm:w-64 sm:h-64 md:w-80 md:h-80 bg-purple-100/30 rounded-full blur-3xl"></div>
 
@@ -592,7 +577,7 @@
     </section>
 
     <!-- Benefits Section -->
-    <section class="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-slate-50 via-slate-100 to-slate-50 relative overflow-hidden">
+    <section class="py-6 sm:py-8 md:py-10 bg-gradient-to-b from-slate-50 via-slate-100 to-slate-50 relative overflow-hidden">
         <div class="absolute top-20 right-0 sm:right-10 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-blue-300/20 rounded-full blur-3xl"></div>
         <div class="absolute bottom-0 left-0 sm:left-10 w-[300px] h-[300px] sm:w-[400px] sm:h-[400px] md:w-[500px] md:h-[500px] bg-purple-300/20 rounded-full blur-3xl"></div>
 
@@ -610,13 +595,12 @@
             </div>
 
             <!-- Main Benefits -->
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
                 <?php
                 $benefits = [
                     ['icon' => 'zap', 'title' => 'Шуурхай хүргэлт', 'desc' => 'Агаарын каргоор 5-10 хоногт хүргэнэ', 'gradient' => 'from-yellow-500 to-orange-500'],
                     ['icon' => 'warehouse', 'title' => 'АНУ дахь агуулах', 'desc' => 'Орегон, Калифорнид агуулахтай', 'gradient' => 'from-blue-500 to-indigo-600'],
                     ['icon' => 'shield', 'title' => 'Найдвартай карго', 'desc' => '100% даатгалтай, найдвартай', 'gradient' => 'from-green-500 to-emerald-600'],
-                    ['icon' => 'message-circle', 'title' => 'Монгол дэмжлэг', 'desc' => '24/7 Монгол хэлээр үйлчилнэ', 'gradient' => 'from-purple-500 to-violet-600'],
                 ];
                 foreach ($benefits as $benefit): ?>
                 <div class="group hover:-translate-y-1.5 hover:scale-102 transition-all duration-200">
@@ -636,18 +620,17 @@
             </div>
 
             <!-- Additional Benefits Banner -->
-            <div class="bg-slate-900/70 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 relative overflow-hidden mb-12 border border-white/10 shadow-2xl">
+            <div class="bg-slate-900/70 backdrop-blur-2xl rounded-3xl p-8 sm:p-10 relative overflow-hidden mt-12 border border-white/10 shadow-2xl">
                 <div class="absolute top-0 right-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
                 <div class="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
                 <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none"></div>
                 
-                <div class="relative grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="relative grid sm:grid-cols-3 gap-6">
                     <?php
                     $additionalBenefits = [
                         ['icon' => 'award', 'text' => '10+ жилийн туршлага'],
                         ['icon' => 'clock', 'text' => 'Бодит цагийн tracking'],
                         ['icon' => 'globe', 'text' => 'Дэлхийн түвшний үйлчилгээ'],
-                        ['icon' => 'heart-handshake', 'text' => 'Үнэнч хэрэглэгчдийн хөнгөлөлт'],
                     ];
                     foreach ($additionalBenefits as $item): ?>
                     <div class="flex items-center gap-3">
@@ -659,23 +642,11 @@
                     <?php endforeach; ?>
                 </div>
             </div>
-
-            <!-- Trust Indicators -->
-            <div class="text-center">
-                <p class="text-slate-500 mb-6 text-sm font-medium">Итгэлтэй түншүүд</p>
-                <div class="flex flex-wrap justify-center gap-6 opacity-50">
-                    <?php
-                    $partners = ['🏛️ Банк', '🏢 Даатгал', '📦 FedEx', '✈️ UPS', '🚚 DHL'];
-                    foreach ($partners as $partner): ?>
-                    <span class="text-base font-medium text-slate-400"><?= $partner ?></span>
-                    <?php endforeach; ?>
-                </div>
-            </div>
         </div>
     </section>
 
     <!-- Call To Action Section -->
-    <section class="py-12 sm:py-16 md:py-20 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 relative overflow-hidden">
+    <section class="py-6 sm:py-8 md:py-10 bg-gradient-to-br from-slate-100 via-slate-50 to-slate-100 relative overflow-hidden">
         <div class="absolute top-10 left-0 sm:left-10 md:left-20 w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] bg-blue-300/20 rounded-full blur-3xl"></div>
         <div class="absolute bottom-10 right-0 sm:right-10 md:right-20 w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] md:w-[600px] md:h-[600px] bg-purple-300/20 rounded-full blur-3xl"></div>
 
@@ -760,7 +731,7 @@
                                 <i data-lucide="ship" class="w-5 h-5 text-emerald-400 -ml-1"></i>
                             </div>
                         </div>
-                        <span class="text-2xl font-bold">Shuurkhai</span>
+                        <span class="text-2xl font-bold">www.SHUURKHAI.com</span>
                     </div>
 
                     <p class="text-slate-400 mb-6 leading-relaxed">
