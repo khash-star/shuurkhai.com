@@ -1,4 +1,4 @@
-<?
+<?php
 	if (!function_exists("protect"))
 	{
 		function protect($input)
@@ -22,16 +22,16 @@ if (!function_exists("settings"))
 	{
 		global $conn;
 		if (is_int($id_or_shortname))
-			$sql = "SELECT *FROM settings WHERE id='$id_or_shortname' LIMIT 1";
+			$sql = "SELECT * FROM settings WHERE id='$id_or_shortname' LIMIT 1";
 		else 
-			$sql = "SELECT *FROM settings WHERE shortname='$id_or_shortname' LIMIT 1";
+			$sql = "SELECT * FROM settings WHERE shortname='$id_or_shortname' LIMIT 1";
 
 		$result = mysqli_query($conn,$sql);
 		
-		if (mysqli_num_rows($result)==1)
+		if ($result && mysqli_num_rows($result)==1)
 			{
 				$data = mysqli_fetch_array($result);
-				return $data["value"];
+				return isset($data["value"]) ? $data["value"] : "";
 			}
 			else
 				return "";

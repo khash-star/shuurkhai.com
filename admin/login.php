@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/init.php");
@@ -17,14 +17,14 @@
 
                                     </div>
                                 </div>
-                                <? //$_COOKIE["login_remember"];?>
+                                <?php //$_COOKIE["login_remember"];?>
                                 <div class="col-md-8 pl-md-0">
                                     <div class="auth-form-wrapper px-4 py-5">
                                         <a href="index" class="noble-ui-logo d-block mb-2"><img src="assets/images/logo.png"></a>
                                         <form method="post" action="views/logining">
                                         <div class="form-group">
                                             <label for="exampleInputEmail1">Нэвтрэх нэр</label>
-                                            <input type="text" class="form-control" placeholder="Нэвтрэх нэр" name="username" value="<?=(isset($_COOKIE["login_remember"]))?$_COOKIE["login_remember"]:'';?>">
+                                            <input type="text" class="form-control" placeholder="Нэвтрэх нэр" name="username" value="<?php echo (isset($_COOKIE["login_remember"]))?$_COOKIE["login_remember"]:'';?>">
                                         </div>
                                         <div class="form-group">
                                             <label for="exampleInputPassword1">Нууц үг</label>
@@ -32,7 +32,7 @@
                                         </div>
                                         <div class="form-check form-check-flat form-check-primary">
                                             <label class="form-check-label">
-                                            <input type="checkbox" class="form-check-input" <?=(isset($_COOKIE["login_remember"]))?'checked':'';?> name="login_remember">
+                                            <input type="checkbox" class="form-check-input" <?php echo (isset($_COOKIE["login_remember"]))?'checked':'';?> name="login_remember">
                                             Намайг сана
                                             </label>
                                         </div>

@@ -4,6 +4,30 @@
 
 'use strict';
 
+// Ensure Helpers is loaded before using it
+if (typeof window.Helpers === 'undefined') {
+  console.error('Helpers.js is not loaded. Please ensure helpers.js is loaded before main.js');
+  window.Helpers = {
+    isRtl: function() { return false; },
+    isDarkStyle: function() { return false; },
+    initCustomOptionCheck: function() {},
+    scrollToActive: function() {},
+    mainMenu: null,
+    toggleCollapsed: function() {},
+    swipeIn: function() {},
+    swipeOut: function() {},
+    setCollapsed: function() {},
+    setNavbarFixed: function() {},
+    LAYOUT_BREAKPOINT: 1200,
+    isSmallScreen: function() { return false; },
+    setAutoUpdate: function() {},
+    initPasswordToggle: function() {},
+    initSpeechToText: function() {},
+    initNavbarDropdownScrollbar: function() {},
+    initSidebarToggle: function() {}
+  };
+}
+
 window.isRtl = window.Helpers.isRtl();
 window.isDarkStyle = window.Helpers.isDarkStyle();
 let menu,

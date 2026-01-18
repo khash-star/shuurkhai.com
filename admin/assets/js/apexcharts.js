@@ -2,187 +2,103 @@ $(function() {
   'use strict';
 
   // Apex Line chart start
-  var options = {
-    chart: {
-      height: 300,
-      type: "line",
-      parentHeightOffset: 0
-    },
-    colors: ["#f77eb9", "#7ee5e5","#4d8af0"],
-    grid: {
-      borderColor: "rgba(77, 138, 240, .1)",
-      padding: {
-        bottom: -15
-      }
-    },
-    series: [
-      {
-        name: "Data a",
-        data: [45, 52, 38, 45]
+  if(document.querySelector("#apexLine")) {
+    var options = {
+      chart: {
+        height: 300,
+        type: "line",
+        parentHeightOffset: 0
       },
-      {
-        name: "Data b",
-        data: [12, 42, 68, 33]
+      colors: ["#f77eb9", "#7ee5e5","#4d8af0"],
+      grid: {
+        borderColor: "rgba(77, 138, 240, .1)",
+        padding: {
+          bottom: -15
+        }
       },
-      {
-        name:
-          "Data c",
-        data: [8, 32, 48, 53]
-      }
-    ],
-    xaxis: {
-      type: "datetime",
-      categories: ["2015", "2016", "2017", "2018"]
-    },
-    markers: {
-      size: 0
-    },
-    stroke: {
-      width: 3,
-      curve: "smooth",
-      lineCap: "round"
-    },
-    legend: {
-      show: true,
-      position: "top",
-      horizontalAlign: 'left',
-      containerMargin: {
-        top: 30
-      }
-    },
-    responsive: [
-      {
-        breakpoint: 500,
-        options: {
-          legend: {
-            fontSize: "11px"
+      series: [
+        {
+          name: "Data a",
+          data: [45, 52, 38, 45]
+        },
+        {
+          name: "Data b",
+          data: [12, 42, 68, 33]
+        },
+        {
+          name:
+            "Data c",
+          data: [8, 32, 48, 53]
+        }
+      ],
+      xaxis: {
+        type: "datetime",
+        categories: ["2015", "2016", "2017", "2018"]
+      },
+      markers: {
+        size: 0
+      },
+      stroke: {
+        width: 3,
+        curve: "smooth",
+        lineCap: "round"
+      },
+      legend: {
+        show: true,
+        position: "top",
+        horizontalAlign: 'left',
+        containerMargin: {
+          top: 30
+        }
+      },
+      responsive: [
+        {
+          breakpoint: 500,
+          options: {
+            legend: {
+              fontSize: "11px"
+            }
           }
         }
-      }
-    ]
-  };
-  var apexLineChart = new ApexCharts(document.querySelector("#apexLine"), options);
-  apexLineChart.render();
+      ]
+    };
+    var apexLineChart = new ApexCharts(document.querySelector("#apexLine"), options);
+    apexLineChart.render();
+  }
   // Apex Line chart end
 
   // Apex Bar chart start
-  var options = {
-    chart: {
-      type: 'bar',
-      height: '320',
-      parentHeightOffset: 0
-    },
-    colors: ["#f77eb9"],    
-    grid: {
-      borderColor: "rgba(77, 138, 240, .1)",
-      padding: {
-        bottom: -15
+  if(document.querySelector("#apexBar")) {
+    var options = {
+      chart: {
+        type: 'bar',
+        height: '320',
+        parentHeightOffset: 0
+      },
+      colors: ["#f77eb9"],    
+      grid: {
+        borderColor: "rgba(77, 138, 240, .1)",
+        padding: {
+          bottom: -15
+        }
+      },
+      series: [{
+        name: 'sales',
+        data: [30,40,45,50,49,60,70,91,125]
+      }],
+      xaxis: {
+        type: 'datetime',
+        categories: ['01/01/1991','01/01/1992','01/01/1993','01/01/1994','01/01/1995','01/01/1996','01/01/1997', '01/01/1998','01/01/1999']
       }
-    },
-    series: [{
-      name: 'sales',
-      data: [30,40,45,50,49,60,70,91,125]
-    }],
-    xaxis: {
-      type: 'datetime',
-      categories: ['01/01/1991','01/01/1992','01/01/1993','01/01/1994','01/01/1995','01/01/1996','01/01/1997', '01/01/1998','01/01/1999']
     }
+    
+    var apexBarChart = new ApexCharts(document.querySelector("#apexBar"), options);
+    
+    apexBarChart.render();
   }
-  
-  var apexBarChart = new ApexCharts(document.querySelector("#apexBar"), options);
-  
-  apexBarChart.render();
   // Apex Bar chart end
 
   // Apex Area chart start
-  var options = {
-    chart: {
-      type: "area",
-      height: 300,
-      parentHeightOffset: 0,
-      foreColor: "#999",
-      stacked: true,
-      dropShadow: {
-        enabled: true,
-        enabledSeries: [0],
-        top: -2,
-        left: 2,
-        blur: 5,
-        opacity: 0.06
-      }
-    },
-    colors: ["#f77eb9", "#7ee5e5"],
-    stroke: {
-      curve: "smooth",
-      width: 3
-    },
-    dataLabels: {
-      enabled: false
-    },
-    series: [{
-      name: 'Total Views',
-      data: generateDayWiseTimeSeries(0, 18)
-    }, {
-      name: 'Unique Views',
-      data: generateDayWiseTimeSeries(1, 18)
-    }],
-    markers: {
-      size: 0,
-      strokeColor: "#fff",
-      strokeWidth: 3,
-      strokeOpacity: 1,
-      fillOpacity: 1,
-      hover: {
-        size: 6
-      }
-    },
-    xaxis: {
-      type: "datetime",
-      axisBorder: {
-        show: false
-      },
-      axisTicks: {
-        show: false
-      }
-    },
-    yaxis: {
-      tickAmount: 4,
-      min: 0,
-      labels: {
-        offsetX: 24,
-        offsetY: -5
-      },
-      tooltip: {
-        enabled: true
-      }
-    },
-    grid: {
-      borderColor: "rgba(77, 138, 240, .1)",
-      padding: {
-        left: -5,
-        right: 5,
-        bottom: -15
-      }
-    },
-    tooltip: {
-      x: {
-        format: "dd MMM yyyy"
-      },
-    },
-    legend: {
-      position: 'top',
-      horizontalAlign: 'left'
-    },
-    fill: {
-      type: "solid",
-      fillOpacity: 0.7
-    }
-  };
-
-  var chart = new ApexCharts(document.querySelector("#apexArea"), options);
-
-  chart.render();
-
   function generateDayWiseTimeSeries(s, count) {
     var values = [[
       4,3,10,9,29,19,25,9,12,7,19,5,13,9,17,2,7,5
@@ -199,60 +115,155 @@ $(function() {
     }
     return series;
   }
+
+  if(document.querySelector("#apexArea")) {
+    var options = {
+      chart: {
+        type: "area",
+        height: 300,
+        parentHeightOffset: 0,
+        foreColor: "#999",
+        stacked: true,
+        dropShadow: {
+          enabled: true,
+          enabledSeries: [0],
+          top: -2,
+          left: 2,
+          blur: 5,
+          opacity: 0.06
+        }
+      },
+      colors: ["#f77eb9", "#7ee5e5"],
+      stroke: {
+        curve: "smooth",
+        width: 3
+      },
+      dataLabels: {
+        enabled: false
+      },
+      series: [{
+        name: 'Total Views',
+        data: generateDayWiseTimeSeries(0, 18)
+      }, {
+        name: 'Unique Views',
+        data: generateDayWiseTimeSeries(1, 18)
+      }],
+      markers: {
+        size: 0,
+        strokeColor: "#fff",
+        strokeWidth: 3,
+        strokeOpacity: 1,
+        fillOpacity: 1,
+        hover: {
+          size: 6
+        }
+      },
+      xaxis: {
+        type: "datetime",
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
+      },
+      yaxis: {
+        tickAmount: 4,
+        min: 0,
+        labels: {
+          offsetX: 24,
+          offsetY: -5
+        },
+        tooltip: {
+          enabled: true
+        }
+      },
+      grid: {
+        borderColor: "rgba(77, 138, 240, .1)",
+        padding: {
+          left: -5,
+          right: 5,
+          bottom: -15
+        }
+      },
+      tooltip: {
+        x: {
+          format: "dd MMM yyyy"
+        },
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'left'
+      },
+      fill: {
+        type: "solid",
+        fillOpacity: 0.7
+      }
+    };
+
+    var chart = new ApexCharts(document.querySelector("#apexArea"), options);
+
+    chart.render();
+  }
   // Apex Area chart end
 
   // Apex Donut chart start
-  var options = {
-    chart: {
-      height: 300,
-      type: "donut"
-    },
-    stroke: {
-      colors: ['rgba(0,0,0,0)']
-    },
-    colors: ["#f77eb9", "#7ee5e5","#4d8af0","#fbbc06"],
-    legend: {
-      position: 'top',
-      horizontalAlign: 'center'
-    },
-    dataLabels: {
-      enabled: false
-    },
-    series: [44, 55, 13, 33]
-  };
-  
-  var chart = new ApexCharts(document.querySelector("#apexDonut"), options);
-  
-  chart.render();
+  if(document.querySelector("#apexDonut")) {
+    var options = {
+      chart: {
+        height: 300,
+        type: "donut"
+      },
+      stroke: {
+        colors: ['rgba(0,0,0,0)']
+      },
+      colors: ["#f77eb9", "#7ee5e5","#4d8af0","#fbbc06"],
+      legend: {
+        position: 'top',
+        horizontalAlign: 'center'
+      },
+      dataLabels: {
+        enabled: false
+      },
+      series: [44, 55, 13, 33]
+    };
+    
+    var chart = new ApexCharts(document.querySelector("#apexDonut"), options);
+    
+    chart.render();
+  }
   // Apex Donut chart start
   
   // Apex Pie chart end
-  var options = {
-    chart: {
-      height: 300,
-      type: "pie"
-    },
-    colors: ["#f77eb9", "#7ee5e5","#4d8af0","#fbbc06"],
-    legend: {
-      position: 'top',
-      horizontalAlign: 'center'
-    },
-    stroke: {
-      colors: ['rgba(0,0,0,0)']
-    },
-    dataLabels: {
-      enabled: false
-    },
-    series: [44, 55, 13, 33]
-  };
-  
-  var chart = new ApexCharts(document.querySelector("#apexPie"), options);
-  
-  chart.render();  
+  if(document.querySelector("#apexPie")) {
+    var options = {
+      chart: {
+        height: 300,
+        type: "pie"
+      },
+      colors: ["#f77eb9", "#7ee5e5","#4d8af0","#fbbc06"],
+      legend: {
+        position: 'top',
+        horizontalAlign: 'center'
+      },
+      stroke: {
+        colors: ['rgba(0,0,0,0)']
+      },
+      dataLabels: {
+        enabled: false
+      },
+      series: [44, 55, 13, 33]
+    };
+    
+    var chart = new ApexCharts(document.querySelector("#apexPie"), options);
+    
+    chart.render();
+  }
   // Apex Pie chart end
 
   // Apex Mixed chart start
-  var options = {
+  if(document.querySelector("#apexMixed")) {
+    var options = {
     chart: {
       height: 300,
       type: 'line',
@@ -330,15 +341,17 @@ $(function() {
       }]
     }
   }
-  var chart = new ApexCharts(
-    document.querySelector("#apexMixed"),
-    options
-  );
-  chart.render();
+    var chart = new ApexCharts(
+      document.querySelector("#apexMixed"),
+      options
+    );
+    chart.render();
+  }
   // Apex Mixed chart end
 
   // Apex Radar chart start
-  var options = {
+  if(document.querySelector("#apexRadar")) {
+    var options = {
     chart: {
       height: 300,
       type: 'radar',
@@ -377,16 +390,18 @@ $(function() {
     labels: ['2011', '2012', '2013', '2014', '2015', '2016']
   }
 
-  var chart = new ApexCharts(
-      document.querySelector("#apexRadar"),
-      options
-  );
+    var chart = new ApexCharts(
+        document.querySelector("#apexRadar"),
+        options
+    );
 
-  chart.render();
+    chart.render();
+  }
   // Apex Radar chart end
 
   // Apex Radialbar chart start
-  var options = {
+  if(document.querySelector("#apexRadialBar")) {
+    var options = {
     chart: {
       height: 300,
       type: "radialBar",
@@ -413,15 +428,22 @@ $(function() {
     labels: ["Apples", "Oranges", "Bananas", "Berries"]
   };
   
-  var chart = new ApexCharts(document.querySelector("#apexRadialBar"), options);
-  
-  chart.render();
-  
-  var chartAreaBounds = chart.w.globals.dom.baseEl.querySelector('.apexcharts-inner').getBoundingClientRect();
+    var chart = new ApexCharts(document.querySelector("#apexRadialBar"), options);
+    
+    chart.render();
+    
+    if(chart.w && chart.w.globals && chart.w.globals.dom && chart.w.globals.dom.baseEl) {
+      var chartAreaBounds = chart.w.globals.dom.baseEl.querySelector('.apexcharts-inner');
+      if(chartAreaBounds) {
+        chartAreaBounds.getBoundingClientRect();
+      }
+    }
+  }
   // Apex Radialbar chart end
 
   // Apex Scatter chart start
-  var options = {
+  if(document.querySelector("#apexScatter")) {
+    var options = {
     chart: {
       height: 300,
       type: 'scatter',
@@ -471,12 +493,13 @@ $(function() {
     }
   }
 
-  var chart = new ApexCharts(
-    document.querySelector("#apexScatter"),
-    options
-  );
+    var chart = new ApexCharts(
+      document.querySelector("#apexScatter"),
+      options
+    );
 
-  chart.render();
+    chart.render();
+  }
   // Apex Scatter chart end
 
   // Apex Heat chart start
@@ -497,98 +520,100 @@ $(function() {
 }
 
 
-var options = {
-    chart: {
-      height: 300,
-      type: 'heatmap',
-      parentHeightOffset: 0
-    },
-    grid: {
-      borderColor: "rgba(77, 138, 240, .1)",
-      padding: {
-        bottom: -15
+    if(document.querySelector("#apexHeatMap")) {
+      var options = {
+        chart: {
+          height: 300,
+          type: 'heatmap',
+          parentHeightOffset: 0
+        },
+        grid: {
+          borderColor: "rgba(77, 138, 240, .1)",
+          padding: {
+            bottom: -15
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        colors: ["#008FFB"],
+        series: [{
+            name: 'Metric1',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          },
+          {
+            name: 'Metric2',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          },
+          {
+            name: 'Metric3',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          },
+          {
+            name: 'Metric4',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          },
+          {
+            name: 'Metric5',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          },
+          {
+            name: 'Metric6',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          },
+          {
+            name: 'Metric7',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          },
+          {
+            name: 'Metric8',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          },
+          {
+            name: 'Metric9',
+            data: generateData(18, {
+              min: 0,
+              max: 90
+            })
+          }
+        ],
+        title: {
+          text: 'HeatMap Chart (Single color)'
+        },
+
       }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    colors: ["#008FFB"],
-    series: [{
-        name: 'Metric1',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      },
-      {
-        name: 'Metric2',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      },
-      {
-        name: 'Metric3',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      },
-      {
-        name: 'Metric4',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      },
-      {
-        name: 'Metric5',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      },
-      {
-        name: 'Metric6',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      },
-      {
-        name: 'Metric7',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      },
-      {
-        name: 'Metric8',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      },
-      {
-        name: 'Metric9',
-        data: generateData(18, {
-          min: 0,
-          max: 90
-        })
-      }
-    ],
-    title: {
-      text: 'HeatMap Chart (Single color)'
-    },
 
-  }
+      var chart = new ApexCharts(
+        document.querySelector("#apexHeatMap"),
+        options
+      );
 
-  var chart = new ApexCharts(
-    document.querySelector("#apexHeatMap"),
-    options
-  );
-
-  chart.render();
+      chart.render();
+    }
   // Apex Heat chart end
   
   

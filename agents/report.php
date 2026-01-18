@@ -1,16 +1,16 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
   <body>
     <div class="layout-wrapper layout-navbar-full layout-horizontal layout-without-menu">
       <div class="layout-container">
-        <? require_once("views/header.php");?>
+        <?php require_once("views/header.php");?>
 
         
         <div class="layout-page">          
           <div class="content-wrapper">
-            <? require_once("views/topmenu.php");?>
+            <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
               <div class="row g-6">
@@ -26,7 +26,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?
+                            <?php
                             $grand_total = 0;
                             $sql = "SELECT orders.* ,count(order_id) as Count, sum(weight) as total FROM orders  WHERE status not IN('new','order','weight_missing') AND onair_date!='0000-00-00 00:00:00' GROUP BY onair_date ORDER BY onair_date DESC";
                             $result =mysqli_query($conn,$sql);
@@ -41,13 +41,13 @@
                                             $count_order = $data["Count"];
                                             ?>
                                             <tr>
-                                            <td><?=$count++;?></td>
-                                            <td><?=$onair_date;?></td>
-                                            <td><?=$count_order;?></td>
-                                            <td><?=number_format($weight,2);?></td>
-                                            <td><?=cfg_price($weight);?>$</td>
+                                            <td><?php echo $count++;?></td>
+                                            <td><?php echo htmlspecialchars($onair_date ?? '');?></td>
+                                            <td><?php echo htmlspecialchars($count_order ?? '');?></td>
+                                            <td><?php echo number_format($weight ?? 0, 2);?></td>
+                                            <td><?php echo htmlspecialchars(cfg_price($weight) ?? '');?>$</td>
                                             </tr>
-                                            <?
+                                            <?php
                                         } 
                                 
                                     } 
@@ -59,7 +59,7 @@
               </div>
             </div>
 
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
 
             <div class="content-backdrop fade"></div>
           </div>

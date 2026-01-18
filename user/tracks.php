@@ -1,7 +1,7 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
 
 <link href="assets/css/scrollspyNav.css" rel="stylesheet" type="text/css" />
 <link href="assets/css/users/user-profile.css" rel="stylesheet" type="text/css" />
@@ -22,7 +22,7 @@
 
 <body class="sidebar-noneoverflow">
     
-    <? require_once("views/navbar.php");?>
+    <?php require_once("views/navbar.php");?>
 
 
 
@@ -32,22 +32,23 @@
         <div class="cs-overlay"></div>
         <div class="search-overlay"></div>
 
-        <? require_once("views/sidebar.php");?>
+        <?php require_once("views/sidebar.php");?>
 
 
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
-                <? if (isset($_GET["action"])) $action=$_GET["action"]; else $action="active"; ?>
+                <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="active"; ?>
 
-                <?
+                <?php
                 if ($action=="active")
                 {
                 
-                    $user_id = $_SESSION["c_user_id"];
-                    $sql = "SELECT * FROM orders WHERE receiver=".$user_id." AND (status = 'weight_missing' OR status='received') AND created_date>'".date("Y-m-d",strtotime('-35 days'))."'";
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                    $sql = "SELECT * FROM orders WHERE receiver=".$user_id_escaped." AND (status = 'weight_missing' OR status='received') AND created_date>'".date("Y-m-d",strtotime('-35 days'))."'";
                     if (isset($_POST["search"])) 
                     {
-                        $search = $_POST["search"];
+                        $search = mysqli_real_escape_string($conn, $_POST["search"]);
                         $sql .= " AND (third_party LIKE '%$search%' OR barcode LIKE '%$search%' OR package LIKE '%$search%')";
                     }
                     $sql .=" ORDER BY created_date DESC";
@@ -62,21 +63,22 @@
                         </ol>
                     </nav>
                     
-                    <?
+                    <?php
                     require_once("views/tracks.php");?>                        
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="history")
                 {
                 
-                    $user_id = $_SESSION["c_user_id"];
-                    $sql = "SELECT * FROM orders WHERE receiver=".$user_id." AND status IN ('delivered','custom') AND created_date>'2015-09-01'";
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                    $sql = "SELECT * FROM orders WHERE receiver=".$user_id_escaped." AND status IN ('delivered','custom') AND created_date>'2015-09-01'";
                     if (isset($_POST["search"])) 
                     {
-                        $search = $_POST["search"];
+                        $search = mysqli_real_escape_string($conn, $_POST["search"]);
                         $sql .= " AND (third_party LIKE '%$search%' OR barcode LIKE '%$search%' OR package LIKE '%$search%')";
                     }
                     $sql .=" ORDER BY created_date DESC";
@@ -89,16 +91,16 @@
                         </ol>
                     </nav>
                     
-                    <?
+                    <?php
                     require_once("views/tracks.php");?>                        
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="insert")
                 {
-                    $user_id = $_SESSION["c_user_id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
                     if ($user_id>0)
                         {
                         ?>
@@ -115,11 +117,11 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h5 class="card-title">Трак дугаар оруулах</h5>
-                                        <?
+                                        <?php
     
                                         if (isset($_POST["track"]) && $_POST["track"]<>"")
                                         {
-                                            $track=$_POST["track"];
+                                            $track=protect($_POST["track"]);
                                             $track = str_replace(" ","",$track);
                                             $track = str_replace("script","***",$track);
                                             $track = str_replace("php","***",$track);
@@ -127,30 +129,32 @@
                                             $track = string_clean($track);
                                             $track = trim($track);
                                             $track = strtoupper($track);
+                                            $track_escaped = mysqli_real_escape_string($conn, $track);
                                             $proxy_id=0;
                                             if (isset($_POST["proxy_trigger"]))
                                             {
                                                 if (intval($_POST["proxies"])>0)
                                                 {
-                                                    $proxy_id=$_POST["proxies"];
+                                                    $proxy_id=intval($_POST["proxies"]);
                                                 }
 
                                                 if (intval($_POST["proxies"])==0)
                                                 {
-                                                    $proxy_name = $_POST["proxy_name"];
-                                                    $proxy_surname = $_POST["proxy_surname"];
-                                                    $proxy_tel = $_POST["proxy_tel"];
-                                                    $proxy_address = mysqli_escape_string($conn,$_POST["address"]);
+                                                    $proxy_name = isset($_POST["proxy_name"]) ? mysqli_real_escape_string($conn, $_POST["proxy_name"]) : '';
+                                                    $proxy_surname = isset($_POST["proxy_surname"]) ? mysqli_real_escape_string($conn, $_POST["proxy_surname"]) : '';
+                                                    $proxy_tel = isset($_POST["proxy_tel"]) ? mysqli_real_escape_string($conn, $_POST["proxy_tel"]) : '';
+                                                    $proxy_address = isset($_POST["address"]) ? mysqli_real_escape_string($conn, $_POST["address"]) : '';
                                                     
-                                                    $query_proxies =  mysqli_query($conn,'SELECT * FROM proxies WHERE customer_id="'.$user_id.'" AND tel="'.$proxy_tel.'"');
-                                                    if (mysqli_num_rows($query_proxies)==1)
+                                                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                                    $query_proxies =  mysqli_query($conn,"SELECT * FROM proxies WHERE customer_id='".$user_id_escaped."' AND tel='".$proxy_tel."'");
+                                                    if ($query_proxies && mysqli_num_rows($query_proxies)==1)
                                                         {
                                                         $row_proxy = mysqli_fetch_array($query_proxies);
-                                                        $proxy_id = $row_proxy["proxy_id"];					
+                                                        $proxy_id = isset($row_proxy["proxy_id"]) ? intval($row_proxy["proxy_id"]) : 0;					
                                                         }
-                                                    if (mysqli_num_rows($query_proxies)==0)	
+                                                    if ($query_proxies && mysqli_num_rows($query_proxies)==0)	
                                                         {
-                                                        mysqli_query($conn,'INSERT INTO proxies (customer_id,name,surname,tel,address,single) VALUES("'.$user_id.'","'.$proxy_name.'","'.$proxy_surname.'","'.$proxy_tel.'","'.$proxy_address.'",1)');
+                                                        mysqli_query($conn,"INSERT INTO proxies (customer_id,name,surname,tel,address,single) VALUES('".$user_id_escaped."','".$proxy_name."','".$proxy_surname."','".$proxy_tel."','".$proxy_address."',1)");
                                                         $proxy_id= mysqli_insert_id($conn); 	
                                                         }
                                                 }
@@ -159,123 +163,78 @@
 
                                             if (!isset($_POST["container_trigger"]))
                                             {
-
-                                                $sql = "SELECT * FROM customer WHERE customer_id ='$user_id'";
-                                                $result = mysqli_query($conn,$sql);
-                                                $data_customer = mysqli_fetch_array($result);
-
-                                                if (substr($track,0,2)=='22' || substr($track,0,2)=='23' || substr($track,0,2)=='ES')
-                                                    $sql = "SELECT * FROM orders WHERE third_party= '$track' OR extratracks LIKE '%$track%' LIMIT 1";	
-                                                else 
-                                                    {
-                                                        $track_eliminated = substr($track,-8,8);
-                                                        $sql = "SELECT * FROM orders WHERE SUBSTRING(third_party,-8,8) = '$track_eliminated' OR extratracks LIKE '%$track%'  LIMIT 1";	
+                                                if (isset($conn) && $conn) {
+                                                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                                    $sql = "SELECT * FROM customer WHERE customer_id ='".$user_id_escaped."'";
+                                                    $result = mysqli_query($conn,$sql);
+                                                    if ($result) {
+                                                        $data_customer = mysqli_fetch_array($result);
                                                     }
 
-                                                $result = mysqli_query($conn,$sql);
-                                                if (mysqli_num_rows($result) == 1)
-                                                {
-                                                    $data = mysqli_fetch_array($result);
-                                                    $order_id = $data["order_id"];
-                                                    $receiver = $data["receiver"];
-                                                    $status = $data["status"];
-                                                    if ($receiver!=$user_id)
-                                                    {
-                                                        if ($status!="order")
+                                                    if (substr($track,0,2)=='22' || substr($track,0,2)=='23' || substr($track,0,2)=='ES')
+                                                        $sql = "SELECT * FROM orders WHERE third_party= '".$track_escaped."' OR extratracks LIKE '%".$track_escaped."%' LIMIT 1";	
+                                                    else 
                                                         {
-                                                            ?>
-                                                            <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
-                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                                Таны илгээмж биш байна
-                                                            </div>
-                                                            <a href='track?action=insert' class='btn btn-primary btn-xs'>Ахин оруулах</a>
-
-                                                            <?
+                                                            $track_eliminated = substr($track,-8,8);
+                                                            $track_eliminated_escaped = mysqli_real_escape_string($conn, $track_eliminated);
+                                                            $sql = "SELECT * FROM orders WHERE SUBSTRING(third_party,-8,8) = '".$track_eliminated_escaped."' OR extratracks LIKE '%".$track_escaped."%'  LIMIT 1";	
                                                         }
-                                                        if ($status=="order")
+
+                                                    $result = mysqli_query($conn,$sql);
+                                                    if ($result && mysqli_num_rows($result) == 1)
+                                                    {
+                                                        $data = mysqli_fetch_array($result);
+                                                        $order_id = isset($data["order_id"]) ? intval($data["order_id"]) : 0;
+                                                        $receiver = isset($data["receiver"]) ? intval($data["receiver"]) : 0;
+                                                        $status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
+                                                        if ($receiver!=$user_id)
                                                         {
-                                                            $receiver=$user_id;
-                                                        
-                                                            $package1_name=mysqli_escape_string($conn,$_POST["package1_name"]);
-                                                            $package1_num =$_POST["package1_num"];
-                                                            $package1_price =$_POST["package1_price"];
-                                                            $package2_name=mysqli_escape_string($conn,$_POST["package2_name"]);
-                                                            $package2_num =$_POST["package2_num"];
-                                                            $package2_price =$_POST["package2_price"];
-                                                            $package3_name=mysqli_escape_string($conn,$_POST["package3_name"]);
-                                                            $package3_num =$_POST["package3_num"];
-                                                            $package3_price =$_POST["package3_price"];
-                                                            $package4_name=mysqli_escape_string($conn,$_POST["package4_name"]);
-                                                            $package4_num =$_POST["package4_num"];
-                                                            $package4_price =$_POST["package4_price"];
-                                                            
-                                                            $package_array = array(
-                                                            $package1_name, $package1_num, $package1_price,
-                                                            $package2_name, $package2_num, $package2_price,
-                                                            $package3_name, $package3_num, $package3_price,
-                                                            $package4_name, $package4_num, $package4_price
-                                                            );
-                                                            
-                                                            $package =implode("##",$package_array);
-                                                            $package_price = $package1_price + $package2_price + $package3_price + $package4_price;
-                                                        
-                                                            $sql_update = "UPDATE orders SET (price='$package_price',receiver ='$receiver',package='$package',status='filled',transport='$transport',proxy_id='$proxy_id',proxy_type='$proxy_type') WHERE order_id='$order_id'";
-                                                            if (mysqli_query($conn,$sql_update)) 
-                                                            {
-                                                                ?>
-                                                                <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
-                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                                    Захиалга амжилттай бүртгэгдлээ
-                                                                </div>
-                                                                <?
-                                                            }
-                                                            else 
+                                                            if ($status!="order")
                                                             {
                                                                 ?>
                                                                 <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                                    Алдаа. <?=mysqli_error($conn);?>
+                                                                    Таны илгээмж биш байна
                                                                 </div>
-                                                                <?
-                                                            }
-                                                        }
-                                                    }
-                                                    
-                                                    if ($receiver==$user_id)
-                                                    {
-                                                        if ($status=="item_missing")
-                                                        {
-                                                            $receiver=$user_id;
-                                                        
-                                                            $package1_name=mysqli_escape_string($conn,$_POST["package1_name"]);
-                                                            $package1_num =$_POST["package1_num"];
-                                                            $package1_price =$_POST["package1_price"];
-                                                            $package2_name=mysqli_escape_string($conn,$_POST["package2_name"]);
-                                                            $package2_num =$_POST["package2_num"];
-                                                            $package2_price =$_POST["package2_price"];
-                                                            $package3_name=mysqli_escape_string($conn,$_POST["package3_name"]);
-                                                            $package3_num =$_POST["package3_num"];
-                                                            $package3_price =$_POST["package3_price"];
-                                                            $package4_name=mysqli_escape_string($conn,$_POST["package4_name"]);
-                                                            $package4_num =$_POST["package4_num"];
-                                                            $package4_price =$_POST["package4_price"];
-                                                            
-                                                            $package_array = array(
-                                                            $package1_name, $package1_num, $package1_price,
-                                                            $package2_name, $package2_num, $package2_price,
-                                                            $package3_name, $package3_num, $package3_price,
-                                                            $package4_name, $package4_num, $package4_price
-                                                            );
-                                                            
-                                                            $package =implode("##",$package_array);
-                                                            $package_price = $package1_price + $package2_price + $package3_price + $package4_price;
-                                                        
-                                                            $sql_update = "UPDATE orders SET (price='$package_price',receiver ='$receiver',package='$package',status='filled',transport='$transport',proxy_id='$proxy_id',proxy_type='$proxy_type') WHERE order_id='$order_id'";
+                                                                <a href='tracks?action=insert' class='btn btn-primary btn-xs'>Ахин оруулах</a>
 
-                                                            if (mysqli_query($conn,$sql_update)) 
+                                                                <?php
+                                                            }
+                                                            if ($status=="order")
+                                                            {
+                                                                $receiver=$user_id;
+                                                            
+                                                                $package1_name=isset($_POST["package1_name"]) ? mysqli_real_escape_string($conn, $_POST["package1_name"]) : '';
+                                                                $package1_num =isset($_POST["package1_num"]) ? floatval($_POST["package1_num"]) : 0;
+                                                                $package1_price =isset($_POST["package1_price"]) ? floatval($_POST["package1_price"]) : 0;
+                                                                $package2_name=isset($_POST["package2_name"]) ? mysqli_real_escape_string($conn, $_POST["package2_name"]) : '';
+                                                                $package2_num =isset($_POST["package2_num"]) ? floatval($_POST["package2_num"]) : 0;
+                                                                $package2_price =isset($_POST["package2_price"]) ? floatval($_POST["package2_price"]) : 0;
+                                                                $package3_name=isset($_POST["package3_name"]) ? mysqli_real_escape_string($conn, $_POST["package3_name"]) : '';
+                                                                $package3_num =isset($_POST["package3_num"]) ? floatval($_POST["package3_num"]) : 0;
+                                                                $package3_price =isset($_POST["package3_price"]) ? floatval($_POST["package3_price"]) : 0;
+                                                                $package4_name=isset($_POST["package4_name"]) ? mysqli_real_escape_string($conn, $_POST["package4_name"]) : '';
+                                                                $package4_num =isset($_POST["package4_num"]) ? floatval($_POST["package4_num"]) : 0;
+                                                                $package4_price =isset($_POST["package4_price"]) ? floatval($_POST["package4_price"]) : 0;
+                                                                
+                                                                $package_array = array(
+                                                                $package1_name, $package1_num, $package1_price,
+                                                                $package2_name, $package2_num, $package2_price,
+                                                                $package3_name, $package3_num, $package3_price,
+                                                                $package4_name, $package4_num, $package4_price
+                                                                );
+                                                                
+                                                                $package =implode("##",$package_array);
+                                                                $package_escaped = mysqli_real_escape_string($conn, $package);
+                                                                $package_price = $package1_price + $package2_price + $package3_price + $package4_price;
+                                                                $transport = isset($_POST["transport"]) ? intval($_POST["transport"]) : 0;
+                                                                $proxy_type = isset($_POST["proxy_type"]) ? intval($_POST["proxy_type"]) : 0;
+                                                            
+                                                                $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                                                                $receiver_escaped = mysqli_real_escape_string($conn, $receiver);
+                                                                $sql_update = "UPDATE orders SET price='".$package_price."', receiver='".$receiver_escaped."', package='".$package_escaped."', status='filled', transport='".$transport."', proxy_id='".$proxy_id."', proxy_type='".$proxy_type."' WHERE order_id='".$order_id_escaped."'";
+                                                                if ($conn && mysqli_query($conn,$sql_update)) 
                                                                 {
                                                                     ?>
                                                                     <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
@@ -283,7 +242,66 @@
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                                                         Захиалга амжилттай бүртгэгдлээ
                                                                     </div>
-                                                                    <?
+                                                                    <?php
+                                                                }
+                                                                else 
+                                                                {
+                                                                    ?>
+                                                                    <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                                        Алдаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
+                                                                    </div>
+                                                                    <?php
+                                                                }
+                                                            }
+                                                        }
+                                                        
+                                                        if ($receiver==$user_id)
+                                                        {
+                                                            if ($status=="item_missing")
+                                                            {
+                                                                $receiver=$user_id;
+                                                            
+                                                                $package1_name=isset($_POST["package1_name"]) ? mysqli_real_escape_string($conn, $_POST["package1_name"]) : '';
+                                                                $package1_num =isset($_POST["package1_num"]) ? floatval($_POST["package1_num"]) : 0;
+                                                                $package1_price =isset($_POST["package1_price"]) ? floatval($_POST["package1_price"]) : 0;
+                                                                $package2_name=isset($_POST["package2_name"]) ? mysqli_real_escape_string($conn, $_POST["package2_name"]) : '';
+                                                                $package2_num =isset($_POST["package2_num"]) ? floatval($_POST["package2_num"]) : 0;
+                                                                $package2_price =isset($_POST["package2_price"]) ? floatval($_POST["package2_price"]) : 0;
+                                                                $package3_name=isset($_POST["package3_name"]) ? mysqli_real_escape_string($conn, $_POST["package3_name"]) : '';
+                                                                $package3_num =isset($_POST["package3_num"]) ? floatval($_POST["package3_num"]) : 0;
+                                                                $package3_price =isset($_POST["package3_price"]) ? floatval($_POST["package3_price"]) : 0;
+                                                                $package4_name=isset($_POST["package4_name"]) ? mysqli_real_escape_string($conn, $_POST["package4_name"]) : '';
+                                                                $package4_num =isset($_POST["package4_num"]) ? floatval($_POST["package4_num"]) : 0;
+                                                                $package4_price =isset($_POST["package4_price"]) ? floatval($_POST["package4_price"]) : 0;
+                                                                
+                                                                $package_array = array(
+                                                                $package1_name, $package1_num, $package1_price,
+                                                                $package2_name, $package2_num, $package2_price,
+                                                                $package3_name, $package3_num, $package3_price,
+                                                                $package4_name, $package4_num, $package4_price
+                                                                );
+                                                                
+                                                                $package =implode("##",$package_array);
+                                                                $package_escaped = mysqli_real_escape_string($conn, $package);
+                                                                $package_price = $package1_price + $package2_price + $package3_price + $package4_price;
+                                                                $transport = isset($_POST["transport"]) ? intval($_POST["transport"]) : 0;
+                                                                $proxy_type = isset($_POST["proxy_type"]) ? intval($_POST["proxy_type"]) : 0;
+                                                            
+                                                                $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                                                                $receiver_escaped = mysqli_real_escape_string($conn, $receiver);
+                                                                $sql_update = "UPDATE orders SET price='".$package_price."', receiver='".$receiver_escaped."', package='".$package_escaped."', status='filled', transport='".$transport."', proxy_id='".$proxy_id."', proxy_type='".$proxy_type."' WHERE order_id='".$order_id_escaped."'";
+
+                                                                if ($conn && mysqli_query($conn,$sql_update)) 
+                                                                {
+                                                                    ?>
+                                                                    <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
+                                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                                        Захиалга амжилттай бүртгэгдлээ
+                                                                    </div>
+                                                                    <?php
                                                                     proxy_available($proxy_id,$proxy_id,1);
                                                                 }
                                                                 else 
@@ -292,47 +310,44 @@
                                                                     <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                                        Алдаа:'<?=mysqli_error($conn);?>
+                                                                        Алдаа:'<?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
                                                                     </div>
-                                                                    <?
+                                                                    <?php
                                                                 }
-                                                        
+                                                            }
+                                                            
+                                                            if ($status!="item_missing")
+                                                            {
+                                                                ?>
+                                                                <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
+                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                                    Танд бүртгэлтэй Track байна
+                                                                </div>
+                                                                <a href='tracks' class='btn btn-success btn-xs'>Миний захиалга</a>
+                                                                <?php
+                                                            }
                                                         }
-                                                        
-                                                        if ($status!="item_missing")
-                                                        {
-                                                            ?>
-                                                            <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
-                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                                Танд бүртгэлтэй Track байна
-                                                            </div>
-                                                            <a href='tracks' class='btn btn-success btn-xs'>Миний захиалга</a>
-
-                                                            <?
-                                                        }
-                                                        
                                                     }
-                                            
                                                 }
-
-                                                if (mysqli_num_rows($result) == 0)  //Бүтргэлгүй
+                                                
+                                                if ($result && mysqli_num_rows($result) == 0)  //Бүтргэлгүй
                                                 {
                                                     $sender=0;
                                                     $receiver=$user_id;
                                                     
-                                                    $package1_name=mysqli_escape_string($conn,$_POST["package1_name"]);
-                                                    $package1_num =$_POST["package1_num"];
-                                                    $package1_price =$_POST["package1_price"];
-                                                    $package2_name=mysqli_escape_string($conn,$_POST["package2_name"]);
-                                                    $package2_num =$_POST["package2_num"];
-                                                    $package2_price =$_POST["package2_price"];
-                                                    $package3_name=mysqli_escape_string($conn,$_POST["package3_name"]);
-                                                    $package3_num =$_POST["package3_num"];
-                                                    $package3_price =$_POST["package3_price"];
-                                                    $package4_name=mysqli_escape_string($conn,$_POST["package4_name"]);
-                                                    $package4_num =$_POST["package4_num"];
-                                                    $package4_price =$_POST["package4_price"];
+                                                    $package1_name=isset($_POST["package1_name"]) ? mysqli_real_escape_string($conn, $_POST["package1_name"]) : '';
+                                                    $package1_num =isset($_POST["package1_num"]) ? floatval($_POST["package1_num"]) : 0;
+                                                    $package1_price =isset($_POST["package1_price"]) ? floatval($_POST["package1_price"]) : 0;
+                                                    $package2_name=isset($_POST["package2_name"]) ? mysqli_real_escape_string($conn, $_POST["package2_name"]) : '';
+                                                    $package2_num =isset($_POST["package2_num"]) ? floatval($_POST["package2_num"]) : 0;
+                                                    $package2_price =isset($_POST["package2_price"]) ? floatval($_POST["package2_price"]) : 0;
+                                                    $package3_name=isset($_POST["package3_name"]) ? mysqli_real_escape_string($conn, $_POST["package3_name"]) : '';
+                                                    $package3_num =isset($_POST["package3_num"]) ? floatval($_POST["package3_num"]) : 0;
+                                                    $package3_price =isset($_POST["package3_price"]) ? floatval($_POST["package3_price"]) : 0;
+                                                    $package4_name=isset($_POST["package4_name"]) ? mysqli_real_escape_string($conn, $_POST["package4_name"]) : '';
+                                                    $package4_num =isset($_POST["package4_num"]) ? floatval($_POST["package4_num"]) : 0;
+                                                    $package4_price =isset($_POST["package4_price"]) ? floatval($_POST["package4_price"]) : 0;
                                             
                                                     $package_array = array(
                                                     $package1_name, $package1_num, $package1_price,
@@ -342,33 +357,157 @@
                                                     );
                                                     
                                                     $package =implode("##",$package_array);
-                                                    $package_price = intval($package1_price) + intval($package2_price) + intval($package3_price) + intval($package4_price);
+                                                    $package_escaped = mysqli_real_escape_string($conn, $package);
+                                                    $package_price = $package1_price + $package2_price + $package3_price + $package4_price;
                                                     
-                                                    $sql = "SELECT *FROM branch_inventories WHERE track='$track'";
-                                                    if (mysqli_num_rows(mysqli_query($conn,$sql))>0)                                                    
-                                                    $status = 'received'; else $status= 'weight_missing';
+                                                    $track_escaped2 = mysqli_real_escape_string($conn, $track);
+                                                    $sql = "SELECT * FROM branch_inventories WHERE track='".$track_escaped2."'";
+                                                    $branch_result = mysqli_query($conn,$sql);
+                                                    if ($branch_result && mysqli_num_rows($branch_result)>0)                                                    
+                                                        $status = 'received';
+                                                    else
+                                                        $status = 'weight_missing';
+                                                    
                                                     $barcode='GO'.date("ymd").sprintf("%03d",rand(000,999)).'MN';
                                                     do {
                                                         $barcode='GO'.date("ymd").sprintf("%03d",rand(000,999)).'MN';
-                                                        $query = mysqli_query($conn,"SELECT order_id FROM orders WHERE barcode='$barcode'");
+                                                        $barcode_escaped = mysqli_real_escape_string($conn, $barcode);
+                                                        $query = mysqli_query($conn,"SELECT order_id FROM orders WHERE barcode='".$barcode_escaped."'");
                                                         } 
-                                                        while (mysqli_num_rows($query) == 1); 
+                                                        while ($query && mysqli_num_rows($query) == 1); 
                                                         
+                                                    $sender_escaped = mysqli_real_escape_string($conn, $sender);
+                                                    $receiver_escaped = mysqli_real_escape_string($conn, $receiver);
+                                                    $status_escaped = mysqli_real_escape_string($conn, $status);
                                                     $sql_insert ="INSERT INTO orders (created_date,barcode,third_party,package,price,sender,receiver,status,proxy_id,owner,is_online) 
-                                                        VALUES('".date("Y-m-d H:i:s")."','$barcode','$track','$package','$package_price','$sender','$receiver','$status','$proxy_id',1,1)";
+                                                        VALUES('".date("Y-m-d H:i:s")."','".$barcode_escaped."','".$track_escaped2."','".$package_escaped."','".$package_price."','".$sender_escaped."','".$receiver_escaped."','".$status_escaped."','".$proxy_id."',1,1)";
                                                     //echo $sql_insert;
-                                                        if (mysqli_query($conn,$sql_insert))
-                                                        {
-                                                            proxy_available($proxy_id,0,1);
-                                                            //mysqli_query($conn,"UPDATE customer SET cent=cent+1 WHERE customer_id='$user_id'");
+                                                    if ($conn && mysqli_query($conn,$sql_insert))
+                                                    {
+                                                        proxy_available($proxy_id,0,1);
+                                                        //mysqli_query($conn,"UPDATE customer SET cent=cent+1 WHERE customer_id='$user_id'");
 
+                                                        ?>
+                                                        <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                            Амжилттай үүсгэлээ
+                                                        </div>
+                                                        <?php
+                                                    }
+                                                    else 
+                                                    {
+                                                        ?>
+                                                        <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                            <b><?php echo htmlspecialchars($error ?? '');?></b> Алдаа гарлаа: <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
+                                                        </div>
+                                                        <?php
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                            if (isset($_POST["container_trigger"]))
+                                            {
+                                                if (isset($conn) && $conn) {
+                                                    $track_eliminated = substr($track,-8,8);
+                                                    $track_eliminated_escaped = mysqli_real_escape_string($conn, $track_eliminated);
+                                                    $sql = "SELECT * FROM container_item WHERE SUBSTRING(track,-8,8) = '".$track_eliminated_escaped."'";
+                                                    $result = mysqli_query($conn,$sql);
+                                                    if ($result && mysqli_num_rows($result) > 1) 
+                                                        echo "1-с олон track олдлоо. Та хайлтын утгаа ихэсгэж ахин оролдоно уу? <br>".anchor("welcome/track_search","Ахин оролдох",array("class"=>"btn btn-xs btn-primary"));
+                                                    if ($result && mysqli_num_rows($result)  == 1)
+                                                    {
+                                                        $data = mysqli_fetch_array($result);
+                                                        $status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
+                                                        if ($status=="weight_missing") echo "Америкт хүргэгдээгүй байна.";
+                                                        if ($status=="new") echo "USА оффис-д байгаа Монголруу далайгаар гарахад бэлэн болсон.";
+                                                        if ($status=="item_missing") echo "Задаргаагүй. Илгээмжийн доторх мэдээллийг оруулаагүй байна. Иймд Монголруу гарах боложгүй. Та нэвтэрч орон Track-aa өөр дээрээ бүртгүүлж барааны тайлбараа бөглөнө үү";
+                                                        if ($status=="warehouse") echo "Монгол дахь агуулахад ирсэн байна. Та өөрийн биеэр ирж авах боломжтой.";
+                                                        if ($status=="onway") echo "Америкаас Монголруу далайгаар ирж яваа.";
+                                                        if ($status=="delivered") echo "Илгээмжийг хүлээн авч олгосон.";
+                                                        if ($status=="filled") echo "Барааны мэдээллийн бүрэн оруулсан байна. Бид мэдээллийг шалган наашаа гаргахад бэлэн төлөвт оруулах болно.";
+                                                        if ($status=="custom") echo "Гаальд саатсан байна.";
+                                                        echo "<br><br>";
+                                                        echo "<i>Хэрэв таны ачаа хүргэгдсэн төлөв байгаад манайд бүртгэгдээгүй бол бидэнд яаралтай мэдэгдэнэ үү.</i>";
+                                                    }
+
+                                                    if ($result && mysqli_num_rows($result) == 0)  //Бүтргэлгүй
+                                                    {
+                                                        // $sql2 = "SELECT customer_id,password,name FROM customer WHERE tel='$contact' LIMIT 1";
+                                                        
+                                                        
+                                                        $sender=0;
+                                                        $receiver=$user_id;
+                                                        
+                                                        $package1_name=isset($_POST["package1_name"]) ? mysqli_real_escape_string($conn, $_POST["package1_name"]) : '';
+                                                        $package1_num =isset($_POST["package1_num"]) ? floatval($_POST["package1_num"]) : 0;
+                                                        $package1_price =isset($_POST["package1_price"]) ? floatval($_POST["package1_price"]) : 0;
+                                                        $package2_name=isset($_POST["package2_name"]) ? mysqli_real_escape_string($conn, $_POST["package2_name"]) : '';
+                                                        $package2_num =isset($_POST["package2_num"]) ? floatval($_POST["package2_num"]) : 0;
+                                                        $package2_price =isset($_POST["package2_price"]) ? floatval($_POST["package2_price"]) : 0;
+                                                        $package3_name=isset($_POST["package3_name"]) ? mysqli_real_escape_string($conn, $_POST["package3_name"]) : '';
+                                                        $package3_num =isset($_POST["package3_num"]) ? floatval($_POST["package3_num"]) : 0;
+                                                        $package3_price =isset($_POST["package3_price"]) ? floatval($_POST["package3_price"]) : 0;
+                                                        $package4_name=isset($_POST["package4_name"]) ? mysqli_real_escape_string($conn, $_POST["package4_name"]) : '';
+                                                        $package4_num =isset($_POST["package4_num"]) ? floatval($_POST["package4_num"]) : 0;
+                                                        $package4_price =isset($_POST["package4_price"]) ? floatval($_POST["package4_price"]) : 0;
+                                                        
+                                                        $package_array = array(
+                                                        $package1_name, $package1_num, $package1_price,
+                                                        $package2_name, $package2_num, $package2_price,
+                                                        $package3_name, $package3_num, $package3_price,
+                                                        $package4_name, $package4_num, $package4_price
+                                                        );
+                                                        
+                                                        $package =implode("##",$package_array);
+                                                        $package_escaped = mysqli_real_escape_string($conn, $package);
+                                                        $package_price = $package1_price + $package2_price + $package3_price + $package4_price;
+                                                        $transport = 0;
+                                                        
+                                                        $barcode='CO'.date("ymd").sprintf("%03d",rand(000,999)).'MN';
+                                                        do {
+                                                                $barcode='CO'.date("ymd").sprintf("%03d",rand(000,999)).'MN';
+                                                                $barcode_escaped = mysqli_real_escape_string($conn, $barcode);
+                                                                $query = mysqli_query($conn,"SELECT id FROM container_item WHERE barcode='".$barcode_escaped."'");
+                                                            } 
+                                                        while ($query && mysqli_num_rows($query)== 1); 	
+                                                        
+                                                        $track_escaped3 = mysqli_real_escape_string($conn, $track);
+                                                        $sender_escaped = mysqli_real_escape_string($conn, $sender);
+                                                        $receiver_escaped = mysqli_real_escape_string($conn, $receiver);
+                                                        $sql_insert = "INSERT INTO container_item (
+                                                                created_date,
+                                                                barcode,
+                                                                track,
+                                                                package,
+                                                                sender,
+                                                                receiver,
+                                                                status,
+                                                                owner,
+                                                                is_online)
+                                                                VALUES
+                                                                (
+                                                                '".date("Y-m-d H:i:s")."',
+                                                                '".$barcode_escaped."',
+                                                                '".$track_escaped3."',
+                                                                '".$package_escaped."',
+                                                                '".$sender_escaped."',
+                                                                '".$receiver_escaped."',
+                                                                'weight_missing',
+                                                                1,
+                                                                1)";
+                                                        if ($conn && mysqli_query($conn,$sql_insert))
+                                                        {
                                                             ?>
                                                             <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
                                                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                                                 Амжилттай үүсгэлээ
                                                             </div>
-                                                            <?
+                                                            <?php
                                                         }
                                                         else 
                                                         {
@@ -376,121 +515,17 @@
                                                             <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                                <b><?=$error;?></b> Алдаа гарлаа: <?=mysqli_error($conn);?>
+                                                                <b><?php echo htmlspecialchars($error ?? '');?></b> Алдаа гарлаа: <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
                                                             </div>
-                                                            <?
-                                                        }
+                                                            <?php
+                                                        }      
+                                                    }
                                                 }
-                                            }
-
-                                            if (isset($_POST["container_trigger"]))
-                                            {
-                                                $track_eliminated = substr($track,-8,8);
-                                                $sql = "SELECT * FROM container_item WHERE SUBSTRING(track,-8,8) = '$track_eliminated'";
-                                                $result = mysqli_query($conn,$sql);
-                                                if (mysqli_num_rows($result) > 1) 
-                                                    echo "1-с олон track олдлоо. Та хайлтын утгаа ихэсгэж ахин оролдоно уу? <br>".anchor("welcome/track_search","Ахин оролдох",array("class"=>"btn btn-xs btn-primary"));
-                                                if (mysqli_num_rows($result)  == 1)
-                                                {
-                                                    $data = mysqli_fetch_array($result);
-                                                    $status = $data["status"];
-                                                    if ($status=="weight_missing") echo "Америкт хүргэгдээгүй байна.";
-                                                    if ($status=="new") echo "USА оффис-д байгаа Монголруу далайгаар гарахад бэлэн болсон.";
-                                                    if ($status=="item_missing") echo "Задаргаагүй. Илгээмжийн доторх мэдээллийг оруулаагүй байна. Иймд Монголруу гарах боложгүй. Та нэвтэрч орон Track-aa өөр дээрээ бүртгүүлж барааны тайлбараа бөглөнө үү";
-                                                    if ($status=="warehouse") echo "Монгол дахь агуулахад ирсэн байна. Та өөрийн биеэр ирж авах боломжтой.";
-                                                    if ($status=="onway") echo "Америкаас Монголруу далайгаар ирж яваа.";
-                                                    if ($status=="delivered") echo "Илгээмжийг хүлээн авч олгосон.";
-                                                    if ($status=="filled") echo "Барааны мэдээллийн бүрэн оруулсан байна. Бид мэдээллийг шалган наашаа гаргахад бэлэн төлөвт оруулах болно.";
-                                                    if ($status=="custom") echo "Гаальд саатсан байна.";
-                                                    echo "<br><br>";
-                                                    echo "<i>Хэрэв таны ачаа хүргэгдсэн төлөв байгаад манайд бүртгэгдээгүй бол бидэнд яаралтай мэдэгдэнэ үү.</i>";
-                                                }
-
-                                                    if (mysqli_num_rows($result) == 0)  //Бүтргэлгүй
-                                                        {
-                                                            // $sql2 = "SELECT customer_id,password,name FROM customer WHERE tel='$contact' LIMIT 1";
-                                                            
-                                                            
-                                                            $sender=0;
-                                                            $receiver=$user_id;
-                                                            
-                                                            $package1_name=$_POST["package1_name"];
-                                                            $package1_num =$_POST["package1_num"];
-                                                            $package1_price =$_POST["package1_price"];
-                                                            $package2_name=$_POST["package2_name"];
-                                                            $package2_num =$_POST["package2_num"];
-                                                            $package2_price =$_POST["package2_price"];
-                                                            $package3_name=$_POST["package3_name"];
-                                                            $package3_num =$_POST["package3_num"];
-                                                            $package3_price =$_POST["package3_price"];
-                                                            $package4_name=$_POST["package4_name"];
-                                                            $package4_num =$_POST["package4_num"];
-                                                            $package4_price =$_POST["package4_price"];
-                                                            
-                                                            $package_array = array(
-                                                            $package1_name, $package1_num, $package1_price,
-                                                            $package2_name, $package2_num, $package2_price,
-                                                            $package3_name, $package3_num, $package3_price,
-                                                            $package4_name, $package4_num, $package4_price
-                                                            );
-                                                            
-                                                            $package =implode("##",$package_array);
-                                                            $package_price = floatval($package1_price) + floatval($package2_price) + floatval($package3_price) + floatval($package4_price);
-                                                            $transport = 0;
-                                                            
-                                                            $barcode='CO'.date("ymd").sprintf("%03d",rand(000,999)).'MN';
-                                                            do {
-                                                                    $barcode='CO'.date("ymd").sprintf("%03d",rand(000,999)).'MN';
-                                                                    $query = mysqli_query($conn,"SELECT id FROM container_item WHERE barcode='$barcode'");
-                                                                } 
-                                                            while (mysqli_num_rows($query)== 1); 	
-                                                            $sql_insert = "INSERT INTO container_item (
-                                                                    created_date,
-                                                                    barcode,
-                                                                    track,
-                                                                    package,
-                                                                    sender,
-                                                                    receiver,
-                                                                    status,
-                                                                    owner,
-                                                                    is_online)
-                                                                    VALUES
-                                                                    (
-                                                                    '".date("Y-m-d H:i:s")."',
-                                                                    '".$barcode."',
-                                                                    '".$track."',
-                                                                    '".$package."',
-                                                                    '".$sender."',
-                                                                    '".$receiver."',
-                                                                    'weight_missing',
-                                                                    1,
-                                                                    1)";
-                                                            if (mysqli_query($conn,$sql_insert))
-                                                            {
-                                                                ?>
-                                                                <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
-                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                                    Амжилттай үүсгэлээ
-                                                                </div>
-                                                                <?
-                                                            }
-                                                            else 
-                                                            {
-                                                                ?>
-                                                                <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
-                                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                                    <b><?=$error;?></b> Алдаа гарлаа: <?=mysqli_error($conn);?>
-                                                                </div>
-                                                                <?
-                                                            }      
-                                                        }
                                             }
                                         }
-
-
                                         ?>
+
+
                                         <form action="tracks?action=insert"method="post" enctype="multipart/form-data">
                                             <div class="form-group">
                                                 <label for="track">Трак оруулах</label>
@@ -546,7 +581,7 @@
                                                     while ($data = mysqli_fetch_array($result))
                                                         {
                                                             ?>
-                                                            <option value="<?=$data["proxy_id"];?>"> <?=$data["name"];?> - <?=$data["tel"];?></option>
+                                                            <option value="<?php echo htmlspecialchars($data["proxy_id"] ?? '');?>"> <?php echo htmlspecialchars($data["name"] ?? '');?> - <?php echo htmlspecialchars($data["tel"] ?? '');?></option>
                                                             <?
                                                         }
                                                         ?>
@@ -594,34 +629,40 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Трактай ачааны тайлбар засах</h5>
-                                    <?
+                                    <?php
                                     if (isset($_GET["id"]))
                                     {
-                                        $order_id = $_GET["id"];
-                                        $sql = "SELECT *FROM orders WHERE order_id='$order_id'";
+                                        $order_id = isset($_GET["id"]) ? intval(protect($_GET["id"])) : 0;
+                                        $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                                        $sql = "SELECT * FROM orders WHERE order_id='".$order_id_escaped."'";
                                         $result = mysqli_query($conn,$sql);
-                                        if (mysqli_num_rows($result)==1)
+                                        $receiver = 0;
+                                        $third_party = '';
+                                        $proxy_id_old = 0;
+                                        $proxy_id = 0;
+                                        $proxy_type = '';
+                                        if ($result && mysqli_num_rows($result)==1)
                                         {
                                             $data = mysqli_fetch_array($result);
-                                            $receiver = $data["receiver"];
-                                            $third_party = $data["third_party"];
-                                            $proxy_id_old = $data["proxy_id"];
-                                            $proxy_id = $data["proxy_id"];
-                                            $proxy_type = $data["proxy_type"];
-                                            $package = $data["package"];
-                                            $package_array=explode("##",$package);
-                                            $package1_name = $package_array[0];
-                                            $package1_num = $package_array[1];
-                                            $package1_price = $package_array[2];
-                                            $package2_name = $package_array[3];
-                                            $package2_num = $package_array[4];
-                                            $package2_price = $package_array[5];
-                                            $package3_name = $package_array[6];
-                                            $package3_num = $package_array[7];
-                                            $package3_price = $package_array[8];
-                                            $package4_name = $package_array[9];
-                                            $package4_num = $package_array[10];
-                                            $package4_price = $package_array[11];
+                                            $receiver = isset($data["receiver"]) ? intval($data["receiver"]) : 0;
+                                            $third_party = isset($data["third_party"]) ? htmlspecialchars($data["third_party"]) : '';
+                                            $proxy_id_old = isset($data["proxy_id"]) ? intval($data["proxy_id"]) : 0;
+                                            $proxy_id = isset($data["proxy_id"]) ? intval($data["proxy_id"]) : 0;
+                                            $proxy_type = isset($data["proxy_type"]) ? htmlspecialchars($data["proxy_type"]) : '';
+                                            $package = isset($data["package"]) ? htmlspecialchars($data["package"]) : '';
+                                            $package_array = !empty($package) ? explode("##", $package) : array();
+                                            $package1_name = isset($package_array[0]) ? htmlspecialchars($package_array[0]) : '';
+                                            $package1_num = isset($package_array[1]) ? htmlspecialchars($package_array[1]) : '';
+                                            $package1_price = isset($package_array[2]) ? htmlspecialchars($package_array[2]) : '';
+                                            $package2_name = isset($package_array[3]) ? htmlspecialchars($package_array[3]) : '';
+                                            $package2_num = isset($package_array[4]) ? htmlspecialchars($package_array[4]) : '';
+                                            $package2_price = isset($package_array[5]) ? htmlspecialchars($package_array[5]) : '';
+                                            $package3_name = isset($package_array[6]) ? htmlspecialchars($package_array[6]) : '';
+                                            $package3_num = isset($package_array[7]) ? htmlspecialchars($package_array[7]) : '';
+                                            $package3_price = isset($package_array[8]) ? htmlspecialchars($package_array[8]) : '';
+                                            $package4_name = isset($package_array[9]) ? htmlspecialchars($package_array[9]) : '';
+                                            $package4_num = isset($package_array[10]) ? htmlspecialchars($package_array[10]) : '';
+                                            $package4_price = isset($package_array[11]) ? htmlspecialchars($package_array[11]) : '';
                                             if ($user_id==$receiver)
                                             {
                                                 if (isset($_POST["order_id"]) && $_POST["order_id"]<>"")
@@ -635,21 +676,26 @@
             
                                                         if (intval($_POST["proxies"])==0)
                                                         {
-                                                            $proxy_name = $_POST["proxy_name"];
-                                                            $proxy_surname = $_POST["proxy_surname"];
-                                                            $proxy_tel = $_POST["proxy_tel"];
-                                                            $proxy_address = mysqli_escape_string($conn,$_POST["address"]);
+                                                            $proxy_name = isset($_POST["proxy_name"]) ? mysqli_real_escape_string($conn, protect($_POST["proxy_name"])) : '';
+                                                            $proxy_surname = isset($_POST["proxy_surname"]) ? mysqli_real_escape_string($conn, protect($_POST["proxy_surname"])) : '';
+                                                            $proxy_tel = isset($_POST["proxy_tel"]) ? mysqli_real_escape_string($conn, protect($_POST["proxy_tel"])) : '';
+                                                            $proxy_address = isset($_POST["address"]) ? mysqli_real_escape_string($conn, protect($_POST["address"])) : '';
+                                                            $proxy_address_alt = isset($_POST["proxy_address"]) ? mysqli_real_escape_string($conn, protect($_POST["proxy_address"])) : '';
+                                                            if ($proxy_address == '' && $proxy_address_alt != '') {
+                                                                $proxy_address = $proxy_address_alt;
+                                                            }
                                                             
-                                                            $query_proxies =  mysqli_query($conn,'SELECT * FROM proxies WHERE customer_id="'.$user_id.'" AND tel="'.$proxy_tel.'"');
-                                                            if (mysqli_num_rows($query_proxies)==1)
+                                                            $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                                            $query_proxies = mysqli_query($conn,"SELECT * FROM proxies WHERE customer_id='".$user_id_escaped."' AND tel='".$proxy_tel."'");
+                                                            if ($query_proxies && mysqli_num_rows($query_proxies)==1)
                                                                 {
                                                                 $row_proxy = mysqli_fetch_array($query_proxies);
-                                                                $proxy_id = $row_proxy["proxy_id"];					
+                                                                $proxy_id = isset($row_proxy["proxy_id"]) ? intval($row_proxy["proxy_id"]) : 0;					
                                                                 }
-                                                            if (mysqli_num_rows($query_proxies)==0)	
+                                                            if ($query_proxies && mysqli_num_rows($query_proxies)==0)	
                                                                 {
-                                                                mysqli_query($conn,'INSERT INTO proxies (customer_id,name,surname,tel,address,single) VALUES("'.$user_id.'","'.$proxy_name.'","'.$proxy_surname.'","'.$proxy_tel.'","'.$proxy_address.'",1)');
-                                                                $proxy_id= mysqli_insert_id($conn); 	
+                                                                mysqli_query($conn,"INSERT INTO proxies (customer_id,name,surname,tel,address,single) VALUES('".$user_id_escaped."','".$proxy_name."','".$proxy_surname."','".$proxy_tel."','".$proxy_address."',1)");
+                                                                $proxy_id = mysqli_insert_id($conn); 	
                                                                 }
                                                         }
                                                         
@@ -657,18 +703,18 @@
             
                                                 
                                                        
-                                                    $package1_name=mysqli_escape_string($conn,$_POST["package1_name"]);
-                                                    $package1_num =$_POST["package1_num"];
-                                                    $package1_price =$_POST["package1_price"];
-                                                    $package2_name=mysqli_escape_string($conn,$_POST["package2_name"]);
-                                                    $package2_num =$_POST["package2_num"];
-                                                    $package2_price =$_POST["package2_price"];
-                                                    $package3_name=mysqli_escape_string($conn,$_POST["package3_name"]);
-                                                    $package3_num =$_POST["package3_num"];
-                                                    $package3_price =$_POST["package3_price"];
-                                                    $package4_name=mysqli_escape_string($conn,$_POST["package4_name"]);
-                                                    $package4_num =$_POST["package4_num"];
-                                                    $package4_price =$_POST["package4_price"];
+                                                    $package1_name = isset($_POST["package1_name"]) ? mysqli_real_escape_string($conn, protect($_POST["package1_name"])) : '';
+                                                    $package1_num = isset($_POST["package1_num"]) ? intval($_POST["package1_num"]) : 0;
+                                                    $package1_price = isset($_POST["package1_price"]) ? floatval($_POST["package1_price"]) : 0;
+                                                    $package2_name = isset($_POST["package2_name"]) ? mysqli_real_escape_string($conn, protect($_POST["package2_name"])) : '';
+                                                    $package2_num = isset($_POST["package2_num"]) ? intval($_POST["package2_num"]) : 0;
+                                                    $package2_price = isset($_POST["package2_price"]) ? floatval($_POST["package2_price"]) : 0;
+                                                    $package3_name = isset($_POST["package3_name"]) ? mysqli_real_escape_string($conn, protect($_POST["package3_name"])) : '';
+                                                    $package3_num = isset($_POST["package3_num"]) ? intval($_POST["package3_num"]) : 0;
+                                                    $package3_price = isset($_POST["package3_price"]) ? floatval($_POST["package3_price"]) : 0;
+                                                    $package4_name = isset($_POST["package4_name"]) ? mysqli_real_escape_string($conn, protect($_POST["package4_name"])) : '';
+                                                    $package4_num = isset($_POST["package4_num"]) ? intval($_POST["package4_num"]) : 0;
+                                                    $package4_price = isset($_POST["package4_price"]) ? floatval($_POST["package4_price"]) : 0;
                                                     
                                                     $package_array = array(
                                                     $package1_name, $package1_num, $package1_price,
@@ -694,7 +740,7 @@
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                                             Захиалга амжилттай засагдлаа
                                                         </div>
-                                                        <?
+                                                        <?php
                                                     }
                                                     else 
                                                     {
@@ -702,9 +748,9 @@
                                                         <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                            Алдаа. <?=mysqli_error($conn);?>
+                                                            Алдаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
                                                         </div>
-                                                        <?
+                                                        <?php
                                                     }
                                                                 
                                                                 
@@ -714,37 +760,37 @@
                                                 }
                                                 
                                                 ?>
-                                                <form action="tracks?action=edit&id=<?=$order_id;?>"method="post" enctype="multipart/form-data">
-                                                    <input type="hidden" name="order_id" value="<?=$order_id;?>">
+                                                <form action="tracks?action=edit&id=<?php echo htmlspecialchars($order_id); ?>" method="post" enctype="multipart/form-data">
+                                                    <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order_id); ?>">
                                                     <div class="form-group">
                                                         <label for="track">Трак</label>
-                                                        <input type="text" class="form-control" value="<?=$third_party;?>" readonly>
+                                                        <input type="text" class="form-control" value="<?php echo htmlspecialchars($third_party); ?>" readonly>
                                                     </div>
                                                     <h5 class="card-title">Барааны тайлбар</h5>
                                                     <table class="table table-hover">
                                                         <tr>	
-                                                            <td><input type="text" name="package1_name" value="<?=$package1_name;?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м" required></td>
-                                                            <td><input type="text" name="package1_num" value="<?=$package1_num;?>" class="form-control" placeholder="Тоо ширхэг" required></td>
-                                                            <td><input type="text" name="package1_price" value="<?=$package1_price;?>" class="form-control" placeholder="Үнэ ($)" required></td>
+                                                            <td><input type="text" name="package1_name" value="<?php echo htmlspecialchars($package1_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м" required></td>
+                                                            <td><input type="text" name="package1_num" value="<?php echo htmlspecialchars($package1_num); ?>" class="form-control" placeholder="Тоо ширхэг" required></td>
+                                                            <td><input type="text" name="package1_price" value="<?php echo htmlspecialchars($package1_price); ?>" class="form-control" placeholder="Үнэ ($)" required></td>
                                                         </tr>
 
 
                                                         <tr>	
-                                                            <td><input type="text" name="package2_name" value="<?=$package2_name;?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
-                                                            <td><input type="text" name="package2_num" value="<?=$package2_num;?>" class="form-control" placeholder="Тоо ширхэг"></td>
-                                                            <td><input type="text" name="package2_price" value="<?=$package2_price;?>" class="form-control" placeholder="Үнэ ($)"></td>
+                                                            <td><input type="text" name="package2_name" value="<?php echo htmlspecialchars($package2_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
+                                                            <td><input type="text" name="package2_num" value="<?php echo htmlspecialchars($package2_num); ?>" class="form-control" placeholder="Тоо ширхэг"></td>
+                                                            <td><input type="text" name="package2_price" value="<?php echo htmlspecialchars($package2_price); ?>" class="form-control" placeholder="Үнэ ($)"></td>
                                                         </tr>
 
                                                         <tr>	
-                                                            <td><input type="text" name="package3_name" value="<?=$package3_name;?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
-                                                            <td><input type="text" name="package3_num" value="<?=$package3_num;?>" class="form-control" placeholder="Тоо ширхэг"></td>
-                                                            <td><input type="text" name="package3_price" value="<?=$package3_price;?>" class="form-control" placeholder="Үнэ ($)"></td>
+                                                            <td><input type="text" name="package3_name" value="<?php echo htmlspecialchars($package3_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
+                                                            <td><input type="text" name="package3_num" value="<?php echo htmlspecialchars($package3_num); ?>" class="form-control" placeholder="Тоо ширхэг"></td>
+                                                            <td><input type="text" name="package3_price" value="<?php echo htmlspecialchars($package3_price); ?>" class="form-control" placeholder="Үнэ ($)"></td>
                                                         </tr>
                                                         
                                                         <tr>	
-                                                            <td><input type="text" name="package4_name" value="<?=$package4_name;?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
-                                                            <td><input type="text" name="package4_num" value="<?=$package4_num;?>" class="form-control" placeholder="Тоо ширхэг"></td>
-                                                            <td><input type="text" name="package4_price" value="<?=$package4_price;?>" class="form-control" placeholder="Үнэ ($)"></td>
+                                                            <td><input type="text" name="package4_name" value="<?php echo htmlspecialchars($package4_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
+                                                            <td><input type="text" name="package4_num" value="<?php echo htmlspecialchars($package4_num); ?>" class="form-control" placeholder="Тоо ширхэг"></td>
+                                                            <td><input type="text" name="package4_price" value="<?php echo htmlspecialchars($package4_price); ?>" class="form-control" placeholder="Үнэ ($)"></td>
                                                         </tr>
                                                     </table>
                                                     <!-- <div class="input-group">
@@ -758,21 +804,29 @@
                                                     <div class="input-group">
                                                         <label for="proxy_trigger" class="mr-3"><b>Өөр хүн авах</b></label>
                                                         <label class="switch s-icons s-outline s-outline-primary">
-                                                            <input type="checkbox" name="proxy_trigger" value="container" id="proxy_trigger" <?=($proxy_id>0)?'checked':'';?>>
+                                                            <input type="checkbox" name="proxy_trigger" value="container" id="proxy_trigger" <?php echo (isset($proxy_id) && $proxy_id>0) ? 'checked' : ''; ?>>
                                                             <span class="slider round"></span>
                                                         </label>
                                                     </div>
                                                     <select name="proxies" id="proxies" class="form-control">
-                                                        <?
-                                                        $sql ="SELECT * from proxies WHERE customer_id='$user_id' AND (status=0 OR proxy_id='$proxy_id')";
+                                                        <?php
+                                                        $proxy_id_safe = isset($proxy_id) ? intval($proxy_id) : 0;
+                                                        $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                                        $sql = "SELECT * FROM proxies WHERE customer_id='".$user_id_escaped."' AND (status=0 OR proxy_id='".$proxy_id_safe."')";
                                                         $result = mysqli_query($conn,$sql);
-                                                        while ($data = mysqli_fetch_array($result))
+                                                        if ($result) {
+                                                            while ($data = mysqli_fetch_array($result))
                                                             {
+                                                                $proxy_id_val = isset($data["proxy_id"]) ? intval($data["proxy_id"]) : 0;
+                                                                $proxy_name_display = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                                                                $proxy_tel_display = isset($data["tel"]) ? htmlspecialchars($data["tel"]) : '';
+                                                                $selected = ($proxy_id_safe == $proxy_id_val) ? 'SELECTED="SELECTED"' : '';
                                                                 ?>
-                                                                <option value="<?=$data["proxy_id"];?>" <?=($proxy_id==$data["proxy_id"])?'SELECTED="SELECTED"':'';?>> <?=$data["name"];?> - <?=$data["tel"];?></option>
-                                                                <?
+                                                                <option value="<?php echo htmlspecialchars($proxy_id_val); ?>" <?php echo htmlspecialchars($selected); ?>> <?php echo htmlspecialchars($proxy_name_display); ?> - <?php echo htmlspecialchars($proxy_tel_display); ?></option>
+                                                                <?php
                                                             }
-                                                            ?>
+                                                        }
+                                                        ?>
                                                         <option value="-1">Шинэ хүн оруулах</option>
                                                     </select>
 
@@ -785,7 +839,7 @@
                                                     
                                                     <input type="submit" class="btn btn-primary" value="Хадгалах">
                                                 </form>
-                                                <?
+                                                <?php
                                             }
                                             else 
                                             {
@@ -795,7 +849,7 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                                     Уучлаарай, таны ачаа биш байна.
                                                 </div>
-                                                <?
+                                                <?php
                                             }
                                        
                                             
@@ -808,7 +862,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                                 Ачааны дугаар олдсонгүй
                                             </div>
-                                            <?
+                                            <?php
                                         }
                                     }
                                     ?>
@@ -816,12 +870,12 @@
                             </div>
                         </div>
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
 
-                <?
+                <?php
                 if ($action=="detail")
                 {
                     $user_id = $_SESSION["c_user_id"];
@@ -840,17 +894,19 @@
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 layout-top-spacing">
                             <div class="card">
                                 <div class="card-body">
-                                    <?
-                                    $sql = "SELECT *FROM orders WHERE order_id='$order_id' LIMIT 1";
+                                    <?php
+                                    $order_id = isset($_GET["id"]) ? intval(protect($_GET["id"])) : 0;
+                                    $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                                    $sql = "SELECT * FROM orders WHERE order_id='".$order_id_escaped."' LIMIT 1";
                                     $result = mysqli_query($conn,$sql);
-                                    if (mysqli_num_rows($result)==1)
+                                    if ($result && mysqli_num_rows($result)==1)
                                     {
-                                        $data_order = mysqlI_fetch_array($result);
-                                        $receiver = $data_order["receiver"];
-                                        $track = $data_order["third_party"];
-                                        $status = $data_order["status"];
-                                        $proxy=$data_order["proxy_id"];
-                                        $proxy_type=$data_order["proxy_type"];
+                                        $data_order = mysqli_fetch_array($result);
+                                        $receiver = isset($data_order["receiver"]) ? intval($data_order["receiver"]) : 0;
+                                        $track = isset($data_order["third_party"]) ? htmlspecialchars($data_order["third_party"]) : '';
+                                        $status = isset($data_order["status"]) ? htmlspecialchars($data_order["status"]) : '';
+                                        $proxy = isset($data_order["proxy_id"]) ? intval($data_order["proxy_id"]) : 0;
+                                        $proxy_type = isset($data_order["proxy_type"]) ? htmlspecialchars($data_order["proxy_type"]) : '';
                                         if ($receiver==$user_id)
                                         {
                                             $weight=$data_order["weight"];
@@ -866,33 +922,33 @@
                                             $warehouse_date=$data_order["warehouse_date"];
                                             $delivered_date = $data_order["delivered_date"];
                                             
-                                            $package_array=explode("##",$package);
-                                            $package1_name = $package_array[0];
-                                            $package1_num = $package_array[1];
-                                            $package1_price = $package_array[2];
-                                            $package2_name = $package_array[3];
-                                            $package2_num = $package_array[4];
-                                            $package2_price = $package_array[5];
-                                            $package3_name = $package_array[6];
-                                            $package3_num = $package_array[7];
-                                            $package3_price = $package_array[8];
-                                            $package4_name = $package_array[9];
-                                            $package4_num = $package_array[10];
-                                            $package4_price = $package_array[11];			
+                                            $package_array = !empty($package) ? explode("##", $package) : array();
+                                            $package1_name = isset($package_array[0]) ? htmlspecialchars($package_array[0]) : '';
+                                            $package1_num = isset($package_array[1]) ? htmlspecialchars($package_array[1]) : '';
+                                            $package1_price = isset($package_array[2]) ? htmlspecialchars($package_array[2]) : '';
+                                            $package2_name = isset($package_array[3]) ? htmlspecialchars($package_array[3]) : '';
+                                            $package2_num = isset($package_array[4]) ? htmlspecialchars($package_array[4]) : '';
+                                            $package2_price = isset($package_array[5]) ? htmlspecialchars($package_array[5]) : '';
+                                            $package3_name = isset($package_array[6]) ? htmlspecialchars($package_array[6]) : '';
+                                            $package3_num = isset($package_array[7]) ? htmlspecialchars($package_array[7]) : '';
+                                            $package3_price = isset($package_array[8]) ? htmlspecialchars($package_array[8]) : '';
+                                            $package4_name = isset($package_array[9]) ? htmlspecialchars($package_array[9]) : '';
+                                            $package4_num = isset($package_array[10]) ? htmlspecialchars($package_array[10]) : '';
+                                            $package4_price = isset($package_array[11]) ? htmlspecialchars($package_array[11]) : '';			
                                             ?>
                                             <div class="form-group">
-                                                <h4><?=$track;?></h4>
-                                                <?=$barcode;?>
-                                                <? 
-                                                if ($proxy!=0) 
+                                                <h4><?php echo htmlspecialchars($track ?? '');?></h4>
+                                                <?php echo htmlspecialchars($barcode ?? '');?>
+                                                <?php 
+                                                if (isset($proxy) && $proxy!=0) 
                                                 {
                                                     ?>
                                                     <br>
                                                     <span class="badge outline-badge-success">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-check"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>                                   
-                                                        <?=proxy($proxy,"name");?> 
+                                                        <?php echo htmlspecialchars(proxy($proxy,"name") ?? '');?> 
                                                     </span>
-                                                    <?
+                                                    <?php
                                                 }
                                                 else 
                                                 {
@@ -900,12 +956,12 @@
                                                     <br>
                                                     <span class="badge outline-badge-primary">
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user-check"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>                                   
-                                                        <?=customer($user_id,"name");?> 
+                                                        <?php echo htmlspecialchars(customer($user_id,"name") ?? '');?> 
                                                     </span>
-                                                    <?
+                                                    <?php
                                                 }
                                                 ?>
-                                                <span class="badge badge-info badge-pills"> <?=$status;?> </span>
+                                                <span class="badge badge-info badge-pills"> <?php echo htmlspecialchars($status ?? '');?> </span>
                                                 
                                             </div>
                                             <table class="table table-hover">
@@ -913,20 +969,28 @@
                                                     <tr><th>Барааны тайлбар</th><th>тоо ширхэг</th><th>Үнэ</th></tr>
                                                 </thead>
                                                 <tbody>
-                                                <?
-                                                if ($package1_name!="")
-                                                echo "<tr><td>".$package1_name."</td><td>".$package1_num."</td><td>".$package1_price."$</td></tr>";
-                                                if ($package2_name!="")
-                                                echo "<tr><td>".$package2_name."</td><td>".$package2_num."</td><td>".$package2_price."$</td></tr>";
-                                                if ($package3_name!="")
-                                                echo "<tr><td>".$package3_name."</td><td>".$package3_num."</td><td>".$package3_price."$</td></tr>";
-                                                if ($package4_name!="")
-                                                echo "<tr><td>".$package4_name."</td><td>".$package4_num."</td><td>".$package4_price."$</td></tr>";
+                                                <?php
+                                                if (isset($package1_name) && $package1_name!="")
+                                                {
+                                                    echo "<tr><td>".htmlspecialchars($package1_name)."</td><td>".htmlspecialchars($package1_num)."</td><td>".htmlspecialchars($package1_price)."$</td></tr>";
+                                                }
+                                                if (isset($package2_name) && $package2_name!="")
+                                                {
+                                                    echo "<tr><td>".htmlspecialchars($package2_name)."</td><td>".htmlspecialchars($package2_num)."</td><td>".htmlspecialchars($package2_price)."$</td></tr>";
+                                                }
+                                                if (isset($package3_name) && $package3_name!="")
+                                                {
+                                                    echo "<tr><td>".htmlspecialchars($package3_name)."</td><td>".htmlspecialchars($package3_num)."</td><td>".htmlspecialchars($package3_price)."$</td></tr>";
+                                                }
+                                                if (isset($package4_name) && $package4_name!="")
+                                                {
+                                                    echo "<tr><td>".htmlspecialchars($package4_name)."</td><td>".htmlspecialchars($package4_num)."</td><td>".htmlspecialchars($package4_price)."$</td></tr>";
+                                                }
                                                 ?>
                                                 </tbody>
                                             </table>
                                             
-                                            <?
+                                            <?php
                                         }
                                         
                                         if ($receiver!=$user_id)
@@ -938,7 +1002,7 @@
                                                     Өөр харилцагчийн ачаа
                                                 </div>
 
-                                                <?
+                                                <?php
                                             }
                                             
                                         
@@ -952,7 +1016,7 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                             Трак олдсонгүй
                                         </div>
-                                        <?
+                                        <?php
                                     }
                                     ?>
 
@@ -968,7 +1032,7 @@
                                         <div class="timeline-line">
                                             
                                             <div class="item-timeline">
-                                                <p class="t-time"><?=substr($delivered_date,0,10);?></p>
+                                                <p class="t-time"><?php echo htmlspecialchars(substr($delivered_date ?? '',0,10));?></p>
                                                 <div class="t-dot t-dot-primary">
                                                 </div>
                                                 <div class="t-text">
@@ -978,7 +1042,7 @@
                                             </div>
 
                                             <div class="item-timeline">
-                                                <p class="t-time"><?=substr($warehouse_date,0,10);?></p>
+                                                <p class="t-time"><?php echo htmlspecialchars(substr($warehouse_date ?? '',0,10));?></p>
                                                 <div class="t-dot t-dot-warning">
                                                 </div>
                                                 <div class="t-text">
@@ -987,12 +1051,12 @@
                                                 </div>
                                             </div>
 
-                                            <?
-                                            if ($onair_date<>"")
+                                            <?php
+                                            if (isset($onair_date) && $onair_date<>"")
                                             {
                                                 ?>
                                                 <div class="item-timeline">
-                                                    <p class="t-time"><?=substr($onair_date,0,10);?></p>
+                                                    <p class="t-time"><?php echo htmlspecialchars(substr($onair_date,0,10));?></p>
                                                     <div class="t-dot t-dot-info">
                                                     </div>
                                                     <div class="t-text">
@@ -1000,42 +1064,42 @@
                                                         <p class="t-meta-time">3 өдөр</p>
                                                     </div>
                                                 </div>
-                                                <?
+                                                <?php
                                             }
 
                                             
-                                            if ($weight_date<>"")
+                                            if (isset($weight_date) && $weight_date<>"")
                                             {
                                                 ?>
                                                 <div class="item-timeline">
-                                                    <p class="t-time"><?=substr($weight_date,0,10);?></p>
+                                                    <p class="t-time"><?php echo htmlspecialchars(substr($weight_date,0,10));?></p>
                                                     <div class="t-dot t-dot-dark">
                                                     </div>
                                                     <div class="t-text">
                                                         <p>Нисэхэд бэлэн болсон</p>
                                                     </div>
                                                 </div>
-                                                <?
+                                                <?php
                                             }
                                             ?>
 
-                                            <?
-                                            if ($received_date<>"")
+                                            <?php
+                                            if (isset($received_date) && $received_date<>"")
                                             {
                                                 ?>
                                                 <div class="item-timeline">
-                                                    <p class="t-time"><?=substr($received_date,0,10);?></p>
+                                                    <p class="t-time"><?php echo htmlspecialchars(substr($received_date,0,10));?></p>
                                                     <div class="t-dot t-dot-dark">
                                                     </div>
                                                     <div class="t-text">
                                                         <p>DE хүргэгдсэн</p>
                                                     </div>
                                                 </div>
-                                                <?
+                                                <?php
                                             }
                                             ?>
                                             <div class="item-timeline">
-                                                <p class="t-time"><?=substr($created_date,0,10);?></p>
+                                                <p class="t-time"><?php echo htmlspecialchars(substr($created_date ?? '',0,10));?></p>
                                                 <div class="t-dot t-dot-dark">
                                                 </div>
                                                 <div class="t-text">
@@ -1049,15 +1113,15 @@
                             </div>
                         </div>
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="delete")
                 {
-                    $user_id = $_SESSION["c_user_id"];
-                    $order_id = $_GET["id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    $order_id = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
                     
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
@@ -1072,59 +1136,61 @@
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 layout-top-spacing">
                             <div class="card">
                                 <div class="card-body">
-                                    <?
-                                    $sql = "SELECT *FROM orders WHERE order_id='$order_id' LIMIT 1";
-                                    $result = mysqli_query($conn,$sql);
-                                    if (mysqli_num_rows($result)==1)
-                                    {
-                                        $data_order = mysqlI_fetch_array($result);
-                                        $receiver = $data_order["receiver"];
-                                        $track = $data_order["third_party"];
-                                        $proxy_id = $data_order["proxy_id"];
-                                        $proxy_type = $data_order["proxy_type"];
-                                        $status = $data_order["status"];
-                                        if ($receiver==$user_id)
+                                    <?php
+                                    if (isset($conn) && $conn) {
+                                        $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                                        $sql = "SELECT * FROM orders WHERE order_id='".$order_id_escaped."' LIMIT 1";
+                                        $result = mysqli_query($conn,$sql);
+                                        if ($result && mysqli_num_rows($result)==1)
                                         {
-                                            if ($status=='weight_missing')
+                                            $data_order = mysqli_fetch_array($result);
+                                            $receiver = isset($data_order["receiver"]) ? intval($data_order["receiver"]) : 0;
+                                            $track = isset($data_order["third_party"]) ? htmlspecialchars($data_order["third_party"]) : '';
+                                            $proxy_id = isset($data_order["proxy_id"]) ? intval($data_order["proxy_id"]) : 0;
+                                            $proxy_type = isset($data_order["proxy_type"]) ? intval($data_order["proxy_type"]) : 0;
+                                            $status = isset($data_order["status"]) ? htmlspecialchars($data_order["status"]) : '';
+                                            if ($receiver==$user_id)
                                             {
-                                                $sql = "DELETE FROM orders WHERE order_id='$order_id' LIMIT 1";
-                                                if (mysqli_query($conn,$sql))
+                                                if ($status=='weight_missing')
                                                 {
-                                                    proxy_available($proxy_id,$proxy_type,0);
+                                                    $order_id_escaped2 = mysqli_real_escape_string($conn, $order_id);
+                                                    $sql = "DELETE FROM orders WHERE order_id='".$order_id_escaped2."' LIMIT 1";
+                                                    if (mysqli_query($conn,$sql))
+                                                    {
+                                                        proxy_available($proxy_id,$proxy_type,0);
+                                                        ?>
+                                                        <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                            Амжилттай устгалаа.
+                                                        </div>
+                                                        <?php 
+                                                    }
+                                                    else
+                                                    {
+                                                        ?>
+                                                        <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                            Устгахад алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
+                                                        </div>
+                                                        <?php
+                                                    }
+                                                }
+                                                
+                                                if ($status<>'weight_missing')
+                                                {
                                                     ?>
-                                                    <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
+                                                     <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                        Амжилттай устгалаа.
+                                                        Устгах боломжгүй төлөвт байна
                                                     </div>
-                                                    <? 
+                                                    <?php
                                                 }
-                                                else
-                                                {
-                                                    ?>
-                                                    <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
-                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                        Устгахад алдаа гарлаа. <?=mysqli_error($conn);?>
-                                                    </div>
-                                                    <?
-                                                }
-
-                                            }		
-                                            if ($status<>'weight_missing')
-                                            {
-                                                ?>
-                                                 <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                    Устгах боломжгүй төлөвт байна
-                                                </div>
-
-                                                <?
                                             }
-                                        }
-                                        
-                                        if ($receiver!=$user_id)
+                                            
+                                            if ($receiver!=$user_id)
                                             {
                                                 ?>
                                                  <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
@@ -1132,22 +1198,27 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                                     Өөр харилцагчийн ачаа
                                                 </div>
-
-                                                <?
+                                                <?php
                                             }
-                                            
-                                        
-                                
-                                    }
-                                    else 
-                                    {
+                                        }
+                                        else 
+                                        {
+                                            ?>
+                                             <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                Трак олдсонгүй
+                                            </div>
+                                            <?php
+                                        }
+                                    } else {
                                         ?>
                                          <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                            Трак олдсонгүй
+                                            Database connection error
                                         </div>
-                                        <?
+                                        <?php
                                     }
                                     ?>
 
@@ -1155,13 +1226,13 @@
                             </div>
                         </div>
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
 
                 </div>
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
         </div>
     </div>
 

@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("login_check.php");
     require_once("../config.php");
     require_once("helper.php");

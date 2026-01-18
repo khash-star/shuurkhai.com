@@ -1,12 +1,14 @@
 <?php
 $dbhost = 'localhost';
 
-
-$dbuser = 'shuurkhai';
-$dbpass = 'ppZl6H8{wGUA';
+$dbuser = 'root';
+$dbpass = '';
 $dbname = 'shuurkhai';
 
 $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
 mysqli_set_charset($conn, 'utf8mb4');
 mysqli_select_db($conn, $dbname); // (($dbname,$conn);
 

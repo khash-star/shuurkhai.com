@@ -5,8 +5,8 @@ ob_start();
 
 $dbhost = 'localhost';
 
-$dbuser = 'shuurkhai';
-$dbpass = 'ppZl6H8{wGUA';
+$dbuser = 'root';
+$dbpass = '';
 $dbname = 'shuurkhai';
 
 

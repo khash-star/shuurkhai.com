@@ -1,20 +1,20 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
   <body>
     <div class="layout-wrapper layout-navbar-full layout-horizontal layout-without-menu">
       <div class="layout-container">
-        <? require_once("views/header.php");?>
+        <?php require_once("views/header.php");?>
 
-        <? if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
+        <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
 
         <div class="layout-page">          
           <div class="content-wrapper">
-            <? require_once("views/topmenu.php");?>
+            <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
-                <?
+                    <?php                            
                 if ($action=="all")
                 {                    
                     
@@ -50,7 +50,7 @@
                             <td><?=$created;?></td>
                             <td><?=$status;?></td>
                             <td>
-                            <?
+                    <?php                            
                                 $sql="SELECT * FROM container_item WHERE container=$container_id";
                                 $query_container = mysqli_query($conn,$sql);
                                 echo mysqli_num_rows($query_container);
@@ -59,7 +59,7 @@
                             <td><?=$expected;?></td>
                             <td><a href="?action=detail&id=<?=$container_id;?>"><i class="ti ti-edit"></i></a></td>
                             </tr>
-                            <?
+                    <?php                            
                         }
                         echo "</table>";
                     }
@@ -149,7 +149,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                    <?php                            
                                             $count=1;
                                             while ($data=mysqli_fetch_array($result))
                                                 {
@@ -225,7 +225,7 @@
                                                             <a href="?action=item_out&id=<?=$item;?>">Гаргах</a>                                                    
                                                         </td>
                                                     </tr>
-                                                    <?
+                    <?php                            
                                                 }
                                                 ?>
                                     </tbody>
@@ -239,7 +239,7 @@
                                         </tr>
                                     </tfoot>
                             </table>
-                            <?                            
+                    <?php                            
                         }
                         else echo "No log";
                     }
@@ -285,7 +285,7 @@
                                 <button class="btn btn-success" type="submit">Засах</button>                                                            
                             </form>
                             <a href="?action=delete&id=<?=$container_id;?>" class="btn btn-xs btn-danger">Хоосон чингэлэгийг устгах</a>
-                            <?
+                    <?php                            
                         }
                         
                         if ($status=="onway")
@@ -299,7 +299,7 @@
                             </table>
                             <button class="btn btn-success" type="submit">Засах</button>                                                            
                             </form> 
-                            <?
+                    <?php                            
 
                         }
                         //else echo '<div class="alert alert-danger" role="alert">Чинэглэгийн төлөв засаж болохгүй төлөвт байна</div>';
@@ -360,7 +360,7 @@
                     else echo '<div class="alert alert-danger" role="alert">container id not found</div>';
                     ?>
                     <a href="?action=detail&id=<?=$container_id;?>" class="btn btn-success">Дэлгэрэнгүй</a>
-                    <?
+                    <?php                            
                 }
 
                 if ($action=="create")
@@ -373,7 +373,7 @@
                         </table>
                         <button type="submit" class="btn btn-success">Add</button>
                     </form>
-                    <?
+                    <?php                            
                     
                 }
 
@@ -423,7 +423,7 @@
                     <form action="?action=inserting" method="post">
                         <input type="hidden" name="container_id" value="<?=$container_id;?>">
 
-                    <? 
+                    <?php 
                         echo "<table class='table table-hover'>";
 
                         echo "<tr><th colspan='2'><h4>Илгээгч</h4></th></tr>";
@@ -553,7 +553,7 @@
                     ?>
                         <button type="submit" class="btn btn-success">нэмэх</button>                     
                     </form>
-                    <?
+                    <?php                            
                 }
 
                 if ($action=="inserting")
@@ -707,7 +707,7 @@
                         $message = $_GET["message"];
                         ?>
                         <div class="alert <?=$message=="ok"?'alert-success':'alert-danger';?>"><?=$message;?></div>
-                        <?
+                    <?php                            
                     }
 
                     if (isset($_GET["id"])) $container_id=intval($_GET["id"]); else $container_id=0; 
@@ -722,13 +722,13 @@
                             <tr><th colspan='2'><h4>Бэлэн чингэлэг</h4></th></tr>
                             <tr><td>Чингэлэг:(*)</td><td>
                             <select name='container' class='form-control'>
-                            <?
+                    <?php                            
                             $result = mysqli_query($conn,"SELECT * FROM container WHERE status='new' ORDER BY container_id DESC");
                             while ($data = mysqli_fetch_array($result))
                               {
                                   ?>
                                   <option value="<?=$data["container_id"];?>"><?=$data["name"];?></option>
-                                  <?
+                    <?php                            
                               }
                               ?>
                             </select>
@@ -736,11 +736,11 @@
                             </table>
                         <button type="submit" class="btn btn-success">Ачаа оруулах</button>
                         </form>
-                        <?
+                    <?php                            
                     }
                     ?>
 
-                    <? 
+                    <?php 
                     if ($container_id!=0)
                     {	
                         $result = mysqli_query($conn,"SELECT * FROM container WHERE container_id=".$container_id);
@@ -777,7 +777,7 @@
 
                                         <button type="submit" class="btn btn-success">Оруулах</button>
                                     </form>
-                                    <?
+                    <?php                            
                                 }
                                 else echo "Контайнерийн төлөв шинэ биш байна.";
                             // echo "<br><br><div id=\"result\"></div><br>";
@@ -1011,14 +1011,14 @@
                                 ?>
                                 <a href="container_cp72?id=<?=$item_id;?>" target="new" class="btn btn-primary">CP72 хэвлэх</a>
                                 <a href="container_item_print?id=<?=$item_id;?>" target="new" class="btn btn-warning">Пайз хэвлэх</a>
-                                <?
+                    <?php                            
                             }
 
                             if ($item_status=='weight_missing')
                             {
                                 ?>
                                 <a href="?action=item_price&id=<?=$item_id;?>" class="btn btn-success">Үнэ оруулах</a><br>
-                                <?
+                    <?php                            
                             }
 
                             if ($status=='weight_missing')
@@ -1026,7 +1026,7 @@
                                 ?>
                                 <a href="?action=item_delete&id=<?=$item_id;?>" class="btn btn-danger btn-xs">Устгах</a><br>
                                 <a href="?action=item_edit&id=<?=$item_id;?>" class="btn btn-warning btn-xs">Засах</a><br>
-                                <?
+                    <?php                            
                             }                            
                             
 
@@ -1094,7 +1094,7 @@
                                     </table>
                                     <button type="submit" class="btn btn-success">Засах</button>
                                 </form>
-                                <?
+                    <?php                            
                             }
                             else echo '<div class="alert alert-danger" role="alert">Чинэглэгийн төлөв засаж болохгүй төлөвт байна</div>';
                         }
@@ -1141,7 +1141,7 @@
                                     <div class="alert alert-success" role="alert">Чингэлэгийн ачааг үнийг орууллаа</div>
                                     <a href="container_cp72?id=<?=$item_id;?>" target="new" class="btn btn-primary">CP72 хэвлэх</a>
                                     <a href="container_item_print?id=<?=$item_id;?>" target="new" class="btn btn-warning">Пайз хэвлэх</a>
-                                    <?
+                    <?php                            
                                 }
                             }
                             else echo '<div class="alert alert-danger" role="alert">Чинэглэгийн төлөв засаж болохгүй төлөвт байна</div>';
@@ -1165,7 +1165,7 @@
                             ?>
                             <form action="?action=item_editing" method="POST">
                                 <input type="hidden" name="item_id" value="<?=$item_id;?>">
-                                <?
+                    <?php                            
                                 $data = mysqli_fetch_array($result);
                                 $sender=$data["sender"];
                                 $receiver=$data["receiver"];
@@ -1362,7 +1362,7 @@
                                 ?>
                                 <button type="submit" class="btn btn-success">Хадгалах</button>
                             </form>
-                            <?
+                    <?php                            
                                      
                             
 
@@ -1462,7 +1462,7 @@
                                     <div class="alert alert-success" role="alert">Чингэлэгийн ачааг заслаа</div>
                                     <a href="container_cp72?id=<?=$item_id;?>" target="new" class="btn btn-primary">CP72 хэвлэх</a>
                                     <a href="container_item_print?id=<?=$item_id;?>" target="new" class="btn btn-warning">Пайз хэвлэх</a>
-                                    <?
+                    <?php                            
                                 }
                                 else echo '<div class="alert alert-danger" role="alert">Error:'.mysqli_error($conn).'</span>';
                             }
@@ -1478,7 +1478,7 @@
                 ?>
             </div>
 
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
 
             <div class="content-backdrop fade"></div>
           </div>

@@ -1,4 +1,4 @@
-<?
+<?php
 require_once("config.php");
 require_once("views/helper.php");
 require_once('assets/vendor/libs/BCG/BCGFontFile.php');
@@ -15,12 +15,12 @@ hr {border-bottom:2px #000000 solid;}
 @media print{ .btn {display:none;} h3 {font-size: 2cm;} h1 {font-size: 2cm;} img {width: 3cm;}}
 
 </style>
-<? 
+<?php 
 if (isset($_GET["id"])) $item_id=intval($_GET["id"]); ?>
 
 <img src="assets/img/logo.png" style="width:3cm;">  
       
-<? 	
+<?php 	
 	$result = mysqli_query($conn,'SELECT * FROM container_item WHERE id="'.$item_id.'"');
 	if(mysqli_num_rows($result)==1)
 			{
@@ -45,14 +45,14 @@ if (isset($_GET["id"])) $item_id=intval($_GET["id"]); ?>
 	<tr><td>
 	<table class="table" style="width:6сm !important; border: 1px solid #999999;">
 		<tr><td><img src="assets/img/logo.png" style="width:2cm;"></td></tr>
-		<tr><td>Илгээсэн: <?=customer($sender,"full_name");?></td></tr>
-		<tr><td>Хүлээн авагч:<?=customer($receiver,"full_name");?></td></tr>
-		<tr><td>Огноо:<?=date("Y-m-d H:i");?></td></tr>
-		<tr><td>Баркод:<?=$barcode;?></td></tr>
-		<tr><td>Барааны тайлбар:<?=$description;?></td></tr>
-		<tr><td>Жин:<?=$weight;?></td></tr>
-		<tr><td>Төлбөрт:<?=$payment;?>$</td></tr>
-		<tr><td>Монголд төлөх:<?=$pay_in_mongolia;?>$</td></tr>
+		<tr><td>Илгээсэн: <?php=customer($sender,"full_name");?></td></tr>
+		<tr><td>Хүлээн авагч:<?php=customer($receiver,"full_name");?></td></tr>
+		<tr><td>Огноо:<?php=date("Y-m-d H:i");?></td></tr>
+		<tr><td>Баркод:<?php=$barcode;?></td></tr>
+		<tr><td>Барааны тайлбар:<?php=$description;?></td></tr>
+		<tr><td>Жин:<?php=$weight;?></td></tr>
+		<tr><td>Төлбөрт:<?php=$payment;?>$</td></tr>
+		<tr><td>Монголд төлөх:<?php=$pay_in_mongolia;?>$</td></tr>
 		<tr><td>Гарын үсэг: </td></tr>
 	</table>
 	</td>
@@ -60,14 +60,14 @@ if (isset($_GET["id"])) $item_id=intval($_GET["id"]); ?>
 	<td>
 	<table class="table" style="width:6сm !important;  border: 1px solid #999999;">
         <tr><td><img src="assets/img/logo.png" style="width:2cm;"></td></tr>
-        <tr><td>Илгээсэн: <?=customer($sender,"full_name");?></td></tr>
-		<tr><td>Хүлээн авагч:<?=customer($receiver,"full_name");?></td></tr>
-		<tr><td>Огноо:<?=date("Y-m-d H:i");?></td></tr>
-		<tr><td>Баркод:<?=$barcode;?></td></tr>
-		<tr><td>Барааны тайлбар:<?=$description;?></td></tr>
-		<tr><td>Жин:<?=$weight;?></td></tr>
-		<tr><td>Төлбөрт:<?=$payment;?>$</td></tr>
-		<tr><td>Монголд төлөх:<?=$pay_in_mongolia;?>$</td></tr>
+        <tr><td>Илгээсэн: <?php=customer($sender,"full_name");?></td></tr>
+		<tr><td>Хүлээн авагч:<?php=customer($receiver,"full_name");?></td></tr>
+		<tr><td>Огноо:<?php=date("Y-m-d H:i");?></td></tr>
+		<tr><td>Баркод:<?php=$barcode;?></td></tr>
+		<tr><td>Барааны тайлбар:<?php=$description;?></td></tr>
+		<tr><td>Жин:<?php=$weight;?></td></tr>
+		<tr><td>Төлбөрт:<?php=$payment;?>$</td></tr>
+		<tr><td>Монголд төлөх:<?php=$pay_in_mongolia;?>$</td></tr>
 		<tr><td>Гарын үсэг: </td></tr>
 	</table>
 	</td>
@@ -77,6 +77,6 @@ if (isset($_GET["id"])) $item_id=intval($_GET["id"]); ?>
 
 
 
-<?
+<?php
 	echo "<a onClick='window.print();window.close();' class='btn btn-warning btn-xs'><i class='fa fa-print'></i>Хэвлэх</a>";		
 ?>

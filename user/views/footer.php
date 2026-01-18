@@ -1,6 +1,6 @@
 <div class="footer-wrapper">
     <div class="footer-section f-section-1">
-        <p class=""><?=settings("footer_text");?></p>
+        <p class=""><?php echo htmlspecialchars(settings("footer_text") ?? ''); ?></p>
     </div>
     <div class="footer-section f-section-2">
         <p class=""><a href="http://mindsymbol.com/" target="new"><img src="assets/images/mindsymbol.png"></a></p>

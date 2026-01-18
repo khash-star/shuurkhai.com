@@ -1,7 +1,7 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->
     <link href="plugins/apex/apexcharts.css" rel="stylesheet" type="text/css">
@@ -20,7 +20,7 @@
     </div>
     <!--  END LOADER -->
 
-   <? require_once("views/navbar.php");?>
+   <?php require_once("views/navbar.php");?>
 
     <!--  BEGIN MAIN CONTAINER  -->
     <div class="main-container" id="container">
@@ -28,56 +28,77 @@
         <div class="overlay"></div>
         <div class="search-overlay"></div>
 
-        <? require_once("views/sidebar.php");?>
+        <?php require_once("views/sidebar.php");?>
         
         <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
             <div class="widgets">
             <div class="col-xl-8 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
                         <div class="row widget-statistic">
-                            <?
-                            $sql = "SELECT *FROM videos ORDER BY rand() LIMIT 1";
+                            <?php
+                            $video_name = '';
+                            $video_url = '';
+                            $video_description = '';
+                            
+                            $sql = "SELECT * FROM videos ORDER BY rand() LIMIT 1";
                             $result = mysqli_query($conn,$sql);
-                            if (mysqli_num_rows($result)==1)
+                            if ($result && mysqli_num_rows($result)==1)
                             {
                                 $data  = mysqli_fetch_array($result);
                                 
-                                $video_name = $data["name"];
-                                $video_url = $data["url"];
-                                $video_description = $data["description"];
+                                $video_name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                                $video_url = isset($data["url"]) ? htmlspecialchars($data["url"]) : '';
+                                $video_description = isset($data["description"]) ? htmlspecialchars($data["description"]) : '';
+                            }
+                            
+                            if (!empty($video_url)) {
                                 ?>
                                 <div class="col-8 col-xl-8 col-lg-8 col-md-8 col-sm-6">
 
                                     <div class="card component-card_2">
                                         <div class="embed-responsive embed-responsive-16by9">
-                                            <iframe src="https://www.youtube.com/embed/<?=substr($video_url,32,11);?>" allowfullscreen></iframe>
+                                            <iframe src="https://www.youtube.com/embed/<?php echo htmlspecialchars(substr($video_url,32,11));?>" allowfullscreen></iframe>
                                         </div>
                                         <div class="card-body">
-                                            <h5 class="card-title"><?=$video_name;?></h5>
-                                            <p class="card-text"><?=$video_description;?></p>
+                                            <h5 class="card-title"><?php echo $video_name;?></h5>
+                                            <p class="card-text"><?php echo $video_description;?></p>
                                         </div>
                                     </div>
 
                                 </div>
-
-                                <?
+                                <?php
                             }
                             ?>
                             
 
                             <div class="col-4 col-xl-4 col-lg-4 col-md-4 col-sm-6">
-                                <?
+                                <?php
                                 $current = settings("rate");
-                                $sql = "SELECT *FROM rates ORDER by timestamp DESC LIMIT 1,1";
+                                $current = !empty($current) ? floatval($current) : 0;
+                                
+                                $last = 0;
+                                $sql = "SELECT * FROM rates ORDER by timestamp DESC LIMIT 1,1";
                                 $result = mysqli_query($conn,$sql);
-                                $data = mysqli_fetch_array($result);
-                                $last =  $data["rate"];
+                                if ($result && mysqli_num_rows($result) > 0) {
+                                    $data = mysqli_fetch_array($result);
+                                    $last = isset($data["rate"]) ? floatval($data["rate"]) : 0;
+                                }
                                 
                                 $rates = array();
-                                $sql = "SELECT *FROM rates ORDER by timestamp DESC LIMIT 7";
+                                $sql = "SELECT * FROM rates ORDER by timestamp DESC LIMIT 7";
                                 $result = mysqli_query($conn,$sql);
-                                while ($data = mysqli_fetch_array($result))
-                                array_push($rates,$data["rate"]);
+                                if ($result) {
+                                    while ($data = mysqli_fetch_array($result)) {
+                                        if (isset($data["rate"])) {
+                                            array_push($rates, floatval($data["rate"]));
+                                        }
+                                    }
+                                }
+                                
+                                // Ensure we have at least 7 values for the chart
+                                while (count($rates) < 7) {
+                                    array_push($rates, $current);
+                                }
                                 ?>
                                 <div class="widget widget-one_hybrid widget-engagement">
                                     <div class="widget-heading">
@@ -86,9 +107,17 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                                         </div>
                                         <span><b>Долларын ханш</b></span>
-                                        <p class="w-value"><?=number_format($current);?>₮</p>
+                                        <p class="w-value"><?php echo number_format($current, 2);?>₮</p>
                                         <h5 class="">
-                                            <span><?=($current>$last)?'+':'-';?><?=round(((abs($current-$last)*100)/$last),2);?>%</span>
+                                            <?php 
+                                            if ($last > 0) {
+                                                $percent = round(((abs($current-$last)*100)/$last),2);
+                                                $sign = ($current>$last)?'+':'-';
+                                                echo '<span>'.$sign.$percent.'%</span>';
+                                            } else {
+                                                echo '<span>0%</span>';
+                                            }
+                                            ?>
                                         </h5>
                                     </div>
                                     <div class="widget-content">    
@@ -101,7 +130,7 @@
                         </div>
                     </div>
             </div>
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
         </div>
         <!--  END CONTENT AREA  -->
 
@@ -148,11 +177,11 @@
         },
         series: [{
             name: 'Ханш',
-            data: [<?=$rates[0].','.$rates[1].','.$rates[2].','.$rates[3].','.$rates[4].','.$rates[5].','.$rates[6];?>]
+            data: [<?php echo isset($rates[0]) ? $rates[0] : 0;?>,<?php echo isset($rates[1]) ? $rates[1] : 0;?>,<?php echo isset($rates[2]) ? $rates[2] : 0;?>,<?php echo isset($rates[3]) ? $rates[3] : 0;?>,<?php echo isset($rates[4]) ? $rates[4] : 0;?>,<?php echo isset($rates[5]) ? $rates[5] : 0;?>,<?php echo isset($rates[6]) ? $rates[6] : 0;?>]
         }],
         labels: ['1', '2', '3', '4', '5', '6', '7'],
         yaxis: {
-            min: <?=min($rates);?>
+            min: <?php echo count($rates) > 0 ? min($rates) : 0;?>
         },
         colors: ['#8dbf42'],
         tooltip: {

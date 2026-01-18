@@ -1,7 +1,7 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
 
 <link href="assets/css/scrollspyNav.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" type="text/css" href="assets/css/elements/alert.css">
@@ -13,7 +13,7 @@
 
 <body class="sidebar-noneoverflow">
     
-    <? require_once("views/navbar.php");?>
+    <?php require_once("views/navbar.php");?>
 
 
 
@@ -23,18 +23,17 @@
         <div class="cs-overlay"></div>
         <div class="search-overlay"></div>
 
-        <? require_once("views/sidebar.php");?>
+        <?php require_once("views/sidebar.php");?>
 
 
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
-                <? if (isset($_GET["action"])) $action=$_GET["action"]; else $action="modern"; ?>
+                <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="modern"; ?>
 
-                <?
+                <?php
                 if ($action=="modern")
                 {
-                
-                    $user_id = $_SESSION["c_user_id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
                     $sql = "SELECT * FROM envoice WHERE customer_id=".$user_id." ORDER BY created_date DESC LIMIT 30";
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
@@ -58,49 +57,57 @@
                                                 <input type="text" class="form-control" placeholder="Search">
                                             </div>
                                             <ul class="nav nav-pills inv-list-container d-block" id="pills-tab" role="tablist">
-                                                <?
-                                                $sql = "SELECT *FROM envoice WHERE customer_id='$user_id' ORDER BY created_date DESC";
-                                                $result =mysqli_query($conn,$sql);
-                                                while ($data = mysqli_fetch_array($result))
-                                                {
-                                                    ?>
-                                                     <li class="nav-item ">
-                                                        <div class="nav-link list-actions <?=($data["status"]=='paid')?'paid':'';?>" id="invoice-<?=$data["envoice_id"];?>" data-invoice-id="<?=sprintf("%05d", $data["envoice_id"]);?>">
-                                                            <div class="f-m-body">
-                                                                <div class="f-head">
-                                                                    <?
-                                                                    if ($data["status"]=='paid')
-                                                                    echo '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
-                                                                    else 
-                                                                    echo '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>';
-                                                                    ?>
+                                                <?php
+                                                $sql = "SELECT * FROM envoice WHERE customer_id='".mysqli_real_escape_string($conn, $user_id)."' ORDER BY created_date DESC";
+                                                $result = mysqli_query($conn,$sql);
+                                                if ($result) {
+                                                    while ($data = mysqli_fetch_array($result))
+                                                    {
+                                                        $envoice_id = isset($data["envoice_id"]) ? intval($data["envoice_id"]) : 0;
+                                                        $status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
+                                                        $orders = isset($data["orders"]) ? htmlspecialchars($data["orders"]) : '';
+                                                        $amount = isset($data["amount"]) ? intval($data["amount"]) : 0;
+                                                        $qpay_paid = isset($data["qpay_paid"]) ? htmlspecialchars($data["qpay_paid"]) : '';
+                                                        $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                                        ?>
+                                                         <li class="nav-item ">
+                                                            <div class="nav-link list-actions <?php echo ($status=='paid')?'paid':''; ?>" id="invoice-<?php echo htmlspecialchars($envoice_id); ?>" data-invoice-id="<?php echo sprintf("%05d", $envoice_id); ?>">
+                                                                <div class="f-m-body">
+                                                                    <div class="f-head">
+                                                                        <?php
+                                                                        if ($status=='paid')
+                                                                        echo '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+                                                                        else 
+                                                                        echo '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>';
+                                                                        ?>
 
-                                                                </div>
-                                                                <div class="f-body">
-                                                                    <p class="invoice-number">Invoice #<?=sprintf("%05d", $data["envoice_id"]);?></p>
-                                                                    <p class="invoice-customer-name"><span>Ачааны тоо:</span> <?=substr_count( $data["orders"], ',' )+1;?></p>
-                                                                    <p class="invoice-customer-amount"><?=number_format(intval($data["amount"])+5000);?>₮</p>
-                                                                    <?
-                                                                    if ($data["status"]=='paid')
-                                                                        {
-                                                                            ?>
-                                                                            <p class="invoice-generated-date">Төлөгдсөн: <?=substr($data["qpay_paid"],0,10);?></p>
-                                                                            <?
-                                                                        }
-                                                                    else 
-                                                                        {
-                                                                            ?>
-                                                                            <p class="invoice-generated-date">Үүсгэсэн: <?=substr($data["created_date"],0,10);?></p>
-                                                                            <?
-                                                                        }
-                                                                    
-                                                                    ?>
+                                                                    </div>
+                                                                    <div class="f-body">
+                                                                        <p class="invoice-number">Invoice #<?php echo sprintf("%05d", $envoice_id); ?></p>
+                                                                        <p class="invoice-customer-name"><span>Ачааны тоо:</span> <?php echo substr_count($orders, ',') + 1; ?></p>
+                                                                        <p class="invoice-customer-amount"><?php echo number_format($amount + 5000); ?>₮</p>
+                                                                        <?php
+                                                                        if ($status=='paid')
+                                                                            {
+                                                                                ?>
+                                                                                <p class="invoice-generated-date">Төлөгдсөн: <?php echo !empty($qpay_paid) ? htmlspecialchars(substr($qpay_paid, 0, 10)) : ''; ?></p>
+                                                                                <?php
+                                                                            }
+                                                                        else 
+                                                                            {
+                                                                                ?>
+                                                                                <p class="invoice-generated-date">Үүсгэсэн: <?php echo !empty($created_date) ? htmlspecialchars(substr($created_date, 0, 10)) : ''; ?></p>
+                                                                                <?php
+                                                                            }
+                                                                        
+                                                                        ?>
                                                                     
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </li>
-                                                    <?
+                                                    <?php
+                                                    }
                                                 }
                                                 ?>
                                             </ul>
@@ -123,32 +130,34 @@
                                         </div>
                                         
                                         <div id="ct" class="">
-                                            <?
-                                                $sql = "SELECT *FROM envoice WHERE customer_id='$user_id' ORDER BY created_date DESC";
+                                            <?php
+                                                $sql = "SELECT * FROM envoice WHERE customer_id='".mysqli_real_escape_string($conn, $user_id)."' ORDER BY created_date DESC";
                                                 
-                                                $result =mysqli_query($conn,$sql);
-                                                while ($data = mysqli_fetch_array($result))
-                                                {
-                                                    $created_date = $data["created_date"];
-                                                    $orders = explode (",",$data["orders"]);
-                                                    $amount= intval($data["amount"]);
-                                                    $envoice_id = $data["envoice_id"];
-                                                    $envoice_status = $data["status"];
+                                                $result = mysqli_query($conn,$sql);
+                                                if ($result) {
+                                                    while ($data = mysqli_fetch_array($result))
+                                                    {
+                                                        $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                                        $orders_str = isset($data["orders"]) ? htmlspecialchars($data["orders"]) : '';
+                                                        $orders = explode(",", $orders_str);
+                                                        $amount = isset($data["amount"]) ? intval($data["amount"]) : 0;
+                                                        $envoice_id = isset($data["envoice_id"]) ? intval($data["envoice_id"]) : 0;
+                                                        $envoice_status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
                                                    ?>
-                                                    <div class="invoice-<?=$envoice_id;?>">
+                                                    <div class="invoice-<?php echo htmlspecialchars($envoice_id ?? 0); ?>">
                                                         <div class="content-section  animated animatedFadeInUp fadeInUp">
 
                                                             <div class="row inv--head-section">
 
                                                                 <div class="col-sm-6 col-12 mb-3 mt-1">
-                                                                    <h3 class="in-heading">Нэхэмжлэх №<?=sprintf("%05d", $envoice_id);?></h3>
-                                                                    <?
+                                                                    <h3 class="in-heading">Нэхэмжлэх №<?php echo sprintf("%05d", $envoice_id ?? 0); ?></h3>
+                                                                    <?php
                                                                         if ($envoice_status=='paid')
                                                                         echo '<span class="badge badge-pills badge-success">Төлөгдсөн</span>';
                                                                         else 
                                                                         {
                                                                             echo '<span class="badge badge-pills badge-danger">Төлөгдөөгүй</span>';
-                                                                            echo '<a href="envoices?action=paying&id='.$envoice_id.'"><span class="badge badge-pills badge-primary">Төлөх</span></a>';
+                                                                            echo '<a href="envoices?action=paying&id='.htmlspecialchars($envoice_id).'"><span class="badge badge-pills badge-primary">Төлөх</span></a>';
                                                                         }
                                                                     ?>
                                                                 </div>
@@ -196,7 +205,7 @@
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody>
-                                                                                <?                                                                                 
+                                                                                <?php                                                                                 
                                                                                 $N = count($orders);
                                                                                 if ($N>0 || $orders!="")
                                                                                 {	
@@ -272,11 +281,11 @@
                                                                 <div class="col-sm-5 col-12 order-sm-0 order-1">
                                                                     <div class="inv--payment-info">
                                                                         <div class="row">
-                                                                            <?
+                                                                            <?php
                                                                                 if ($envoice_status!='paid')
                                                                                 {
                                                                                     ?>
-                                                                                    <a href="envoices?action=paying&id=<?=$envoice_id;?>" class="btn btn-primary">Төлбөр төлөх</a>
+                                                                                    <a href="envoices?action=paying&id=<?php echo htmlspecialchars($envoice_id ?? 0); ?>" class="btn btn-primary">Төлбөр төлөх</a>
                                                                                     <!-- <div class="col-sm-12 col-12">
                                                                                         <h6 class=" inv-title">Төлбөр төлөх:</h6>
                                                                                     </div>
@@ -298,7 +307,7 @@
                                                                                     <div class="col-sm-8 col-12">
                                                                                         <p class="">Хашбал /₮/</p>
                                                                                     </div> -->
-                                                                                    <?
+                                                                                    <?php
                                                                                 }
                                                                             ?>
                                                                         </div>
@@ -343,7 +352,8 @@
                                                     </div> 
                                                      
 
-                                                    <?
+                                                    <?php
+                                                    }
                                                 }
                                                 ?>
                                         </div>
@@ -366,16 +376,15 @@
                         </div>
                     </div>
 
-                    <?
+                    <?php
                 }
                 ?>
 
 
-                <?
+                <?php
                 if ($action=="unpaid")
                 {
-                
-                    $user_id = $_SESSION["c_user_id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
                     $sql = "SELECT * FROM envoice WHERE customer_id=".$user_id." ORDER BY created_date DESC";
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
@@ -388,16 +397,16 @@
                     
                     <?
                     require_once("views/envoices.php");?>                        
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="paid")
                 {
-                
-                    $user_id = $_SESSION["c_user_id"];
-                    $sql = "SELECT * FROM envoice WHERE customer_id='$customer_id' AND status='paid' ORDER BY created_date DESC";
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                    $sql = "SELECT * FROM envoice WHERE customer_id='".$user_id_escaped."' AND status='paid' ORDER BY created_date DESC";
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -407,17 +416,16 @@
                         </ol>
                     </nav>
                     
-                    <?
+                    <?php
                     require_once("views/envoices.php");?>                        
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="history")
                 {
-                
-                    $user_id = $_SESSION["c_user_id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
                     $sql = "SELECT * FROM orders WHERE receiver=".$user_id." AND status IN ('delivered','custom') AND created_date>'2015-09-01' ORDER BY created_date DESC";
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
@@ -430,14 +438,14 @@
                     
                     <?
                     require_once("views/tracks.php");?>                        
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="create")
                 {
-                    $user_id = $_SESSION["c_user_id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -455,10 +463,11 @@
                                 <div class="card-body">
                                     <h5 class="card-title">Нэхэмжлэх үүсгэх</h5>
 
-                                    <?
-                                    $result = mysqli_query($conn,"SELECT * FROM orders WHERE receiver=".$user_id." AND status IN('warehouse','custom')");
+                                    <?php
+                                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                    $result = mysqli_query($conn,"SELECT * FROM orders WHERE receiver=".$user_id_escaped." AND status IN('warehouse','custom')");
                     
-                                    if (mysqli_num_rows($result) >0)
+                                    if ($result && mysqli_num_rows($result) >0)
                                     {
                                         ?>
                                         <form action="envoices?action=creating" method="post">
@@ -481,85 +490,97 @@
                                                         </tr>                                
                                                     </thead>
                                                     <tbody>
-                                                        <?
+                                                        <?php
                                                         
-                                                        $i=mysqli_num_rows($result);
-                                                        while ($data = mysqli_fetch_array($result))
+                                                        $i = $result ? mysqli_num_rows($result) : 0;
+                                                        if ($result) {
+                                                            while ($data = mysqli_fetch_array($result))
                                                         {  
-                                                            $order_id=$data["order_id"];
-                                                            $weight=$data["weight"];
-                                                            $price=$data["price"];
+                                                            $order_id = isset($data["order_id"]) ? intval($data["order_id"]) : 0;
+                                                            $weight = isset($data["weight"]) ? htmlspecialchars($data["weight"]) : '';
+                                                            $price = isset($data["price"]) ? htmlspecialchars($data["price"]) : '';
                                                             
-                                                            
-                                                            $created_date=$data["created_date"];
+                                                            $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
                                                             // $onair_date=$data["onair_date"];
                                                             // $warehouse_date=$data["warehouse_date"];
                                                             // $delivered_date=$data["delivered_date"];
                                                             
+                                                            $barcode = isset($data["barcode"]) ? htmlspecialchars($data["barcode"]) : '';
+                                                            $package = isset($data["package"]) ? htmlspecialchars($data["package"]) : '';
+                                                            $status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
+                                                            $third_party = isset($data["third_party"]) ? htmlspecialchars($data["third_party"]) : '';
+                                                            $is_branch = isset($data["is_branch"]) ? intval($data["is_branch"]) : 0;
                                                             
-                                                            $barcode=$data["barcode"];
-                                                            $package=$data["package"];
-                                                            $status=$data["status"];
-                                                            $third_party=$data["third_party"];
-                                                            $is_branch=$data["is_branch"];
+                                                            $package1_name = '';
+                                                            $package1_num = '';
+                                                            $package2_name = '';
+                                                            $package2_num = '';
+                                                            $package3_name = '';
+                                                            $package3_num = '';
+                                                            $package4_name = '';
+                                                            $package4_num = '';
                                                             
-                                                            
-                                                            $package_array=explode("##",$package);
-                                                            $package1_name = $package_array[0];
-                                                            $package1_num = $package_array[1];
-                                                            $package1_value = $package_array[2];
-                                                            $package2_name = $package_array[3];
-                                                            $package2_num = $package_array[4];
-                                                            $package2_value = $package_array[5];
-                                                            $package3_name = $package_array[6];
-                                                            $package3_num = $package_array[7];
-                                                            $package3_value = $package_array[8];
-                                                            $package4_name = $package_array[9];
-                                                            $package4_num = $package_array[10];
-                                                            $package4_value = $package_array[11];
+                                                            if (!empty($package)) {
+                                                                $package_array = explode("##", $package);
+                                                                if (count($package_array) > 11) {
+                                                                    $package1_name = isset($package_array[0]) ? htmlspecialchars($package_array[0]) : '';
+                                                                    $package1_num = isset($package_array[1]) ? htmlspecialchars($package_array[1]) : '';
+                                                                    $package1_value = isset($package_array[2]) ? htmlspecialchars($package_array[2]) : '';
+                                                                    $package2_name = isset($package_array[3]) ? htmlspecialchars($package_array[3]) : '';
+                                                                    $package2_num = isset($package_array[4]) ? htmlspecialchars($package_array[4]) : '';
+                                                                    $package2_value = isset($package_array[5]) ? htmlspecialchars($package_array[5]) : '';
+                                                                    $package3_name = isset($package_array[6]) ? htmlspecialchars($package_array[6]) : '';
+                                                                    $package3_num = isset($package_array[7]) ? htmlspecialchars($package_array[7]) : '';
+                                                                    $package3_value = isset($package_array[8]) ? htmlspecialchars($package_array[8]) : '';
+                                                                    $package4_name = isset($package_array[9]) ? htmlspecialchars($package_array[9]) : '';
+                                                                    $package4_num = isset($package_array[10]) ? htmlspecialchars($package_array[10]) : '';
+                                                                    $package4_value = isset($package_array[11]) ? htmlspecialchars($package_array[11]) : '';
+                                                                }
+                                                            }
                                                                 
                                                             ?>
 
                                                             <tr>
                                                                 <td>
-                                                                    <input type="checkbox" name="orders[]" value="<?=$order_id;?>" checked="checked">
-                                                                    <?                                                                
+                                                                    <input type="checkbox" name="orders[]" value="<?php echo htmlspecialchars($order_id ?? 0); ?>" checked="checked">
+                                                                    <?php                                                                
                                                                     if ($is_branch) 
                                                                     {
                                                                         
                                                                         ?>
                                                                         <span class="badge outline-badge-dark">DE</span>
-                                                                        <?
+                                                                        <?php
                                                                     }
                                                                     ?>
                                                                 </td>
-                                                                <td><?=$i--;?></td>
-                                                                <td><?=substr($created_date,0,10);?></td>
-                                                                <td><span class="badge badge-info badge-pills"><?=$status;?></span></td>
+                                                                <td><?php echo htmlspecialchars($i-- ?? 0); ?></td>
+                                                                <td><?php echo !empty($created_date) ? htmlspecialchars(substr($created_date, 0, 10)) : ''; ?></td>
+                                                                <td><span class="badge badge-info badge-pills"><?php echo htmlspecialchars($status ?? ''); ?></span></td>
                                                                 <td>
-                                                                <a href="<?=track($third_party);?>" target="_blank" title="Хаана явна"><?=$third_party;?></a>
-                                                                <?
-                                                                if ($package1_name!="")
-                                                                echo "<br>$package1_name ($package1_num)";
-                                                                if ($package2_name!="")
-                                                                echo "<br>$package2_name ($package2_num)";
-                                                                if ($package3_name!="")
-                                                                echo "<br>$package3_name ($package3_num)";
-                                                                if ($package4_name!="")
-                                                                echo "<br>$package4_name ($package4_num)";
+                                                                <a href="<?php echo htmlspecialchars(track($third_party ?? '') ?? ''); ?>" target="_blank" title="Хаана явна"><?php echo htmlspecialchars($third_party ?? ''); ?></a>
+                                                                <?php
+                                                                if (!empty($package1_name))
+                                                                echo "<br>" . htmlspecialchars($package1_name) . " (" . htmlspecialchars($package1_num) . ")";
+                                                                if (!empty($package2_name))
+                                                                echo "<br>" . htmlspecialchars($package2_name) . " (" . htmlspecialchars($package2_num) . ")";
+                                                                if (!empty($package3_name))
+                                                                echo "<br>" . htmlspecialchars($package3_name) . " (" . htmlspecialchars($package3_num) . ")";
+                                                                if (!empty($package4_name))
+                                                                echo "<br>" . htmlspecialchars($package4_name) . " (" . htmlspecialchars($package4_num) . ")";
                                                                 ?>
                                                                 </td>
-                                                                <td><h5><?=$weight;?></h5></td>
-                                                                <td><?=$barcode;?></td>
+                                                                <td><h5><?php echo htmlspecialchars($weight ?? ''); ?></h5></td>
+                                                                <td><?php echo htmlspecialchars($barcode ?? ''); ?></td>
                                                             </tr>
-                                                            <?
+                                                            <?php
+                                                        }
                                                         }
                                                         ?>
                                                     </tbody>
                                             </table>
                                         </div>
                                         <input type="submit" value="Үүсгэх" class="btn btn-success mt-3"> 
-                                        <?
+                                        <?php
 
                                     }
                                     else //$query->num_rows() ==0
@@ -572,14 +593,14 @@
                             </div>
                         </div>
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="creating")
                 {
-                    $user_id = $_SESSION["c_user_id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -596,31 +617,43 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Нэхэмжлэх үүсгэх</h5>
-                                    <?
+                                    <?php
                                         if (isset($_POST["orders"]))
                                         {
-                                         
-					
-                                            $orders=$_POST['orders'];$N = count($orders);
-                                            $orders_string = implode(",",$orders);
-                                            $sql = "SELECT * FROM envoice WHERE orders = '$orders_string'";
-                                            //echo $sql;
+                                            $orders = isset($_POST['orders']) ? $_POST['orders'] : array();
+                                            $N = count($orders);
+                                            $orders_string = '';
+                                            if (is_array($orders) && $N > 0) {
+                                                $orders_escaped = array();
+                                                foreach ($orders as $order) {
+                                                    $orders_escaped[] = mysqli_real_escape_string($conn, $order);
+                                                }
+                                                $orders_string = implode(",", $orders_escaped);
+                                            }
+                                            
+                                            $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                            $sql = "SELECT * FROM envoice WHERE orders = '".$orders_string."'";
                                             $result = mysqli_query($conn,$sql);
-                                            if (mysqli_num_rows($result)==0)
+                                            if ($result && mysqli_num_rows($result)==0)
                                             {
-                                            $sql = "INSERT INTO envoice (customer_id,orders) VALUES('$user_id','$orders_string')";
-                                            //echo $sql;
-                                            if (mysqli_query($conn,$sql));
-                                            $envoice_id = mysqli_insert_id($conn);
+                                                $sql = "INSERT INTO envoice (customer_id,orders) VALUES('".$user_id_escaped."','".$orders_string."')";
+                                                if (mysqli_query($conn,$sql)) {
+                                                    $envoice_id = mysqli_insert_id($conn);
+                                                } else {
+                                                    $envoice_id = 0;
+                                                }
                                             }
                                             else 
                                             {
-                                                $data = mysqli_fetch_array($result);
-                                                $envoice_id=$data["envoice_id"];
-                                                
+                                                if ($result) {
+                                                    $data = mysqli_fetch_array($result);
+                                                    $envoice_id = isset($data["envoice_id"]) ? intval($data["envoice_id"]) : 0;
+                                                } else {
+                                                    $envoice_id = 0;
+                                                }
                                             }
                                             
-                                            if ($N>0 || $orders!="")
+                                            if ($N>0 && !empty($orders_string))
                                             {	
                                                 $total_weight=0;
                                                 $total_weight_branch=0;
@@ -628,28 +661,32 @@
                                                 $count=1;
                                                 for($i=0; $i < $N; $i++)
                                                 {
-                                                    $order_id=$orders[$i];
-                                                    
-                                                    
-                                                    $sql = "SELECT * FROM orders WHERE receiver=".$user_id." AND order_id='".$order_id."'";
-                                                    
-                                                    $result = mysqli_query($conn,$sql);
-                                                    
-                                                    if (mysqli_num_rows($result) ==1)
-                                                    {
-                                                        $data = mysqli_fetch_array($result);
-                                                        //$order_id=$data["order_id;
-                                                        $weight=$data["weight"];
-                                                        if ($data["is_branch"]) $total_weight_branch+=$weight;  else $total_weight+=$weight; 
-                                                        // $total_weight+=$weight;                                                         
+                                                    $order_id = isset($orders[$i]) ? mysqli_real_escape_string($conn, $orders[$i]) : '';
+                                                    if (!empty($order_id)) {
+                                                        $sql = "SELECT * FROM orders WHERE receiver=".$user_id_escaped." AND order_id='".$order_id."'";
+                                                        
+                                                        $result = mysqli_query($conn,$sql);
+                                                        
+                                                        if ($result && mysqli_num_rows($result) ==1)
+                                                        {
+                                                            $data = mysqli_fetch_array($result);
+                                                            $weight = isset($data["weight"]) ? floatval($data["weight"]) : 0;
+                                                            $is_branch = isset($data["is_branch"]) ? intval($data["is_branch"]) : 0;
+                                                            if ($is_branch) {
+                                                                $total_weight_branch += $weight;
+                                                            } else {
+                                                                $total_weight += $weight;
+                                                            }
+                                                        }
                                                     }
                                                 }
 
                                                 
-                                                $amount=cfg_price($total_weight)*settings("rate");
-                                                $amount+=cfg_price_branch($total_weight_branch)*settings("rate");
-                                                $total_weight+=$total_weight_branch;
-                                                $sql = "UPDATE envoice SET weight='$total_weight',amount='$amount' WHERE envoice_id='$envoice_id'";
+                                                $amount = cfg_price($total_weight) * settings("rate");
+                                                $amount += cfg_price_branch($total_weight_branch) * settings("rate");
+                                                $total_weight += $total_weight_branch;
+                                                $envoice_id_escaped = mysqli_real_escape_string($conn, $envoice_id);
+                                                $sql = "UPDATE envoice SET weight='".$total_weight."',amount='".$amount."' WHERE envoice_id='".$envoice_id_escaped."'";
                                                 
                                                 if (mysqli_query($conn,$sql))
                                                 {
@@ -660,9 +697,9 @@
                                                         Амжилттай үүсгэлээ 
                                                         
                                                     </div>
-                                                    <a href="envoices?action=detail&id=<?=$envoice_id;?>" target="_blank" class="btn btn-secondary">хэвлэх</a>
-                                                    <a href="envoices?action=paying&id=<?=$envoice_id;?>" target="_blank" class="btn btn-success">Төлбөр төлөх</a>
-                                                    <?
+                                                    <a href="envoices?action=detail&id=<?php echo htmlspecialchars($envoice_id ?? 0); ?>" target="_blank" class="btn btn-secondary">хэвлэх</a>
+                                                    <a href="envoices?action=paying&id=<?php echo htmlspecialchars($envoice_id ?? 0); ?>" target="_blank" class="btn btn-success">Төлбөр төлөх</a>
+                                                    <?php
                                                 }
                                                 else 
                                                 {
@@ -670,9 +707,9 @@
                                                     <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                        <b><?=$error;?></b> Алдаа гарлаа: <?=mysqli_error($conn);?>
+                                                        <b><?php echo htmlspecialchars($error ?? ''); ?></b> Алдаа гарлаа: <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error'; ?>
                                                     </div>
-                                                    <?
+                                                    <?php
                                                 }
 
                                             }
@@ -682,15 +719,15 @@
                             </div>
                         </div>
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="detail")
                 {
-                    $user_id = $_SESSION["c_user_id"];
-                    $envoice_id = $_GET["id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    $envoice_id = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
                     
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
@@ -706,31 +743,33 @@
                             <div class="card">
                                 <div class="card-body" id="ct">
                                 
-                                    <?
-                                    $sql = "SELECT *FROM envoice WHERE customer_id=".$user_id." AND envoice_id='$envoice_id' LIMIT 1";
+                                    <?php
+                                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                    $envoice_id_escaped = mysqli_real_escape_string($conn, $envoice_id);
+                                    $sql = "SELECT * FROM envoice WHERE customer_id=".$user_id_escaped." AND envoice_id='".$envoice_id_escaped."' LIMIT 1";
                                     $result = mysqli_query($conn,$sql);
-                                    if (mysqli_num_rows($result)==1)
+                                    if ($result && mysqli_num_rows($result)==1)
                                     {
                                         $data = mysqli_fetch_array($result);
-                                        $orders = explode (",",$data["orders"]);
-                                        $amount= intval($data["amount"]);
-                                        $created_date = $data["created_date"];
-                                        $envoice_status = $data["status"];
+                                        $orders = isset($data["orders"]) ? explode(",", $data["orders"]) : array();
+                                        $amount = isset($data["amount"]) ? intval($data["amount"]) : 0;
+                                        $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                        $envoice_status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
                                         ?>
-                                        <div class="invoice-<?=$envoice_id;?>">
+                                        <div class="invoice-<?php echo htmlspecialchars($envoice_id ?? 0); ?>">
                                             <div class="content-section  animated animatedFadeInUp fadeInUp">
 
                                                 <div class="row inv--head-section">
 
                                                     <div class="col-sm-6 col-12">
-                                                        <h3 class="in-heading">Нэхэмжлэх №<?=sprintf("%05d", $envoice_id);?></h3>
-                                                        <?
+                                                        <h3 class="in-heading">Нэхэмжлэх №<?php echo sprintf("%05d", $envoice_id ?? 0); ?></h3>
+                                                        <?php
                                                             if ($envoice_status=='paid')
                                                             echo '<span class="badge badge-pills badge-success">Төлөгдсөн</span>';
                                                             else 
                                                             {
                                                                 echo '<span class="badge badge-pills badge-danger">Төлөгдөөгүй</span>';
-                                                                echo '<a href="envoices?action=paying&id='.$envoice_id.'"><span class="badge badge-pills badge-primary">Төлөх</span></a>';
+                                                                echo '<a href="envoices?action=paying&id='.htmlspecialchars($envoice_id).'"><span class="badge badge-pills badge-primary">Төлөх</span></a>';
 
                                                             }
                                                         ?>
@@ -779,7 +818,7 @@
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    <?                                                                                 
+                                                                    <?php                                                                                 
                                                                     $N = count($orders);
                                                                     if ($N>0 || $orders!="")
                                                                     {	
@@ -787,60 +826,76 @@
                                                                     $count=1;
                                                                     for($i=0; $i < $N; $i++)
                                                                     {
-                                                                    $order_id=$orders[$i];
-                                                                    
-                                                                    $sql_items = "SELECT * FROM orders WHERE receiver=".$user_id." AND order_id='".$order_id."'";
-                                                                    
-                                                                    $result_items  = mysqli_query($conn,$sql_items);
-                                                                    
-                                                                    if (mysqli_num_rows($result_items) ==1)
-                                                                    {
-                                                                        $data_items = mysqli_fetch_array($result_items);
-                                                                        $weight=$data_items["weight"];
-                                                                        $barcode=$data_items["barcode"];
-                                                                        $package=$data_items["package"];
+                                                                    $order_id = isset($orders[$i]) ? htmlspecialchars($orders[$i]) : '';
+                                                                    if (!empty($order_id)) {
+                                                                        $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                                                                        $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                                                        $sql_items = "SELECT * FROM orders WHERE receiver=".$user_id_escaped." AND order_id='".$order_id_escaped."'";
                                                                         
+                                                                        $result_items = mysqli_query($conn,$sql_items);
                                                                         
-                                                                        $package_array=explode("##",$package);
-                                                                        $package1_name = $package_array[0];
-                                                                        $package1_num = $package_array[1];
-                                                                        $package1_value = $package_array[2];
-                                                                        $package2_name = $package_array[3];
-                                                                        $package2_num = $package_array[4];
-                                                                        $package2_value = $package_array[5];
-                                                                        $package3_name = $package_array[6];
-                                                                        $package3_num = $package_array[7];
-                                                                        $package3_value = $package_array[8];
-                                                                        $package4_name = $package_array[9];
-                                                                        $package4_num = $package_array[10];
-                                                                        $package4_value = $package_array[11];
+                                                                        if ($result_items && mysqli_num_rows($result_items) ==1)
+                                                                        {
+                                                                            $data_items = mysqli_fetch_array($result_items);
+                                                                            $weight = isset($data_items["weight"]) ? htmlspecialchars($data_items["weight"]) : '';
+                                                                            $barcode = isset($data_items["barcode"]) ? htmlspecialchars($data_items["barcode"]) : '';
+                                                                            $package = isset($data_items["package"]) ? htmlspecialchars($data_items["package"]) : '';
                                                                             
+                                                                            $package1_name = '';
+                                                                            $package1_num = '';
+                                                                            $package2_name = '';
+                                                                            $package2_num = '';
+                                                                            $package3_name = '';
+                                                                            $package3_num = '';
+                                                                            $package4_name = '';
+                                                                            $package4_num = '';
+                                                                            
+                                                                            if (!empty($package)) {
+                                                                                $package_array = explode("##", $package);
+                                                                                if (count($package_array) > 11) {
+                                                                                    $package1_name = isset($package_array[0]) ? htmlspecialchars($package_array[0]) : '';
+                                                                                    $package1_num = isset($package_array[1]) ? htmlspecialchars($package_array[1]) : '';
+                                                                                    $package1_value = isset($package_array[2]) ? htmlspecialchars($package_array[2]) : '';
+                                                                                    $package2_name = isset($package_array[3]) ? htmlspecialchars($package_array[3]) : '';
+                                                                                    $package2_num = isset($package_array[4]) ? htmlspecialchars($package_array[4]) : '';
+                                                                                    $package2_value = isset($package_array[5]) ? htmlspecialchars($package_array[5]) : '';
+                                                                                    $package3_name = isset($package_array[6]) ? htmlspecialchars($package_array[6]) : '';
+                                                                                    $package3_num = isset($package_array[7]) ? htmlspecialchars($package_array[7]) : '';
+                                                                                    $package3_value = isset($package_array[8]) ? htmlspecialchars($package_array[8]) : '';
+                                                                                    $package4_name = isset($package_array[9]) ? htmlspecialchars($package_array[9]) : '';
+                                                                                    $package4_num = isset($package_array[10]) ? htmlspecialchars($package_array[10]) : '';
+                                                                                    $package4_value = isset($package_array[11]) ? htmlspecialchars($package_array[11]) : '';
+                                                                                }
+                                                                            }
+                                                                                
+                                                                            echo "<tr>";
+                                                                            echo "<td>".$count++."</td>";
+                                                                            echo "<td>".htmlspecialchars($barcode)."</td>";
+                                                                            echo "<td>";
+                                                                            //if ($third_party!="")
+                                                                            //echo "<a href='".track($third_party)."' target='_blank' title='Хаана явна'>$third_party<span class='glyphicon glyphicon-globe'></span></a>";
+                                                                            if (!empty($package1_name))
+                                                                            echo htmlspecialchars($package1_name) . " (" . htmlspecialchars($package1_num) . ")";
+                                                                            if (!empty($package2_name))
+                                                                            echo "," . htmlspecialchars($package2_name) . " (" . htmlspecialchars($package2_num) . ")";
+                                                                            if (!empty($package3_name))
+                                                                            echo "," . htmlspecialchars($package3_name) . " (" . htmlspecialchars($package3_num) . ")";
+                                                                            if (!empty($package4_name))
+                                                                            echo "," . htmlspecialchars($package4_name) . " (" . htmlspecialchars($package4_num) . ")";
+                                                                            echo "</td>";
+                                                                            
+                                                                            echo "<td class='text-right'>".htmlspecialchars($weight)."</td>";	
+                                                                            if (!empty($weight)) {
+                                                                                $total_weight += floatval($weight);
+                                                                            }
+                                                                            //echo "<td>";
+                                                                            //echo anchor("customer/orders_detail/".$order_id,"Дэлгэрэнгүй",array("class"=>"btn btn-xs btn-success"));
                                                                         
-                                                                        echo "<tr>";
-                                                                        echo "<td>".$count++."</td>";
-                                                                        echo "<td>".$barcode."</td>";
-                                                                        echo "<td>";
-                                                                        //if ($third_party!="")
-                                                                        //echo "<a href='".track($third_party)."' target='_blank' title='Хаана явна'>$third_party<span class='glyphicon glyphicon-globe'></span></a>";
-                                                                        if ($package1_name!="")
-                                                                        echo "$package1_name ($package1_num)";
-                                                                        if ($package2_name!="")
-                                                                        echo ",$package2_name ($package2_num)";
-                                                                        if ($package3_name!="")
-                                                                        echo ",$package3_name ($package3_num)";
-                                                                        if ($package4_name!="")
-                                                                        echo ",$package4_name ($package4_num)";
-                                                                        echo "</td>";
-                                                                        
-                                                                        echo "<td class='text-right'>".$weight."</td>";	
-                                                                        $total_weight+=$weight;
-                                                                        //echo "<td>";
-                                                                        //echo anchor("customer/orders_detail/".$order_id,"Дэлгэрэнгүй",array("class"=>"btn btn-xs btn-success"));
-                                                                    
-                                                                        //if ($status=="weight_missing") echo anchor("customer/orders_deleting/".$online_id,"Устгах",array("class"=>"btn btn-xs btn-danger"));
-                                                                        //echo "</td>";
-                                                                        echo "</tr>";	
+                                                                            //if ($status=="weight_missing") echo anchor("customer/orders_deleting/".$online_id,"Устгах",array("class"=>"btn btn-xs btn-danger"));
+                                                                            //echo "</td>";
+                                                                            echo "</tr>";	
                                                                         }
+                                                                    }
                                                                     }
                                                                     }
                                                                     ?>
@@ -854,7 +909,7 @@
                                                     <div class="col-sm-5 col-12 order-sm-0 order-1">
                                                         <div class="inv--payment-info">
                                                             <div class="row">
-                                                                <?
+                                                                <?php
                                                                     if ($envoice_status!='paid')
                                                                     {
                                                                         ?>
@@ -879,7 +934,7 @@
                                                                         <div class="col-sm-8 col-12">
                                                                             <p class="">Хашбал /₮/</p>
                                                                         </div>
-                                                                        <?
+                                                                        <?php
                                                                     }
                                                                 ?>
                                                                 
@@ -927,7 +982,7 @@
                                         
                                           <!-- <a class="btn btn-lg btn-warning" class="action-print">Хэвлэх</a> -->
                                           <!-- <a onClick="window.close()" class="btn btn-lg btn-danger">Гарах</a> -->
-                                          <?
+                                          <?php
                                             
                                         
                                 
@@ -940,7 +995,7 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                             Нэхэмжлэх олдсонгүй
                                         </div>
-                                        <?
+                                        <?php
                                     }
                                     ?>
 
@@ -958,16 +1013,16 @@
 
                     
 
-                    <?
+                    <?php
                 }
                 ?>
 
 
-                <?
+                <?php
                 if ($action=="paying")
                 {
-                    $user_id = $_SESSION["c_user_id"];
-                    $envoice_id = $_GET["id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    $envoice_id = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
                     
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
@@ -983,16 +1038,18 @@
                             <div class="card">
                                 <div class="card-body" id="ct">
                                 
-                                    <?
-                                    $sql = "SELECT *FROM envoice WHERE customer_id=".$user_id." AND envoice_id='$envoice_id' LIMIT 1";
+                                    <?php
+                                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                                    $envoice_id_escaped = mysqli_real_escape_string($conn, $envoice_id);
+                                    $sql = "SELECT * FROM envoice WHERE customer_id=".$user_id_escaped." AND envoice_id='".$envoice_id_escaped."' LIMIT 1";
                                     $result = mysqli_query($conn,$sql);
-                                    if (mysqli_num_rows($result)==1)
+                                    if ($result && mysqli_num_rows($result)==1)
                                     {
                                         $data = mysqli_fetch_array($result);
-                                        $orders = explode (",",$data["orders"]);
-                                        $amount= intval($data["amount"])+5000;
-                                        $created_date = $data["created_date"];
-                                        $envoice_status = $data["status"];
+                                        $orders = isset($data["orders"]) ? explode(",", $data["orders"]) : array();
+                                        $amount = isset($data["amount"]) ? intval($data["amount"])+5000 : 0;
+                                        $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                        $envoice_status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
                                         if ($envoice_status<>'paid')
                                         {
                                             $local_invoice_id = $envoice_id;
@@ -1066,21 +1123,23 @@
                                             <hr>
                                             <h4>Банкны апп-р төлөх</h4>
                                             <ul class="banks">
-                                                <?
-                                                $count =0;
-                                                foreach ($urls as $url)
-                                                {
-                                                    $count++;
-                                                    if ($count<6)
+                                                <?php
+                                                $count = 0;
+                                                if (isset($urls) && is_array($urls)) {
+                                                    foreach ($urls as $url)
                                                     {
-                                                        $bank = (array) $url;
-                                                        ?>
-                                                        <li>
-                                                            <a href="<?=$bank["link"];?>" target="new">
-                                                                <img src="<?=$bank["logo"];?>">
-                                                            </a>
-                                                        </li>
-                                                        <?
+                                                        $count++;
+                                                        if ($count<6)
+                                                        {
+                                                            $bank = (array) $url;
+                                                            ?>
+                                                            <li>
+                                                                <a href="<?php echo htmlspecialchars($bank["link"] ?? ''); ?>" target="new">
+                                                                    <img src="<?php echo htmlspecialchars($bank["logo"] ?? ''); ?>">
+                                                                </a>
+                                                            </li>
+                                                            <?php
+                                                        }
                                                     }
                                                 }
                                                 ?>
@@ -1128,7 +1187,7 @@
                                             <div class="col-sm-8 col-12">
                                                 <p class="">Хашбал /₮/</p>
                                             </div> -->
-                                            <?
+                                            <?php
                                         }
                                         else 
                                         {
@@ -1138,7 +1197,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                                 Нэхэмжлэх төлөгдсөн
                                             </div>
-                                            <?
+                                            <?php
                                         }
                                         
 
@@ -1147,7 +1206,7 @@
                                     {
                                         ?>
                                         
-                                        <?
+                                        <?php
                                     }
                                     ?>
 
@@ -1159,12 +1218,12 @@
 
                     
 
-                    <?
+                    <?php
                 }
                 ?>
 
                 </div>
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
         </div>
     </div>
 

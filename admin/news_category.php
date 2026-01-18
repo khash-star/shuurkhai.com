@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -6,21 +6,21 @@
 ?>
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-            <?  require_once("views/sidebar.php"); ?>
+            <?php  require_once("views/sidebar.php"); ?>
 			
-            <?  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
+            <?php  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
 
 			<div class="page-content">
-            <? if (isset($_GET['action'])) $action=$_GET['action']; else $action="display";?>
+            <?php if (isset($_GET['action'])) $action=protect($_GET['action']); else $action="display";?>
 
           
-            <?
+            <?php
             if ($action =="display")
             {
-              $count =1;
+              $count = 1;
               ?>
               <div class="card">
                 <div class="card-body">
@@ -33,26 +33,26 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <?
-                      $sql = "SELECT *FROM news_category ORDER BY name";
+                      <?php
+                      $sql = "SELECT * FROM news_category ORDER BY name";
                       $result = mysqli_query($conn,$sql);
-                      if (mysqli_num_rows($result)>0)
+                      if ($result && mysqli_num_rows($result) > 0)
                       {
                         while ($data = mysqli_fetch_array($result))
                         {
-
+                          if (!$data) continue;
                           ?>
                           <tr>
-                            <td><?=$count++;?></td>
-                            <td><a href="news_category?action=edit&id=<?=$data["id"];?>"><?=$data["name"];?></a></td>
+                            <td><?php echo $count++;?></td>
+                            <td><a href="news_category?action=edit&id=<?php echo htmlspecialchars($data["id"] ?? '');?>"><?php echo htmlspecialchars($data["name"] ?? '');?></a></td>
                             <td class="tx-18">
                               <div class="btn-group">
-                                <a href="news_category?action=edit&id=<?=$data["id"];?>"  class="btn btn-success btn-xs btn-icon text-white" title="Засах"><i data-feather="edit"></i></a>
+                                <a href="news_category?action=edit&id=<?php echo htmlspecialchars($data["id"] ?? '');?>"  class="btn btn-success btn-xs btn-icon text-white" title="Засах"><i data-feather="edit"></i></a>
 
                               </div>
                             </td>
                           </tr>
-                          <?
+                          <?php
                         }
                       }
                       ?>
@@ -61,7 +61,7 @@
                 </div><!-- table-wrapper -->
               </div><!-- section-wrapper -->
               <a href="news_category?action=new" class="btn btn-success mt-3"><i class="icon ion-ios-plus"></i> Ангилал нэмэх</a>
-              <?
+              <?php
             }
             ?>
 
@@ -154,7 +154,7 @@
             ?>
 
 
-            <?
+            <?php
             if ($action =="edit")
             {
               ?>
@@ -166,25 +166,32 @@
                         <h6 class="slim-card-title">Мэдээний ангилал засах</h6>
                       </div><!-- card-header -->
                       <div class="card-body">
-                          <?
-                          if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:news_category");
-                          $sql = "SELECT *FROM news_category WHERE id=$category_id LIMIT 1";
-                          $result= mysqli_query($conn,$sql);
-                          if (mysqli_num_rows($result)==1)
+                          <?php
+                          if (isset($_GET["id"])) {
+                              $category_id = intval($_GET["id"]);
+                          } else {
+                              header("location:news_category");
+                              exit;
+                          }
+                          $sql = "SELECT * FROM news_category WHERE id=$category_id LIMIT 1";
+                          $result = mysqli_query($conn,$sql);
+                          if ($result && mysqli_num_rows($result) == 1)
                           {
                             $data = mysqli_fetch_array($result);
+                            if ($data) {
                             ?>
-                            <input type="hidden" name="id" value="<?=$data["id"];?>">
+                            <input type="hidden" name="id" value="<?php echo htmlspecialchars($data["id"] ?? '');?>">
                             <div class="media-list">
                               <div class="media">
                                 <div class="media-body">
                                   <h6 class="tx-14 tx-gray-700">Нэр (*)</h6>
-                                  <input type="text" name="name" value="<?=$data["name"];?>" class="form-control" required="required">
+                                  <input type="text" name="name" value="<?php echo htmlspecialchars($data["name"] ?? '');?>" class="form-control" required="required">
                                 </div><!-- media-body -->
                               </div><!-- media -->
                             </div><!-- media-list -->
                             <input type="submit" class="btn btn-success btn-lg mg-t-10" value="Засах">
-                            <?
+                            <?php
+                            }
                           }
                           ?>
                       </div><!-- card-body -->
@@ -194,15 +201,15 @@
               </div><!-- row -->
 
               <div class="btn-group mg-t-10">
-                <a href="news_category?action=delete&id=<?=$category_id;?>" class="btn btn-danger btn-sm"><i class="icon ion-ios-trash"></i> Устгах</a>
+                <a href="news_category?action=delete&id=<?php echo htmlspecialchars($category_id ?? 0);?>" class="btn btn-danger btn-sm"><i class="icon ion-ios-trash"></i> Устгах</a>
                 <a href="news_category" class="btn btn-primary btn-sm"><i class="icon ion-ios-list"></i> Бусад бүх ангилал</a>
               </div>
-              <?
+              <?php
             }
             ?>
 
 
-            <?
+            <?php
             if ($action =="editing")
             {
               ?>
@@ -213,10 +220,16 @@
                         <h6 class="slim-card-title">Мэдээний ангилал засах</h6>
                       </div><!-- card-header -->
                       <div class="card-body">
-                          <?
-                          if (isset($_POST["id"])) $category_id=$_POST["id"]; else header("location:news_category");
-                          $name = $_POST["name"];
-                          $sql = "UPDATE news_category SET name='$name' WHERE id=$category_id LIMIT 1";
+                          <?php
+                          if (isset($_POST["id"])) {
+                              $category_id = intval($_POST["id"]);
+                          } else {
+                              header("location:news_category");
+                              exit;
+                          }
+                          $name = isset($_POST["name"]) ? protect($_POST["name"]) : '';
+                          $name_escaped = mysqli_real_escape_string($conn, $name);
+                          $sql = "UPDATE news_category SET name='$name_escaped' WHERE id=$category_id LIMIT 1";
                         
                             if (mysqli_query($conn,$sql)) 
                               {
@@ -227,18 +240,18 @@
                                     <span aria-hidden="true">&times;</span>
                                   </button>
                                 </div><!-- alert --> 
-                                <?
+                                <?php
                               }
                               else 
                               {
                                 ?>
                                 <div class="alert alert-danger mg-b-10" role="alert">
-                                Алдаа гарлаа. <?=mysqli_error($conn);?>
+                                Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
                                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                   </button>
                                 </div><!-- alert --> 
-                                <?
+                                <?php
                               }
 
 
@@ -249,15 +262,15 @@
                 </div><!-- col-6 -->
               </div><!-- row -->
               <div class="btn-group mg-t-10">
-                <a href="news_category?action=edit&id=<?=$category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+                <a href="news_category?action=edit&id=<?php echo htmlspecialchars($category_id);?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
                 <a href="news_category" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бусад бүх ангилал</a>
               </div>
-              <?
+              <?php
             }
             ?>
 
 
-            <?
+            <?php
             if ($action =="delete")
             {
               ?>
@@ -269,16 +282,21 @@
                       <h6 class="slim-card-title">Мэдээний ангилал устгах</h6>
                     </div><!-- card-header -->
                     <div class="card-body">
-                        <?
-                        if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:news_category");
-                        $sql = "SELECT *FROM news_category WHERE id=$category_id LIMIT 1";
-                        $result= mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)==1)
+                        <?php
+                        if (isset($_GET["id"])) {
+                            $category_id = intval($_GET["id"]);
+                        } else {
+                            header("location:news_category");
+                            exit;
+                        }
+                        $sql = "SELECT * FROM news_category WHERE id=$category_id LIMIT 1";
+                        $result = mysqli_query($conn,$sql);
+                        if ($result && mysqli_num_rows($result) == 1)
                         {
                           // ORDEr ShALGAH ShAARDLAGATAI
 
                         
-                          if (mysqli_query($conn,"DELETE FRom news_category WHERE id=$category_id")) 
+                          if (mysqli_query($conn,"DELETE FROM news_category WHERE id=$category_id")) 
                             {
                               ?>
                               <div class="alert alert-success mg-b-10" role="alert">
@@ -287,18 +305,18 @@
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div><!-- alert --> 
-                              <?
+                              <?php
                             }
                             else 
                             {
                               ?>
                               <div class="alert alert-danger mg-b-10" role="alert">
-                                Алдаа гарлаа. <?=mysqli_error($conn);?>
+                                Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div><!-- alert --> 
-                              <?
+                              <?php
                             }
                         }
                         ?>
@@ -309,13 +327,13 @@
               <div class="btn-group mg-t-10">
                   <a href="news_category" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бусад бүх ангилал</a>
                 </div>
-              <?
+              <?php
             }
             ?>
           
 
 			</div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

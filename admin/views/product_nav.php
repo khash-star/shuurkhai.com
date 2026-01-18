@@ -16,14 +16,18 @@
 				<a class="nav-link" href="products?action=category" data-toggle="dropdown" role="button" aria-haspopup="true">Ангилал <span class="caret"></span></a>
 				<ul class="dropdown-menu">
 					<li><a href="products?action=category">Бүх ангилал</a></li>
-					<?
-					$sql = "SELECT *FROM product_category ORDER BY dd";
+					<?php
+					$sql = "SELECT * FROM product_category ORDER BY dd";
 					$result= mysqli_query($conn,$sql);
-					while ($data = mysqli_fetch_array($result))
-					{
-						?>
-						<li><a href="products?action=categorize&category=<?=$data["id"];?>"><?=$data["name"];?></a></li>
-						<?
+					if ($result) {
+						while ($data = mysqli_fetch_array($result))
+						{
+							if ($data) {
+							?>
+							<li><a href="products?action=categorize&category=<?php echo htmlspecialchars($data["id"] ?? '');?>"><?php echo htmlspecialchars($data["name"] ?? '');?></a></li>
+							<?php
+							}
+						}
 					}
 					?>
 				</ul>

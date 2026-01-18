@@ -1,6 +1,6 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/init.php");?>
 
 <body data-spy="scroll" data-target=".navbar" data-offset="90">
 
@@ -27,7 +27,7 @@
             <div class="crumbs">
                 <nav aria-label="breadcrumb" class="breadcrumb-items">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index">Нүүр</a></li>
+                        <li class="breadcrumb-item"><a href="/shuurkhai/">Нүүр</a></li>
                         <li class="breadcrumb-item"><a href="#">Түгээмэл асуулт</a></li>
                     </ol>
                 </nav>
@@ -40,28 +40,66 @@
 <section class="featured-items padding-top padding-bottom" id="featured-items">
     <div class="container">
         <div id="accordion">
-            <?
-            $sql = "SELECT *FROM faqs ORDER BY dd";
-            $result = mysqli_query($conn,$sql);
-            while ($data = mysqli_fetch_array($result))
-            {
-                ?>
-                <div class="card">
-                    <div class="card-header" id="heading_<?=$data["faqs_id"];?>">
-                    <h5 class="mb-0">
-                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapse_<?=$data["faqs_id"];?>" aria-expanded="true" aria-controls="collapse_<?=$data["faqs_id"];?>">
-                        <?=$data["question"];?>
-                        </button>
-                    </h5>
-                    </div>
+            <?php
+            if (isset($conn) && $conn) {
+                $sql = "SELECT * FROM faqs ORDER BY dd";
+                $result = mysqli_query($conn, $sql);
+                
+                if ($result && mysqli_num_rows($result) > 0) {
+                    $count = 0;
+                    while ($data = mysqli_fetch_array($result)) {
+                        if ($data && is_array($data)) {
+                            $faqs_id = isset($data["faqs_id"]) ? intval($data["faqs_id"]) : 0;
+                            $question = isset($data["question"]) ? htmlspecialchars($data["question"]) : '';
+                            $answer = isset($data["answer"]) ? $data["answer"] : '';
+                            
+                            if (!empty($question) && !empty($answer)) {
+                                $count++;
+                                $show_first = ($count === 1) ? 'show' : '';
+                                ?>
+                                <div class="card">
+                                    <div class="card-header" id="heading_<?php echo $faqs_id; ?>">
+                                        <h5 class="mb-0">
+                                            <button class="btn btn-link <?php echo $count > 1 ? 'collapsed' : ''; ?>" type="button" data-toggle="collapse" data-target="#collapse_<?php echo $faqs_id; ?>" aria-expanded="<?php echo $count === 1 ? 'true' : 'false'; ?>" aria-controls="collapse_<?php echo $faqs_id; ?>">
+                                                <?php echo $question; ?>
+                                            </button>
+                                        </h5>
+                                    </div>
 
-                    <div id="collapse_<?=$data["faqs_id"];?>" class="collapse" aria-labelledby="heading_<?=$data["faqs_id"];?>" data-parent="#accordion">
-                    <div class="card-body">
-                        <?=$data["answer"];?>                    
+                                    <div id="collapse_<?php echo $faqs_id; ?>" class="collapse <?php echo $show_first; ?>" aria-labelledby="heading_<?php echo $faqs_id; ?>" data-parent="#accordion">
+                                        <div class="card-body">
+                                            <?php echo nl2br($answer); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php
+                            }
+                        }
+                    }
+                    
+                    if ($count === 0) {
+                        ?>
+                        <div class="alert alert-info" role="alert">
+                            <h5 class="alert-heading">Мэдээлэл олдсонгүй</h5>
+                            <p>Одоогоор түгээмэл асуулт байхгүй байна.</p>
+                        </div>
+                        <?php
+                    }
+                } else {
+                    ?>
+                    <div class="alert alert-info" role="alert">
+                        <h5 class="alert-heading">Мэдээлэл олдсонгүй</h5>
+                        <p>Одоогоор түгээмэл асуулт байхгүй байна.</p>
                     </div>
-                    </div>
+                    <?php
+                }
+            } else {
+                ?>
+                <div class="alert alert-warning" role="alert">
+                    <h5 class="alert-heading">Холболт алдаатай</h5>
+                    <p>Мэдээлэл ачаалж чадсангүй. Дахин оролдоно уу.</p>
                 </div>
-                <?
+                <?php
             }
             ?>
         </div>
@@ -70,7 +108,7 @@
 
 
 
-<? require_once("views/footer.php");?>
+<?php require_once("views/footer.php");?>
 
 
 <!--Scroll Top Start-->

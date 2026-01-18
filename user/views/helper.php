@@ -1,4 +1,4 @@
-<?
+<?php
 	//require_once ('../config.php');
 
 	if (!function_exists("protect"))
@@ -24,13 +24,13 @@ if (!function_exists("settings"))
 	{
 		global $conn;
 		if (is_int($id_or_shortname))
-			$sql = "SELECT *FROM settings WHERE id='$id_or_shortname' LIMIT 1";
+			$sql = "SELECT * FROM settings WHERE id='$id_or_shortname' LIMIT 1";
 		else 
-			$sql = "SELECT *FROM settings WHERE shortname='$id_or_shortname' LIMIT 1";
+			$sql = "SELECT * FROM settings WHERE shortname='$id_or_shortname' LIMIT 1";
 
 		$result = mysqli_query($conn,$sql);
 		
-		if (mysqli_num_rows($result)==1)
+		if ($result && mysqli_num_rows($result)==1)
 			{
 				$data = mysqli_fetch_array($result);
 				return $data["value"];
@@ -45,7 +45,7 @@ if (!function_exists("parameters"))
 	function parameters($param_name)
 	{
 		global $conn;
-			$sql = "SELECT *FROM parameters WHERE name='$param_name' LIMIT 1";
+			$sql = "SELECT * FROM parameters WHERE name='$param_name' LIMIT 1";
 	
 		$result = mysqli_query($conn,$sql);
 		
@@ -64,7 +64,7 @@ if (!function_exists("price"))
 	function price($product,$rank)
 	{
 		global $conn;
-		$sql = "SELECT *FROM products WHERE id='$product' LIMIT 1";
+		$sql = "SELECT * FROM products WHERE id='$product' LIMIT 1";
 		$result = mysqli_query($conn,$sql);
 		if (mysqli_num_rows($result)==1)
 		{
@@ -323,14 +323,25 @@ if (!function_exists("address"))
 	function address($customer_id)
 	{
 		global $conn;
+		if (empty($customer_id)) {
+			return '';
+		}
+		$customer_id_escaped = mysqli_real_escape_string($conn, $customer_id);
 		$sql = "SELECT city.name city_name, district.name district_name,customer.address_khoroo khoroo,address_build build,address_extra extra FROM customer 
 		LEFT JOIN city ON customer.address_city = city.id
 		LEFT JOIN district ON customer.address_district = district.id
-		WHERE customer.customer_id='$customer_id' LIMIT 1";
+		WHERE customer.customer_id='".$customer_id_escaped."' LIMIT 1";
 		$result = mysqli_query($conn,$sql);
-		$data = mysqli_fetch_array($result);
-
-		return $data["city_name"]." ".$data["district_name"]." ".$data["khoroo"]." ".$data["build"]." ".$data["extra"];
+		if ($result && ($data = mysqli_fetch_array($result))) {
+			$city_name = isset($data["city_name"]) ? trim($data["city_name"]) : '';
+			$district_name = isset($data["district_name"]) ? trim($data["district_name"]) : '';
+			$khoroo = isset($data["khoroo"]) ? trim($data["khoroo"]) : '';
+			$build = isset($data["build"]) ? trim($data["build"]) : '';
+			$extra = isset($data["extra"]) ? trim($data["extra"]) : '';
+			$address_parts = array_filter([$city_name, $district_name, $khoroo, $build, $extra]);
+			return implode(' ', $address_parts);
+		}
+		return '';
 	}
 }
 
@@ -339,14 +350,25 @@ if (!function_exists("address_deliver"))
 	function address_deliver($address)
 	{
 		global $conn;
+		if (empty($address)) {
+			return '';
+		}
+		$address_escaped = mysqli_real_escape_string($conn, $address);
 		$sql = "SELECT customer_address.*,city.name city_name, district.name district_name FROM customer_address 
 		LEFT JOIN city ON customer_address.city=city.id
 		LEFT JOIN district ON customer_address.district=district.id
-		WHERE customer_address.id='$address' ORDER BY timestamp DESC";
+		WHERE customer_address.id='".$address_escaped."' ORDER BY timestamp DESC LIMIT 1";
 		$result_temp = mysqli_query($conn,$sql);
-		$data_temp = mysqli_fetch_array($result_temp);
-
-		return $data_temp["city_name"]." ".$data_temp["district_name"]." ".$data_temp["khoroo"]." ".$data_temp["build"]." ".$data_temp["extra"];
+		if ($result_temp && ($data_temp = mysqli_fetch_array($result_temp))) {
+			$city_name = isset($data_temp["city_name"]) ? trim($data_temp["city_name"]) : '';
+			$district_name = isset($data_temp["district_name"]) ? trim($data_temp["district_name"]) : '';
+			$khoroo = isset($data_temp["khoroo"]) ? trim($data_temp["khoroo"]) : '';
+			$build = isset($data_temp["build"]) ? trim($data_temp["build"]) : '';
+			$extra = isset($data_temp["extra"]) ? trim($data_temp["extra"]) : '';
+			$address_parts = array_filter([$city_name, $district_name, $khoroo, $build, $extra]);
+			return implode(' ', $address_parts);
+		}
+		return '';
 	}
 }
 

@@ -1,8 +1,19 @@
-<?
+<?php
+   // Enable error reporting for debugging
+   error_reporting(E_ALL);
+   ini_set('display_errors', 1);
+   
    ob_start();
    session_start();
-   require_once("../config.php"); 
-   require_once("helper.php");
+   
+   // Check if config loads successfully
+   if (!@require_once("../config.php")) {
+       die("Error: Could not load config.php. Check database connection.");
+   }
+   
+   if (!@require_once("helper.php")) {
+       die("Error: Could not load helper.php");
+   }
 
    if(isset($_POST["login_remember"])) {
       unset($_COOKIE['login_remember']);
@@ -35,5 +46,14 @@
       else
       header("location:../login?error=wrong") ;
    }
-   else header("location:../login?error=empty")
+   else {
+       header("location:../login?error=empty");
+       exit;
+   }
+   
+   // If accessed directly without POST, redirect to login
+   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+       header("location:../login");
+       exit;
+   }
 ?>

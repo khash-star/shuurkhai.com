@@ -61,6 +61,8 @@ jQuery(function ($) {
             $(".side-menu").removeClass("side-menu-active"), $(this).fadeOut(200), $(".pushwrap").removeClass("active")
         }), $(".side-nav .navbar-nav .scroll").on("click", function () {
             $(".side-menu").removeClass("side-menu-active"), $("#close_side_menu").fadeOut(200), $(".pushwrap").removeClass("active")
+        }), $(".side-nav .navbar-nav .nav-link:not(.dropdown-toggle)").on("click", function () {
+            $(".side-menu").removeClass("side-menu-active"), $("#close_side_menu").fadeOut(200), $(".pushwrap").removeClass("active")
         }), $("#btn_sideNavClose").on("click", function () {
             $(".side-menu").removeClass("side-menu-active"), $("#close_side_menu").fadeOut(200), $(".pushwrap").removeClass("active")
         });
@@ -470,5 +472,30 @@ jQuery(function ($) {
         }
     );
     wow.init();
+
+    /* ===================================
+        Bootstrap Dropdown Menu Fix
+    ====================================== */
+    // Ensure Bootstrap dropdown works
+    if (typeof $ !== 'undefined' && $.fn.dropdown) {
+        // Initialize dropdowns
+        $('.dropdown-toggle').dropdown();
+        
+        // Fix dropdown click events
+        $('.dropdown-toggle').on('click', function(e) {
+            e.preventDefault();
+            var $dropdown = $(this).next('.dropdown-menu');
+            $dropdown.toggleClass('show');
+            $(this).attr('aria-expanded', $dropdown.hasClass('show'));
+        });
+        
+        // Close dropdown when clicking outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.dropdown').length) {
+                $('.dropdown-menu').removeClass('show');
+                $('.dropdown-toggle').attr('aria-expanded', 'false');
+            }
+        });
+    }
 
 });

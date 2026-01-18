@@ -1,4 +1,4 @@
-<?
+<?php
 require_once("config.php");
 require_once("views/helper.php");
 require_once("views/login_check.php");
@@ -8,31 +8,32 @@ require_once("views/init.php");
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-		<?  require_once("views/sidebar.php"); ?>
+		<?php  require_once("views/sidebar.php"); ?>
 				
 
 		<div class="page-content">
-			<?
-			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
-			<?
+			<?php
+			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";
+			$action_title = "Чингэлэг"; // Default value
 			switch ($action)
 			{
 				case "dashboard": $action_title="Хянах самбар";break;
 				case "active": $action_title="Идэвхитэй чингэлэг";break;
-				case "detail": $action_title="Чингэлэгийн ачаа";break;							
+				case "detail": $action_title="Чингэлэгийн ачаа";break;
+				default: $action_title="Чингэлэг";break;
 			}
 			?>
 			<nav class="page-breadcrumb">
 				<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="container">Чингэлэг</a></li>
-				<li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+				<li class="breadcrumb-item active" aria-current="page"><?php echo $action_title;?></li>
 				</ol>
 			</nav>
 
-            <?
+            <?php
                 if ($action=="active")
                 {                    
                     
@@ -40,7 +41,7 @@ require_once("views/init.php");
                     $result = mysqli_query($conn,$sql);
                     $total_weight =0;
 
-                    if (mysqli_num_rows($result) > 0)
+                    if ($result && mysqli_num_rows($result) > 0)
                     {
                         echo "<table class='table table-hover table-striped'>";
                         echo "<tr>";
@@ -63,21 +64,25 @@ require_once("views/init.php");
                             ?>
                                                 
                             <tr>
-                            <td><?=$count++;?></td>
-                            <td><?=$name;?></td>
-                            <td><?=$created;?></td>
-                            <td><?=$status;?></td>
+                            <td><?php echo $count++;?></td>
+                            <td><?php echo htmlspecialchars($name);?></td>
+                            <td><?php echo htmlspecialchars($created);?></td>
+                            <td><?php echo htmlspecialchars($status);?></td>
                             <td>
-                            <?
-                                $sql="SELECT * FROM container_item WHERE container=$container_id";
+                            <?php
+                                $sql="SELECT * FROM container_item WHERE container=".intval($container_id);
                                 $query_container = mysqli_query($conn,$sql);
-                                echo mysqli_num_rows($query_container);
+                                if ($query_container) {
+                                    echo mysqli_num_rows($query_container);
+                                } else {
+                                    echo "0";
+                                }
                             ?>
                             </td>
-                            <td><?=$expected;?></td>
-                            <td><a href="?action=detail&id=<?=$container_id;?>" class="btn btn-primary">Чингэлэгийн ачаа</a></td>
+                            <td><?php echo htmlspecialchars($expected);?></td>
+                            <td><a href="?action=detail&id=<?php echo $container_id;?>" class="btn btn-primary">Чингэлэгийн ачаа</a></td>
                             </tr>
-                            <?
+                            <?php
                         }
                         echo "</table>";
                     }
@@ -91,7 +96,7 @@ require_once("views/init.php");
                         $container_id = intval($_GET["id"]);
                         $sql = "SELECT * FROM container WHERE container_id=".$container_id;
                         $result = mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)==1)
+                        if ($result && mysqli_num_rows($result)==1)
                         {
                             $data = mysqli_fetch_array($result);
                             $name=$data["name"];
@@ -111,8 +116,8 @@ require_once("views/init.php");
 
                         }
                         echo "<b>Чингэлэг лог</b><br>";
-                        $result=mysqli_query($conn,"SELECT * FROM container_log WHERE container='".$container_id."' ORDER BY date DESC");
-                        if (mysqli_num_rows($result) > 0)
+                        $result=mysqli_query($conn,"SELECT * FROM container_log WHERE container='".intval($container_id)."' ORDER BY date DESC");
+                        if ($result && mysqli_num_rows($result) > 0)
                         {	 
                                 echo "<table class='table table-hover table-stripe table-bordered'>";
                                 echo "<tr>";
@@ -122,17 +127,17 @@ require_once("views/init.php");
                                 echo "<th>Үйлдэл</th>"; 
                                 echo "</tr>";
                                 $count=1;
-                                foreach ($query->result() as $row)
+                                while ($data = mysqli_fetch_array($result))
                                     { 
-                                $date=$data["date"];
-                                $description=$data["description"];
+                                $date = isset($data["date"]) ? $data["date"] : "";
+                                $description = isset($data["description"]) ? $data["description"] : "";
                                 
                                 echo "<tr>";
                                 echo "<td>".$count++."</td>";
-                                echo "<td>".$date."</td>";
-                                echo "<td>".$description."</td>";
+                                echo "<td>".htmlspecialchars($date)."</td>";
+                                echo "<td>".htmlspecialchars($description)."</td>";
                                 echo "<td>";
-                                echo anchor("agents/container_log_edit/".$container_id,"Засах");
+                                echo "<a href='agents?action=container_log_edit&id=".$container_id."' class='btn btn-primary'>Засах</a>";
                                     //echo anchor("agents/container_log_delete/".$container_id,"устгах",array("class"=>"btn btn-alert btn-xs"));
 
                                 echo "</td>";
@@ -146,8 +151,8 @@ require_once("views/init.php");
 
                             echo "<b>Доторхи ачаа</b><br>";
 
-                        $result=mysqli_query($conn,"SELECT * FROM container_item WHERE container='".$container_id."'");
-                        if (mysqli_num_rows($result) > 0)
+                        $result=mysqli_query($conn,"SELECT * FROM container_item WHERE container='".intval($container_id)."'");
+                        if ($result && mysqli_num_rows($result) > 0)
                         {	 	
                                 $total_weight=$total_payment=$total_pay_in_mongolia=$grandtotalprice=0;
                                 // array_push($data,array('Barcode','Илгээгч','Илгээгч дугаар','Хүлээн авагч','Х/а дугаар','Тайлбар','Барааны тайлбар','Барааны үнэ','Хэмжээ','Төлбөр','Монголд Тооцоо'));
@@ -167,15 +172,15 @@ require_once("views/init.php");
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                                        <?php
                                             $count=1;
                                             while ($data=mysqli_fetch_array($result))
                                                 {
-                                                $item=$data["id"];
-                                                $sender=$data["sender"];
-                                                $receiver=$data["receiver"];
-                                                $description=$data["description"];
-                                                $barcode=$data["barcode"];
+                                                $item=isset($data["id"]) ? $data["id"] : 0;
+                                                $sender=isset($data["sender"]) ? $data["sender"] : 0;
+                                                $receiver=isset($data["receiver"]) ? $data["receiver"] : 0;
+                                                $description=isset($data["description"]) ? $data["description"] : "";
+                                                $barcode=isset($data["barcode"]) ? $data["barcode"] : "";
                                                 $weight=$data["weight"];
                                                 $payment=$data["payment"];
                                                 $pay_in_mongolia=$data["pay_in_mongolia"];
@@ -226,41 +231,54 @@ require_once("views/init.php");
                                                 
 
                                                     <tr>
-                                                        <td><?=$count++;?></td>
+                                                        <td><?php echo $count++;?></td>
                                                         <td class="text-wrap">
-                                                            <a href="?action=item_detail&id=<?=$item;?>"><?=$barcode;?></a>
-                                                            <br><?=$description.$product_detail;?>
+                                                            <a href="?action=item_detail&id=<?php echo $item;?>"><?php echo $barcode;?></a>
+                                                            <br><?php echo $description.$product_detail;?>
                                                         </td>
                                                         <td>
-                                                            <a href="customers?action=detail&id=<?=$sender;?>"><?=substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a><br>
-                                                            <a href="customers?action=detail&id=<?=$receiver;?>"><?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
+                                                            <?php
+                                                            if (function_exists('customer')) {
+                                                                $sender_surname = customer($sender,"surname");
+                                                                $sender_name = customer($sender,"name");
+                                                                $receiver_surname = customer($receiver,"surname");
+                                                                $receiver_name = customer($receiver,"name");
+                                                            } else {
+                                                                $sender_surname = "";
+                                                                $sender_name = "";
+                                                                $receiver_surname = "";
+                                                                $receiver_name = "";
+                                                            }
+                                                            ?>
+                                                            <a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo htmlspecialchars(substr($sender_surname,0,2).".".$sender_name);?></a><br>
+                                                            <a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo htmlspecialchars(substr($receiver_surname,0,2).".".$receiver_name);?></a><br>
                                                         </td>
-                                                        <td><?=$weight;?></td>
-                                                        <td><?=$price;?>$</td>
-                                                        <td><?=$payment;?>$</td>
-                                                        <td><?=$pay_in_mongolia;?>$</td>
+                                                        <td><?php echo $weight;?></td>
+                                                        <td><?php echo $price;?>$</td>
+                                                        <td><?php echo $payment;?>$</td>
+                                                        <td><?php echo $pay_in_mongolia;?>$</td>
                                                         <td>
                                                             <div class="btn-group">
-                                                                <a href="?action=item_edit&id=<?=$item;?>" class="btn btn-success">Засах</a>
-                                                                <a href="?action=item_out&id=<?=$item;?>" class="btn btn-danger">Гаргах</a>                                                    
+                                                                <a href="?action=item_edit&id=<?php echo $item;?>" class="btn btn-success">Засах</a>
+                                                                <a href="?action=item_out&id=<?php echo $item;?>" class="btn btn-danger">Гаргах</a>                                                    
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                    <?
+                                                    <?php
                                                 }
                                                 ?>
                                     </tbody>
                                     <tfoot>
                                         <tr>
                                             <td colspan='3'>Нийт</td>
-                                            <td><?=$total_weight;?>Kg</td>
-                                            <td><?=$total_payment;?>$</td>
-                                            <td><?=$total_pay_in_mongolia;?>$</td>
+                                            <td><?php echo $total_weight;?>Kg</td>
+                                            <td><?php echo $total_payment;?>$</td>
+                                            <td><?php echo $total_pay_in_mongolia;?>$</td>
                                             <td></td>
                                         </tr>
                                     </tfoot>
                             </table>
-                            <?                            
+                            <?php                            
                         }
                         else echo "No log";
                     }
@@ -274,7 +292,7 @@ require_once("views/init.php");
 
 
 		</div>
-		<? require_once("views/footer.php");?>
+		<?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

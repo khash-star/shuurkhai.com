@@ -1,11 +1,11 @@
-<? require_once("login_check.php");?>
-<? require_once("config.php");?>
-<? require_once("helper.php");?>
-<? require_once("init.php");?>
+<?php require_once("login_check.php");?>
+<?php require_once("config.php");?>
+<?php require_once("helper.php");?>
+<?php require_once("init.php");?>
     <link href="lib/datatables/css/jquery.dataTables.css" rel="stylesheet">
 
   <body>
-    <? require_once("header.php");?>
+    <?php require_once("header.php");?>
 
     <div class="slim-mainpanel">
       <div class="container">
@@ -76,7 +76,7 @@
       </div><!-- container -->
     </div><!-- slim-mainpanel -->
 
-    <? require_once("footer.php");?>
+    <?php require_once("footer.php");?>
 
     <script src="lib/jquery/js/jquery.js"></script>
     <script src="lib/popper.js/js/popper.js"></script>

@@ -1,20 +1,20 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
   <body>
     <div class="layout-wrapper layout-navbar-full layout-horizontal layout-without-menu">
       <div class="layout-container">
-        <? require_once("views/header.php");?>
+        <?php require_once("views/header.php");?>
 
-        <? if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
+        <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
 
         <div class="layout-page">          
           <div class="content-wrapper">
-            <? require_once("views/topmenu.php");?>
+            <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
-                <?
+                <?php
                 if ($action=="all")
                 {                    
                     $sql="SELECT count(*) COUNT_T,sum(weight) SUM_T FROM orders WHERE status='new' AND agents='$g_agent_logged_id' AND is_online='0' GROUP BY status";
@@ -189,7 +189,7 @@
                     <div class="panel-body">
                     <form action="?action=creating" method="post">
 
-                    <? 
+                <?php 
                         echo "<table class='table table-hover'>";
 
 
@@ -332,7 +332,7 @@
                     ?>
                         <button type="submit" class="btn btn-success">нэмэх</button>                     
                     </form>
-                    <?
+                <?php 
                 }
 
                 if ($action=="creating")
@@ -557,7 +557,7 @@
                                     <div class="col-lg-9">
                                         <div class="card">
                                             <div class="card-body">
-                                                <?
+                <?php 
                                                 echo "<table class='table table-hover'>";
                                                 echo "<tr><td>Илгээмжийн огноо</td><td>".$created_date."</td></tr>";
                                                 echo "<tr><td>Хүргэлт</td><td>";if($transport) echo "Хүргэлттэй"; else echo "Хүргэлтгүй"; echo "</td></tr>";
@@ -616,7 +616,7 @@
                                          </div>
                                     </div> 
                                 </div>
-                                <?                        
+                <?php                        
                         }
                         else echo "Илгээмж олдсонгүй";
                     }
@@ -657,7 +657,7 @@
                 ?>
             </div>
 
-            <? require_once("views/footer.php");?>
+                <?php  require_once("views/footer.php");?>
 
             <div class="content-backdrop fade"></div>
           </div>

@@ -1,6 +1,6 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/init.php");?>
 
 <link rel="stylesheet" href="assets/vendor/css/pages/page-auth.css" />
   <body>
@@ -11,24 +11,24 @@
             <div class="card-body">
               <div class="app-brand text-center mb-4 mt-2">
                 <a href="index" class="app-brand-link gap-2">
-                  <img src="<?=$g_icon;?>">                
+                  <img src="<?php echo htmlspecialchars($g_icon ?? '');?>">                
                 </a>
                 <h4 class="app-brand-text demo text-body fw-bold ms-1">Шуурхай</h4>
               </div>
               <h4 class="mb-1 pt-2"></h4>
               <p class="mb-4">Агентийн эрхээр нэвтэрнэ үү</p>
 
-              <?
+              <?php
               if (isset($_GET["error"]))
               {
                 ?>
                 <div class="alert alert-danger">
-                  <?
-                  if ($_GET["error"]=='wrong') echo 'Нэвтрэх мэдээлэл буруу байна';                
-                  if ($_GET["error"]=='empty') echo 'мэдээлэл оруулаагүй байна';                
+                  <?php
+                  if ($_GET["error"]=='wrong') echo htmlspecialchars('Нэвтрэх мэдээлэл буруу байна');                
+                  if ($_GET["error"]=='empty') echo htmlspecialchars('мэдээлэл оруулаагүй байна');                
                   ?>
                 </div>
-                <?
+                <?php
               }
               ?>
               

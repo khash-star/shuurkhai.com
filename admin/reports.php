@@ -1,4 +1,4 @@
-<?
+<?php
 require_once("config.php");
 require_once("views/helper.php");
 require_once("views/login_check.php");
@@ -8,16 +8,16 @@ require_once("views/init.php");
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-		<?  require_once("views/sidebar.php"); ?>
+		<?php  require_once("views/sidebar.php"); ?>
 				
 
 		<div class="page-content">
-			<?
-			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="init";?>
-			<?
+			<?php
+			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="init";
+			$action_title = "Бүх тайлангийн жагсаалт"; // Default value
 			switch ($action)
 			{
 				case "init": $action_title="Бүх тайлангийн жагсаалт";break;
@@ -33,13 +33,13 @@ require_once("views/init.php");
 			<nav class="page-breadcrumb">
 				<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="reports">Тайлан</a></li>
-				<li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+				<li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
 				</ol>
 			</nav>
 
 
 			
-			<?
+			<?php
 			if ($action =="init")
 			{
 				?>
@@ -68,15 +68,16 @@ require_once("views/init.php");
             </div>
           </div>
         </div>        
-				<?
+				<?php
 			}
 			?>
 
-			<?
+			<?php
 			if ($action =="report1")
 			{
           $grand_total = 0;
-          if (isset($_POST["method_type"])) $method_type=$_POST["method_type"]; else $method_type='all';
+          $method_type = 'all'; // Default value
+          if (isset($_POST["method_type"])) $method_type = protect($_POST["method_type"]);
           
           if(isset($_POST["start_date"])) 
           $start_date = date("Y-m-d", strtotime($_POST["start_date"]))." 00:00:00";
@@ -95,15 +96,15 @@ require_once("views/init.php");
               <div class="card-body">
                 <form action="?action=report1" method="post">
                   <div class="input-group">
-                    <input type="date" class="form-control" name="start_date" value="<?=substr($start_date,0,10);?>">
-                    <input type="date" class="form-control" name="finish_date" value="<?=substr($finish_date,0,10);?>">
+                    <input type="date" class="form-control" name="start_date" value="<?php echo htmlspecialchars(substr($start_date,0,10));?>">
+                    <input type="date" class="form-control" name="finish_date" value="<?php echo htmlspecialchars(substr($finish_date,0,10));?>">
                     <select  name="method_type" class="form-control">
-                      <option value="all" <?=($method_type=="all")?'SELECTED':'';?> >Бүгдийг</option>
-                      <option value="cash"  <?=($method_type=="cash")?'SELECTED':'';?>>Бэлэн</option>
-                      <option value="account" <?=($method_type=="account")?'SELECTED':'';?>>Банкаар</option>
-                      <option value="pos" <?=($method_type=="pos")?'SELECTED':'';?>>POS</option>
+                      <option value="all" <?php echo ($method_type=="all")?'SELECTED':'';?> >Бүгдийг</option>
+                      <option value="cash"  <?php echo ($method_type=="cash")?'SELECTED':'';?>>Бэлэн</option>
+                      <option value="account" <?php echo ($method_type=="account")?'SELECTED':'';?>>Банкаар</option>
+                      <option value="pos" <?php echo ($method_type=="pos")?'SELECTED':'';?>>POS</option>
                       <!-- <option value="later">Дараа тооцоо</option> -->
-                      <option value="mix" <?=($method_type=="mix")?'SELECTED':'';?>>Холимог</option>				 
+                      <option value="mix" <?php echo ($method_type=="mix")?'SELECTED':'';?>>Холимог</option>				 
                     </select>
                     <button type="submit" class="btn btn-primary mr-2">Хайх</button>
                   </div>
@@ -111,14 +112,23 @@ require_once("views/init.php");
               </div>
             </div>
 
-            <?
+            <?php
             
              
              $sql = "SELECT * FROM orders WHERE (status='delivered' OR status='custom')";
              
-             if ($method_type!="all") $sql.=" AND orders.method ='$method_type'";
-             if ($start_date!="")  $sql.=" AND delivered_date>'$start_date'";
-             if ($finish_date!="")  $sql.=" AND delivered_date<'$finish_date'";
+             if ($method_type!="all") {
+               $method_type_escaped = mysqli_real_escape_string($conn, $method_type);
+               $sql.=" AND orders.method ='$method_type_escaped'";
+             }
+             if ($start_date!="") {
+               $start_date_escaped = mysqli_real_escape_string($conn, $start_date);
+               $sql.=" AND delivered_date>'$start_date_escaped'";
+             }
+             if ($finish_date!="") {
+               $finish_date_escaped = mysqli_real_escape_string($conn, $finish_date);
+               $sql.=" AND delivered_date<'$finish_date_escaped'";
+             }
              
              $sql.=" GROUP BY deliver";
           
@@ -140,97 +150,116 @@ require_once("views/init.php");
                     </tr>
                   </thead>
                   <tbody>
-                    <?
+                    <?php
                     $result = mysqli_query($conn,$sql);
-                    $count=1;$total_weight=0;$total_price=0;$total_payment=0;$method="";
-                    while ($data = mysqli_fetch_array($result))
-                      {  
-                      $deliver = $data["deliver"];
-                      $customer_name=customer($deliver,"name");
-                      $customer_tel=customer($deliver,"tel");
-                      
-                      $barcodes_array =array();
-                      $weight=0;
-                      $weight_noooo=0;
-                      $advance=0;
-                      $admin=0;
-                      $price=0;
-                      $total_mix = 0;
-                      $total_account = 0;
-                      $total_cash= 0;
-                      $total_pos= 0;
-                      
-                      
-                      $sql_detail = "SELECT * FROM orders WHERE (status='delivered' OR status='custom') AND deliver='$deliver'";
-                      if ($method_type=="all")   $sql_detail.=" AND orders.method <>'later'";
-                      if ($method_type!="all") $sql_detail.=" AND orders.method ='$method_type' AND orders.method <>'later'";
-                      if ($start_date!="")  $sql_detail.=" AND delivered_date>'$start_date'";
-                      if ($finish_date!="")  $sql_detail.=" AND delivered_date<'$finish_date'";
-                
-                    	// echo "<br>".$sql_detail;
-                      $result_detail = mysqli_query($conn,$sql_detail);
-                      
-                      while ($data_detail = mysqli_fetch_array($result_detail))
+                    if ($result) {
+                      $count=1;$total_weight=0;$total_price=0;$total_payment=0;$method="";
+                      while ($data = mysqli_fetch_array($result))
                         {  
-                        array_push ($barcodes_array, $data_detail["barcode"]);
-                        if ($data_detail["is_online"] == 0)
-                          {
-                          $advance+=floatval($data_detail["advance_value"]);
-                          $weight_noooo +=$data_detail["weight"];
-                          }
-                        if ($data_detail["is_online"] == 1)
-                          {
-                          $admin+=$data_detail["admin_value"];
-                          $weight+=$data_detail["weight"];
-                          }
-                        $method=$data["method"];
+                        if (!isset($data["deliver"])) continue;
+                        $deliver = intval($data["deliver"]);
+                        $customer_name=customer($deliver,"name");
+                        $customer_tel=customer($deliver,"tel");
+                        
+                        $barcodes_array =array();
+                        $weight=0;
+                        $weight_noooo=0;
+                        $advance=0;
+                        $admin=0;
+                        $price=0;
+                        $total_mix = 0;
+                        $total_account = 0;
+                        $total_cash= 0;
+                        $total_pos= 0;
+                        
+                        
+                        $deliver_escaped = mysqli_real_escape_string($conn, $deliver);
+                        $sql_detail = "SELECT * FROM orders WHERE (status='delivered' OR status='custom') AND deliver='$deliver_escaped'";
+                        if ($method_type=="all")   $sql_detail.=" AND orders.method <>'later'";
+                        if ($method_type!="all") {
+                          $method_type_escaped = mysqli_real_escape_string($conn, $method_type);
+                          $sql_detail.=" AND orders.method ='$method_type_escaped' AND orders.method <>'later'";
+                        }
+                        if ($start_date!="") {
+                          $start_date_escaped = mysqli_real_escape_string($conn, $start_date);
+                          $sql_detail.=" AND delivered_date>'$start_date_escaped'";
+                        }
+                        if ($finish_date!="") {
+                          $finish_date_escaped = mysqli_real_escape_string($conn, $finish_date);
+                          $sql_detail.=" AND delivered_date<'$finish_date_escaped'";
+                        }
+                  
+                      	// echo "<br>".$sql_detail;
+                        $result_detail = mysqli_query($conn,$sql_detail);
+                        
+                        if ($result_detail) {
+                          while ($data_detail = mysqli_fetch_array($result_detail))
+                            {  
+                            if (isset($data_detail["barcode"])) {
+                              array_push ($barcodes_array, $data_detail["barcode"]);
+                            }
+                            if (isset($data_detail["is_online"]) && $data_detail["is_online"] == 0)
+                              {
+                              $advance+=floatval($data_detail["advance_value"] ?? 0);
+                              $weight_noooo +=floatval($data_detail["weight"] ?? 0);
+                              }
+                            if (isset($data_detail["is_online"]) && $data_detail["is_online"] == 1)
+                              {
+                              $admin+=floatval($data_detail["admin_value"] ?? 0);
+                              $weight+=floatval($data_detail["weight"] ?? 0);
+                              }
+                            if (isset($data["method"])) {
+                              $method=$data["method"];
+                            }
+                            }
                         }
 
-                      $total_payment = $advance+$admin+cfg_price($weight);
-                    if ($method=="mix") $method="хувааж";
-                    if ($method=="account") $method="дансаар";
-                    //if ($method=="later") $method="дараа";
-                    if ($method=="cash") $method="бэлэн";
-                    if ($method=="pos") $method="пос";
-                    if ($total_payment>0)
-                      {
-                        echo "<tr>";
-                        echo "<td>".$count."</td>"; 
-                        echo "<td>".$customer_name."</td>"; 
-                        echo "<td>".$customer_tel."</td>"; 
-                        echo "<td> ".implode(", <br>",$barcodes_array)."</td>"; 
-                        echo "<td>".count($barcodes_array)."</td>"; 
-                        echo "<td>";
-                        echo $weight_noooo + $weight;
-                        echo "</td>";
-                        echo "<td>".$total_payment."</td>";
-                      echo "<td>".$method."</td>";
+                        $total_payment = $advance+$admin+cfg_price($weight);
+                      if ($method=="mix") $method="хувааж";
+                      if ($method=="account") $method="дансаар";
+                      //if ($method=="later") $method="дараа";
+                      if ($method=="cash") $method="бэлэн";
+                      if ($method=="pos") $method="пос";
+                      if ($total_payment>0)
+                        {
+                          echo "<tr>";
+                          echo "<td>".htmlspecialchars($count)."</td>"; 
+                          echo "<td>".htmlspecialchars($customer_name)."</td>"; 
+                          echo "<td>".htmlspecialchars($customer_tel)."</td>"; 
+                          echo "<td> ".htmlspecialchars(implode(", <br>",$barcodes_array))."</td>"; 
+                          echo "<td>".count($barcodes_array)."</td>"; 
+                          echo "<td>";
+                          echo $weight_noooo + $weight;
+                          echo "</td>";
+                          echo "<td>".number_format($total_payment, 2)."</td>";
+                        echo "<td>".htmlspecialchars($method)."</td>";
+                          
+                          echo "</tr>";
+                          $grand_total +=$total_payment;
+                          // array_push($data,array($count,$customer_name,$customer_tel,implode(", ",$barcodes_array),count($barcodes_array),$weight_noooo + $weight,$total_payment,$method));	
+                        $count++;
+                        }
+                      $method="";
                         
-                        echo "</tr>";
-                        $grand_total +=$total_payment;
-                        // array_push($data,array($count,$customer_name,$customer_tel,implode(", ",$barcodes_array),count($barcodes_array),$weight_noooo + $weight,$total_payment,$method));	
-                      $count++;
-                      }
-                    $method="";
                       
-                  
-                    } 
+                      } 
+                    }
                     ?>
                   </tbody>
                   <tfoot>
-                    <tr><td colspan='6'>Нийт</td><td><?=$grand_total;?></td><td></td></tr>
+                    <tr><td colspan='6'>Нийт</td><td><?php echo number_format($grand_total, 2);?></td><td></td></tr>
                   </tfoot>
                 </table>
               </div>
             </div>
           </div>
         </div>
-        <?
+        <?php
        
 			}
 			?>
 
-      <?
+      <?php
 			if ($action =="report2")
 			{
         $grand_total = 0;
@@ -250,24 +279,30 @@ require_once("views/init.php");
           <div class="col-12 col-xl-12">
             <div class="card">
               <div class="card-body">
-                <form action="?action=report1" method="post">
+                <form action="?action=report2" method="post">
                   <div class="input-group">
-                    <input type="date" class="form-control" name="start_date" value="<?=substr($start_date,0,10);?>">
-                    <input type="date" class="form-control" name="finish_date" value="<?=substr($finish_date,0,10);?>">
+                    <input type="date" class="form-control" name="start_date" value="<?php echo htmlspecialchars(substr($start_date,0,10));?>">
+                    <input type="date" class="form-control" name="finish_date" value="<?php echo htmlspecialchars(substr($finish_date,0,10));?>">
                     <button type="submit" class="btn btn-primary mr-2">Хайх</button>
                   </div>
                 </form>
               </div>
             </div>
 
-            <?
+            <?php
             
             
             $sql = "SELECT * FROM orders WHERE (status='delivered' OR status='custom')";
             
             $sql.=" AND orders.method ='later'";
-            if ($start_date!="")  $sql.=" AND delivered_date>'$start_date'";
-            if ($finish_date!="")  $sql.=" AND delivered_date<'$finish_date'";
+            if ($start_date!="") {
+              $start_date_escaped = mysqli_real_escape_string($conn, $start_date);
+              $sql.=" AND delivered_date>'$start_date_escaped'";
+            }
+            if ($finish_date!="") {
+              $finish_date_escaped = mysqli_real_escape_string($conn, $finish_date);
+              $sql.=" AND delivered_date<'$finish_date_escaped'";
+            }
             
             $sql.=" GROUP BY deliver";
           
@@ -289,100 +324,117 @@ require_once("views/init.php");
                     </tr>
                   </thead>
                   <tbody>
-                    <?
+                    <?php
                     $result = mysqli_query($conn,$sql);
-                    $count=1;$total_weight=0;$total_price=0;$total_payment=0;$method="";
-                    while ($data = mysqli_fetch_array($result))
-                      {  
-                      $deliver = $data["deliver"];
-                      $customer_name=customer($deliver,"name");
-                      $customer_tel=customer($deliver,"tel");
-                      
-                      $barcodes_array =array();
-                      $weight=0;
-                      $weight_noooo=0;
-                      $advance=0;
-                      $admin=0;
-                      $price=0;
-                      $total_mix = 0;
-                      $total_account = 0;
-                      $total_cash= 0;
-                      $total_pos= 0;
-                      
-                      
-                      $sql_detail = "SELECT * FROM orders WHERE (status='delivered' OR status='custom') AND deliver='$deliver'";
-                      $sql_detail.=" AND orders.method ='later'";
-                      if ($start_date!="")  $sql_detail.=" AND delivered_date>'$start_date'";
-                      if ($finish_date!="")  $sql_detail.=" AND delivered_date<'$finish_date'";
-                
-                      // echo "<br>".$sql_detail;
-                      $result_detail = mysqli_query($conn,$sql_detail);
-                      
-                      while ($data_detail = mysqli_fetch_array($result_detail))
+                    if ($result) {
+                      $count=1;$total_weight=0;$total_price=0;$total_payment=0;$method="";
+                      while ($data = mysqli_fetch_array($result))
                         {  
-                        array_push ($barcodes_array, $data_detail["barcode"]);
-                        if ($data_detail["is_online"] == 0)
-                          {
-                          $advance+=floatval($data_detail["advance_value"]);
-                          $weight_noooo +=$data_detail["weight"];
-                          }
-                        if ($data_detail["is_online"] == 1)
-                          {
-                          $admin+=$data_detail["admin_value"];
-                          $weight+=$data_detail["weight"];
-                          }
-                        $method=$data["method"];
+                        if (!isset($data["deliver"])) continue;
+                        $deliver = intval($data["deliver"]);
+                        $customer_name=customer($deliver,"name");
+                        $customer_tel=customer($deliver,"tel");
+                        
+                        $barcodes_array =array();
+                        $weight=0;
+                        $weight_noooo=0;
+                        $advance=0;
+                        $admin=0;
+                        $price=0;
+                        $total_mix = 0;
+                        $total_account = 0;
+                        $total_cash= 0;
+                        $total_pos= 0;
+                        
+                        
+                        $deliver_escaped = mysqli_real_escape_string($conn, $deliver);
+                        $sql_detail = "SELECT * FROM orders WHERE (status='delivered' OR status='custom') AND deliver='$deliver_escaped'";
+                        $sql_detail.=" AND orders.method ='later'";
+                        if ($start_date!="") {
+                          $start_date_escaped = mysqli_real_escape_string($conn, $start_date);
+                          $sql_detail.=" AND delivered_date>'$start_date_escaped'";
+                        }
+                        if ($finish_date!="") {
+                          $finish_date_escaped = mysqli_real_escape_string($conn, $finish_date);
+                          $sql_detail.=" AND delivered_date<'$finish_date_escaped'";
+                        }
+                  
+                        // echo "<br>".$sql_detail;
+                        $result_detail = mysqli_query($conn,$sql_detail);
+                        
+                        if ($result_detail) {
+                          while ($data_detail = mysqli_fetch_array($result_detail))
+                            {  
+                            if (isset($data_detail["barcode"])) {
+                              array_push ($barcodes_array, $data_detail["barcode"]);
+                            }
+                            if (isset($data_detail["is_online"]) && $data_detail["is_online"] == 0)
+                              {
+                              $advance+=floatval($data_detail["advance_value"] ?? 0);
+                              $weight_noooo +=floatval($data_detail["weight"] ?? 0);
+                              }
+                            if (isset($data_detail["is_online"]) && $data_detail["is_online"] == 1)
+                              {
+                              $admin+=floatval($data_detail["admin_value"] ?? 0);
+                              $weight+=floatval($data_detail["weight"] ?? 0);
+                              }
+                            if (isset($data["method"])) {
+                              $method=$data["method"];
+                            }
+                            }
                         }
 
-                      $total_payment = $advance+$admin+cfg_price($weight);
-                    if ($method=="mix") $method="хувааж";
-                    if ($method=="account") $method="дансаар";
-                    //if ($method=="later") $method="дараа";
-                    if ($method=="cash") $method="бэлэн";
-                    if ($method=="pos") $method="пос";
-                    if ($total_payment>0)
-                      {
-                        echo "<tr>";
-                        echo "<td>".$count."</td>"; 
-                        echo "<td>".$customer_name."</td>"; 
-                        echo "<td>".$customer_tel."</td>"; 
-                        echo "<td> ".implode(", <br>",$barcodes_array)."</td>"; 
-                        echo "<td>".count($barcodes_array)."</td>"; 
-                        echo "<td>";
-                        echo $weight_noooo + $weight;
-                        echo "</td>";
-                        echo "<td>".$total_payment."</td>";
-                      echo "<td>".$method."</td>";
+                        $total_payment = $advance+$admin+cfg_price($weight);
+                      if ($method=="mix") $method="хувааж";
+                      if ($method=="account") $method="дансаар";
+                      //if ($method=="later") $method="дараа";
+                      if ($method=="cash") $method="бэлэн";
+                      if ($method=="pos") $method="пос";
+                      if ($total_payment>0)
+                        {
+                          echo "<tr>";
+                          echo "<td>".htmlspecialchars($count)."</td>"; 
+                          echo "<td>".htmlspecialchars($customer_name)."</td>"; 
+                          echo "<td>".htmlspecialchars($customer_tel)."</td>"; 
+                          echo "<td> ".htmlspecialchars(implode(", <br>",$barcodes_array))."</td>"; 
+                          echo "<td>".count($barcodes_array)."</td>"; 
+                          echo "<td>";
+                          echo $weight_noooo + $weight;
+                          echo "</td>";
+                          echo "<td>".number_format($total_payment, 2)."</td>";
+                        echo "<td>".htmlspecialchars($method)."</td>";
+                          
+                          echo "</tr>";
+                          $grand_total +=$total_payment;
+                          // array_push($data,array($count,$customer_name,$customer_tel,implode(", ",$barcodes_array),count($barcodes_array),$weight_noooo + $weight,$total_payment,$method));	
+                        $count++;
+                        }
+                      $method="";
                         
-                        echo "</tr>";
-                        $grand_total +=$total_payment;
-                        // array_push($data,array($count,$customer_name,$customer_tel,implode(", ",$barcodes_array),count($barcodes_array),$weight_noooo + $weight,$total_payment,$method));	
-                      $count++;
-                      }
-                    $method="";
                       
-                  
-                    } 
+                      } 
+                    }
                     ?>
                   </tbody>
                   <tfoot>
-                    <tr><td colspan='6'>Нийт</td><td><?=$grand_total;?></td><td></td></tr>
+                    <tr><td colspan='6'>Нийт</td><td><?php echo number_format($grand_total, 2);?></td><td></td></tr>
                   </tfoot>
                 </table>
               </div>
             </div>
           </div>
         </div>
-        <?
+        <?php
       
       }
 			?>
 
-      <?
+      <?php
 			if ($action =="report3")
 			{
         $grand_total = 0;
-        if (isset($_POST["method_type"])) $method_type=$_POST["method_type"]; else $method_type='all';
+        $method_type = 'all'; // Default value
+        if (isset($_POST["method_type"])) $method_type = protect($_POST["method_type"]);
         
         if(isset($_POST["start_date"])) 
         $start_date = date("Y-m-d", strtotime($_POST["start_date"]))." 00:00:00";
@@ -417,9 +469,11 @@ require_once("views/init.php");
               </div>
             </div>
 
-            <?
+            <?php
             
-            $sql = "SELECT * FROM bills WHERE timestamp>'$start_date' AND timestamp<'$finish_date'";
+            $start_date_escaped = mysqli_real_escape_string($conn, $start_date);
+            $finish_date_escaped = mysqli_real_escape_string($conn, $finish_date);
+            $sql = "SELECT * FROM bills WHERE timestamp>'$start_date_escaped' AND timestamp<'$finish_date_escaped'";
             // echo $sql;
 
             if ($method_type!="all") $sql.=" AND type ='$method_type'";
@@ -449,10 +503,11 @@ require_once("views/init.php");
                     </tr>
                   </thead>
                   <tbody>
-                    <?
-                    $count=1;$total_cash=0;$total_pos=0;$total_account=0;$total_later=0;$total_total=0;$total_shirheg=0;$total_weight=0;
-                    // $data = array(array('№','Хугацаа','Х/авагч','Утас','Barcode','Ширхэг','Жин','Бэлэн','POS','Дансаар','Дараа тооцоо','Нийт','Тулгалт'));
-                   while ($data = mysqli_fetch_array($result))
+                    <?php
+                    if ($result) {
+                      $count=1;$total_cash=0;$total_pos=0;$total_account=0;$total_later=0;$total_total=0;$total_shirheg=0;$total_weight=0;
+                      // $data = array(array('№','Хугацаа','Х/авагч','Утас','Barcode','Ширхэг','Жин','Бэлэн','POS','Дансаар','Дараа тооцоо','Нийт','Тулгалт'));
+                     while ($data = mysqli_fetch_array($result))
                       {  
                         $deliver = $data["deliver"];
                         $bill_id = $data["id"];
@@ -471,14 +526,14 @@ require_once("views/init.php");
                         $shirheg = count($barcodes_array);
                         $weight_tulgalt = $weight;
                   
-                        if ($weight!=0) $tulgalt = cfg_price($weight_tulgalt)*cfg_rate(); 
-                          {
-                            foreach($barcodes_array as $barcode_single)
-                            {
-                              $weight_tulgalt+=floatval(barcode_search($barcode_single,"weight"));
-                            }
-                            $tulgalt = cfg_price($weight_tulgalt)*cfg_rate(); 
-                          }
+                        if ($weight!=0) {
+                          $tulgalt = cfg_price($weight_tulgalt)*cfg_rate(); 
+                        }
+                        foreach($barcodes_array as $barcode_single)
+                        {
+                          $weight_tulgalt+=floatval(barcode_search($barcode_single,"weight"));
+                        }
+                        $tulgalt = cfg_price($weight_tulgalt)*cfg_rate();
                   
                           echo "<tr>";
                           echo "<td>".$bill_id."</td>"; 
@@ -499,22 +554,23 @@ require_once("views/init.php");
                           $total_cash+=floatval($cash);$total_pos+=floatval($pos);$total_account+=floatval($account);$total_later+=floatval($later);$total_total+=floatval($total);$total_shirheg+=floatval($shirheg);$total_weight+=floatval($weight);
                           //  array_push($data,array($count,$timestamp,$customer_name,$customer_tel,$barcode,$shirheg,floatval($weight),floatval($cash),floatval($pos),floatval($account),floatval($later),floatval($total),floatval($tulgalt)));	
                           $count++;
-                      } 
+                      }
+                    }
                     ?>
                   </tbody>
                   <tfoot>
-                    <tr><td colspan='4'>Нийт</td><td><?=number_format($total_shirheg);?></td><td><?=number_format($total_weight);?></td><td><?=number_format($total_cash);?></td><td><?=number_format($total_pos);?></td><td><?=number_format($total_account);?></td><td><?=number_format($total_later);?></td><td><?=number_format($total_total);?></td><td></td></tr>                    
+                    <tr><td colspan='4'>Нийт</td><td><?php echo number_format($total_shirheg);?></td><td><?php echo number_format($total_weight);?></td><td><?php echo number_format($total_cash);?></td><td><?php echo number_format($total_pos);?></td><td><?php echo number_format($total_account);?></td><td><?php echo number_format($total_later);?></td><td><?php echo number_format($total_total);?></td><td></td></tr>                    
                   </tfoot>
                 </table>
               </div>
             </div>
           </div>
         </div>
-        <?
+        <?php
       
       }
 			?>
-      <?
+      <?php
 			if ($action =="report4")
 			{
         $grand_total = 0;
@@ -562,13 +618,15 @@ require_once("views/init.php");
               </div>
             </div>
 
-            <?
+            <?php
             
+            $start_date_escaped = mysqli_real_escape_string($conn, $start_date);
+            $finish_date_escaped = mysqli_real_escape_string($conn, $finish_date);
             $sql = "SELECT * FROM (
             SELECT id,timestamp,deliver,barcode,weight,count,cash,account,pos,later,total FROM `bills` 
             UNION
             SELECT id,timestamp,deliver,barcode,weight,count,cash,account,pos,later,total FROM `bills_container` )  a
-            WHERE timestamp>='$start_date' AND timestamp<='$finish_date'";
+            WHERE timestamp>='$start_date_escaped' AND timestamp<='$finish_date_escaped'";
 
             $result = mysqli_query($conn,$sql);
             ?>
@@ -592,42 +650,42 @@ require_once("views/init.php");
                     </tr>
                   </thead>
                   <tbody>
-                    <?
+                    <?php
+                    if ($result) {
                     while ($data = mysqli_fetch_array($result))
                     {  
-                      $deliver = $data["deliver"];
+                      if (!isset($data["deliver"])) continue;
+                      $deliver = intval($data["deliver"]);
                       $customer_name=customer ($deliver,"name");
                       $customer_tel=customer ($deliver,"tel");
-                      $barcodes_array = $data["barcode"];
-                      $barcode = $data["barcode"];
-                      $barcodes_array =explode(',',$barcode);
+                      $barcode = isset($data["barcode"]) ? $data["barcode"] : '';
+                      $barcodes_array = explode(',',$barcode);
                       $shirheg = count($barcodes_array);
 
-                      $bill_id=$data["id"];
-                      $weight=$data["weight"];
-                      $count=$data["count"];
-                      $account  = floatval($data["account"]);
-                      $pos  = floatval($data["pos"]);			
-                      $cash  = floatval($data["cash"]);			
-                      $later  = floatval($data["later"]);			
-                      $advance  = floatval($data["advance"]);		
-                      $total  = floatval($data["total"]);		
-                      $timestamp  = $data["timestamp"];		
+                      $bill_id = isset($data["id"]) ? $data["id"] : '';
+                      $weight = floatval($data["weight"] ?? 0);
+                      $count = intval($data["count"] ?? 0);
+                      $account  = floatval($data["account"] ?? 0);
+                      $pos  = floatval($data["pos"] ?? 0);			
+                      $cash  = floatval($data["cash"] ?? 0);			
+                      $later  = floatval($data["later"] ?? 0);			
+                      $advance  = floatval($data["advance"] ?? 0);		
+                      $total  = floatval($data["total"] ?? 0);		
+                      $timestamp  = isset($data["timestamp"]) ? $data["timestamp"] : '';		
 
 
                       echo "<tr>";
-                      echo "<td>".$bill_id."</td>"; 
-                      echo "<td>".$customer_name."</td>"; 
-                      echo "<td>".$customer_tel."</td>"; 
-                      //echo "<td>".$barcodes_array."</td>"; 
-                      echo "<td>".$weight."</td>"; 
+                      echo "<td>".htmlspecialchars($bill_id)."</td>"; 
+                      echo "<td>".htmlspecialchars($customer_name)."</td>"; 
+                      echo "<td>".htmlspecialchars($customer_tel)."</td>"; 
+                      echo "<td>".number_format($weight, 2)."</td>"; 
                       echo "<td>".$count."</td>"; 
-                      echo "<td align='right'>".number_format($account)."</td>"; 
-                      echo "<td align='right'>".number_format($pos)."</td>"; 
-                      echo "<td align='right'>".number_format($cash)."</td>"; 
-                      echo "<td align='right'>".number_format($later)."</td>"; 
-                      echo "<td align='right'>".number_format($advance)."</td>";
-                      echo "<td align='right'>".number_format($total)."</td>";
+                      echo "<td align='right'>".number_format($account, 2)."</td>"; 
+                      echo "<td align='right'>".number_format($pos, 2)."</td>"; 
+                      echo "<td align='right'>".number_format($cash, 2)."</td>"; 
+                      echo "<td align='right'>".number_format($later, 2)."</td>"; 
+                      echo "<td align='right'>".number_format($advance, 2)."</td>";
+                      echo "<td align='right'>".number_format($total, 2)."</td>";
                       echo "</tr>";
                       $grand_total +=$total;
                       $total_count +=$count;
@@ -637,20 +695,21 @@ require_once("views/init.php");
                       $total_later +=$later;
                       $total_weight +=$weight;
                       $total_advance +=$advance;
-                    } 
+                    }
+                    }
                     ?>
                   </tbody>
                   <tfoot>
                     <tr>
                       <td colspan='3'>Нийт</td>
-                      <td><?=$total_weight;?></td>
-                      <td><?=$total_count;?></td>
-                      <td align='right'><?=number_format($total_account);?></td>
-                      <td align='right'><?=number_format($total_pos);?></td>
-                      <td align='right'><?=number_format($total_cash);?></td>
-                      <td align='right'><?=number_format($total_later);?></td>
-                      <td align='right'><?=number_format($total_advance);?></td>
-                      <td align='right'><?=number_format($grand_total);?></td>
+                      <td><?php echo number_format($total_weight, 2);?></td>
+                      <td><?php echo $total_count;?></td>
+                      <td align='right'><?php echo number_format($total_account, 2);?></td>
+                      <td align='right'><?php echo number_format($total_pos, 2);?></td>
+                      <td align='right'><?php echo number_format($total_cash, 2);?></td>
+                      <td align='right'><?php echo number_format($total_later, 2);?></td>
+                      <td align='right'><?php echo number_format($total_advance, 2);?></td>
+                      <td align='right'><?php echo number_format($grand_total, 2);?></td>
                     </tr>
                   </tfoot>
                 </table>
@@ -658,12 +717,12 @@ require_once("views/init.php");
             </div>
           </div>
         </div>
-        <?
+        <?php
       
       }
 			?>
 
-      <?
+      <?php
 			if ($action =="report5")
 			{
         $total_weight = 0;
@@ -673,7 +732,7 @@ require_once("views/init.php");
         
         ?>
           <div class="row">                    
-            <?            
+            <?php
             $sql = "SELECT * FROM orders WHERE status='warehouse' ORDER BY deliver";
 
 
@@ -695,39 +754,42 @@ require_once("views/init.php");
                       </tr>
                     </thead>
                     <tbody>
-                      <?
-                      while ($data = mysqli_fetch_array($result))
-                      {  
-                        $deliver = $data["deliver"];
-                        $barcode = $data["barcode"];
-                        $proxy_type = $data["proxy_type"];
-                        $proxy_id = $data["proxy_id"];
-                        $weight = $data["weight"];
-                        $warehouse_date = $data["warehouse_date"];
-                        $extra = $data["extra"];
-                        $customer_name=customer ($deliver,"name");
-                        $customer_tel=customer ($deliver,"tel");
-                        $proxy_name=proxy2($proxy_id,$proxy_type,"name");
-                        $proxy_tel=proxy2($proxy_id,$proxy_type,"tel");
-  
-  
-                        echo "<tr>";
-                        echo "<td>".$count++."</td>"; 
-                        echo "<td>".$customer_name."</td>"; 
-                        echo "<td>".$proxy_name."</td>"; 
-                        echo "<td>".$proxy_tel."</td>"; 
-                        echo "<td>".$barcode."</td>"; 
-                        echo "<td>".$extra."-р тавиур</td>"; 
-                        echo "<td>".$weight."</td>"; 
-                        echo "</tr>";
-  
-                        $total_weight +=$weight;
-                      } 
+                      <?php
+                      if ($result) {
+                        while ($data = mysqli_fetch_array($result))
+                        {  
+                          if (!isset($data["deliver"])) continue;
+                          $deliver = intval($data["deliver"]);
+                          $barcode = isset($data["barcode"]) ? htmlspecialchars($data["barcode"]) : '';
+                          $proxy_type = isset($data["proxy_type"]) ? htmlspecialchars($data["proxy_type"]) : '';
+                          $proxy_id = isset($data["proxy_id"]) ? intval($data["proxy_id"]) : 0;
+                          $weight = floatval($data["weight"] ?? 0);
+                          $warehouse_date = isset($data["warehouse_date"]) ? htmlspecialchars($data["warehouse_date"]) : '';
+                          $extra = isset($data["extra"]) ? htmlspecialchars($data["extra"]) : '';
+                          $customer_name = customer($deliver,"name");
+                          $customer_tel = customer($deliver,"tel");
+                          $proxy_name = proxy2($proxy_id,$proxy_type,"name");
+                          $proxy_tel = proxy2($proxy_id,$proxy_type,"tel");
+    
+    
+                          echo "<tr>";
+                          echo "<td>".$count++."</td>"; 
+                          echo "<td>".htmlspecialchars($customer_name)."</td>"; 
+                          echo "<td>".htmlspecialchars($proxy_name)."</td>"; 
+                          echo "<td>".htmlspecialchars($proxy_tel)."</td>"; 
+                          echo "<td>".$barcode."</td>"; 
+                          echo "<td>".$extra."-р тавиур</td>"; 
+                          echo "<td>".number_format($weight, 2)."</td>"; 
+                          echo "</tr>";
+    
+                          $total_weight += $weight;
+                        }
+                      }
                       ?>
                     </tbody>
                     <tfoot>
                       <tr>
-                        <tr><td colspan='6'>Нийт</td><td><?=$total_weight;?></td></tr>
+                        <td colspan='6'>Нийт</td><td><?php echo number_format($total_weight, 2);?></td>
                       </tr>
                     </tfoot>
                   </table>
@@ -735,22 +797,22 @@ require_once("views/init.php");
               </div>
             </div>
           </div>
-        <?
+        <?php
       
       }
 			?>
       
-      <?
+      <?php
 			if ($action =="report6")
 			{
 
         ?>
         Тун удахгүй
-        <?      
+        <?php      
       }
 			?>
 
-      <?
+      <?php
 			if ($action =="report7")
 			{
           $total_final = $total_dept=$total_payment=0;
@@ -759,7 +821,7 @@ require_once("views/init.php");
         <div class="row">
              
           <div class="col-12 col-xl-12">           
-            <?
+            <?php
             
              
              $sql = "SELECT later_payment.* 
@@ -785,31 +847,36 @@ require_once("views/init.php");
                     </tr>
                   </thead>
                   <tbody>
-                    <?
-                  
-
+                    <?php
                     $result = mysqli_query($conn,$sql);
-                    while ($data = mysqli_fetch_array($result))
+                    if ($result) {
+                      while ($data = mysqli_fetch_array($result))
                       {  
-                          echo "<tr>";
-                          echo "<td>".$data["date"]."</td>"; 
-                          echo "<td>".customer($data["d_customer"],"name")."</td>"; 
-                          echo "<td>".customer($data["d_customer"],"tel")."</td>"; 
-                          echo "<td>".$data["payment"]."</td>"; 
-                          echo "<td>".$data["final_balance"]."</td>"; 
-                          echo "<td>".str_replace(",",",<br>",$data["description"])."</td>"; 
-                          echo "</tr>";
+                        if (!isset($data["d_customer"])) continue;
+                        $d_customer = intval($data["d_customer"]);
+                        $date = isset($data["date"]) ? htmlspecialchars($data["date"]) : '';
+                        $payment = floatval($data["payment"] ?? 0);
+                        $final_balance = floatval($data["final_balance"] ?? 0);
+                        $description = isset($data["description"]) ? htmlspecialchars($data["description"]) : '';
+                        
+                        echo "<tr>";
+                        echo "<td>".$date."</td>"; 
+                        echo "<td>".htmlspecialchars(customer($d_customer,"name"))."</td>"; 
+                        echo "<td>".htmlspecialchars(customer($d_customer,"tel"))."</td>"; 
+                        echo "<td>".number_format($payment, 2)."</td>"; 
+                        echo "<td>".number_format($final_balance, 2)."</td>"; 
+                        echo "<td>".str_replace(",",",<br>",$description)."</td>"; 
+                        echo "</tr>";
 
-                          $total_final+=$data["final_balance"];					
-                      
-                    
-                      } 
-                      ?>
+                        $total_final += $final_balance;					
+                      }
+                    }
+                    ?>
                     </tbody>
                     <tfoot>
                       <tr>						
                         <td colspan='4'>Нийт</td>
-                        <td><?=$total_final;?></td>
+                        <td><?php echo number_format($total_final, 2);?></td>
 					   	          <td></td>
                       </tr>
                     </tfoot>
@@ -818,7 +885,7 @@ require_once("views/init.php");
               </div>
             </div>
           </div>
-          <?
+          <?php
        
 			}
 			?>
@@ -826,7 +893,7 @@ require_once("views/init.php");
 
 
 		</div>
-		<? require_once("views/footer.php");?>
+		<?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

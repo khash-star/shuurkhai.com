@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -6,16 +6,16 @@
 ?>
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-            <?  require_once("views/sidebar.php"); ?>
+            <?php  require_once("views/sidebar.php"); ?>
 			
-            <?  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
+            <?php  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
 
 			<div class="page-content">
-            <? if (isset($_GET['action'])) $action=$_GET['action']; else $action="display";?>
-            <? if (isset($_GET['id'])) $faqs_id=$_GET['id']; ?>
+            <?php if (isset($_GET['action'])) $action=protect($_GET['action']); else $action="display";?>
+            <?php if (isset($_GET['id'])) $faqs_id=intval($_GET['id']); ?>
 
             <?php if ($action=="display")
                 { 
@@ -38,22 +38,25 @@
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $count=1;
-                                        $sql="SELECT * FROM faqs ORDER BY dd";
-                                        $result=mysqli_query($conn,$sql);
-                                        if (mysqli_num_rows($result)==0) echo "<td colspan='4'>There are no faqs</td>";
-                                        while ($data=mysqli_fetch_array($result))
-                                        {
-
-                                            ?>
-                                            <tr>
-                                                <td><?=$count++;?></td>       
-                                                <td class="text-wrap"><?=$data["question"];?></td>
-                                                <td class="text-wrap"><?=$data["answer"];?></td>
-                                                <td class="text-wrap"><?=$data["dd"];?></td>
-                                                <td><a href="faqs?action=edit&id=<?=$data["faqs_id"];?>" title="Засах" class="btn btn-warning btn-xs btn-icon text-white"><i data-feather="edit"></i></a></td>
-                                            </tr>
-                                            <?
+                                        $count = 1;
+                                        $sql = "SELECT * FROM faqs ORDER BY dd";
+                                        $result = mysqli_query($conn,$sql);
+                                        if ($result && mysqli_num_rows($result) == 0) {
+                                            echo "<td colspan='5'>There are no faqs</td>";
+                                        } else if ($result) {
+                                            while ($data = mysqli_fetch_array($result))
+                                            {
+                                                if (!$data) continue;
+                                                ?>
+                                                <tr>
+                                                    <td><?php echo $count++;?></td>       
+                                                    <td class="text-wrap"><?php echo htmlspecialchars($data["question"] ?? '');?></td>
+                                                    <td class="text-wrap"><?php echo htmlspecialchars($data["answer"] ?? '');?></td>
+                                                    <td class="text-wrap"><?php echo htmlspecialchars($data["dd"] ?? '');?></td>
+                                                    <td><a href="faqs?action=edit&id=<?php echo htmlspecialchars($data["faqs_id"] ?? '');?>" title="Засах" class="btn btn-warning btn-xs btn-icon text-white"><i data-feather="edit"></i></a></td>
+                                                </tr>
+                                                <?php
+                                            }
                                         }
                                         ?>      
                                     </tbody>
@@ -65,11 +68,11 @@
                     </div>
                     <a href="faqs?action=add" class="btn btn-success btn-xs mt-3 btn-icon-text"><i data-feather="plus"></i> Асуулт хариулт нэмэх</a>
 
-                    <?
+                    <?php
                 } 
                 ?>
                 
-            <? if($action=="add")
+            <?php if($action=="add")
                 {
                     ?>
                     <div class="card">
@@ -90,52 +93,60 @@
                             </form>
                         </div>
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
 
-            <? if($action=="adding")
+            <?php if($action=="adding")
                 {
-                    $question=mysqli_escape_string($conn,$_POST["question"]);
-                    $answer=mysqli_escape_string($conn,$_POST["answer"]);
-                    $dd=$_POST["dd"];
+                    $question = isset($_POST["question"]) ? protect($_POST["question"]) : '';
+                    $answer = isset($_POST["answer"]) ? protect($_POST["answer"]) : '';
+                    $dd = isset($_POST["dd"]) ? intval($_POST["dd"]) : 0;
                     
-                    
-                    $sql="INSERT INTO faqs (question,answer,dd) VALUES('$question','$answer','$dd')";
+                    $question_escaped = mysqli_real_escape_string($conn, $question);
+                    $answer_escaped = mysqli_real_escape_string($conn, $answer);
+                    $sql = "INSERT INTO faqs (question,answer,dd) VALUES('$question_escaped','$answer_escaped','$dd')";
 
-                    if (mysqli_query($conn,$sql)) header('location:faqs');
-                    else echo mysqli_error($conn);//header('location:faqs_add.php?m=e');
+                    if (mysqli_query($conn,$sql)) {
+                        header('location:faqs');
+                        exit;
+                    } else {
+                        echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';
+                    }
                     
                 }
                 ?>
 
 
-            <? if($action=="edit")
+            <?php if($action=="edit")
                 {
                     
                     if (isset($_GET['id']))
                     {
-                        $faqs_id = $_GET['id'];
-                        $sql="SELECT * FROM faqs WHERE faqs_id='$faqs_id' LIMIT 1";
-                        $result=mysqli_query($conn,$sql);
-                        $data=mysqli_fetch_array($result);
+                        $faqs_id = intval($_GET['id']);
+                        $faqs_id_escaped = mysqli_real_escape_string($conn, $faqs_id);
+                        $sql = "SELECT * FROM faqs WHERE faqs_id='$faqs_id_escaped' LIMIT 1";
+                        $result = mysqli_query($conn,$sql);
+                        if ($result && mysqli_num_rows($result) > 0) {
+                            $data = mysqli_fetch_array($result);
+                            if ($data) {
                         ?>
                         <div class="card">
                             <div class="card-body">
                                 <form action="faqs?action=editing" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="faqs_id" value="<?=$faqs_id;?>" />
+                                <input type="hidden" name="faqs_id" value="<?php echo htmlspecialchars($faqs_id);?>" />
                                 <table  class="table table-hover">
                                 <tr>
                                 <td>Асуулт</td>
-                                <td><input type="text"  class="form-control" name="question" value="<?=$data["question"]?>"/></td>
+                                <td><input type="text"  class="form-control" name="question" value="<?php echo htmlspecialchars($data["question"] ?? '');?>"/></td>
                                 </tr>
                             
                                 <tr><td>Хариулт</td>
-                                <td><textarea class="form-control" name="answer"><?=$data["answer"]?></textarea></td></tr>
+                                <td><textarea class="form-control" name="answer"><?php echo htmlspecialchars($data["answer"] ?? '');?></textarea></td></tr>
                                 
                                 <td>Жагсаалтын эрэмбэ</td>
-                                <td><input type="number"  class="form-control" name="dd" placeholder="Жагсаалтын эрэмбэ" value="<?=$data["dd"]?>"/></td></tr>
+                                <td><input type="number"  class="form-control" name="dd" placeholder="Жагсаалтын эрэмбэ" value="<?php echo htmlspecialchars($data["dd"] ?? 0);?>"/></td></tr>
 
 
 
@@ -144,61 +155,78 @@
                                 </table>
 
                                 <br><br>
-                                <a href="faqs?action=delete&faqs_id=<?=$faqs_id;?>" class="btn btn-danger btn-xs">устгах</a><br />
+                                <a href="faqs?action=delete&faqs_id=<?php echo htmlspecialchars($faqs_id);?>" class="btn btn-danger btn-xs">устгах</a><br />
                                 </form>
 
 
                                 <span>
                                 <?php
-                                switch($_GET['e'])
-                                {case "ok": echo "Амжилттай заслаа";break;
-                                case "error": echo "Засахад алдаа гарлаа";break;
+                                if (isset($_GET['e'])) {
+                                    switch($_GET['e'])
+                                    {
+                                        case "ok": echo "Амжилттай заслаа";break;
+                                        case "error": echo "Засахад алдаа гарлаа";break;
+                                    }
                                 }
                                 ?>
                                 </span>
                             </div>
                         </div>
-                        <?
+                        <?php
+                            }
+                        }
                     }
-                    else header("location:faqs");
+                    else {
+                        header("location:faqs");
+                        exit;
+                    }
                 }
                 ?>
 
 
 
-            <? if($action=="editing")
+            <?php if($action=="editing")
                 {
                     
-                    $faqs_id=$_POST["faqs_id"];
+                    $faqs_id = isset($_POST["faqs_id"]) ? intval($_POST["faqs_id"]) : 0;
 
-                    $question=mysqli_escape_string($conn,$_POST["question"]);
-                    $answer=mysqli_escape_string($conn,$_POST["answer"]);
-                    $dd=$_POST["dd"];                    
+                    $question = isset($_POST["question"]) ? protect($_POST["question"]) : '';
+                    $answer = isset($_POST["answer"]) ? protect($_POST["answer"]) : '';
+                    $dd = isset($_POST["dd"]) ? intval($_POST["dd"]) : 0;
                     
-                    $sql="UPDATE faqs SET question='$question',answer='$answer',dd='$dd' WHERE faqs_id='".$faqs_id."'";
+                    $question_escaped = mysqli_real_escape_string($conn, $question);
+                    $answer_escaped = mysqli_real_escape_string($conn, $answer);
+                    $sql = "UPDATE faqs SET question='$question_escaped',answer='$answer_escaped',dd='$dd' WHERE faqs_id='$faqs_id'";
 
-                    if (mysqli_query($conn,$sql)) header('location:faqs?action=edit&id='.$faqs_id.'&e=ok');
-                    else header('location:faqs?action=edit&id='.$faqs_id.'&e=error');
+                    if (mysqli_query($conn,$sql)) {
+                        header('location:faqs?action=edit&id='.$faqs_id.'&e=ok');
+                        exit;
+                    } else {
+                        header('location:faqs?action=edit&id='.$faqs_id.'&e=error');
+                        exit;
+                    }
                 }
                 ?>
 
 
-            <? if($action=="delete")
+            <?php if($action=="delete")
                 {
                     
-                    $faqs_id=$_GET['faqs_id'];
-                    if ($faqs_id!="")    
+                    $faqs_id = isset($_GET['faqs_id']) ? intval($_GET['faqs_id']) : 0;
+                    if ($faqs_id > 0)    
                     {
-                     $sql="DELETE FROM faqs WHERE faqs_id='$faqs_id' LIMIT 1";
-                     mysqli_query($conn,$sql);  
+                        $faqs_id_escaped = mysqli_real_escape_string($conn, $faqs_id);
+                        $sql = "DELETE FROM faqs WHERE faqs_id='$faqs_id_escaped' LIMIT 1";
+                        mysqli_query($conn,$sql);  
                     }
                     header('location:faqs');
+                    exit;
                 }
                 ?>
         
 
 			</div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

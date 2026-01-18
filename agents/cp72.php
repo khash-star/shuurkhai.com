@@ -1,4 +1,4 @@
-<? 
+<?php 
 if (isset($_GET["id"])) $order_id=$_GET["id"]; else $order_id =0;
 require_once('config.php');
 require_once('views/helper.php');

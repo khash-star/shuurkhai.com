@@ -1,4 +1,4 @@
-<?
+                                        <?php                                                                       php
 require_once("config.php");
 require_once("views/helper.php");
 require_once("views/login_check.php");
@@ -8,16 +8,16 @@ require_once("views/init.php");
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+                                        <?php                                                                       php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-		<?  require_once("views/sidebar.php"); ?>
+                                        <?php                                                                       php  require_once("views/sidebar.php"); ?>
 				
 
 		<div class="page-content">
-			<?
-			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="select";?>
-			<?
+                                        <?php                                                                       php
+			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="select";
+			$action_title = "Barcode-г сонгож өөрчлөх"; // Default value
 			switch ($action)
 			{
 				case "select": $action_title="Barcode-г сонгож өөрчлөх";break;
@@ -30,11 +30,11 @@ require_once("views/init.php");
 			<nav class="page-breadcrumb">
 				<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="barcodes">Түр хадгалах barcode</a></li>
-				<li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+				<li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
 				</ol>
 			</nav>
 
-            <?
+                                        <?php                                                                       php
             if ($action=="select")
             {
                 $result = mysqli_query($conn,"SELECT barcode.* FROM barcode ORDER BY timestamp DESC");
@@ -58,7 +58,7 @@ require_once("views/init.php");
                                 <th>Төлөв</th>
                                 <th></th>
                             </tr>
-                            <?
+                                        <?php                                                                       php
 
                             $count=1;
                             while ($data = mysqli_fetch_array($result))
@@ -118,35 +118,35 @@ require_once("views/init.php");
                                 echo "<tr class='red' title='Үлдэгдэл:".$Package_advance_value."$'>"; 
                                 else echo "<tr>";
                                         ?>
-                                            <td><input type="checkbox" name="barcode_id[]" value="<?=$barcode;?>"></td>
-                                            <td><?=$count++;?></td>
-                                            <td><?=$timestamp;?></td>
-                                            <td><?=$barcode;?></td>
-                                            <td><?=$created_date;?></td>
-                                            <td><?=($s_name!="")?'<a href="customers/detail/'.$sender_id.'">'.substr($s_surname,0,2).".".$s_name:'';?></a></td>
-                                            <td><?=($r_name!="")?'<a href="customers/detail/'.$receiver_id.'">'.substr($r_surname,0,2).".".$r_name:'';?></a></td>
-                                            <td><?=$r_tel;?></td>
-                                            <td><?=$days;?></td>
-                                            <td><?=$single_status;?></td>
+                                            <td><input type="checkbox" name="barcode_id[]" value="<?php echo htmlspecialchars($barcode ?? '');?>"></td>
+                                            <td><?php echo $count++;?></td>
+                                            <td><?php echo htmlspecialchars($timestamp ?? '');?></td>
+                                            <td><?php echo htmlspecialchars($barcode ?? '');?></td>
+                                            <td><?php echo htmlspecialchars($created_date ?? '');?></td>
+                                            <td><?php echo ($s_name!="")?'<a href="customers/detail/'.htmlspecialchars($sender_id).'">'.htmlspecialchars(substr($s_surname,0,2)).".".htmlspecialchars($s_name):'';?></a></td>
+                                            <td><?php echo ($r_name!="")?'<a href="customers/detail/'.htmlspecialchars($receiver_id).'">'.htmlspecialchars(substr($r_surname,0,2)).".".htmlspecialchars($r_name):'';?></a></td>
+                                            <td><?php echo htmlspecialchars($r_tel ?? '');?></td>
+                                            <td><?php echo htmlspecialchars($days ?? '');?></td>
+                                            <td><?php echo htmlspecialchars($single_status ?? '');?></td>
                                             <td>
-                                                <?
+                                        <?php
                                                 if ($combine)
                                                 {
                                                     ?>
-                                                    <a href="combine_detail?id=<?=$combine_id;?>"><span class="glyphicon glyphicon-edit"></span></a>
-                                                    <?
+                                                    <a href="combine_detail?id=<?php echo htmlspecialchars($combine_id ?? '');?>"><span class="glyphicon glyphicon-edit"></span></a>
+                                        <?php
                                                 } 
                                                     else
                                                     {
                                                         ?>
-                                                        <a href="tracks_detail?id=<?=$order_id;?>"><span class="glyphicon glyphicon-edit"></span></a>
+                                                        <a href="tracks_detail?id=<?php echo htmlspecialchars($order_id ?? '');?>"><span class="glyphicon glyphicon-edit"></span></a>
 
-                                                        <?
+                                        <?php                                                                       php
                                                     } 
 
                                                 ?>
                                             </td>
-                                        <?                                                                       
+                                        <?php                                                                       php                                                                       
                                     echo "</tr>";
                             } 
                             ?>
@@ -166,7 +166,7 @@ require_once("views/init.php");
                         <div id="more"></div>
                         <button class="btn btn-success" type="submit">Өөрчилөх</button>
                     </form>
-                        <?
+                                        <?php                                                                       
                 }
                 else echo "Barcode байхгүй";
 
@@ -180,7 +180,7 @@ require_once("views/init.php");
                     <div id="result"></div>
                     <button type="submit" class="btn btn-success">Оруулах</button>
                 </form>
-                <?
+                                        <?php                                                                       
             }
 
             if ($action=="inserting")
@@ -188,7 +188,7 @@ require_once("views/init.php");
                 ?>
                 <div class="row">
                     <div class="col-lg-12">
-                        <?
+                                        <?php                                                                       
                         $barcode=$_POST["barcode"];
                         $barcode_array = explode("\r\n",$barcode);
                         $count=0;
@@ -258,12 +258,12 @@ require_once("views/init.php");
                         }
                         ?>
                         <a href="?action=insert" class="btn btn-success">Ахин оруулах</a>
-                        <?
+                                        <?php                                                                       
                         if ($count>0) echo '<h3 class="text-center red">'.$count.' Давхардсан байна</h3><script>alert("'.$count.' давхардсан");</script>';
                         ?>
                     </div>
                 </div>                                      
-                <?
+                                        <?php                                                                       
 
             }
 
@@ -423,7 +423,7 @@ require_once("views/init.php");
                             {
                                 // BOX OF THIS ITEM STATUS CHANGE
 
-                                $sql = "SELECT *FROM boxes_packages WHERE barcode='".$barcode_id[$i]."' OR barcodes LIKE '%".$barcode_id[$i]."%' LIMIT 1";
+                                $sql = "SELECT * FROM boxes_packages WHERE barcode='".$barcode_id[$i]."' OR barcodes LIKE '%".$barcode_id[$i]."%' LIMIT 1";
                                 $box_query = $this->db->query($sql);
                                 if ($box_query->num_rows()==1)
                                 {
@@ -571,7 +571,7 @@ require_once("views/init.php");
 
 
 		</div>
-		<? require_once("views/footer.php");?>
+                                        <?php                                                                        require_once("views/footer.php");?>
 		
 		</div>
 	</div>

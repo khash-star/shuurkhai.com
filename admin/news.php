@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -6,66 +6,71 @@
 ?>
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-            <?  require_once("views/sidebar.php"); ?>
+            <?php  require_once("views/sidebar.php"); ?>
 			
-            <?  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
+            <?php  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
 
 			<div class="page-content">
-            <? if (isset($_GET['action'])) $action=$_GET['action']; else $action="display";?>
+            <?php if (isset($_GET['action'])) $action=protect($_GET['action']); else $action="display";?>
 
-            <?
+            <?php
             if ($action=="display")
             {
-                $sql = "SELECT *FROM news ORDER BY timestamp DESC LIMIT 50";
+                $sql = "SELECT * FROM news ORDER BY timestamp DESC LIMIT 50";
                 $result = mysqli_query($conn,$sql);
-                if (mysqli_num_rows($result)>0)
+                if ($result && mysqli_num_rows($result) > 0)
                 {
-                  $count =1;
+                  $count = 1;
                   while ($data = mysqli_fetch_array($result))
                   {
-                    $id = $data["id"];
-                    $category = $data["category"];
+                    if (!$data) continue;
+                    $id = isset($data["id"]) ? intval($data["id"]) : 0;
+                    $category = isset($data["category"]) ? intval($data["category"]) : 0;
 
-                      $sql_cat = "SELECT *FROM news_category WHERE id=$category";
+                      $sql_cat = "SELECT * FROM news_category WHERE id=$category LIMIT 1";
                       $result_cat = mysqli_query($conn,$sql_cat);
-                      $data_cat = mysqli_fetch_array($result_cat);
-                      $category_name=$data_cat["name"];
+                      $category_name = '';
+                      if ($result_cat && mysqli_num_rows($result_cat) > 0) {
+                          $data_cat = mysqli_fetch_array($result_cat);
+                          if ($data_cat) {
+                              $category_name = htmlspecialchars($data_cat["name"] ?? '');
+                          }
+                      }
 
-                    $title = $data["title"];
-                    $image = $data["image"];
-                    $text = $data["text"];
-                    $count = $data["count"];
-                    $timestamp = $data["timestamp"];
+                    $title = isset($data["title"]) ? htmlspecialchars($data["title"]) : '';
+                    $image = isset($data["image"]) ? htmlspecialchars($data["image"]) : '';
+                    $text = isset($data["text"]) ? $data["text"] : '';
+                    $timestamp = isset($data["timestamp"]) ? htmlspecialchars($data["timestamp"]) : '';
                     ?>
                     <div class="card mt-3">
                       <div class="row">
                         <div class="col-md-5 col-lg-6 col-xl-5">
                           <figure class="mb-0">
-                            <a href="news?action=detail&id=<?=$id;?>">
-                                <img src="../<?=$image;?>" class="w-100" alt="<?=$title;?>">
+                            <a href="news?action=detail&id=<?php echo htmlspecialchars($id);?>">
+                                <img src="../<?php echo htmlspecialchars($image);?>" class="w-100" alt="<?php echo $title;?>">
                             </a>
                           </figure>
                         </div><!-- col-4 -->
                         <div class="col-md-7 col-lg-6 col-xl-7">
-                          <p class="blog-category tx-danger"><?=$category_name;?></p>
+                          <p class="blog-category tx-danger"><?php echo $category_name;?></p>
                           <h5 class="blog-title">
-                              <a href="news?action=detail&id=<?=$id;?>">
-                            <?=$title;?>
+                              <a href="news?action=detail&id=<?php echo htmlspecialchars($id);?>">
+                            <?php echo $title;?>
                             
                             </a></h5>
-                          <p class="blog-text" style="max-height: 250px; overflow-x: hidden; overflow-y: auto;"><?=$text;?></p>
-                          <span class="blog-date"><?=substr($timestamp,0,10);?></span>
+                          <p class="blog-text" style="max-height: 250px; overflow-x: hidden; overflow-y: auto;"><?php echo $text;?></p>
+                          <span class="blog-date"><?php echo substr($timestamp,0,10);?></span>
                           <br>
                           <span class="blog-date">
-                            <a href="news?action=edit&id=<?=$id;?>" class="btn btn-warning btn-icon-text btn-sm text-white" title="Мэдээг засах"><i data-feather="edit"></i> Засах</a>
+                            <a href="news?action=edit&id=<?php echo htmlspecialchars($id);?>" class="btn btn-warning btn-icon-text btn-sm text-white" title="Мэдээг засах"><i data-feather="edit"></i> Засах</a>
                           </span>
                         </div><!-- col-8 -->
                       </div><!-- row -->
                     </div><!-- card -->
-                    <?
+                    <?php
                     //$count++;
                   }
                 }
@@ -78,7 +83,7 @@
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div><!-- alert --> 
-                  <?
+                  <?php
                 }
             }
             ?>
@@ -88,7 +93,7 @@
             if ($action =="detail")
             {
               if (isset($_GET["id"])) $news_id=$_GET["id"]; else header("location:news");
-              $sql = "SELECT *FROM news WHERE id=$news_id LIMIT 1";
+              $sql = "SELECT * FROM news WHERE id=$news_id LIMIT 1";
               $result= mysqli_query($conn,$sql);
               if (mysqli_num_rows($result)==1)
               {
@@ -169,7 +174,7 @@
             }
             ?>
 
-            <?
+            <?php
             if ($action =="new")
             {
               ?>
@@ -183,14 +188,17 @@
                             <div class="media-body mg-l-15 mg-t-4">
                               <h6 class="tx-14 tx-gray-700">Ангилал (*)</h6>
                               <select name="category" class="form-control select2">
-                                <?
+                                <?php
                                 $sql_cat = "SELECT * FROM news_category ORDER BY name";
-                                $result_cat =mysqli_query($conn,$sql_cat);
-                                while ($data_cat = mysqli_fetch_array($result_cat))
-                                {
-                                  ?>
-                                  <option value="<?=$data_cat["id"];?>"><?=$data_cat["name"];?></option>
-                                  <?
+                                $result_cat = mysqli_query($conn,$sql_cat);
+                                if ($result_cat) {
+                                    while ($data_cat = mysqli_fetch_array($result_cat))
+                                    {
+                                      if (!$data_cat) continue;
+                                      ?>
+                                      <option value="<?php echo htmlspecialchars($data_cat["id"] ?? '');?>"><?php echo htmlspecialchars($data_cat["name"] ?? '');?></option>
+                                      <?php
+                                    }
                                 }
                                 ?>
                               </select>
@@ -232,24 +240,23 @@
                   </div><!-- col-6 -->
                 </div><!-- row -->
               </form>
-              <?
+              <?php
             }
             ?>
 
-            <?
+            <?php
             if ($action =="inserting")
             {
               ?>
               <div class="row row-xs mg-t-10">              
                 <div class="col-lg-12">
                   
-                  <?
-                  $title = $_POST["title"];
-                  $content = $_POST["content"];
-                  if (substr($content,0,4)=="<p>" && substr($content,-5,5)=="</p>")
-                    $text = substr($content,5,len($content)-7);
-                  $category = $_POST["category"];
-                  $target_file =""; $thumb="";
+                  <?php
+                  $title = isset($_POST["title"]) ? protect($_POST["title"]) : '';
+                  $content = isset($_POST["content"]) ? protect($_POST["content"]) : '';
+                  $category = isset($_POST["category"]) ? intval($_POST["category"]) : 0;
+                  $target_file = ""; 
+                  $thumb = "";
                   if(isset($_FILES['image']) && $_FILES['image']['name']!="")
                   {
                       if ($_FILES['image']['name']!="")
@@ -270,7 +277,11 @@
                       }
                   }
 
-                  $sql = "INSERT INTO news (category,image,title,content,thumb) VALUES ('$category','$target_file','$title','$content','$thumb')";                            
+                  $title_escaped = mysqli_real_escape_string($conn, $title);
+                  $content_escaped = mysqli_real_escape_string($conn, $content);
+                  $target_file_escaped = mysqli_real_escape_string($conn, $target_file);
+                  $thumb_escaped = mysqli_real_escape_string($conn, $thumb);
+                  $sql = "INSERT INTO news (category,image,title,content,thumb) VALUES ('$category','$target_file_escaped','$title_escaped','$content_escaped','$thumb_escaped')";                            
                   if (mysqli_query($conn,$sql))
                     {
                       $news_id = mysqli_insert_id($conn);
@@ -281,51 +292,55 @@
                           <span aria-hidden="true">&times;</span>
                         </button>
                       </div><!-- alert --> 
-                      <?
+                      <?php
                     }
                   else
                     {
                       ?>
                       <div class="alert alert-danger mg-b-10" role="alert">
-                        Алдаа гарлаа. <?=mysqli_error($conn);?>
+                        Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                           <span aria-hidden="true">&times;</span>
                         </button>
                       </div><!-- alert --> 
-                      <?
+                      <?php
 
                     }
                   ?>
                 </div><!-- col-6 -->
               </div><!-- row -->
               <div class="btn-group">
-                <a href="news?action=edit&id=<?=$news_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+                <a href="news?action=edit&id=<?php echo htmlspecialchars($news_id ?? 0);?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
                 <a href="news" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх мэдээ</a>
               </div>
-              <?
+              <?php
             }
             ?>
 
 
-            <?
+            <?php
             if ($action =="edit")
             {
-              if (isset($_GET["id"])) $news_id=$_GET["id"]; else header("location:news");
-              $sql = "SELECT *FROM news WHERE id=$news_id LIMIT 1";
-              $result= mysqli_query($conn,$sql);
-              if (mysqli_num_rows($result)==1)
+              if (isset($_GET["id"])) {
+                  $news_id = intval($_GET["id"]);
+              } else {
+                  header("location:news");
+                  exit;
+              }
+              $sql = "SELECT * FROM news WHERE id=$news_id LIMIT 1";
+              $result = mysqli_query($conn,$sql);
+              if ($result && mysqli_num_rows($result) == 1)
               {
                 $data = mysqli_fetch_array($result);
-                $id = $data["id"];
-                $category = $data["category"];              
-                $title = $data["title"];
-                $image = $data["image"];
-                $content = $data["content"];
-                $count = $data["count"];
-                $timestamp = $data["timestamp"];
+                if ($data) {
+                    $id = isset($data["id"]) ? intval($data["id"]) : 0;
+                    $category = isset($data["category"]) ? intval($data["category"]) : 0;
+                    $title = isset($data["title"]) ? htmlspecialchars($data["title"]) : '';
+                    $image = isset($data["image"]) ? htmlspecialchars($data["image"]) : '';
+                    $content = isset($data["content"]) ? $data["content"] : '';
                 ?>            
                 <form action="news?action=editing" method="post" enctype="multipart/form-data">
-                  <input type="hidden" name="news_id" value="<?=$news_id;?>">
+                  <input type="hidden" name="news_id" value="<?php echo htmlspecialchars($news_id);?>">
                   <div class="row">
                     <div class="col-lg-4">
                       <div class="card card-customer-overview">
@@ -335,14 +350,17 @@
                               <div class="media-body mg-l-15 mg-t-4">
                                 <h6 class="tx-14 tx-gray-700">Ангилал (*)</h6>
                                 <select name="category" class="form-control select2">
-                                  <?
+                                  <?php
                                     $sql_cat = "SELECT * FROM news_category ORDER BY name";
-                                    $result_cat =mysqli_query($conn,$sql_cat);
-                                    while ($data_cat = mysqli_fetch_array($result_cat))
-                                    {
-                                      ?>
-                                      <option value="<?=$data_cat["id"];?>" <?=($category==$data_cat["id"])?'selected="selected"':'';?>><?=$data_cat["name"];?></option>
-                                      <?
+                                    $result_cat = mysqli_query($conn,$sql_cat);
+                                    if ($result_cat) {
+                                        while ($data_cat = mysqli_fetch_array($result_cat))
+                                        {
+                                          if (!$data_cat) continue;
+                                          ?>
+                                          <option value="<?php echo htmlspecialchars($data_cat["id"] ?? '');?>" <?php echo (isset($category) && $category==$data_cat["id"])?'selected="selected"':'';?>><?php echo htmlspecialchars($data_cat["name"] ?? '');?></option>
+                                          <?php
+                                        }
                                     }
                                   ?>
                                 </select>
@@ -351,7 +369,7 @@
                             <div class="media mg-t-25">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <h6 class="tx-14 tx-gray-700">Зураг</h6>
-                                <img src="../<?=$image;?>" width="100%">
+                                <img src="../<?php echo htmlspecialchars($image);?>" width="100%">
                                 <div class="custom-file">
                                   <input type="file" name="image" class="custom-file-input">
                                   <label class="custom-file-label" for="customFile">Choose file</label>
@@ -363,7 +381,7 @@
                       </div><!-- card -->
                       <input type="submit" class="btn btn-success btn-lg mg-t-15" value="Мэдээг засах">
                       <div class="clearfix"></div>
-                      <a href="news?action=delete&id=<?=$news_id;?>" class="btn btn-danger btn-sm mg-t-25"><i class="icon ion-ios-trash"></i> Устгах</a>
+                      <a href="news?action=delete&id=<?php echo htmlspecialchars($news_id);?>" class="btn btn-danger btn-sm mg-t-25"><i class="icon ion-ios-trash"></i> Устгах</a>
 
 
                     </div>
@@ -374,13 +392,13 @@
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <h6 class="tx-14 tx-gray-700">Гарчиг (*)</h6>
-                                <input type="text" name="title" class="form-control" required="required" value="<?=$title;?>">
+                                <input type="text" name="title" class="form-control" required="required" value="<?php echo htmlspecialchars($title);?>">
                               </div><!-- media-body -->
                             </div><!-- media -->
                             <div class="media mg-t-25">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <h6 class="tx-14 tx-gray-700">Мэдээ (*)</h6>
-                                <textarea name="content" required="required" class="editable form-control" style="min-height: 400px"><?=$content;?></textarea>
+                                <textarea name="content" required="required" class="editable form-control" style="min-height: 400px"><?php echo htmlspecialchars($content);?></textarea>
                               </div><!-- media-body -->
                             </div><!-- media -->
                           </div><!-- media-list -->                                                             
@@ -389,7 +407,8 @@
                   </div><!-- col-6 -->
                   </div><!-- row -->
                 </form>
-                <?
+                <?php
+                }
               }
               else 
               {
@@ -400,23 +419,20 @@
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div><!-- alert --> 
-                <?
+                <?php
               }
             }
             ?>
 
 
-            <?
+            <?php
             if ($action =="editing")
             {
-              $news_id = $_POST["news_id"];
-              $title = $_POST["title"];
-              $content = $_POST["content"];
-              if (substr($text,0,4)=="<p>" && substr($text,-5,5)=="</p>")
-                $text = substr($text,5,len($text)-7);
-
-              $category = $_POST["category"];
-              $image ="";
+              $news_id = isset($_POST["news_id"]) ? intval($_POST["news_id"]) : 0;
+              $title = isset($_POST["title"]) ? protect($_POST["title"]) : '';
+              $content = isset($_POST["content"]) ? protect($_POST["content"]) : '';
+              $category = isset($_POST["category"]) ? intval($_POST["category"]) : 0;
+              $image = "";
               if(isset($_FILES['image']) && $_FILES['image']['name']!="")
               {
                   if ($_FILES['image']['name']!="")
@@ -433,7 +449,9 @@
                             imagejpeg($thumb_image_content,$thumb,75);
                             $target_file = substr($target_file,3);
                             $thumb = substr($thumb,3);
-                            mysqli_query($conn,"UPDATE news SET image='$target_file',thumb='$thumb' WHERE id='$news_id'");
+                            $target_file_escaped = mysqli_real_escape_string($conn, $target_file);
+                            $thumb_escaped = mysqli_real_escape_string($conn, $thumb);
+                            mysqli_query($conn,"UPDATE news SET image='$target_file_escaped',thumb='$thumb_escaped' WHERE id='$news_id'");
                           }
                       }
               }
@@ -442,8 +460,10 @@
               ?>
               <div class="row row-xs mg-t-10">
                 <div class="col-lg-12">
-                  <?
-                  $sql = "UPDATE news SET category='$category', title='$title', content='$content' WHERE id='$news_id'";
+                  <?php
+                  $title_escaped = mysqli_real_escape_string($conn, $title);
+                  $content_escaped = mysqli_real_escape_string($conn, $content);
+                  $sql = "UPDATE news SET category='$category', title='$title_escaped', content='$content_escaped' WHERE id='$news_id'";
                   if (mysqli_query($conn,$sql))
                   {
                     ?>
@@ -453,27 +473,27 @@
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div><!-- alert --> 
-                    <?
+                    <?php
                   }
                   else 
                   {
                     ?>
                     <div class="alert alert-danger mg-b-10" role="alert">
-                    Алдаа гарлаа. <?=mysqli_query($conn,$sql);?>
+                    Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div><!-- alert --> 
-                    <?
+                    <?php
                   }
                   ?>
                 </div><!-- col-lg-12 -->
                 <div class="btn-group">
-                  <a href="news?action=new" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+                  <a href="news?action=edit&id=<?php echo htmlspecialchars($news_id);?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
                   <a href="news" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх мэдээ</a>
                 </div>
               </div><!-- row -->
-              <?
+              <?php
             }
             ?>
 
@@ -487,46 +507,53 @@
 
 
             
-            <?
+            <?php
             if ($action=="delete")
             {
-              if (isset($_GET["id"])) $news_id=$_GET["id"]; else header("location:news");
+              if (isset($_GET["id"])) {
+                  $news_id = intval($_GET["id"]);
+              } else {
+                  header("location:news");
+                  exit;
+              }
               ?>
               <div class="card">
                 <div class="card-body">
-                  <?
-                  $sql = "SELECT *FROM news WHERE id=$news_id LIMIT 1";
-                  $result= mysqli_query($conn,$sql);
-                  if (mysqli_num_rows($result)==1)
-                  {                  
+                  <?php
+                  $sql = "SELECT * FROM news WHERE id=$news_id LIMIT 1";
+                  $result = mysqli_query($conn,$sql);
+                  if ($result && mysqli_num_rows($result) == 1)
+                  {
                     $data = mysqli_fetch_array($result);
-                    $image = $data["image"];
-                    $thumb = $data["thumb"];
-                    if (file_exists("../".$image)) unlink("../".$image);
-                    if (file_exists("../".$thumb)) unlink("../".$thumb);
+                    if ($data) {
+                        $image = isset($data["image"]) ? $data["image"] : '';
+                        $thumb = isset($data["thumb"]) ? $data["thumb"] : '';
+                        if ($image && file_exists("../".$image)) unlink("../".$image);
+                        if ($thumb && file_exists("../".$thumb)) unlink("../".$thumb);
 
-                    if (mysqli_query($conn,"DELETE FRom news WHERE id=$news_id")) 
-                      {
-                        ?>
-                        <div class="alert alert-success mg-b-10" role="alert">
-                          Устгагдлаа.
-                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div><!-- alert --> 
-                        <?
-                      }
-                      else 
-                      {
-                        ?>
-                        <div class="alert alert-danger mg-b-10" role="alert">
-                          Алдаа гарлаа. <?=mysqli_error($conn);?>
-                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div><!-- alert --> 
-                        <?
-                      }                   
+                        if (mysqli_query($conn,"DELETE FROM news WHERE id=$news_id")) 
+                          {
+                            ?>
+                            <div class="alert alert-success mg-b-10" role="alert">
+                              Устгагдлаа.
+                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div><!-- alert --> 
+                            <?php
+                          }
+                          else 
+                          {
+                            ?>
+                            <div class="alert alert-danger mg-b-10" role="alert">
+                              Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
+                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div><!-- alert --> 
+                            <?php
+                          }
+                    }
                   }
                   ?>
                   <div class="btn-group">
@@ -535,7 +562,7 @@
                   </div>
                 </div>
               
-              <?
+              <?php
             }
             ?>
         

@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("login_check.php");
     //var_dump($_FILES);
     if ($_FILES["image"]["name"]) {

@@ -1,17 +1,22 @@
 DirectoryIndex index.php
 RewriteEngine On
 
+# Ensure PHP files are processed
+<FilesMatch "\.php$">
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
 # RewriteCond %{HTTPS} off
 # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # ErrorDocument 404 https://ubrobotic.com/404
 # ErrorDocument 404 https://localhost/ubrobotic/login/404
 
-RewriteRule ^index?$ index.php
-RewriteRule ^404?$ 404.php
+RewriteRule ^index?$ index.php [L]
+RewriteRule ^404?$ 404.php [L]
 
-RewriteRule ^login?$ login.php
-RewriteRule ^logining?$ views/logining.php
-RewriteRule ^logout?$ views/logout.php
+RewriteRule ^login?$ login.php [L]
+RewriteRule ^logining?$ views/logining.php [L]
+RewriteRule ^logout?$ views/logout.php [L]
 
 RewriteRule ^dashboard?$ dashboard.php
 RewriteRule ^settings?$ settings.php

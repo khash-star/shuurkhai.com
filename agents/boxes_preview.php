@@ -1,4 +1,4 @@
-<?
+<?php
 require_once("config.php");
 require_once("views/helper.php");
 require_once('assets/vendor/libs/BCG/BCGFontFile.php');
@@ -15,11 +15,11 @@ hr {border-bottom:2px #000000 solid;}
 @media print{ .btn {display:none;} h3 {font-size: 2cm;} h1 {font-size: 2cm;} img {width: 3cm;}}
 
 </style>
-<? 
+<?php 
 if (isset($_GET["id"])) $box_id=intval($_GET["id"]); ?>
 
 <img src="assets/img/logo.png" style="width:3cm;">  
-<?
+<?php
 
 
 $result = mysqli_query($conn,("SELECT * FROM boxes WHERE box_id=".$box_id));

@@ -1,6 +1,6 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/init.php");?>
 
 <link href="assets/css/range-slider.css" rel="stylesheet">
 
@@ -35,14 +35,21 @@
                     <div class="product-category">
                         <h5 class="filter-heading  text-center text-lg-left">Ангилал</h5>
                         <ul>
-                            <?
-                            $sql = "SELECT *FROM shops_category ORDER BY dd";
+                            <?php
+                            $sql = "SELECT * FROM shops_category ORDER BY dd";
                             $result = mysqli_query($conn,$sql);
-                            while ($data = mysqli_fetch_array($result))
-                            {
-                                ?>
-                                <li><a href="shop?category=<?=$data["id"];?>"><?=$data["name"];?> </a><span>(<?=$data["count"];?>)</span></li>
-                                <?
+                            if ($result) {
+                                while ($data = mysqli_fetch_array($result))
+                                {
+                                    if ($data && is_array($data)) {
+                                        $category_id = isset($data["id"]) ? $data["id"] : '';
+                                        $category_name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                                        $category_count = isset($data["count"]) ? $data["count"] : '0';
+                                        ?>
+                                        <li><a href="shop?category=<?php echo htmlspecialchars($category_id);?>"><?php echo $category_name;?> </a><span>(<?php echo htmlspecialchars($category_count);?>)</span></li>
+                                        <?php
+                                    }
+                                }
                             }
                             ?>
                         </ul>
@@ -61,25 +68,30 @@
                         <!--featured item sec start-->
                         <section class="featured-items padding-bottom" id="featured-items">
                         <div class="row">
-                            <?
-                            $sql = "SELECT *FROM shops";
-                            if (isset($_GET["category"])) $sql.=" WHERE category = '".$_GET["category"]."'";
+                            <?php
+                            $sql = "SELECT * FROM shops";
+                            if (isset($_GET["category"]) && !empty($_GET["category"])) {
+                                $category = mysqli_real_escape_string($conn, $_GET["category"]);
+                                $sql .= " WHERE category = '".$category."'";
+                            }
                             $result = mysqli_query($conn,$sql);
-                            while ($data = mysqli_fetch_array($result))
-                            {
-                                ?>
+                            if ($result) {
+                                while ($data = mysqli_fetch_array($result))
+                                {
+                                    if ($data && is_array($data)) {
+                                        ?>
                                 <div class="col-12 col-md-6 col-lg-4 text-center wow slideInUp">
                                     <div class="featured-item-card">
                                         <div class="item-img">
-                                            <img src="<?=$data["image"];?>" class="product-outside-image">
+                                            <img src="<?php echo htmlspecialchars(fix_image_path($data["image"] ?? ''));?>" class="product-outside-image">
                                             <div class="item-overlay">
                                                 <div class="item-btns">
-                                                    <a href="<?=$data["url"];?>" class="btn btn-view" target="new"><i class="las la-shopping-bag"></i></a>
+                                                    <a href="<?php echo htmlspecialchars($data["url"] ?? '#');?>" class="btn btn-view" target="new"><i class="las la-shopping-bag"></i></a>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="item-detail">
-                                            <h4 class="item-name"><?=$data["name"];?></h4>
+                                            <h4 class="item-name"><?php echo htmlspecialchars($data["name"] ?? '');?></h4>
                                             <ul class="reviews">
                                                 <li><i class="las la-star"></i></li>
                                                 <li><i class="las la-star"></i></li>
@@ -90,7 +102,9 @@
                                         </div>
                                     </div>
                                 </div>
-                                <?
+                                <?php
+                                    }
+                                }
                             }
                             ?>
 

@@ -1,4 +1,4 @@
-<? 
+<?php 
 
 ob_start();
 session_start();
@@ -7,12 +7,15 @@ require_once("helper.php");
 
 if(isset($_POST["tel"])) 
 {
-    $tel=$_POST["tel"];
-    $result = mysqli_query($conn,"SELECT * FROM customer WHERE tel='".$tel."' LIMIT 1");
-    if (mysqli_num_rows($result) == 1)
+    $tel = protect($_POST["tel"]);
+    $tel_escaped = mysqli_real_escape_string($conn, $tel);
+    $result = mysqli_query($conn,"SELECT * FROM customer WHERE tel='$tel_escaped' LIMIT 1");
+    if ($result && mysqli_num_rows($result) == 1)
     {
         $data= mysqli_fetch_array($result);
-        echo json_encode($data);        
+        if ($data) {
+            echo json_encode($data);
+        }
     }
 }
 ?>

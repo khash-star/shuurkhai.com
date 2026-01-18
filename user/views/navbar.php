@@ -1,12 +1,12 @@
- <?
- $user_id = $_SESSION["c_user_id"];
- $user_name  = $_SESSION["c_name"];
- $user_avatar  = $_SESSION["c_avatar"];
- $user_tel  = $_SESSION["c_tel"];
+ <?php
+ $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+ $user_name  = isset($_SESSION["c_name"]) ? htmlspecialchars($_SESSION["c_name"]) : '';
+ $user_avatar  = isset($_SESSION["c_avatar"]) ? htmlspecialchars($_SESSION["c_avatar"]) : '';
+ $user_tel  = isset($_SESSION["c_tel"]) ? htmlspecialchars($_SESSION["c_tel"]) : '';
  
  if ($user_avatar=='') $user_avatar='assets/img/user-male.png';
  
- $current_page = $_SERVER['REQUEST_URI'];
+ $current_page = isset($_SERVER['REQUEST_URI']) ? htmlspecialchars($_SERVER['REQUEST_URI']) : '';
 
  ?>
  <!--  BEGIN NAVBAR  -->
@@ -26,9 +26,9 @@
             <ul class="navbar-item flex-row search-ul">
                 <li class="nav-item align-self-center search-animated">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search toggle-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <form class="form-inline search-full form-inline search" role="search" method="POST" action="<?=$current_page;?>">
+                    <form class="form-inline search-full form-inline search" role="search" method="POST" action="<?php echo htmlspecialchars($current_page);?>">
                         <div class="search-bar">
-                            <input type="text" class="form-control search-form-control  ml-lg-auto" placeholder="Трак, баркод" name="search" value="<?=(isset($_POST["search"]))?$_POST["search"]:'';?>">
+                            <input type="text" class="form-control search-form-control  ml-lg-auto" placeholder="Трак, баркод" name="search" value="<?php echo htmlspecialchars((isset($_POST["search"]))?$_POST["search"]:'');?>">
                         </div>
                     </form>
                 </li>
@@ -112,18 +112,23 @@
                         </div>
                     </div>
                 </li> -->
-                <?
-                $has_alert=0;
-                $sql = "SELECT * FROM alert WHERE customer_id='".$user_id."' AND `read`=0 ORDER BY alert_id DESC LIMIT 1";
-                $result = mysqli_query($conn,$sql);
-                $has_alert = mysqli_num_rows($result);
+                <?php
+                $has_alert = 0;
+                if (isset($conn) && $user_id > 0) {
+                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                    $sql = "SELECT * FROM alert WHERE customer_id='".$user_id_escaped."' AND `read`=0 ORDER BY alert_id DESC LIMIT 1";
+                    $result = mysqli_query($conn,$sql);
+                    if ($result) {
+                        $has_alert = mysqli_num_rows($result);
+                    }
+                }
                 ?>
                 <li class="nav-item dropdown notification-dropdown">
                     <a href="javascript:void(0);" class="nav-link dropdown-toggle" id="notificationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><?=($has_alert)?'<span class="badge badge-success"></span>':''?>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><?php echo ($has_alert > 0)?'<span class="badge badge-success"></span>':'';?>
                     </a>
-                    <?
-                    if ($has_alert>0)
+                    <?php
+                    if ($has_alert > 0)
                     {
                         ?>
                         <div class="dropdown-menu position-absolute animated fadeInUp" aria-labelledby="notificationDropdown">
@@ -178,7 +183,7 @@
                                 </div> -->
                             </div>
                         </div>
-                        <?
+                        <?php
                     }
                     ?>
                     
@@ -191,10 +196,10 @@
                     <div class="dropdown-menu position-absolute animated fadeInUp" aria-labelledby="userProfileDropdown">
                         <div class="user-profile-section">
                             <div class="media mx-auto">
-                                <img src="<?=$user_avatar;?>" class="img-fluid mr-2" alt="avatar">
+                                <img src="<?php echo htmlspecialchars($user_avatar);?>" class="img-fluid mr-2" alt="avatar">
                                 <div class="media-body">
-                                    <h5><?=$user_name;?></h5>
-                                    <p><?=$user_tel;?></p>
+                                    <h5><?php echo htmlspecialchars($user_name);?></h5>
+                                    <p><?php echo htmlspecialchars($user_tel);?></p>
                                 </div>
                             </div>
                         </div>

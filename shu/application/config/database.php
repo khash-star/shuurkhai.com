@@ -76,14 +76,6 @@ $query_builder = TRUE;
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
-	
-	
-	
-
-	'username' => 'mindsymbol_cargo',
-	'password' => '%PEi@t^XgwpS',
-	'database' => 'mindsymbol_cargo',
-
 	'username' => 'shuurkhai',
 	'password' => 'ppZl6H8{wGUA',
 	'database' => 'shuurkhai',

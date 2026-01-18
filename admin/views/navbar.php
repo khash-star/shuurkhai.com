@@ -1,28 +1,90 @@
-<? $current_page = basename($_SERVER['REQUEST_URI'], '?' . $_SERVER['QUERY_STRING']);?>
-<? 
-	$logged_name = $_SESSION["name"];
-	$logged_avatar = $_SESSION["avatar"];
-	$logged_rights = $_SESSION["rights"];
+<?php $current_page = basename($_SERVER['REQUEST_URI'], '?' . $_SERVER['QUERY_STRING']);?>
+<?php 
+	$logged_name = isset($_SESSION["name"]) ? $_SESSION["name"] : "Admin";
+	$logged_avatar = isset($_SESSION["avatar"]) ? $_SESSION["avatar"] : "assets/images/logo.png";
+	$logged_rights = isset($_SESSION["rights"]) ? $_SESSION["rights"] : "admin";
+	
+		// Зурвас тоолох - role талбарыг харгалзан
+		$feedback_count = 0;
+		$recent_feedbacks = array();
+		if (isset($conn) && $conn) {
+			// Count all active messages (user and admin)
+			$feedback_sql = "SELECT COUNT(*) as count FROM feedback WHERE archive=0";
+			$feedback_result = mysqli_query($conn, $feedback_sql);
+			if ($feedback_result) {
+				$feedback_row = mysqli_fetch_array($feedback_result);
+				if ($feedback_row && isset($feedback_row["count"])) {
+					$feedback_count = intval($feedback_row["count"]);
+				}
+			}
+			
+			// Шинэ зурваснуудыг авах - role талбарыг оролцуулах
+			if ($feedback_count > 0) {
+				// Check if role column exists (backward compatibility)
+				$check_role_sql = "SHOW COLUMNS FROM feedback LIKE 'role'";
+				$role_exists = false;
+				$check_result = mysqli_query($conn, $check_role_sql);
+				if ($check_result && mysqli_num_rows($check_result) > 0) {
+					$role_exists = true;
+				}
+				
+				// Build query - backward compatible: if role column doesn't exist, don't select it
+				if ($role_exists) {
+					$recent_feedback_sql = "SELECT id, title, content, name, email, timestamp, `read` AS read_status, COALESCE(role, 'user') AS role FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 8";
+				} else {
+					$recent_feedback_sql = "SELECT id, title, content, name, email, timestamp, `read` AS read_status FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 8";
+				}
+				$recent_feedback_result = mysqli_query($conn, $recent_feedback_sql);
+				if ($recent_feedback_result) {
+					$num_rows = mysqli_num_rows($recent_feedback_result);
+					if ($num_rows > 0) {
+						while ($recent_feedback = mysqli_fetch_array($recent_feedback_result)) {
+							if ($recent_feedback && is_array($recent_feedback)) {
+								// ID болон read талбарыг баталгаажуулах
+								if (!isset($recent_feedback["id"]) || empty($recent_feedback["id"])) {
+									$recent_feedback["id"] = 0;
+								}
+								// read_status гэж alias хийсэн тул read_status гэж хайх
+								if (!isset($recent_feedback["read_status"])) {
+									$recent_feedback["read_status"] = isset($recent_feedback["read"]) ? $recent_feedback["read"] : 0;
+								}
+								// read гэсэн key-г нэмэх (display кодонд ашигладаг)
+								$recent_feedback["read"] = $recent_feedback["read_status"];
+								// role талбарыг баталгаажуулах (backward compatibility)
+								if (!isset($recent_feedback["role"]) || empty($recent_feedback["role"])) {
+									$recent_feedback["role"] = "user";
+								}
+								// If role column doesn't exist in DB, default to 'user'
+								if (!$role_exists) {
+									$recent_feedback["role"] = "user";
+								}
+								$recent_feedbacks[] = $recent_feedback;
+							}
+						}
+					}
+				}
+			}
+		}
 ?>
 <nav class="navbar">
 	<a href="#" class="sidebar-toggler">
 		<i data-feather="menu"></i>
 	</a>
 	<div class="navbar-content">
-		<? if ($current_page=="products") require_once("views/product_nav.php");?> 
-		<? if (in_array($current_page, ["news","news_category"])) require_once("views/news_nav.php");?> 
-		<? if ($current_page=="customers") require_once("views/customer_nav.php");?> 
-		<? if ($current_page=="online") require_once("views/online_nav.php");?> 
-		<? if ($current_page=="envoices") require_once("views/envoices_nav.php");?> 
-		<? if ($current_page=="orders") require_once("views/orders_nav.php");?> 
-		<? if ($current_page=="barcodes") require_once("views/barcodes_nav.php");?> 
-		<? if ($current_page=="boxes") require_once("views/boxes_nav.php");?> 
-		<? if ($current_page=="gaali") require_once("views/gaali_nav.php");?> 
-		<? if ($current_page=="upost") require_once("views/upost_nav.php");?> 
-		<? if ($current_page=="agents") require_once("views/agents_nav.php");?> 
-		<? if ($current_page=="tracks") require_once("views/tracks_nav.php");?> 
-		<? if ($current_page=="deliver") require_once("views/deliver_nav.php");?> 
-		<? if ($current_page=="container") require_once("views/container_nav.php");?> 
+		<?php if ($current_page=="products") require_once("views/product_nav.php");?> 
+		<?php if (in_array($current_page, ["news","news_category"])) require_once("views/news_nav.php");?> 
+		<?php if ($current_page=="customers") require_once("views/customer_nav.php");?> 
+		<?php if ($current_page=="online") require_once("views/online_nav.php");?> 
+		<?php if ($current_page=="envoices") require_once("views/envoices_nav.php");?> 
+		<?php if ($current_page=="orders") require_once("views/orders_nav.php");?> 
+		<?php if ($current_page=="barcodes") require_once("views/barcodes_nav.php");?> 
+		<?php if ($current_page=="boxes") require_once("views/boxes_nav.php");?> 
+		<?php if ($current_page=="gaali") require_once("views/gaali_nav.php");?> 
+		<?php if ($current_page=="upost") require_once("views/upost_nav.php");?> 
+		<?php if ($current_page=="agents") require_once("views/agents_nav.php");?> 
+		<?php if ($current_page=="tracks") require_once("views/tracks_nav.php");?> 
+		<?php if ($current_page=="deliver") require_once("views/deliver_nav.php");?> 
+		<?php if ($current_page=="container") require_once("views/container_nav.php");?> 
 
 		
 
@@ -126,80 +188,127 @@
 				</div>
 			</li>
 			<li class="nav-item dropdown nav-notifications">
-				<a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<a class="nav-link dropdown-toggle" href="feedback" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<i data-feather="bell"></i>
+					<?php if ($feedback_count > 0): ?>
 					<div class="indicator">
 						<div class="circle"></div>
 					</div>
+					<?php endif; ?>
 				</a>
-				<div class="dropdown-menu" aria-labelledby="notificationDropdown">
+				<div class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 380px;">
 					<div class="dropdown-header d-flex align-items-center justify-content-between">
-						<p class="mb-0 font-weight-medium">6 New Notifications</p>
-						<a href="javascript:;" class="text-muted">Clear all</a>
+						<div class="d-flex align-items-center">
+							<i data-feather="bell" class="me-2"></i>
+							<p class="mb-0 font-weight-medium">Notification</p>
+						</div>
+						<?php if ($feedback_count > 0): ?>
+						<span class="badge badge-primary"><?php echo $feedback_count; ?> New</span>
+						<?php endif; ?>
 					</div>
-					<div class="dropdown-body">
-						<a href="javascript:;" class="dropdown-item">
-							<div class="icon">
-								<i data-feather="user-plus"></i>
+					<div class="dropdown-body" style="max-height: 400px; overflow-y: auto;">
+						<?php if ($feedback_count > 0 && count($recent_feedbacks) > 0): ?>
+							<?php foreach ($recent_feedbacks as $recent_feedback): ?>
+								<?php
+								$feedback_id = isset($recent_feedback["id"]) ? intval($recent_feedback["id"]) : 0;
+								$feedback_title = isset($recent_feedback["title"]) ? htmlspecialchars($recent_feedback["title"]) : '';
+								$feedback_content = isset($recent_feedback["content"]) ? htmlspecialchars($recent_feedback["content"]) : '';
+								$feedback_name = isset($recent_feedback["name"]) ? htmlspecialchars($recent_feedback["name"]) : '';
+								$feedback_email = isset($recent_feedback["email"]) ? htmlspecialchars($recent_feedback["email"]) : '';
+								$feedback_read = isset($recent_feedback["read"]) ? intval($recent_feedback["read"]) : 0;
+								$feedback_timestamp = isset($recent_feedback["timestamp"]) ? htmlspecialchars($recent_feedback["timestamp"]) : '';
+								$feedback_role = isset($recent_feedback["role"]) && !empty($recent_feedback["role"]) ? htmlspecialchars($recent_feedback["role"]) : "user";
+								
+								// Хугацааны тооцоо
+								$time_ago = '';
+								if ($feedback_timestamp) {
+									$timestamp = strtotime($feedback_timestamp);
+									$diff = time() - $timestamp;
+									if ($diff < 60) {
+										$time_ago = $diff . ' sec ago';
+									} elseif ($diff < 3600) {
+										$time_ago = floor($diff / 60) . ' min ago';
+									} elseif ($diff < 86400) {
+										$time_ago = floor($diff / 3600) . 'h ago';
+									} elseif ($diff < 604800) {
+										$days = floor($diff / 86400);
+										$time_ago = $days . ($days == 1 ? ' day ago' : ' days ago');
+									} else {
+										$time_ago = date('M d', $timestamp);
+									}
+								}
+								
+								// Нэрний эхний үсэг
+								$initials = mb_substr($feedback_name, 0, 1, 'UTF-8');
+								if (empty($initials) && !empty($feedback_email)) {
+									$initials = mb_substr($feedback_email, 0, 1, 'UTF-8');
+								}
+								if (empty($initials)) {
+									$initials = '?';
+								}
+								$initials = mb_strtoupper($initials, 'UTF-8');
+								
+								// Агуулгын богино хувилбар
+								$short_content = mb_substr($feedback_content, 0, 50, 'UTF-8');
+								if (mb_strlen($feedback_content, 'UTF-8') > 50) {
+									$short_content .= '...';
+								}
+								?>
+								<a href="feedback" class="dropdown-item d-flex align-items-start" style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">
+									<div class="figure me-3" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+										<span style="color: white; font-weight: bold; font-size: 16px;"><?php echo $initials; ?></span>
+									</div>
+									<div class="content flex-grow-1" style="min-width: 0;">
+										<div class="d-flex justify-content-between align-items-start mb-1">
+											<div style="flex-grow: 1;">
+												<p class="mb-0" style="font-size: 14px; font-weight: 500; color: #333; line-height: 1.4;">
+													<?php echo $feedback_title; ?>
+												</p>
+												<span class="badge badge-<?php echo $feedback_role == 'admin' ? 'danger' : 'primary'; ?>" style="font-size: 10px; margin-top: 4px;">
+													<?php echo strtoupper($feedback_role); ?>
+												</span>
+											</div>
+											<?php if ($feedback_read == 0): ?>
+											<span class="badge badge-primary" style="width: 8px; height: 8px; border-radius: 50%; background: #5e72e4; flex-shrink: 0; margin-left: 8px; margin-top: 4px;"></span>
+											<?php endif; ?>
+										</div>
+										<?php if (!empty($short_content)): ?>
+										<p class="mb-1" style="font-size: 13px; color: #666; line-height: 1.4;">
+											<?php echo $short_content; ?>
+										</p>
+										<?php endif; ?>
+										<p class="mb-0" style="font-size: 12px; color: #999;">
+											<?php echo $feedback_name; ?> · <?php echo $time_ago; ?>
+										</p>
+									</div>
+								</a>
+							<?php endforeach; ?>
+						<?php else: ?>
+							<div class="dropdown-item text-center" style="padding: 40px 20px;">
+								<i data-feather="check-circle" style="width: 48px; height: 48px; color: #ccc; margin-bottom: 12px;"></i>
+								<p class="mb-0" style="color: #999; font-size: 14px;">Шинэ зурвас байхгүй</p>
+								<p class="mb-0 mt-1" style="color: #ccc; font-size: 12px;">Бүх зурвас шийдвэрлэгдсэн</p>
 							</div>
-							<div class="content">
-								<p>New customer registered</p>
-								<p class="sub-text text-muted">2 sec ago</p>
-							</div>
-						</a>
-						<a href="javascript:;" class="dropdown-item">
-							<div class="icon">
-								<i data-feather="gift"></i>
-							</div>
-							<div class="content">
-								<p>New Order Recieved</p>
-								<p class="sub-text text-muted">30 min ago</p>
-							</div>
-						</a>
-						<a href="javascript:;" class="dropdown-item">
-							<div class="icon">
-								<i data-feather="alert-circle"></i>
-							</div>
-							<div class="content">
-								<p>Server Limit Reached!</p>
-								<p class="sub-text text-muted">1 hrs ago</p>
-							</div>
-						</a>
-						<a href="javascript:;" class="dropdown-item">
-							<div class="icon">
-								<i data-feather="layers"></i>
-							</div>
-							<div class="content">
-								<p>Apps are ready for update</p>
-								<p class="sub-text text-muted">5 hrs ago</p>
-							</div>
-						</a>
-						<a href="javascript:;" class="dropdown-item">
-							<div class="icon">
-								<i data-feather="download"></i>
-							</div>
-							<div class="content">
-								<p>Download completed</p>
-								<p class="sub-text text-muted">6 hrs ago</p>
-							</div>
-						</a>
+						<?php endif; ?>
 					</div>
-					<div class="dropdown-footer d-flex align-items-center justify-content-center">
-						<a href="javascript:;">View all</a>
+					<?php if ($feedback_count > 0): ?>
+					<div class="dropdown-footer d-flex align-items-center justify-content-center" style="padding: 12px; border-top: 1px solid #f0f0f0;">
+						<a href="feedback" style="color: #5e72e4; text-decoration: none; font-weight: 500; font-size: 14px;">View all notifications</a>
 					</div>
+					<?php endif; ?>
 				</div>
 			</li>
 			<li class="nav-item dropdown nav-profile">
 				<a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<img src="../<?=$logged_avatar;?>" alt="<?=$logged_name;?>">
+					<img src="../<?php echo htmlspecialchars($logged_avatar);?>" alt="<?php echo htmlspecialchars($logged_name);?>">
 				</a>
 				<div class="dropdown-menu" aria-labelledby="profileDropdown">
 					<div class="dropdown-header d-flex flex-column align-items-center">
 						<div class="figure mb-3">
-							<img src="../<?=$logged_avatar;?>" alt="">
+							<img src="../<?php echo $logged_avatar;?>" alt="">
 						</div>
 						<div class="info text-center">
-							<p class="name font-weight-bold mb-0"><?=$logged_name;?></p>
+							<p class="name font-weight-bold mb-0"><?php echo $logged_name;?></p>
 						</div>
 					</div>
 					<div class="dropdown-body">

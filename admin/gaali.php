@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-    <?  require_once("views/navbar.php"); ?>
+    <?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -20,9 +20,9 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
-          <?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";
+          $action_title = "Гаалийн API"; // Default value
           switch ($action)
           {
             case "dashboard": $action_title="Хянах самбар";break;
@@ -58,7 +58,7 @@
                 <nav class="page-breadcrumb">
                     <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="gaali">Гаалийн API</a></li>
-                    <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
                     </ol>
                 </nav>
 
@@ -72,7 +72,7 @@
             </div>
 
 
-            <?
+            <?php
                 if ($action =="dashboard")
                 {
                     
@@ -98,57 +98,63 @@
                     
 
                     </form>
-                    <?
+                    <?php
                 }
             
             
                 if ($action=="adding")
                 {
-                    $airbill=$_POST["airbill"];
-                    $is_container=$_POST["is_container"];
-                    if ($airbill!="")
+                    $airbill = isset($_POST["airbill"]) ? protect($_POST["airbill"]) : '';
+                    $is_container = isset($_POST["is_container"]) ? intval($_POST["is_container"]) : 0;
+                    if ($airbill != "")
                     {
-                      $result = mysqli_query($conn,"SELECT * FROM gaali WHERE airbill='$airbill'");
-                      if (mysqli_num_rows($result) == 0)
+                      $airbill_escaped = mysqli_real_escape_string($conn, $airbill);
+                      $result = mysqli_query($conn,"SELECT * FROM gaali WHERE airbill='$airbill_escaped'");
+                      if ($result && mysqli_num_rows($result) == 0)
                           {
-                            $sql = "INSERT INTO gaali (airbill,is_container) VALUES ('$airbill',$is_container)";
+                            $sql = "INSERT INTO gaali (airbill,is_container) VALUES ('$airbill_escaped',$is_container)";
                             if (mysqli_query($conn,$sql))
                                 {
-                                $gaali_id= mysqli_insert_id ($conn);
+                                $gaali_id = mysqli_insert_id ($conn);
                                 alert_div("Амжилттай нэмэгдлээ","success");
-                                echo '<a href="?action=fill&id='.$gaali_id.'" class="btn btn-primary btn-xs">AirBill-д ачаа оруулах</a>';
+                                echo '<a href="?action=fill&id='.intval($gaali_id).'" class="btn btn-primary btn-xs">AirBill-д ачаа оруулах</a>';
                                 }
                         }
                         else alert_div("AirBill давхцаж байж байна");
                     }
                     else alert_div("Хоосон утга байж болохгүй"); 
                     ?>
-                    <?                    
+                    <?php                    
                 }
 
                 if ($action=="rename")
                 {
                     if (isset($_GET["id"])) 
                     {
-                        $airbill_id = intval($_GET["id"]); 
-                        $sql = "SELECT *FROM gaali WHERE id='$airbill_id' LIMIT 1";
+                        $airbill_id = intval(protect($_GET["id"])); 
+                        $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                        $sql = "SELECT * FROM gaali WHERE id=" . $airbill_id_escaped . " LIMIT 1";
                         $result = mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)==1)
+                        if ($result && mysqli_num_rows($result) == 1)
                         {
                             $data = mysqli_fetch_array($result);
-                            $airbill_name = $data["airbill"];
+                            if (!$data) {
+                                alert_div("Airbill олдсонгүй");
+                            } else {
+                                $airbill_name = isset($data["airbill"]) ? htmlspecialchars($data["airbill"]) : '';
                             ?>
                             <form action="?action=renaming" method="POST">
-                                <input type="hidden" name="airbill_id" value="<?=$airbill_id;?>">
+                                <input type="hidden" name="airbill_id" value="<?php echo htmlspecialchars($airbill_id);?>">
                                 <table class='table table-hover'>
-                                    <tr><td> Air Bill:(*)</td><td><input type="text" class="form-control" name="airbill" value="<?=$airbill_name;?>" placeholder="Air Bill дугаар" required></td></tr>
+                                    <tr><td> Air Bill:(*)</td><td><input type="text" class="form-control" name="airbill" value="<?php echo $airbill_name;?>" placeholder="Air Bill дугаар" required></td></tr>
                                 </table>
 
                                 <button type="submit" class="btn btn-success" type="submit">Air Bill нэр засах</button>
                             
 
                             </form>
-                            <?
+                            <?php
+                            }
                         }
                         else 
                         alert_div("Airbill олдсонгүй");
@@ -160,30 +166,37 @@
             
                 if ($action=="renaming")
                 {
-                    $airbill_id=intval($_POST["airbill_id"]);
-                    $airbill=$_POST["airbill"];
+                    $airbill_id = isset($_POST["airbill_id"]) ? intval(protect($_POST["airbill_id"])) : 0;
+                    $airbill = isset($_POST["airbill"]) ? protect($_POST["airbill"]) : '';
 
                     
-                    if ($airbill!="")
+                    if ($airbill != "")
                     {
-                        $sql = "SELECT *FROM gaali WHERE id='$airbill_id' LIMIT 1";
+                        $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                        $sql = "SELECT * FROM gaali WHERE id=" . $airbill_id_escaped . " LIMIT 1";
                         $result = mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)==1)
+                        if ($result && mysqli_num_rows($result) == 1)
                         {
                             $data = mysqli_fetch_array($result);
-                            $old_airbill = $data["airbill"];
+                            if (!$data) {
+                                alert_div("Airbill олдсонгүй");
+                            } else {
+                                $old_airbill = isset($data["airbill"]) ? $data["airbill"] : '';
 
-                            $sql = "UPDATE gaali SET airbill='$airbill' WHERE id='$airbill_id' LIMIT 1";       
-                            if (mysqli_query($conn,$sql))                     
-                            {
-                                $sql = "UPDATE orders SET gaali_airbill='$airbill' WHERE gaali_airbill='$old_airbill'";
-                                // echo $sql;
-                                mysqli_query($conn,$sql);
+                                $airbill_escaped = mysqli_real_escape_string($conn, $airbill);
+                                $old_airbill_escaped = mysqli_real_escape_string($conn, $old_airbill);
+                                $sql = "UPDATE gaali SET airbill='$airbill_escaped' WHERE id=" . $airbill_id_escaped . " LIMIT 1";       
+                                if (mysqli_query($conn,$sql))                     
+                                {
+                                    $sql = "UPDATE orders SET gaali_airbill='$airbill_escaped' WHERE gaali_airbill='$old_airbill_escaped'";
+                                    // echo $sql;
+                                    mysqli_query($conn,$sql);
 
-                                alert_div("Амжилттай заслаа","success");
+                                    alert_div("Амжилттай заслаа","success");
+                                }
+                                else 
+                                alert_div("Airbill олдсонгүй");
                             }
-                            else 
-                            alert_div("Airbill олдсонгүй");
 
                         }
                         else 
@@ -191,7 +204,7 @@
                     }
                     else alert_div("Хоосон утга байж болохгүй"); 
                     ?>
-                    <?                    
+                    <?php                    
                 }
                  
                 if ($action =="list")
@@ -212,14 +225,15 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                                        <?php
                                             while ($data  = mysqli_fetch_array($result))
                                             { 
-                                                $airbill_id= $data["id"];
-                                                $airbill= $data["airbill"]; 
-                                                $count= $data["count"];
-                                                $created_date = $data["created_date"];
-                                                $is_active = $data["is_active"];
+                                                if (!$data) continue;
+                                                $airbill_id = isset($data["id"]) ? intval($data["id"]) : 0;
+                                                $airbill = isset($data["airbill"]) ? htmlspecialchars($data["airbill"]) : ''; 
+                                                $count = isset($data["count"]) ? intval($data["count"]) : 0;
+                                                $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                                $is_active = isset($data["is_active"]) ? intval($data["is_active"]) : 0;
                                                 // $status = $data["status"];
                                                 // $weight = $data["weight"];
 
@@ -231,13 +245,13 @@
                                                 echo "<td>".$created_date."</td>";                                           
                                                 echo "<td>";
                                                 echo "<div class='btn-group'>";
-                                                echo "<a href='?action=box&id=$airbill_id' class='btn btn-warning'>Box оруулах</a>";
-                                                echo "<a href='?action=fill&id=$airbill_id' class='btn btn-success'>ачаа оруулах</a>";
-                                                echo "<a href='?action=detail&id=$airbill_id' class='btn btn-primary'>дэлгэрэнгүй</a>";
-                                                echo "<a href='?action=status_change&id=$airbill_id' class='btn btn-danger'>";
+                                                echo "<a href='?action=box&id=".htmlspecialchars($airbill_id)."' class='btn btn-warning'>Box оруулах</a>";
+                                                echo "<a href='?action=fill&id=".htmlspecialchars($airbill_id)."' class='btn btn-success'>ачаа оруулах</a>";
+                                                echo "<a href='?action=detail&id=".htmlspecialchars($airbill_id)."' class='btn btn-primary'>дэлгэрэнгүй</a>";
+                                                echo "<a href='?action=status_change&id=".htmlspecialchars($airbill_id)."' class='btn btn-danger'>";
                                                 echo $is_active?'Идвэхигүй болгох':'Идэвхитэй болгох';
                                                 echo "</a>";
-                                                echo "<a href='?action=excel_specific&id=$airbill_id' class='btn btn-secondary'>Excel болгох</a>";
+                                                echo "<a href='?action=excel_specific&id=".htmlspecialchars($airbill_id)."' class='btn btn-secondary'>Excel болгох</a>";
                                                 echo "</div>";
                                                 echo "</td>"; 
                                                 echo "</tr>";
@@ -246,7 +260,7 @@
                                     </tbody>
                                 </table>
                             </form>
-                            <?
+                            <?php
                     }
                     else echo '<div class="alert alert-danger" role="alert">No airbilles</div>';    
                 }
@@ -256,112 +270,119 @@
                 {
                     if (isset($_GET["id"])) 
                     {
-                        $airbill_id = intval($_GET["id"]);
+                        $airbill_id = intval(protect($_GET["id"]));
                         // $total_weight=0;
-                        $query1 = mysqli_query($conn,"SELECT * FROM gaali WHERE id=".$airbill_id);
-                        $query2=mysqli_query($conn,"SELECT * FROM gaali_items WHERE airbill_id='".$airbill_id."' ORDER BY cust_name");
-                        if (mysqli_num_rows($query1)==1)
+                        $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                        $query1 = mysqli_query($conn,"SELECT * FROM gaali WHERE id=".$airbill_id_escaped);
+                        $query2 = mysqli_query($conn,"SELECT * FROM gaali_items WHERE airbill_id=".$airbill_id_escaped." ORDER BY cust_name");
+                        if ($query1 && mysqli_num_rows($query1) == 1)
                         {
                             $data1 = mysqli_fetch_array($query1);
-                            $airbill_name= 	$data1["airbill"];
-                            $count= $data1["count"];
-                            $created_date= $data1["created_date"];
-                            $is_active= $data1["is_active"];
-                            
-                            echo "<b>".$airbill_name."</b> <a href='?action=rename&id=".$airbill_id."' class='btn btn-warning btn-sm ml-3 '>Нэр засах</a><br>";
-                            echo "Үүсгэсэн огноо:".$created_date."<br>";
-                            echo "Тоо:".$count."<br>";
-                            echo "Төлөв:"; echo $is_active?'Идэвхитэй':'Идэвхигүй'; echo "<br>";
-                            echo '<a href="?action=clear&id='.$airbill_id.'" class="btn btn-danger mb-3">Ачааг бүгдийг гаргах</a>';
-                         
-                            if (mysqli_num_rows($query2) > 0)
-                            {	 
-                                    echo "<table class='table table-hover table-striped w-100 table-responsive'>";
-                                    echo "<tr>";
-                                    echo "<th></th>"; 
-                                    echo "<th>Barcode</th>"; 
-                                    echo "<th width='250'>Хүлээн авагч</th>"; 
-                                    echo "<th>Утас</th>"; 
-                                    echo "<th>Ачаа</th>"; 
-                                    echo "<th>Тоо</th>"; 
-                                    echo "<th>Жин</th>"; 
-                                    echo "<th>Үнэ</th>"; 
-                                    echo "<th>Төлбөр</th>"; 
-                                    echo "<th>Үйлдэл</th>"; 
-                                    echo "</tr>";
-                                    $count=1;
-                                    while ($data2 = mysqli_fetch_array($query2))
-                                        { 
-                                            $barcode=$data2["barcode"];
-                                            // $barcodes=$data2["barcodes"];
-                                            $order_id=$data2["order_id"];
-                                            $weight=$data2["weight"];
-                                            $cust_id=$data2["cust_id"];
-                                            $cust_name=$data2["cust_name"];
-                                            $cust_rd=$data2["cust_rd"];
-                                            $cust_tel=$data2["cust_tel"];
-                                            $cust_address=$data2["cust_address"];
+                            if (!$data1) {
+                                alert_div("AirBill-id олдсонгүй");
+                            } else {
+                                $airbill_name = isset($data1["airbill"]) ? htmlspecialchars($data1["airbill"]) : '';
+                                $count = isset($data1["count"]) ? intval($data1["count"]) : 0;
+                                $created_date = isset($data1["created_date"]) ? htmlspecialchars($data1["created_date"]) : '';
+                                $is_active = isset($data1["is_active"]) ? intval($data1["is_active"]) : 0;
+                                
+                                echo "<b>".$airbill_name."</b> <a href='?action=rename&id=".htmlspecialchars($airbill_id)."' class='btn btn-warning btn-sm ml-3 '>Нэр засах</a><br>";
+                                echo "Үүсгэсэн огноо:".$created_date."<br>";
+                                echo "Тоо:".$count."<br>";
+                                echo "Төлөв:"; echo $is_active?'Идэвхитэй':'Идэвхигүй'; echo "<br>";
+                                echo '<a href="?action=clear&id='.htmlspecialchars($airbill_id).'" class="btn btn-danger mb-3">Ачааг бүгдийг гаргах</a>';
+                             
+                                if ($query2 && mysqli_num_rows($query2) > 0)
+                                {	 
+                                        echo "<table class='table table-hover table-striped w-100 table-responsive'>";
+                                        echo "<tr>";
+                                        echo "<th></th>"; 
+                                        echo "<th>Barcode</th>"; 
+                                        echo "<th width='250'>Хүлээн авагч</th>"; 
+                                        echo "<th>Утас</th>"; 
+                                        echo "<th>Ачаа</th>"; 
+                                        echo "<th>Тоо</th>"; 
+                                        echo "<th>Жин</th>"; 
+                                        echo "<th>Үнэ</th>"; 
+                                        echo "<th>Төлбөр</th>"; 
+                                        echo "<th>Үйлдэл</th>"; 
+                                        echo "</tr>";
+                                        $count=1;
+                                        while ($data2 = mysqli_fetch_array($query2))
+                                            { 
+                                                if (!$data2) continue;
+                                                $barcode = isset($data2["barcode"]) ? htmlspecialchars($data2["barcode"]) : '';
+                                                // $barcodes=$data2["barcodes"];
+                                                $order_id = isset($data2["order_id"]) ? intval($data2["order_id"]) : 0;
+                                                $weight = isset($data2["weight"]) ? htmlspecialchars($data2["weight"]) : '';
+                                                $cust_id = isset($data2["cust_id"]) ? intval($data2["cust_id"]) : 0;
+                                                $cust_name = isset($data2["cust_name"]) ? htmlspecialchars($data2["cust_name"]) : '';
+                                                $cust_rd = isset($data2["cust_rd"]) ? htmlspecialchars($data2["cust_rd"]) : '';
+                                                $cust_tel = isset($data2["cust_tel"]) ? htmlspecialchars($data2["cust_tel"]) : '';
+                                                $cust_address = isset($data2["cust_address"]) ? htmlspecialchars($data2["cust_address"]) : '';
 
-                                            // $proxy_id=$data2["proxy_id"];
-                                            $numb=$data2["numb"];
-                                            $package_name=$data2["package_name"];
-                                            $price=floatval($data2["price"]);
-                                            $fee=floatval($data2["fee"]);
-                                            $is_flag=$data2["is_flag"];
-                                            
-                                            echo "<tr class='";
-                                            echo ($is_flag=="1")?'bg-danger':'';
-                                            echo "'>";
-                                            echo "<td>".$count++."</td>";
-                                            echo "<td>".barcode_comfort($barcode)."</td>";
-                                            
-                                            // if ($combined==0)
-                                            // {
-                                            // $result_order = mysqli_query($conn,"SELECT * FROM orders WHERE order_id=".$order_id);
-                                            // if (mysqli_num_rows($result_order)==1)
-                                            //     {
-                                            //         $row_order=mysqli_fetch_array($result_order);
-                                            //     // $status=$result_order->status;
-                                            //         $receiver = $row_order["receiver"];
-                                            //         $proxy= $row_order["proxy_id"];
-                                            //         $proxy_type= $row_order["proxy_type"];
-                                            //     }
-                                            //     else $proxy="";
-                                            // }
-                                            // if ($combined==1)
-                                            // {
-                                            // $result_combine = mysqli_query($conn,"SELECT * FROM airbill_combine WHERE barcode='".$barcode."'");
-                                            // if (mysqli_num_rows($result_combine)==1)
-                                            //     {
-                                            //         $combine_row=mysqli_fetch_array($result_combine);
-                                            //     // $status=$combine_data["status;
-                                            //         $receiver = $combine_row["receiver"];
-                                            //         $proxy= $combine_row["proxy_id"];
-                                            //         $proxy_type= $combine_row["proxy_type"];
-                                            //     }
-                                            //     else $proxy="";
-                                            //     }
-                                            echo "<td width='250' class='text-wrap'>".$cust_name."<br><i class='text-primary'>".$cust_rd."</i><br><i class='text-danger'>".$cust_address."</i></td>";
-                                            echo "<td>$cust_tel</td>";
-                                            echo "<td width='300' class='text-wrap'>".mysqli_escape_string($conn,$package_name)."</td>";
-                                            echo "<td>".$numb."</td>";
-                                            echo "<td>".$weight."</td>";
-                                            echo "<td>".number_format($price,2)."$</td>";
-                                            echo "<td>".number_format($fee,2)."$</td>";
-                                            echo "<td>";
-                                            echo "<div class='btn-group'>";
-                                            echo "<a href='?action=item_edit&id=$airbill_id&barcode=$barcode' class='btn btn-success btn-xs'>засах</a>";
-                                            echo "<a href='?action=removing&id=$airbill_id&barcode=$barcode' class='btn btn-danger btn-xs'>гаргах</a>";
-                                            echo "</div>";
-                                            echo "</td>";
-                                            echo "</tr>";
-                                        }
-                                echo "</table>";
+                                                // $proxy_id=$data2["proxy_id"];
+                                                $numb = isset($data2["numb"]) ? intval($data2["numb"]) : 0;
+                                                $package_name = isset($data2["package_name"]) ? htmlspecialchars($data2["package_name"]) : '';
+                                                $price = isset($data2["price"]) ? floatval($data2["price"]) : 0;
+                                                $fee = isset($data2["fee"]) ? floatval($data2["fee"]) : 0;
+                                                $is_flag = isset($data2["is_flag"]) ? intval($data2["is_flag"]) : 0;
+                                                
+                                                echo "<tr class='";
+                                                echo ($is_flag==1)?'bg-danger':'';
+                                                echo "'>";
+                                                echo "<td>".$count++."</td>";
+                                                echo "<td>".barcode_comfort($barcode)."</td>";
+                                                
+                                                // if ($combined==0)
+                                                // {
+                                                // $result_order = mysqli_query($conn,"SELECT * FROM orders WHERE order_id=".$order_id);
+                                                // if (mysqli_num_rows($result_order)==1)
+                                                //     {
+                                                //         $row_order=mysqli_fetch_array($result_order);
+                                                //     // $status=$result_order->status;
+                                                //         $receiver = $row_order["receiver"];
+                                                //         $proxy= $row_order["proxy_id"];
+                                                //         $proxy_type= $row_order["proxy_type"];
+                                                //     }
+                                                //     else $proxy="";
+                                                // }
+                                                // if ($combined==1)
+                                                // {
+                                                // $result_combine = mysqli_query($conn,"SELECT * FROM airbill_combine WHERE barcode='".$barcode."'");
+                                                // if (mysqli_num_rows($result_combine)==1)
+                                                //     {
+                                                //         $combine_row=mysqli_fetch_array($result_combine);
+                                                //     // $status=$combine_data["status;
+                                                //         $receiver = $combine_row["receiver"];
+                                                //         $proxy= $combine_row["proxy_id"];
+                                                //         $proxy_type= $combine_row["proxy_type"];
+                                                //     }
+                                                //     else $proxy="";
+                                                //     }
+                                                echo "<td width='250' class='text-wrap'>".$cust_name."<br><i class='text-primary'>".$cust_rd."</i><br><i class='text-danger'>".$cust_address."</i></td>";
+                                                echo "<td>".$cust_tel."</td>";
+                                                echo "<td width='300' class='text-wrap'>".$package_name."</td>";
+                                                echo "<td>".$numb."</td>";
+                                                echo "<td>".$weight."</td>";
+                                                echo "<td>".number_format($price,2)."$</td>";
+                                                echo "<td>".number_format($fee,2)."$</td>";
+                                                echo "<td>";
+                                                echo "<div class='btn-group'>";
+                                                echo "<a href='?action=item_edit&id=".htmlspecialchars($airbill_id)."&barcode=".htmlspecialchars($barcode)."' class='btn btn-success btn-xs'>засах</a>";
+                                                echo "<a href='?action=removing&id=".htmlspecialchars($airbill_id)."&barcode=".htmlspecialchars($barcode)."' class='btn btn-danger btn-xs'>гаргах</a>";
+                                                echo "</div>";
+                                                echo "</td>";
+                                                echo "</tr>";
+                                            }
+                                    echo "</table>";
 
-                                // echo "Нийт ачааны тоо:".$boxes_packages."&nbsp;&nbsp;&nbsp;Нийт жин:".$total_weight." Кg<br>";
+                                    // echo "Нийт ачааны тоо:".$boxes_packages."&nbsp;&nbsp;&nbsp;Нийт жин:".$total_weight." Кg<br>";
+                                }
+                                else alert_div("AirBill-д ачаа байхгүй");
                             }
-                            else alert_div("AirBill-д ачаа байхгүй");
                         }
+                        else alert_div("AirBill-id олдсонгүй");
                     }
                     else alert_div("AirBill-id олдсонгүй");
                 }
@@ -386,14 +407,15 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                                        <?php
                                             while ($data  = mysqli_fetch_array($result))
                                             { 
-                                                $airbill_id= $data["id"];
-                                                $airbill= $data["airbill"]; 
-                                                $count= $data["count"];
-                                                $created_date = $data["created_date"];
-                                                $is_active = $data["is_active"];
+                                                if (!$data) continue;
+                                                $airbill_id = isset($data["id"]) ? intval($data["id"]) : 0;
+                                                $airbill = isset($data["airbill"]) ? htmlspecialchars($data["airbill"]) : ''; 
+                                                $count = isset($data["count"]) ? intval($data["count"]) : 0;
+                                                $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                                $is_active = isset($data["is_active"]) ? intval($data["is_active"]) : 0;
                                                 // $status = $data["status"];
                                                 // $weight = $data["weight"];
 
@@ -405,13 +427,13 @@
                                                 echo "<td>".$created_date."</td>";                                           
                                                 echo "<td>";
                                                 echo "<div class='btn-group'>";
-                                                echo "<a href='?action=container_import&id=$airbill_id' class='btn btn-warning'>Чингэлэг оруулах</a>";
+                                                echo "<a href='?action=container_import&id=".htmlspecialchars($airbill_id)."' class='btn btn-warning'>Чингэлэг оруулах</a>";
                                                 // echo "<a href='?action=fill&id=$airbill_id' class='btn btn-success'>ачаа оруулах</a>";
-                                                echo "<a href='?action=container_detail&id=$airbill_id' class='btn btn-primary'>дэлгэрэнгүй</a>";
-                                                echo "<a href='?action=status_change&id=$airbill_id' class='btn btn-danger'>";
+                                                echo "<a href='?action=container_detail&id=".htmlspecialchars($airbill_id)."' class='btn btn-primary'>дэлгэрэнгүй</a>";
+                                                echo "<a href='?action=status_change&id=".htmlspecialchars($airbill_id)."' class='btn btn-danger'>";
                                                 echo $is_active?'Идвэхигүй болгох':'Идэвхитэй болгох';
                                                 echo "</a>";
-                                                echo "<a href='?action=excel_specific&id=$airbill_id' class='btn btn-secondary'>Excel болгох</a>";
+                                                echo "<a href='?action=excel_specific&id=".htmlspecialchars($airbill_id)."' class='btn btn-secondary'>Excel болгох</a>";
                                                 echo "</div>";
                                                 echo "</td>"; 
                                                 echo "</tr>";
@@ -420,7 +442,7 @@
                                     </tbody>
                                 </table>
                             </form>
-                            <?
+                            <?php
                     }
                     else alert_div("No ground airbill");
                 }
@@ -552,22 +574,23 @@
                         $airbill_id = intval($_GET["id"]);
                         ?>
                         <form action="?action=filling" method="POST">
-                            <input type="hidden" name="airbill_id" value="<?=$airbill_id;?>">                            
+                            <input type="hidden" name="airbill_id" value="<?php echo htmlspecialchars($airbill_id);?>">                            
                             <h4 class="legend">Barcode</h4>
                             <input type="text" name="barcode" value="" class="form-control" placeholder="GO15101588MN">
                             
-                            <?
+                            <?php
                             if (isset($_GET["message"]))            
                             {
+                                $message = isset($_GET["message"]) ? htmlspecialchars($_GET["message"]) : '';
                                 ?>
-                                <div class="alert <?=($_GET["message"]=="ok")?'alert-success':'alert-danger';?>"><?=$_GET["message"];?></div>
-                                <?
+                                <div class="alert <?php echo ($message=="ok")?'alert-success':'alert-danger';?>"><?php echo $message;?></div>
+                                <?php
                             }                 
                             ?>
 
                             <button type="submit" class="btn btn-success">Оруулах</button>
                         </form>
-                        <?
+                        <?php
                     }
                     else echo '<div class="alert alert-danger" role="alert">Хоосон утга байж болохгүй.</div>';
                 }
@@ -577,12 +600,16 @@
                     if (isset($_POST["airbill_id"])) $airbill_id = $_POST["airbill_id"];  else $airbill_id=0;
                     if (isset($_POST["barcode"])) $barcode = strtoupper($_POST["barcode"]); else $barcode="";
 
-                    $sql = "SELECT *FROM gaali WHERE id ='$airbill_id' LIMIT 1";
+                    $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                    $sql = "SELECT * FROM gaali WHERE id =".$airbill_id_escaped." LIMIT 1";
                     $result = mysqli_query($conn,$sql);
-                    if (mysqli_num_rows($result)==1)
+                    if ($result && mysqli_num_rows($result)==1)
                     {
                         $data = mysqli_fetch_array($result);
-                        $airbill = $data["airbill"];
+                        if (!$data) {
+                            alert_div("Airbill олдсонгүй");
+                        } else {
+                            $airbill = isset($data["airbill"]) ? $data["airbill"] : '';
                         $combined=0;
                         $order_id=0;
                         $weight=0;
@@ -626,8 +653,8 @@
                             $gaali_airbill= $data["gaali_airbill"];
                             $package= $data["package"];
                             $package_single_array=explode("##",$package);
-                            $package_name = mysqli_escape_string($conn,$package_single_array[0]);
-                            $numb = intval($package_single_array[1]);
+                            $package_name = isset($package_single_array[0]) ? mysqli_real_escape_string($conn,$package_single_array[0]) : '';
+                            $numb = isset($package_single_array[1]) ? intval($package_single_array[1]) : 1;
                             if ($numb<1) $numb=1;
                             
                             $sql = "SELECT * FROM gaali_items WHERE order_id='$order_id'";
@@ -736,7 +763,7 @@
                                 
                                 alert_div("Ачааг Airbill -д Нэгтгэсэн ачаа орууллаа","success");
                             }
-                        
+                        }
                     }                  
                     else 
                     alert_div("Airbill дугаар олдсонгүй");
@@ -882,7 +909,7 @@
                         {
                         ?>
                         <form action="?action=boxing" method="post">
-                            <input type="hidden" name="airbill_id" value="<?=$airbill_id;?>">
+                            <input type="hidden" name="airbill_id" value="<?php echo htmlspecialchars($airbill_id);?>">
                             <table class='table table-hover'>
                             <thead>
                                 <tr>
@@ -897,31 +924,32 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?     
+                                <?php     
                                 $count_box=1;
                                 while ($data = mysqli_fetch_array($result))
                                 {
-                                    $box_id= $data["box_id"];
-                                    $name= $data["name"];
-                                    $created_date =$data["created_date"];
-                                    $status= $data["status"];
-                                    $weight=$data["weight"];
+                                    if (!$data) continue;
+                                    $box_id = isset($data["box_id"]) ? intval($data["box_id"]) : 0;
+                                    $name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                                    $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                    $status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
+                                    $weight = isset($data["weight"]) ? floatval($data["weight"]) : 0;
                                         //$packages=box_inside($box_id,"packages");
-                                    $packages=$data["packages"];
+                                    $packages = isset($data["packages"]) ? intval($data["packages"]) : 0;
                                 
                                     ?>
                                     <tr>
-                                        <td><input type="checkbox" name="boxes[]" value="<?=$box_id;?>"></td>
-                                        <td><?=$count_box;?></td>
-                                        <td><a href="boxes?action=detail&id=<?=$box_id;?>"><?=$name;?></td>
-                                        <td><?=$packages;?></td>
-                                        <td><?=substr($created_date,0,10);?></td>
-                                        <td><?=$status;?></td>
-                                        <td><?=$weight;?>Kg</td>
-                                        <td><a href="?action=detail&id=<?=$box_id;?>">edit</td>
+                                        <td><input type="checkbox" name="boxes[]" value="<?php echo htmlspecialchars($box_id);?>"></td>
+                                        <td><?php echo $count_box;?></td>
+                                        <td><a href="boxes?action=detail&id=<?php echo htmlspecialchars($box_id);?>"><?php echo $name;?></a></td>
+                                        <td><?php echo $packages;?></td>
+                                        <td><?php echo htmlspecialchars(substr($created_date,0,10));?></td>
+                                        <td><?php echo $status;?></td>
+                                        <td><?php echo $weight;?>Kg</td>
+                                        <td><a href="?action=detail&id=<?php echo htmlspecialchars($box_id);?>">edit</a></td>
                                     </tr>
             
-                                    <?
+                                    <?php
                                     $cumulative_packages+=$packages;
                                     $cumulative_weight+=$weight;
                                     
@@ -929,13 +957,13 @@
                                 }
                                 ?>
                             </tbody>
-                            <tfooter><tr><td></td><td colspan='2'>Нийт</td><td><?=$cumulative_packages;?></td><td></td><td></td><td><?=$cumulative_weight;?></td><td></td></tr></tfooter>
+                            <tfoot><tr><td></td><td colspan='2'>Нийт</td><td><?php echo htmlspecialchars($cumulative_packages ?? 0);?></td><td></td><td></td><td><?php echo htmlspecialchars($cumulative_weight ?? 0);?></td><td></td></tr></tfoot>
                             </table>
                             
                             <button class="btn btn-warning" type="submit">AirBill-д оруулах</button>
             
                         </form>
-                        <?
+                        <?php
                         }
                         else echo  alert_div('No boxes');
                     }
@@ -950,7 +978,7 @@
                     ?>
                         <div class="card">
                             <div class="card-body">
-                                <? 
+                                <?php 
                                 // $options=$_POST["options"];
 
                                 // switch ($options)
@@ -965,7 +993,8 @@
                                 if(isset($_POST['boxes_id'])) {$boxes_id=$_POST['boxes_id'];$N = 1;}
                                 else {$N = count($boxes); $boxes_id="";}
 
-                                $sql = "SELECT *FROM gaali WHERE id ='$airbill_id' LIMIT 1";
+                                $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                                $sql = "SELECT * FROM gaali WHERE id =".$airbill_id_escaped." LIMIT 1";
                                 $result = mysqli_query($conn,$sql);
                                 if (mysqli_num_rows($result)==1)
                                 {
@@ -1023,21 +1052,24 @@
                                                 
                                                                             $sender_id=$data["sender"];
                                                                             $sender_name=customer($sender_id,"full_name");
-                                                                            $sender_address=mysqli_escape_string($conn,customer($sender_id,"address"));
+                                                                            $sender_address_temp = customer($sender_id,"address");
+                                                                            $sender_address = $sender_address_temp ? mysqli_real_escape_string($conn,$sender_address_temp) : '';
                                                 
                                                 
                                                                             $cust_id=$data["receiver"];
                                                                             $cust_name=customer($cust_id,"full_name");
                                                                             $cust_rd=customer($cust_id,"rd");
                                                                             $cust_tel=customer($cust_id,"tel");
-                                                                            $cust_address=mysqli_escape_string($conn,customer($cust_id,"address"));
+                                                                            $cust_address_temp = customer($cust_id,"address");
+                                                                            $cust_address = $cust_address_temp ? mysqli_real_escape_string($conn,$cust_address_temp) : '';
                                                 
                                                                             $proxy_id=$data["proxy_id"];
                                                                             $proxy_type=intval($data["proxy_type"]);
                                                 
                                                                             $proxy_name=proxy2($proxy_id,$proxy_type,"full_name");
                                                                             $proxy_tel=proxy2($proxy_id,$proxy_type,"tel");
-                                                                            $proxy_address=mysqli_escape_string($conn,proxy2($proxy_id,$proxy_type,"address"));
+                                                                            $proxy_address_temp = proxy2($proxy_id,$proxy_type,"address");
+                                                                            $proxy_address = $proxy_address_temp ? mysqli_real_escape_string($conn,$proxy_address_temp) : '';
                                                 
                                                 
                                                                             if ($proxy_name<>"") 
@@ -1050,8 +1082,8 @@
                                                                             $gaali_airbill= $data["gaali_airbill"];
                                                                             $package= $data["package"];
                                                                             $package_single_array=explode("##",$package);
-                                                                            $package_name = mysqli_escape_string($conn,$package_single_array[0]);
-                                                                            $numb = mysqli_escape_string($conn,$package_single_array[1]);
+                                                                            $package_name = isset($package_single_array[0]) ? mysqli_real_escape_string($conn,$package_single_array[0]) : '';
+                                                                            $numb = isset($package_single_array[1]) ? intval($package_single_array[1]) : 1;
                                                 
                                                                             $sql = "SELECT * FROM gaali_items WHERE order_id='$order_id' AND is_container=0";
                                                                             // echo $sql;
@@ -1180,7 +1212,7 @@
                             ?>
                             </div>
                         </div>
-                    <?
+                    <?php
                 }
 
                 
@@ -1200,7 +1232,7 @@
                         {
                         ?>
                         <form action="?action=container_importing" method="post">
-                            <input type="hidden" name="airbill_id" value="<?=$airbill_id;?>">
+                            <input type="hidden" name="airbill_id" value="<?php echo htmlspecialchars($airbill_id);?>">
                             <table class='table table-hover' id="boxes_table">
                             <thead>
                                 <tr>
@@ -1213,29 +1245,34 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?     
+                                <?php     
                                 $count_box=1;
                                 while ($data = mysqli_fetch_array($result))
                                 {
-                                    $container_id= $data["container_id"];
-                                    $name= $data["name"];
-                                    $created_date =$data["created"];
-                                    $status= $data["status"];
+                                    if (!$data) continue;
+                                    $container_id = isset($data["container_id"]) ? intval($data["container_id"]) : 0;
+                                    $name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                                    $created_date = isset($data["created"]) ? htmlspecialchars($data["created"]) : '';
+                                    $status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
                                     // $weight=$data["weight"];
                                     //     //$packages=box_inside($box_id,"packages");
                                     // $packages=$data["packages"];
                                 
                                     ?>
                                     <tr>
-                                        <td><input type="checkbox" name="containers[]" value="<?=$container_id;?>"></td>
-                                        <td><?=$count_box;?></td>
-                                        <td><a href="container?action=detail&id=<?=$container_id;?>"><?=$name;?></td>
-                                        <td><?=mysqli_num_rows(mysqli_query($conn,"SELECT id FROM container_item WHERE container='$container_id'"));?>ш</td>
-                                        <td><?=substr($created_date,0,10);?></td>
-                                        <td><?=$status;?></td>
+                                        <td><input type="checkbox" name="containers[]" value="<?php echo htmlspecialchars($container_id);?>"></td>
+                                        <td><?php echo $count_box;?></td>
+                                        <td><a href="container?action=detail&id=<?php echo htmlspecialchars($container_id);?>"><?php echo $name;?></a></td>
+                                        <td><?php 
+                                            $container_id_escaped = mysqli_real_escape_string($conn, $container_id);
+                                            $count_result = mysqli_query($conn,"SELECT id FROM container_item WHERE container=".$container_id_escaped);
+                                            echo ($count_result ? mysqli_num_rows($count_result) : 0);
+                                        ?>ш</td>
+                                        <td><?php echo htmlspecialchars(substr($created_date,0,10));?></td>
+                                        <td><?php echo $status;?></td>
                                     </tr>
             
-                                    <?
+                                    <?php
                                     // $cumulative_packages+=$packages;
                                     // $cumulative_weight+=$weight;
                                     
@@ -1248,7 +1285,7 @@
                             <button class="btn btn-warning" type="submit">AirBill-д оруулах</button>
             
                         </form>
-                        <?
+                        <?php
                         }
                         else echo  alert_div('No boxes');
                     }
@@ -1263,7 +1300,7 @@
                     ?>
                         <div class="card">
                             <div class="card-body">
-                                <? 
+                                <?php 
                                 // $options=$_POST["options"];
 
                                 // switch ($options)
@@ -1278,7 +1315,8 @@
                                 // if(isset($_GET['container_id'])) {$container_id=$_GET['container_id'];$N = 1;}
                                 else {$N = count($containers); $container_id="";}
 
-                                $sql = "SELECT *FROM gaali WHERE id ='$airbill_id' LIMIT 1";
+                                $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                                $sql = "SELECT * FROM gaali WHERE id =".$airbill_id_escaped." LIMIT 1";
                                 $result = mysqli_query($conn,$sql);
                                 if (mysqli_num_rows($result)==1)
                                 {
@@ -1397,13 +1435,16 @@
                             ?>
                             </div>
                         </div>
-                    <?
+                    <?php
                 }
                 
                 
                 if ($action == "excel")
                 {
-                    require_once('assets/vendors/PHP_XLSXWriter/xlsxwriter.class.php');
+                    if (!class_exists('ZipArchive')) {
+                        alert_div("ZipArchive extension идэвхгүй байна. XAMPP-д php.ini файлд 'extension=zip' мөрийг uncomment хийж, Apache-г дахин эхлүүлнэ үү.", "danger");
+                    } else {
+                        require_once('assets/vendors/PHP_XLSXWriter/xlsxwriter.class.php');
       
 
                     $query1 = mysqli_query($conn,"SELECT * FROM gaali ORDER BY id DESC LIMIT 1");
@@ -1469,6 +1510,7 @@
                         alert_div("Excel шинэчиллээ ".$count."-н бичиглэлтэй","success");
                     }
                     else alert_div("Airbill олдсонгүй");
+                    }
                 }
 
                 
@@ -1556,10 +1598,10 @@
                                 <button type="submit" class="btn btn-success mt-3">Хадгалах</button>
                             </div>
                             </div>
-                        </form>
-                        <?
+                            </form>
+                        <?php
                     } 
-                    else    
+                    else
                     {
                         if (mysqli_num_rows($result) > 1)              
                         {
@@ -1640,7 +1682,7 @@
                                 </div>
                                 </div>
                             </form>
-                            <?
+                            <?php
     
                         }
                         else 
@@ -1671,7 +1713,7 @@
                         $cust_address = $_POST["cust_address"];
 
 
-                        $package_name = mysqli_escape_string($conn,$_POST["package_name"]);
+                        $package_name = isset($_POST["package_name"]) ? mysqli_real_escape_string($conn,protect($_POST["package_name"])) : '';
                         $weight = $_POST["weight"];
                         $price = $_POST["price"];
                         $fee = $_POST["fee"];
@@ -1708,23 +1750,25 @@
 
                 if ($action=="status_change")
                 {
-                    if (isset($_GET["id"])) $airbill_id = $_GET["id"];  else $airbill_id=0;                    
-
-                    $sql = "SELECT *FROM gaali WHERE id ='$airbill_id' LIMIT 1";
+                    if (isset($_GET["id"])) $airbill_id = intval(protect($_GET["id"]));  else $airbill_id=0;                    
+                    $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                    $sql = "SELECT * FROM gaali WHERE id =".$airbill_id_escaped." LIMIT 1";
                     $result = mysqli_query($conn,$sql);
-                    if (mysqli_num_rows($result)==1)
+                    if ($result && mysqli_num_rows($result)==1)
                     {
                         $data = mysqli_fetch_array($result);
-                        $is_active = $data["is_active"];
+                        if (!$data) {
+                            alert_div("Airbill олдсонгүй");
+                        } else {
+                            $is_active = isset($data["is_active"]) ? intval($data["is_active"]) : 0;
                         if ($is_active==0) $is_active=1; else $is_active=0;
                         
 
                         $sql = "UPDATE gaali SET is_active=$is_active WHERE id='$airbill_id'";
                         mysqli_query($conn,$sql);
 
-                        alert_div("Airbill төлөв өөрчиллөө","success");
-                            
-                        
+                            alert_div("Airbill төлөв өөрчиллөө","success");
+                        }
                     }                  
                     else 
                     alert_div("Airbill дугаар олдсонгүй");
@@ -1733,30 +1777,32 @@
 
                 if ($action=="clear")
                 {
-                    if (isset($_GET["id"])) $airbill_id = $_GET["id"];  else $airbill_id=0;                    
-
-                    $sql = "SELECT *FROM gaali WHERE id ='$airbill_id' LIMIT 1";
+                    if (isset($_GET["id"])) $airbill_id = intval(protect($_GET["id"]));  else $airbill_id=0;                    
+                    $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                    $sql = "SELECT * FROM gaali WHERE id =".$airbill_id_escaped." LIMIT 1";
                     $result = mysqli_query($conn,$sql);
-                    if (mysqli_num_rows($result)==1)
+                    if ($result && mysqli_num_rows($result)==1)
                     {
                         $data = mysqli_fetch_array($result);
-                        $airbill_name = $data["airbill"];
+                        if (!$data) {
+                            alert_div("Airbill олдсонгүй");
+                        } else {
+                            $airbill_name = isset($data["airbill"]) ? $data["airbill"] : '';
 
-                        // if ($is_active==0) $is_active=1; else $is_active=0;
-                        
-
-                        $sql = "DELETE FROM gaali_items WHERE airbill_id='$airbill_id'";
-                        mysqli_query($conn,$sql);
-
-                        $sql = "UPDATE orders SET gaali_airbill=NULL WHERE gaali_airbill='$airbill_name'";
-                        mysqli_query($conn,$sql);
-
-                        $sql = "UPDATE gaali SET is_active=0,count=0 WHERE id='$airbill_id'";
-                        mysqli_query($conn,$sql);
-
-                        alert_div("Airbill цэвэрлэлээ","success");
+                            // if ($is_active==0) $is_active=1; else $is_active=0;
                             
-                        
+
+                            $sql = "DELETE FROM gaali_items WHERE airbill_id='$airbill_id'";
+                            mysqli_query($conn,$sql);
+
+                            $sql = "UPDATE orders SET gaali_airbill=NULL WHERE gaali_airbill='$airbill_name'";
+                            mysqli_query($conn,$sql);
+
+                            $sql = "UPDATE gaali SET is_active=0,count=0 WHERE id='$airbill_id'";
+                            mysqli_query($conn,$sql);
+
+                            alert_div("Airbill цэвэрлэлээ","success");
+                        }
                     }                  
                     else 
                     alert_div("Airbill дугаар олдсонгүй");
@@ -1765,30 +1811,32 @@
 
                 if ($action=="container_clear")
                 {
-                    if (isset($_GET["id"])) $airbill_id = $_GET["id"];  else $airbill_id=0;                    
-
-                    $sql = "SELECT *FROM gaali WHERE id ='$airbill_id' LIMIT 1";
+                    if (isset($_GET["id"])) $airbill_id = intval(protect($_GET["id"]));  else $airbill_id=0;                    
+                    $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                    $sql = "SELECT * FROM gaali WHERE id =".$airbill_id_escaped." LIMIT 1";
                     $result = mysqli_query($conn,$sql);
-                    if (mysqli_num_rows($result)==1)
+                    if ($result && mysqli_num_rows($result)==1)
                     {
                         $data = mysqli_fetch_array($result);
-                        $airbill_name = $data["airbill"];
+                        if (!$data) {
+                            alert_div("Airbill олдсонгүй");
+                        } else {
+                            $airbill_name = isset($data["airbill"]) ? $data["airbill"] : '';
 
-                        // if ($is_active==0) $is_active=1; else $is_active=0;
-                        
-
-                        $sql = "DELETE FROM gaali_items WHERE airbill_id='$airbill_id'";
-                        mysqli_query($conn,$sql);
-
-                        $sql = "UPDATE container_item SET gaali_airbill=NULL WHERE gaali_airbill='$airbill_name'";
-                        mysqli_query($conn,$sql);
-
-                        $sql = "UPDATE gaali SET is_active=0,count=0 WHERE id='$airbill_id'";
-                        mysqli_query($conn,$sql);
-
-                        alert_div("Airbill цэвэрлэлээ","success");
+                            // if ($is_active==0) $is_active=1; else $is_active=0;
                             
-                        
+
+                            $sql = "DELETE FROM gaali_items WHERE airbill_id='$airbill_id'";
+                            mysqli_query($conn,$sql);
+
+                            $sql = "UPDATE container_item SET gaali_airbill=NULL WHERE gaali_airbill='$airbill_name'";
+                            mysqli_query($conn,$sql);
+
+                            $sql = "UPDATE gaali SET is_active=0,count=0 WHERE id='$airbill_id'";
+                            mysqli_query($conn,$sql);
+
+                            alert_div("Airbill цэвэрлэлээ","success");
+                        }
                     }                  
                     else 
                     alert_div("Airbill дугаар олдсонгүй");
@@ -1798,30 +1846,34 @@
                 
                 if ($action=="delete")
                 {
-                    $airbill_id=intval($_GET["id"]);
-                
-                    $sql = "SELECT *FROM gaali WHERE id='$airbill_id' LIMIT 1";
+                    $airbill_id = isset($_GET["id"]) ? intval(protect($_GET["id"])) : 0;
+                    $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                    $sql = "SELECT * FROM gaali WHERE id=".$airbill_id_escaped." LIMIT 1";
                     $result = mysqli_query($conn,$sql);
-                    if (mysqli_num_rows($result)==1)
+                    if ($result && mysqli_num_rows($result)==1)
                     {
                         $data = mysqli_fetch_array($result);
-                        $count= $data["count"];
-                        $airbill = $data["airbill"];
+                        if (!$data) {
+                            alert_div("Airbill олдсонгүй");
+                        } else {
+                            $count = isset($data["count"]) ? intval($data["count"]) : 0;
+                            $airbill = isset($data["airbill"]) ? $data["airbill"] : '';
 
-                        if ($count==0)
-                        {
-                            $sql = "DELETE FROM gaali WHERE id='$airbill_id' LIMIT 1";       
-                            if (mysqli_query($conn,$sql))                     
+                            if ($count==0)
                             {
-                                $sql = "UPDATE orders SET gaali_airbill=NULL WHERE gaali_airbill='$airbill'";
-                                // echo $sql;
-                                mysqli_query($conn,$sql);
+                                $sql = "DELETE FROM gaali WHERE id='$airbill_id' LIMIT 1";       
+                                if (mysqli_query($conn,$sql))                     
+                                {
+                                    $sql = "UPDATE orders SET gaali_airbill=NULL WHERE gaali_airbill='$airbill'";
+                                    // echo $sql;
+                                    mysqli_query($conn,$sql);
 
-                                alert_div("Амжилттай устгалаа","success");
+                                    alert_div("Амжилттай устгалаа","success");
+                                }
+
                             }
-
+                            else alert_div("зөвхөн хоосон Airbill устгах боломжтой");
                         }
-                        else alert_div("зөвхөн хоосон Airbill устгах боломжтой");
                     }
                     else 
                     alert_div("Airbill олдсонгүй");
@@ -1829,9 +1881,12 @@
 
                 if ($action == "excel_specific")
                 {
-                    require_once('assets/vendors/PHP_XLSXWriter/xlsxwriter.class.php');
+                    if (!class_exists('ZipArchive')) {
+                        alert_div("ZipArchive extension идэвхгүй байна. XAMPP-д php.ini файлд 'extension=zip' мөрийг uncomment хийж, Apache-г дахин эхлүүлнэ үү.", "danger");
+                    } else {
+                        require_once('assets/vendors/PHP_XLSXWriter/xlsxwriter.class.php');
       
-                    $airbill_id = $_GET["id"];
+                    $airbill_id = isset($_GET["id"]) ? intval(protect($_GET["id"])) : 0;
                     
                     $query1 = mysqli_query($conn,"SELECT * FROM gaali WHERE id='$airbill_id'");
                     if (mysqli_num_rows($query1)==1)
@@ -1896,6 +1951,7 @@
                         alert_div("Excel шинэчиллээ ".$count."-н бичиглэлтэй","success");
                     }
                     else alert_div("Airbill олдсонгүй");
+                    }
                 }
                  
           

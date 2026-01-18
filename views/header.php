@@ -1,17 +1,17 @@
-<? $current_page = basename($_SERVER['REQUEST_URI'], '?' . $_SERVER['QUERY_STRING']);?>
+<?php $current_page = basename($_SERVER['REQUEST_URI'], '?' . $_SERVER['QUERY_STRING']);?>
 
 <!--Header Start-->
 <header id="header">
     <ul class="d-flex mb-0 top-info">
-        <li class="c-links d-none d-lg-block"><span><i class="las la-phone-volume"></i></span><a href="tel:<?=settings("tel");?>"><?=settings("tel");?></a></li>
-        <li class="c-links d-none d-lg-block"><span><i class="la la-envelope"></i></span><a href="mailto:<?=settings("email");?>"><?=settings("email");?></a></li>
+        <li class="c-links d-none d-lg-block"><span><i class="las la-phone-volume"></i></span><a href="tel:<?php echo htmlspecialchars(settings("tel") ?? '');?>"><?php echo htmlspecialchars(settings("tel") ?? '');?></a></li>
+        <li class="c-links d-none d-lg-block"><span><i class="la la-envelope"></i></span><a href="mailto:<?php echo htmlspecialchars(settings("email") ?? '');?>"><?php echo htmlspecialchars(settings("email") ?? '');?></a></li>
     </ul>
     <div class="upper-nav">
         <div class="container">
             <div class="row">
                
                 <div class="col-12 d-flex justify-content-center align-items-center">
-                    <a class="navbar-brand pt-0 mt-0" href="index"><img src="assets/images/logo.png"></a>
+                    <a class="navbar-brand pt-0 mt-0" href="index.php"><img src="assets/images/logo.png"></a>
                 </div>
             </div>
         </div>
@@ -22,7 +22,7 @@
         <div class="container">
         <div class="row no-gutters w-100">
             <div class="col-6 col-lg-3 offset-3 offset-lg-0">
-                <a href="index" title="Logo" class="logo fixed-nav-items">
+                <a href="index.php" title="Logo" class="logo fixed-nav-items">
                     <!--Logo Default-->
                     <img src="assets/images/logo-sm.png" alt="logo" class="logo-dark">
                 </a>
@@ -31,20 +31,20 @@
             <div class="col-6 d-none d-lg-flex justify-content-lg-center align-items-lg-center">
                 <div class="collapse navbar-collapse" id="megaone">
                     <ul class="navbar-nav ml-auto mr-auto">
-                        <li><a class="nav-link <?=($current_page=="index")?'active':'';?>" href="index">Hүүр</a></li>
-                        <li><a class="nav-link" href="about">Танилцуулга</a></li>
-                        <li><a class="nav-link" href="shop">Дэлгүүр</a></li>
-                        <li><a class="nav-link" href="news">Мэдээлэл</a></li>
+                        <li class="nav-item"><a class="nav-link <?php echo ($current_page=="index" || $current_page=="index.php")?'active':'';?>" href="index.php"><i class="las la-home d-none d-md-inline"></i> Hүүр</a></li>
+                        <li class="nav-item"><a class="nav-link <?php echo ($current_page=="about" || $current_page=="about.php")?'active':'';?>" href="about"><i class="las la-info-circle d-none d-md-inline"></i> Танилцуулга</a></li>
+                        <li class="nav-item"><a class="nav-link <?php echo ($current_page=="shop" || $current_page=="shop.php")?'active':'';?>" href="shop"><i class="las la-store d-none d-md-inline"></i> Дэлгүүр</a></li>
+                        <li class="nav-item"><a class="nav-link <?php echo ($current_page=="news" || $current_page=="news.php")?'active':'';?>" href="news"><i class="las la-newspaper d-none d-md-inline"></i> Мэдээлэл</a></li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Тусламж <i class="fas fa-angle-down"></i>
+                            <a class="nav-link dropdown-toggle <?php echo ($current_page=="faqs" || $current_page=="faqs.php")?'active':'';?>" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="las la-question-circle d-none d-md-inline"></i> Тусламж <i class="fas fa-angle-down"></i>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <a class="dropdown-item" href="faqs"><i class="las la-question"></i> Түгээмэл асуулт</a>
                                 <a class="dropdown-item" href="https://www.youtube.com/channel/UCiTB2QBzh8S_oo9_CeVyuuw" target="new"><i class="lab la-youtube"></i> Гарын авлага</a>
                             </div>
                         </li>
-                        <li><a class="nav-link <?=($current_page=="contact")?'active':'';?>" href="contact">Холбогдох</a></li>
+                        <li class="nav-item"><a class="nav-link <?php echo ($current_page=="contact" || $current_page=="contact.php")?'active':'';?>" href="contact.php"><i class="las la-envelope d-none d-md-inline"></i> Холбогдох</a></li>
                     </ul>
                 </div>
             </div>
@@ -84,7 +84,7 @@
             <span class="btn-close" id="btn_sideNavClose"><i></i><i></i></span>
             <nav class="side-nav w-100">
                 <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link " href="index">Hүүр</a></li>
+                        <li class="nav-item"><a class="nav-link " href="index.php">Hүүр</a></li>
                         <li class="nav-item"><a class="nav-link " href="about">Танилцуулга</a></li>
                         <li class="nav-item"><a class="nav-link " href="shop">Дэлгүүр</a></li>
                         <li class="nav-item"><a class="nav-link " href="news">Мэдээлэл</a></li>
@@ -93,11 +93,11 @@
                                 Тусламж <i class="fas fa-angle-down"></i>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="#"><i class="las la-angle-double-right"></i> Түгээмэл асуулт</a>
-                                <a class="dropdown-item" href="#"><i class="las la-angle-double-right"></i> Гарын авлага</a>
+                                <a class="dropdown-item" href="faqs"><i class="las la-angle-double-right"></i> Түгээмэл асуулт</a>
+                                <a class="dropdown-item" href="https://www.youtube.com/channel/UCiTB2QBzh8S_oo9_CeVyuuw" target="new"><i class="las la-angle-double-right"></i> Гарын авлага</a>
                             </div>
                         </li>
-                        <li class="nav-item"><a class="nav-link" href="contact">Холбогдох</a></li>
+                        <li class="nav-item"><a class="nav-link" href="contact.php">Холбогдох</a></li>
 
 
                     <!-- <li class="nav-item">
@@ -131,11 +131,11 @@
 
             <div class="side-footer w-100">
                 <ul class="social-icons-simple">
-                    <li><a class="facebook-text-hvr" href="<?=settings("facebook");?>"><i class="fab fa-facebook-f"></i> </a> </li>
-                    <li><a class="youtube-text-hvr" href="<?=settings("youtube");?>"><i class="fab fa-youtube"></i> </a> </li>
-                    <li><a class="instagram-text-hvr" href="<?=settings("instagram");?>"><i class="fab fa-instagram"></i> </a> </li>
+                    <li><a class="facebook-text-hvr" href="<?php echo htmlspecialchars(settings("facebook") ?? '');?>"><i class="fab fa-facebook-f"></i> </a> </li>
+                    <li><a class="youtube-text-hvr" href="<?php echo htmlspecialchars(settings("youtube") ?? '');?>"><i class="fab fa-youtube"></i> </a> </li>
+                    <li><a class="instagram-text-hvr" href="<?php echo htmlspecialchars(settings("instagram") ?? '');?>"><i class="fab fa-instagram"></i> </a> </li>
                 </ul>
-                <p class="text-dark"><?=settings("footer_text");?></p>
+                <p class="text-dark"><?php echo htmlspecialchars(settings("footer_text") ?? '');?></p>
             </div>
         </div>
     </div>

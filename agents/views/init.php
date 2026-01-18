@@ -4,10 +4,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
-    <title><?=$g_title;?></title>
-    <meta name="description" content="<?=$g_description;?>" />
-    <link rel="icon" type="image/x-icon" href="<?=$g_icon;?>" />
-    <meta name="keywords" content="<?=$g_keywords;?>">
+    <title><?php echo htmlspecialchars($g_title ?? '');?></title>
+    <meta name="description" content="<?php echo htmlspecialchars($g_description ?? '');?>" />
+    <link rel="icon" type="image/x-icon" href="<?php echo htmlspecialchars($g_icon ?? '');?>" />
+    <meta name="keywords" content="<?php echo htmlspecialchars($g_keywords ?? '');?>">
     <meta name="author" content="MaGnatE">
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

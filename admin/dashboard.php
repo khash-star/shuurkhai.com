@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -6,10 +6,10 @@
 ?>
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -33,16 +33,24 @@
 										</div>
 										<div class="row">
 										<div class="col-4 col-md-12 col-xl-6">
-											<?
-											$paymentrate = settings("paymentrate");
+											<?php
+											$paymentrate = 0;
+											$paymentrate_temp = settings("paymentrate");
+											if (!empty($paymentrate_temp) && $paymentrate_temp !== '') {
+												$paymentrate = $paymentrate_temp;
+											}
 											?>
-											<h3 class="mb-2"><?=number_format($paymentrate);?>$</h3>
-											<?
-											$paymentrate_min = settings("paymentrate_min");
+											<h3 class="mb-2"><?php echo number_format($paymentrate);?>$</h3>
+											<?php
+											$paymentrate_min = 0;
+											$paymentrate_min_temp = settings("paymentrate_min");
+											if (!empty($paymentrate_min_temp) && $paymentrate_min_temp !== '') {
+												$paymentrate_min = $paymentrate_min_temp;
+											}
 											?>
 											<div class="d-flex align-items-baseline">
 											<p class="text-primary">
-												<span>Хамгийн бага зардал:<?=$paymentrate_min;?>$</span>
+												<span>Хамгийн бага зардал:<?php echo $paymentrate_min;?>$</span>
 											</p>
 											</div>
 										</div>
@@ -70,20 +78,36 @@
 										</div>
 										<div class="row">
 										<div class="col-4 col-md-12 col-xl-6">
-											<?
-											$current = settings("rate");
+											<?php
+											$current = 0;
+											$current_temp = settings("rate");
+											if (!empty($current_temp) && $current_temp !== '') {
+												$current = $current_temp;
+											}
 											?>
-											<h3 class="mb-2"><?=number_format($current);?></h3>
-											<?
-											$sql = "SELECT *FROM rates ORDER by timestamp DESC LIMIT 1,1";
+											<h3 class="mb-2"><?php echo number_format($current);?></h3>
+											<?php
+											$last = 0;
+											$sql = "SELECT * FROM rates ORDER by timestamp DESC LIMIT 1,1";
 											$result = mysqli_query($conn,$sql);
-											$data = mysqli_fetch_array($result);
-											$last =  $data["rate"];
+											if ($result && mysqli_num_rows($result) > 0) {
+												$data = mysqli_fetch_array($result);
+												$last = isset($data["rate"]) ? $data["rate"] : 0;
+											}
 											?>
 											<div class="d-flex align-items-baseline">
-											<p class="<?=($current>$last)?'text-success':'text-danger';?>">
-												<span><?=($current>$last)?'+':'-';?><?=round(((abs($current-$last)*100)/$last),2);?>%</span>
-												<i data-feather="<?=($current>$last)?'arrow-up':'arrow-down';?>" class="icon-sm mb-1"></i>
+											<p class="<?php echo ($current>$last)?'text-success':'text-danger';?>">
+												<span>
+													<?php
+													if ($last > 0) {
+														echo ($current>$last)?'+':'-';
+														echo round(((abs($current-$last)*100)/$last),2);
+													} else {
+														echo '0';
+													}
+													?>%
+												</span>
+												<i data-feather="<?php echo ($current>$last)?'arrow-up':'arrow-down';?>" class="icon-sm mb-1"></i>
 											</p>
 											</div>
 										</div>
@@ -100,7 +124,7 @@
         
 
 			</div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

@@ -1,20 +1,20 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
   <body>
     <div class="layout-wrapper layout-navbar-full layout-horizontal layout-without-menu">
       <div class="layout-container">
-        <? require_once("views/header.php");?>
+        <?php require_once("views/header.php");?>
 
-        <? if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
+        <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
 
         <div class="layout-page">          
           <div class="content-wrapper">
-            <? require_once("views/topmenu.php");?>
+            <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
-                <?
+                <?php
                 if ($action=="all")
                 {          
                     
@@ -158,7 +158,7 @@
                                     <a href="cp72?id=<?=$order_id;?>" title="CP72 хэвлэх" target="_blank" class="btn btn-warning btn-sm"><i class="fa fa-print"></i></a><br>
                                 </div>
                             </td>
-                            <?
+                    <?php                    
                             
                         echo "</tr>";
 
@@ -338,7 +338,7 @@
 
                         </div>
                     </div>
-                    <?
+                    <?php                    
                 }
 
                 if ($action=="searching")
@@ -450,7 +450,7 @@
                                         <a href="?action=detail&id=<?=$order_id;?>">More</a><br>
                                         <a href="cp72?id=<?=$order_id;?>" title="CP72 хэвлэх" target="_blank">Print</a><br>
                                     </td>
-                                    <?
+                    <?php                    
                                     
                                 echo "</tr>";
         
@@ -588,7 +588,7 @@
                                         <a href="?action=detail&id=<?=$order_id;?>">More</a><br>
                                         <a href="cp72?id=<?=$order_id;?>" title="CP72 хэвлэх" target="_blank">Print</a><br>
                                     </td>
-                                    <?
+                    <?php                    
                                     
                                 echo "</tr>";
         
@@ -626,7 +626,7 @@
                     <div class="panel panel-success">
                     <div class="panel-heading">Delaware Трак хайлтын үр дүн</div>
                     <div class="panel-body">
-                    <? 
+                <?php 
                     $track = $_POST["search"];
                     $result = mysqli_query($conn,"SELECT branch_inventories.*,driver,contact FROM branch_inventories LEFT JOIN branch_transport ON branch_inventories.transport=branch_transport.id WHERE track='".$track."'");
 
@@ -649,7 +649,7 @@
                     </div> <!--side_menu-->
                     </div> <!--right_side-->
 
-                    <?
+                    <?php                    
                 }
 
                 if ($action=="branch")
@@ -706,7 +706,7 @@
                                             <th></th>
                                         </tr>
                         
-                                        <?
+                    <?php                    
                         
                                         $count=1;$total_weight=0;$total_price=0;
                                         $sql ="SELECT * FROM branch_transport ORDER BY id DESC";
@@ -731,13 +731,13 @@
                                                     <td><?=$sum_weight;?></td> 
                                                     <td><a href="?action=branch&transport_id=<?=$transport_id;?>">дэлгэрэнгүй</a></td> 
                                                 </tr>
-                                                <?            
+                <?php            
                                             }
                                         ?>          
                                     </table>
                                 </div>
                             </div>
-                            <?
+                    <?php                    
                     }
 
                 }
@@ -749,7 +749,7 @@
                         <input type="text" name="track" class="form-control mb-3" placeholder="Тrack Жишээ:1Z3882748274926...">
                         <button type="submit" class="btn btn-success">Оруулах</button>
                     </form>
-                    <?                    
+                <?php                    
                 }
 
                 if ($action=="insert_de")
@@ -760,7 +760,7 @@
                         <input type="text" name="track" class="form-control border-primary bg-primary-subtle mb-3" placeholder="Delaware track оруулах">
                         <button type="submit" class="btn btn-success">Оруулах</button>
                     </form>
-                    <?                    
+                <?php                    
                 }
 
                 if ($action=="checking")
@@ -813,7 +813,7 @@
                                         </table>
                                         <button type="submit" class="btn btn-success">Add</button>                                       
                                     </form>
-                                    <?
+                    <?php                    
                                 }
                         }
                         
@@ -854,7 +854,7 @@
                                         <button type="submit" class="btn btn-success mt-3">Add</button>                                       
                                     </form>
 
-                                    <?
+                    <?php                    
                                 }
 
                     }
@@ -924,11 +924,11 @@
                                     {
                                         ?>
                                         <a href="cp72?id=<?=$order_id;?>" class="btn btn-warning">CP72 print</a>
-                                        <?
+                    <?php                    
                                     }
                                     ?>
                                     <a href="tracks_mini?id=<?=$order_id;?>" class="btn btn-primary">Mini print</a>
-                                    <?
+                    <?php                    
                                 }
             
                         }
@@ -961,7 +961,7 @@
                                 <input type="text" name="contact" class="form-control" placeholder="99123456" autofocus required>
                                 <button type="submit" class="btn btn-success">Add</button>
                             </form>
-                            <?
+                    <?php                    
                         }
                     }
                     else echo '<div class="alert alert-danger" role="alert">No Weight or Barcode</div>';
@@ -974,7 +974,7 @@
                     ?>
                     <h5>Track: тайлбар</h5>
                     
-                  <?                                     
+                <?php                                     
                   $track=$_POST["track"];
                   $track = string_clean($track);
                   $track_eliminated = substr($track,-8,8);
@@ -1031,7 +1031,7 @@
 
                                             <button type="submit" class="btn btn-success">add</button>
                                           </form>
-                                        <?                
+                <?php                
                                       }
                                   else 
                                   {
@@ -1080,7 +1080,7 @@
                                                     </tr>
                                                 </table>
 
-                                                <?
+                    <?php                    
 
                                               $options = array(
                                                     'yes' => 'proxy авна',
@@ -1095,7 +1095,7 @@
                                                             <option value="yes">Proxy авна</option>
                                                             <option value="no">Үгүй</option>
                                                         </select>
-                                                        <?                                                          
+                <?php                                                          
                                                       } 
                                                       else echo "Proxy авдаггүй дугаар<br>";
                                                   }
@@ -1104,7 +1104,7 @@
 
                                                 <button type="submit" class="btn btn-success">add</button>
                                             </form>
-                                            <?
+                    <?php                    
                                         }  
                                         else 	
                                         {
@@ -1178,7 +1178,7 @@
                                 <button type="submit" class="btn btn-success">add</button>
                                 </form>
 
-                                <?
+                    <?php                    
                                 
                     
                             }
@@ -1325,7 +1325,7 @@
                                 ?>
                                 <a href="cp72?id=<?=$order_id;?>" class="btn btn-warning" target="new">CP72 print</a>
                                 <a href="mini?id=<?=$order_id;?>" class="btn btn-danger" target="new">Mini print</a>
-                                <?
+                    <?php                    
                                 proxy_available($proxy_id,$proxy_type,1);
                                 // log_write("Track edit id =$order_id.'SQL' =".implode(",",$data),"track edit");
 
@@ -1494,18 +1494,18 @@
                                    {
                                     ?>
                                     <a href="cp72?id=<?=$order_id;?>" class="btn btn-warning" target="new">CP72 print</a>
-                                    <?
+                    <?php                    
                                    }
                                    if ($status=="filled") 
                                    {
                                     ?>
                                     <a href="cp72?id=<?=$order_id;?>" class="btn btn-warning" target="new">CP72 print</a>
-                                    <?
+                    <?php                    
                                    }
                                    ?>
                                     <a href="orders?action=detail?id=<?=$order_id;?>" class="btn btn-primary">Дэлгэрэнгүй</a>
 
-                                   <?
+                    <?php                    
                                    echo "</td>"; 
                 
                 
@@ -1571,20 +1571,20 @@
                         {
                             ?>
                             <a href="cp72?id=<?=$order_id;?>" class="btn btn-warning" target="new">CP72 print</a>                    
-                            <?
+                    <?php                    
                         }
                         else echo '<div class="alert alert-danger" role="alert">Алдаа:'.mysqli_error($conn).'</div>';
                         echo "<br>";
                         ?>
                         <a href="mini?id=<?=$order_id;?>" class="btn btn-danger" target="new">Mini print</a>
-                        <?
+                    <?php                    
                     }
                     else echo '<div class="alert alert-danger" role="alert">Track not registered</div>';
                 }
                 ?>
             </div>
 
-            <? require_once("views/footer.php");?>
+                <?php require_once("views/footer.php");?>
 
             <div class="content-backdrop fade"></div>
           </div>

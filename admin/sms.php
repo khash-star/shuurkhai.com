@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,34 +8,40 @@
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-    <?  require_once("views/navbar.php"); ?>
+    <?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 		<div class="page-content">
 
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="report";          
-          if (isset($_POST["month"])) $date=$_POST["month"]; else $date=date("Y-m"); 
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="report";
+          $action_title = "Тайлан"; // Default value
+          if (isset($_POST["month"])) {
+              $date = protect($_POST["month"]);
+          } else {
+              $date = date("Y-m");
+          }
 
           switch ($action)
           {
-            case "report": $action_title="Тайлан";break;            
+            case "report": $action_title="Тайлан";break;
+            default: $action_title="Тайлан";break;
           }
           ?>
           <div class="d-flex justify-content-between">
             <nav class="page-breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="sms">SMS</a></li>            
-                    <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
                 </ol>
             </nav>
     
             <form action="?action=report" method="POST">
                 <div class="input-group">
-                    <input type="month"  name="month" class="form-control" value="<?=$date;?>">
+                    <input type="month"  name="month" class="form-control" value="<?php echo htmlspecialchars($date);?>">
                     <button type="submit" class="btn btn-success btn-xs"><i data-feather="filter"></i>  Шүүх</button>                       
                 </div>
             </form>
@@ -47,14 +53,18 @@
             <div class="col-sm-6 col-xl-4">
             <div class="card">
                 <div class="card-body">
-                <?
-                $total_numbers = mysqli_num_rows(mysqli_query($conn,"SELECT id FROM sms"));
+                <?php
+                $total_numbers = 0;
+                $result_total = mysqli_query($conn,"SELECT id FROM sms");
+                if ($result_total) {
+                    $total_numbers = mysqli_num_rows($result_total);
+                }
                 ?>
                 <div class="d-flex align-items-start justify-content-between">
                     <div class="content-left">
                     <span>Total</span>
                     <div class="d-flex align-items-center my-2">
-                        <h3 class="mb-0 me-2"><?=number_format($total_numbers);?></h3>
+                        <h3 class="mb-0 me-2"><?php echo number_format($total_numbers);?></h3>
                     </div>
                     <p class="mb-0">Total sent</p>
                     </div>
@@ -68,17 +78,22 @@
             <div class="col-sm-6 col-xl-4">
                 <div class="card">
                     <div class="card-body">
-                        <?
-                        $today_numbers = mysqli_num_rows(mysqli_query($conn,"SELECT id FROM sms WHERE created_date LIKE '".$date."%'"));
+                        <?php
+                        $today_numbers = 0;
+                        $date_escaped = mysqli_real_escape_string($conn, $date);
+                        $result_month = mysqli_query($conn,"SELECT id FROM sms WHERE created_date LIKE '".$date_escaped."%'");
+                        if ($result_month) {
+                            $today_numbers = mysqli_num_rows($result_month);
+                        }
                         ?>
 
                         <div class="d-flex align-items-start justify-content-between">
                             <div class="content-left">
                             <span>This Month</span>
                             <div class="d-flex align-items-center my-2">
-                                <h3 class="mb-0 me-2"><?=number_format($today_numbers);?></h3>
+                                <h3 class="mb-0 me-2"><?php echo number_format($today_numbers);?></h3>
                             </div>
-                            <p class="mb-0"><?=$date;?></p>
+                            <p class="mb-0"><?php echo htmlspecialchars($date);?></p>
                             </div>
                             <h1 class="text-primary lg">
                                 <i data-feather="mail"></i>
@@ -90,17 +105,23 @@
             <div class="col-sm-6 col-xl-4">
                 <div class="card">
                     <div class="card-body">
-                    <?
-                    $today_numbers = mysqli_num_rows(mysqli_query($conn,"SELECT id FROM sms WHERE created_date LIKE '".date("Y-m-d")."%'"));
+                    <?php
+                    $today_numbers = 0;
+                    $today_date = date("Y-m-d");
+                    $today_date_escaped = mysqli_real_escape_string($conn, $today_date);
+                    $result_today = mysqli_query($conn,"SELECT id FROM sms WHERE created_date LIKE '".$today_date_escaped."%'");
+                    if ($result_today) {
+                        $today_numbers = mysqli_num_rows($result_today);
+                    }
                     ?>                      
                     <div class="d-flex align-items-start justify-content-between">
                         <div class="content-left">
                         <span>Today</span>
                         <div class="d-flex align-items-center my-2">
-                            <h3 class="mb-0 me-2"><?=number_format($today_numbers);?></h3>
+                            <h3 class="mb-0 me-2"><?php echo number_format($today_numbers);?></h3>
                             <!-- <p class="text-success mb-0">(+18%)</p> -->
                         </div>
-                        <p class="mb-0"><?=date("Y-m-d");?></p>
+                        <p class="mb-0"><?php echo htmlspecialchars($today_date);?></p>
                         </div>
                         <h1 class="text-success lg">
                             <i data-feather="mail"></i>
@@ -112,7 +133,7 @@
         </div>
         
 
-        <? 
+        <?php 
         if ($action=="report")
         {
             ?>
@@ -130,26 +151,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?
-                            $count=1;
-                            $sql = "SELECT * FROM sms WHERE sms.created_date LIKE '$date%' ORDER BY id DESC";
+                            <?php
+                            $count = 1;
+                            $date_escaped = mysqli_real_escape_string($conn, $date);
+                            $sql = "SELECT * FROM sms WHERE sms.created_date LIKE '$date_escaped%' ORDER BY id DESC";
                             $result = mysqli_query($conn,$sql);
-                            while ($data = mysqli_fetch_array($result))
-                            {
-                                $sms_id = $data["id"];
-                                $sms_tel = $data["tel"];
-                                $sms_content = $data["sms"];
-                                $sms_operator = $data["operator"];
-                                $sms_created_date = $data["created_date"];
-                                ?>
-                                <tr>
-                                    <td><?=$count++;?></td>
-                                    <td><?=$sms_created_date;?></td>
-                                    <td><?=$sms_tel;?></td>
-                                    <td><?=$sms_content;?></td>
-                                    <td><?=$sms_operator;?></td>
-                                </tr>
-                                <?
+                            if ($result) {
+                                while ($data = mysqli_fetch_array($result))
+                                {
+                                    if (!$data) continue;
+                                    $sms_id = isset($data["id"]) ? intval($data["id"]) : 0;
+                                    $sms_tel = isset($data["tel"]) ? htmlspecialchars($data["tel"]) : '';
+                                    $sms_content = isset($data["sms"]) ? htmlspecialchars($data["sms"]) : '';
+                                    $sms_operator = isset($data["operator"]) ? htmlspecialchars($data["operator"]) : '';
+                                    $sms_created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $count++;?></td>
+                                        <td><?php echo $sms_created_date;?></td>
+                                        <td><?php echo $sms_tel;?></td>
+                                        <td><?php echo $sms_content;?></td>
+                                        <td><?php echo $sms_operator;?></td>
+                                    </tr>
+                                    <?php
+                                }
                             }
                             ?>
                         </tbody>
@@ -157,14 +182,14 @@
                 </div>
             </div>
             
-            <?
+            <?php
         }
 
         ?>
 
 
         </div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

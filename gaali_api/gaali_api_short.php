@@ -19,90 +19,99 @@ if (isset($_GET["airBill"])) $airbill=$_GET["airBill"]; else $airbill = "";
 
 if ($rd == "5514134")
 {    
-    $sql= "SELECT *FROM gaali WHERE airbill='$airbill' LIMIT 1";
+    $airbill_escaped = mysqli_real_escape_string($conn, $airbill);
+    $sql= "SELECT * FROM gaali WHERE airbill='$airbill_escaped' LIMIT 1";
     $result = mysqli_query($conn,$sql);
-    if (mysqli_num_rows($result)==1)
+    if ($result && mysqli_num_rows($result)==1)
     {
         $data =mysqli_fetch_array($result);
-        $airbill_id = $data["id"];
-        $is_active = $data["is_active"];
+        if (!$data) {
+            $response['response'] = 405;
+            $response['error_msg'] = "Тээврийн баримтын дугаар олдсонгүй";
+        } else {
+            $airbill_id = isset($data["id"]) ? intval($data["id"]) : 0;
+            $is_active = isset($data["is_active"]) ? intval($data["is_active"]) : 0;
         
-        $response['response']=0;
-        $response['error_msg'] ="";
-        $orders = array();
-        $count=0;
-        $sum_weight=0;
+            $response['response']=0;
+            $response['error_msg'] ="";
+            $orders = array();
+            $count=0;
+            $sum_weight=0;
 
-        if ($is_active==1)
-        {
-
-            $sql = "SELECT * FROM gaali_items WHERE airbill_id=$airbill_id ORDER BY cust_name";
-    
-            $result= mysqli_query($conn,$sql);
-    
-    
-            while ($data = mysqli_fetch_array($result))
+            if ($is_active==1)
             {
-                $count++;
-                $order = array();
-    
-                $order_id=$data["order_id"];
-                $weight=$data["weight"];
-                $price=$data["price"];
-                $fee=number_format($data["fee"],2);
-                
-                
-                $created_date=$data["created_date"];
-                $airbilled_date=$data["airbilled_date"];
-                // $onair_date=$data["onair_date"];
-                // $warehouse_date=$data["warehouse_date"];
-                // $delivered_date=$data["delivered_date"];
-                
-                
-                $barcode=$data["barcode"];
-                $package_name=$data["package_name"];
-                
-                $sender_name=$data["sender_name"];
-                if ($sender_name=="") $sender_name = "SHUURKHAI.COM";
-                $sender_name=$data["sender_name"];
-                if ($sender_name=="") $sender_name = "SHUURKHAI.COM";
-                $sender_address=$data["sender_address"];
-                if ($sender_address=="") $sender_address = "1888 ELMHURST ROAD, MOUNT PROSPECT";
-                $cust_id=$data["cust_id"];
-                $cust_name=$data["cust_name"];
-                $cust_address=$data["cust_address"];
-                $cust_tel=$data["cust_tel"];
-                $numb=$data["numb"];
-                if ($numb<1) $numb=1;
-                if ($data["is_flag"]) $is_flag='1'; else $is_flag = '0';
-             
-                $package1_name = $package2_name = $package3_name = $package4_name = "";
 
-                
-                $sql = "SELECT * FROM orders WHERE order_id='".$order_id."'";
-                $result_pack = mysqli_query($conn,$sql);              
-                if (mysqli_num_rows($result_pack) == 1)
+                $airbill_id_escaped = mysqli_real_escape_string($conn, $airbill_id);
+                $sql = "SELECT * FROM gaali_items WHERE airbill_id=".$airbill_id_escaped." ORDER BY cust_name";
+        
+                $result= mysqli_query($conn,$sql);
+        
+        
+                if ($result) {
+                    while ($data = mysqli_fetch_array($result))
+                    {
+                        if (!$data) continue;
+                        $count++;
+                        $order = array();
+        
+                        $order_id = isset($data["order_id"]) ? intval($data["order_id"]) : 0;
+                        $weight = isset($data["weight"]) ? floatval($data["weight"]) : 0;
+                        $price = isset($data["price"]) ? floatval($data["price"]) : 0;
+                        $fee = isset($data["fee"]) ? number_format(floatval($data["fee"]),2) : "0.00";
+                        
+                        
+                        $created_date = isset($data["created_date"]) ? $data["created_date"] : '';
+                        $airbilled_date = isset($data["airbilled_date"]) ? $data["airbilled_date"] : '';
+                        // $onair_date=$data["onair_date"];
+                        // $warehouse_date=$data["warehouse_date"];
+                        // $delivered_date=$data["delivered_date"];
+                        
+                        
+                        $barcode = isset($data["barcode"]) ? $data["barcode"] : '';
+                        $package_name = isset($data["package_name"]) ? $data["package_name"] : '';
+                        
+                        $sender_name = isset($data["sender_name"]) ? $data["sender_name"] : '';
+                        if ($sender_name=="") $sender_name = "SHUURKHAI.COM";
+                        $sender_address = isset($data["sender_address"]) ? $data["sender_address"] : '';
+                        if ($sender_address=="") $sender_address = "1888 ELMHURST ROAD, MOUNT PROSPECT";
+                        $cust_id = isset($data["cust_id"]) ? intval($data["cust_id"]) : 0;
+                        $cust_name = isset($data["cust_name"]) ? $data["cust_name"] : '';
+                        $cust_address = isset($data["cust_address"]) ? $data["cust_address"] : '';
+                        $cust_tel = isset($data["cust_tel"]) ? $data["cust_tel"] : '';
+                        $numb = isset($data["numb"]) ? intval($data["numb"]) : 1;
+                        if ($numb<1) $numb=1;
+                        $is_flag = (isset($data["is_flag"]) && $data["is_flag"]) ? '1' : '0';
+                     
+                        $package1_name = $package2_name = $package3_name = $package4_name = "";
+
+                        
+                        $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                        $sql = "SELECT * FROM orders WHERE order_id=".$order_id_escaped;
+                        $result_pack = mysqli_query($conn,$sql);              
+                        if ($result_pack && mysqli_num_rows($result_pack) == 1)
                 {
-                    $data_pack = mysqli_fetch_array($result_pack);
-                    $package=$data_pack["package"];
-                    
-                    $package_array=explode("##",$package);
-                    $package1_name = $package_array[0];
-                    $package1_num = $package_array[1];
-                    $package1_value = strval(intval($package_array[2]));
-                    // $package1_value = intval($package_array[2]) % 100;
-                    $package2_name = $package_array[3];
-                    $package2_num = strval(intval($package_array[4]));
-                    // $package2_value = intval($package_array[5]) % 100;
-                    $package2_value = intval($package_array[5]);
-                    $package3_name = $package_array[6];
-                    $package3_num = $package_array[7];
-                    // $package3_value =intval($package_array[8]) % 100;
-                    $package3_value =strval(intval($package_array[8]));
-                    $package4_name = $package_array[9];
-                    $package4_num = $package_array[10];
-                    // $package4_value = intval($package_array[11]) % 100;
-                    $package4_value = strval(intval($package_array[11]));
+                        $data_pack = mysqli_fetch_array($result_pack);
+                        if ($data_pack) {
+                            $package = isset($data_pack["package"]) ? $data_pack["package"] : '';
+                            
+                            $package_array=explode("##",$package);
+                            $package1_name = isset($package_array[0]) ? $package_array[0] : '';
+                            $package1_num = isset($package_array[1]) ? $package_array[1] : '';
+                            $package1_value = isset($package_array[2]) ? strval(intval($package_array[2])) : '0';
+                            // $package1_value = intval($package_array[2]) % 100;
+                            $package2_name = isset($package_array[3]) ? $package_array[3] : '';
+                            $package2_num = isset($package_array[4]) ? strval(intval($package_array[4])) : '0';
+                            // $package2_value = intval($package_array[5]) % 100;
+                            $package2_value = isset($package_array[5]) ? intval($package_array[5]) : 0;
+                            $package3_name = isset($package_array[6]) ? $package_array[6] : '';
+                            $package3_num = isset($package_array[7]) ? $package_array[7] : '';
+                            // $package3_value =intval($package_array[8]) % 100;
+                            $package3_value = isset($package_array[8]) ? strval(intval($package_array[8])) : '0';
+                            $package4_name = isset($package_array[9]) ? $package_array[9] : '';
+                            $package4_num = isset($package_array[10]) ? $package_array[10] : '';
+                            // $package4_value = intval($package_array[11]) % 100;
+                            $package4_value = isset($package_array[11]) ? strval(intval($package_array[11])) : '0';
+                        }
 
                     // if ($package1_value==0) $package1_value=10;
                     // if ($package2_value==0) $package2_value=10;
@@ -248,14 +257,15 @@ if ($rd == "5514134")
                 
                 $order["MANIFEST"] =strval(14);
 
-                $sum_weight+=floatval($weight);
-    
-                // $count++;
-                array_push($orders,$order);
-                unset($order);
-            }
-    
-            $response["orders"] = $orders;
+                        $sum_weight+=floatval($weight);
+        
+                        // $count++;
+                        array_push($orders,$order);
+                        unset($order);
+                    }
+                }
+        
+                $response["orders"] = $orders;
     
             // $meta["sum_weight"] =strval($sum_weight);
             // $meta["sum_count"] =strval($count);
@@ -301,6 +311,10 @@ else
 
 // mslog("gaali_api_short.php",$_SERVER['REQUEST_URI'],'','');
 
+// Ensure $orders is defined in response
+if (!isset($response["orders"])) {
+    $response["orders"] = array();
+}
 
-echo json_encode($orders);
+echo json_encode($response);
 ?>

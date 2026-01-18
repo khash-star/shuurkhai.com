@@ -1,23 +1,59 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
-
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <!-- Base URL for relative paths -->
+    <base href="/shuurkhai/">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Бидний тухай - Shuurkhai</title>
+    <!-- Bundle -->
+    <link href="assets/vendor/css/bundle.min.css" rel="stylesheet">
+    <!-- Plugin Css -->
+    <link href="assets/css/line-awesome.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/revolution-settings.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/jquery.fancybox.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/owl.carousel.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/cubeportfolio.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/LineIcons.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/wow.css" rel="stylesheet">
+    <link href="assets/css/settings.css" rel="stylesheet">
+    <link href="assets/css/blog.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/custom.css" rel="stylesheet">
+    <style>
+        /* Login button styling */
+        .login-button-top {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        .login-button-top:hover {
+            background-color: #c82333;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        .login-button-top i {
+            margin-right: 5px;
+        }
+    </style>
+</head>
 <body data-spy="scroll" data-target=".navbar" data-offset="90">
-
-<!-- Preloader -->
-<div class="preloader">
-    <div class="centrize full-width">
-        <div class="vertical-center">
-            <div class="spinner">
-                <div class="double-bounce1"></div>
-                <div class="double-bounce2"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Preloader End -->
-
-<? require_once("views/header.php");?>
+<!-- Login Button -->
+<a href="/shuurkhai/user/" title="Нэвтрэх" class="login-button-top btn btn-danger text-white">
+    <i class="las la-user-circle"></i> Нэвтрэх
+</a>
 
 
 <!--slider sec strat-->
@@ -28,7 +64,7 @@
             <div class="crumbs">
                 <nav aria-label="breadcrumb" class="breadcrumb-items">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index">Нүүр</a></li>
+                        <li class="breadcrumb-item"><a href="/shuurkhai/">Нүүр</a></li>
                         <li class="breadcrumb-item"><a href="#">Бид</a></li>
                     </ol>
                 </nav>
@@ -42,20 +78,28 @@
 <section class="mini-services" id="mini-services">
     <div class="container">
         <div class="row no-gutters">
-            <?
-            $sql = "SELECT *FROM advantages ORDER BY dd";
-            $result = mysqli_query($conn,$sql);
-            while ($data = mysqli_fetch_array($result))
-            {
-                ?>
-                <div class="col-12 col-md-6 col-lg-3 col-xs-6 text-center mini-s">
-                    <div class="mini-service-card">
-                        <div class="service-icon"><i class="<?=$data["icon"];?>"></i></div>
-                        <h4 class="mini-service-heading"><?=$data["name"];?></h4>
-                        <span class="small-des"><?=$data["description"];?></span>
-                    </div>
-                </div>
-                <?
+            <?php
+            // Initialize variables
+            $page_title = '';
+            $page_content = '';
+            $page_image = '';
+            
+            $sql = "SELECT * FROM advantages ORDER BY dd";
+            $result = mysqli_query($conn, $sql);
+            if ($result) {
+                while ($data = mysqli_fetch_array($result)) {
+                    if ($data) {
+                        ?>
+                        <div class="col-12 col-md-6 col-lg-3 col-xs-6 text-center mini-s">
+                            <div class="mini-service-card">
+                                <div class="service-icon"><i class="<?php echo htmlspecialchars($data["icon"] ?? '');?>"></i></div>
+                                <h4 class="mini-service-heading"><?php echo htmlspecialchars($data["name"] ?? '');?></h4>
+                                <span class="small-des"><?php echo htmlspecialchars($data["description"] ?? '');?></span>
+                            </div>
+                        </div>
+                        <?php
+                    }
+                }
             }
             ?>
         </div>
@@ -79,25 +123,66 @@
 <!--about us section start-->
 <section class="about-sec padding-top padding-bottom" id="about-sec">
     <div class="container">
-        <?
-        $sql = "SELECT *FROM pages WHERE page_id =1";
-        $result = mysqli_query($conn,$sql);
-        $data= mysqli_fetch_array($result);
-        $page_title = $data["title"];
-        $page_image = $data["image"];
-        $page_content = $data["content"];
+        <?php
+        // Check if type parameter is set (air or sea cargo)
+        $cargo_type = isset($_GET['type']) ? htmlspecialchars($_GET['type']) : '';
+        
+        // Initialize variables
+        $page_title = '';
+        $page_content = '';
+        $page_image = '';
+        
+        // If cargo type is specified, show specific information
+        if ($cargo_type === 'air') {
+            $page_title = 'Агаарын карго үйлчилгээ';
+            $page_content = '<div class="text-center mb-5">
+                <i class="las la-dollar-sign" style="font-size: 48px; color: #1e3a5f;"></i>
+            </div>
+            <h3 class="text-center mb-4" style="color: #1e3a5f; font-weight: bold; font-size: 1.5rem;">Бодит үнэ</h3>
+            <p class="text-center" style="color: #333; font-size: 1rem; line-height: 1.6;">Америкаас агаараар 1кг ачаа 7$, далайгаар 50х50х50см хайрцаг 70$ Тээврийн зардлыг Монголд төлөхөд нэмэгдэлгүй.</p>';
+        } elseif ($cargo_type === 'sea') {
+            $page_title = 'Далайн карго үйлчилгээ';
+            $page_content = 'Манай газрын ачаа далайгаар тээвэрлэгдэн 40 хоногт багтан ирдэг. Далайн карго нь хэмжээтэй, хүнд ачааг тээвэрлэхэд тохиромжтой, эдийн засгийн хувьд хямд үйлчилгээ юм.';
+        } else {
+            // Default: show general about page
+            $sql = "SELECT * FROM pages WHERE page_id = 1";
+            $result = mysqli_query($conn, $sql);
+            
+            if ($result && mysqli_num_rows($result) > 0) {
+                $data = mysqli_fetch_array($result);
+                if ($data) {
+                    $page_title = isset($data["title"]) ? $data["title"] : '';
+                    $page_image = fix_image_path($data["image"] ?? '');
+                    $page_content = isset($data["content"]) ? $data["content"] : '';
+                }
+            }
+        }
         ?>
         <div class="row">
             <div class="col-12 text-center">
                 <div class="heading-details">
-                    <h4 class="heading"><?=$page_title;?></h4>
+                    <h4 class="heading"><?php echo htmlspecialchars($page_title);?></h4>
                 </div>
             </div>
 
             <div class="col-12 col-md-12 text-center">
-                <p class="text"><?=$page_content;?></p>
+                <?php 
+                if ($cargo_type === 'air' || $cargo_type === 'sea') {
+                    echo $page_content;
+                } else {
+                    echo nl2br(htmlspecialchars($page_content));
+                }
+                ?>
             </div>
         </div>
+        
+        <?php if ($cargo_type === 'air' || $cargo_type === 'sea'): ?>
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="/shuurkhai/about" class="btn web-btn rounded-pill">Буцах <i class="las la-arrow-left"></i></a>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -255,7 +340,6 @@
 
 
 
-<? require_once("views/footer.php");?>
 
 
 <!--Scroll Top Start-->

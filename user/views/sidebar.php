@@ -1,4 +1,4 @@
-<? $current_page = basename($_SERVER['REQUEST_URI'], '?' . $_SERVER['QUERY_STRING']);?>
+<?php $current_page = basename($_SERVER['REQUEST_URI'], '?' . ($_SERVER['QUERY_STRING'] ?? '')); ?>
 
 <!--  BEGIN SIDEBAR  -->
 <div class="sidebar-wrapper sidebar-theme">
@@ -12,7 +12,7 @@
                 </div>
 
                 <ul class="menu-categories">
-                    <li class="menu  <?=($current_page=="tracks")?'active':'';?>">
+                    <li class="menu  <?php echo ($current_page=="tracks")?'active':''; ?>">
                         <a href="#track" data-active="false" class="menu-toggle">
                             <div class="base-menu">
                                 <div class="base-icons">
@@ -25,7 +25,7 @@
                         <div class="tooltip"><span>Track</span></div>
                     </li>
 
-                    <li class="menu <?=($current_page=="packages")?'active':'';?>">
+                    <li class="menu <?php echo ($current_page=="packages")?'active':''; ?>">
                         <a href="#packages" data-active="false" class="menu-toggle">
                             <div class="base-menu">
                                 <div class="base-icons">
@@ -37,7 +37,7 @@
                         <div class="tooltip"><span>Илгээмж</span></div>
                     </li>
 
-                    <li class="menu <?=($current_page=="online")?'active':'';?>">
+                    <li class="menu <?php echo ($current_page=="online")?'active':''; ?>">
                         <a href="#online" data-active="false" class="menu-toggle">
                             <div class="base-menu">
                                 <div class="base-icons">
@@ -50,7 +50,7 @@
                         <div class="tooltip"><span>Онлайн захиалга</span></div>
                     </li>
 
-                    <li class="menu <?=($current_page=="envoices")?'active':'';?>">
+                    <li class="menu <?php echo ($current_page=="envoices")?'active':''; ?>">
                         <a href="#envoices" data-active="false" class="menu-toggle">
                             <div class="base-menu">
                                 <div class="base-icons">
@@ -62,7 +62,7 @@
                         <div class="tooltip"><span>Нэхэмжлэх</span></div>
                     </li>
 
-                    <li class="menu <?=(in_array($current_page, ["shops","products"]))?'active':'';?>">
+                    <li class="menu <?php echo (in_array($current_page, ["shops","products"]))?'active':''; ?>">
                         <a href="#shops" data-active="false" class="menu-toggle">
                             <div class="base-menu">
                                 <div class="base-icons">
@@ -74,7 +74,7 @@
                         <div class="tooltip"><span>Онлайн дэлгүүр</span></div>
                     </li>
 
-                    <li class="menu <?=($current_page=="profile")?'active':'';?>">
+                    <li class="menu <?php echo ($current_page=="profile")?'active':''; ?>">
                         <a href="#profile" data-active="false" class="menu-toggle">
                             <div class="base-menu">
                                 <div class="base-icons">
@@ -86,7 +86,7 @@
                         <div class="tooltip"><span>Хувийн тохиргоо</span></div>
                     </li>
 
-                    <li class="menu <?=($current_page=="extra")?'active':'';?>">
+                    <li class="menu <?php echo ($current_page=="extra")?'active':''; ?>">
                         <a href="#extra" data-active="false" class="menu-toggle">
                             <div class="base-menu">
                                 <div class="base-icons">

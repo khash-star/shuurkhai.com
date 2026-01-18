@@ -1,21 +1,21 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
   <body>
     <div class="layout-wrapper layout-navbar-full layout-horizontal layout-without-menu">
       <div class="layout-container">
-        <? require_once("views/header.php");?>
+        <?php require_once("views/header.php");?>
 
-        <? if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="search";?>
-          
+        <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="search";?>
+
         <div class="layout-page">          
           <div class="content-wrapper">
-            <? require_once("views/topmenu.php");?>
+            <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
               <div class="row g-6">              
-                <?
+                    <?php 
                 if ($action =="search")
                 {
                     if(isset($_POST["search"])) $search = $_POST["search"]; else $search="";
@@ -35,7 +35,7 @@
                         </div>
                     </div>
                     </div>
-                    <? 
+                    <?php 
                     if (strlen($search)>=3)
                     {
                         ?>
@@ -57,7 +57,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                    <?php 
                                         $sql= "SELECT * FROM customer WHERE CONCAT_WS(name,surname,tel,rd,email,username) LIKE '%".$search."%'";
                                         $result = mysqli_query($conn,$sql);
                                         if (mysqli_num_rows($result)>0)
@@ -79,7 +79,7 @@
                                                 </div>
                                                 </td>
                                             </tr>
-                                            <?
+                    <?php 
                                             }
                                         }
                                         ?>
@@ -91,7 +91,7 @@
                             </div>
                             </div>
                         </div>
-                        <?
+                    <?php 
                     }
                     
                     if (strlen($search)<3)
@@ -110,14 +110,14 @@
                             </div>
                         </div>
                         
-                        <?
+                    <?php 
                     }
                     
                 }
                 ?>
 
 
-                <?
+                    <?php 
                 if ($action =="detail")
                 {
                     if (isset($_GET["id"])) $id=$_GET["id"]; else header("location:customers");
@@ -185,7 +185,7 @@
                                     <div class="media">
                                         <div class="media-body mg-l-15 mg-t-4">
                                         <label>Хот, аймаг</label>
-                                        <?
+                    <?php 
                                         $sql_city =  "SELECT *FROM city WHERE id='".$data["address_city"]."'";
                                         $result_city = mysqli_query($conn,$sql_city);
                                         $data_city = mysqli_fetch_array($result_city);
@@ -197,7 +197,7 @@
                                     <div class="media">
                                         <div class="media-body mg-l-15 mg-t-4">
                                         <label>Дүүрэг, сум</label>
-                                        <?
+                    <?php 
                                         $sql_district =  "SELECT *FROM district WHERE id='".$data["address_district"]."'";
                                         $result_district = mysqli_query($conn,$sql_district);
                                         $data_district = mysqli_fetch_array($result_district);
@@ -224,14 +224,14 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="media-list ">
-                                    <?
+                    <?php 
                                     if ($data["avatar"]<>"" && file_exists('../'.$data["avatar"]))
                                     {
                                         ?>
                                         <div class="media">
                                         <img src="../<?=$data["avatar"];?>" style="max-width:100%">
                                         </div>
-                                        <?
+                    <?php 
                                     }
                                     ?>
                                     <div class="media">
@@ -259,7 +259,7 @@
                                 </div>
                             </div>
                             </div>
-                            <?
+                    <?php 
                             if ($data["no_proxy"]==0)
                             {
                             $count=1;
@@ -280,7 +280,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                    <?php 
                                         $sql_proxy = "SELECT * FROM proxies WHERE customer_id='".$id."'";
                                         $result_proxy = mysqli_query($conn,$sql_proxy);
                                         if (mysqli_num_rows($result_proxy)>0)
@@ -295,7 +295,7 @@
                                             <td class="text-wrap"><?=$data_proxy["address"];?></td>
                                             <td><?=(!$data_proxy["status"])?'Үгүй':'Тийм';?></td>
                                         </tr>
-                                        <?
+                    <?php 
                                         }
                                         }
                                         ?>
@@ -305,7 +305,7 @@
                                 
                                 </div>
                             </div>
-                            <?
+                    <?php 
                             }          
                             ?>
                         </div>
@@ -316,7 +316,7 @@
                             <h5 class="card-title">
                                 Идэвхитэй ачаа
                                 </h5>
-                                    <? $count=1;?>
+                    <?php $count=1;?>
                                     <table class="table table-responsive table-striped">
                                     <thead>
                                         <tr>
@@ -329,7 +329,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                    <?php 
                                         $sql_order = "SELECT * FROM orders WHERE receiver='".$id."' AND status NOT IN ('delivered','customs')";
                                         $result_order = mysqli_query($conn,$sql_order);
                                         if (mysqli_num_rows($result_order)>0)
@@ -353,29 +353,29 @@
                                             
                                         ?>
                                         <tr>
-                                            <td><?=$count++;?></td>
-                                            <td class="text-wrap"><?=$data_order["barcode"];?><br><?=$data_order["third_party"];?></td>
+                                            <td><?php echo $count++;?></td>
+                                            <td class="text-wrap"><?php echo htmlspecialchars($data_order["barcode"] ?? '');?><br><?php echo htmlspecialchars($data_order["third_party"] ?? '');?></td>
                                             
                                             <td class="text-wrap">
-                                            <?=$package1_name;?> (<?=$package1_num;?>) - <?=$package1_price;?> $<br>
-                                            <? if ($package2_name!="")
+                    <?php echo htmlspecialchars($package1_name ?? '');?> (<?php echo htmlspecialchars($package1_num ?? '');?>) - <?php echo htmlspecialchars($package1_price ?? '');?> $<br>
+                    <?php if (isset($package2_name) && $package2_name!="")
                                             {
                                             ?>
-                                            <?=$package2_name;?> (<?=$package2_num;?>) - <?=$package2_price;?> $<br>
-                                            <?
+                    <?php echo htmlspecialchars($package2_name ?? '');?> (<?php echo htmlspecialchars($package2_num ?? '');?>) - <?php echo htmlspecialchars($package2_price ?? '');?> $<br>
+                    <?php 
                                             }
 
-                                            if ($package3_name!="")
+                                            if (isset($package3_name) && $package3_name!="")
                                             {
                                             ?>
-                                            <?=$package3_name;?> (<?=$package3_num;?>) - <?=$package3_price;?> $
-                                            <?
+                    <?php echo htmlspecialchars($package3_name ?? '');?> (<?php echo htmlspecialchars($package3_num ?? '');?>) - <?php echo htmlspecialchars($package3_price ?? '');?> $
+                    <?php 
                                             }
-                                            if ($package4_name!="")
+                                            if (isset($package4_name) && $package4_name!="")
                                             {
                                             ?>
-                                            <?=$package4_name;?> (<?=$package4_num;?>) - <?=$package4_price;?> $
-                                            <?
+                    <?php echo htmlspecialchars($package4_name ?? '');?> (<?php echo htmlspecialchars($package4_num ?? '');?>) - <?php echo htmlspecialchars($package4_price ?? '');?> $
+                    <?php 
                                             }
                                             ?>
                                             </td>
@@ -388,7 +388,7 @@
                                                 
                                             </td>
                                         </tr>
-                                        <?
+                    <?php 
                                         }
                                         }
                                         ?>
@@ -400,7 +400,7 @@
                         </div>
                         </div>
                         
-                        <?
+                    <?php 
                     }
                     else header("location:customer");
                 }
@@ -410,7 +410,7 @@
               </div>
             </div>
 
-            <? require_once("views/footer.php");?>
+                    <?php require_once("views/footer.php");?>
 
             <div class="content-backdrop fade"></div>
           </div>

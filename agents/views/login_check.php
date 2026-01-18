@@ -8,6 +8,8 @@ if (isset($_SESSION['logged_agent']) && isset($_SESSION['logged_agent_id']))
     $g_agent_logged_avatar = $_SESSION['logged_agent_avatar'];
     $g_agent_logged_timestamp = $_SESSION['logged_agent_timestamp'];    
 }
-else 
-header('Location: login');
+else {
+    header('Location: login');
+    exit;
+}
 ?>

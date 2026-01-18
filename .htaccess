@@ -1,18 +1,33 @@
 DirectoryIndex index.php
-#RewriteCond %{HTTPS} off
-#RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 RewriteEngine On
-RewriteRule ^home?$ index.php
-RewriteRule ^index?$ index.php
-RewriteRule ^contact?$ contact.php
-RewriteRule ^faqs?$ faqs.php
+RewriteBase /shuurkhai/
 
-RewriteRule ^news?$ news.php
-RewriteRule ^about?$ about.php
+# ✅ Хэрвээ файл эсвэл folder байвал rewrite хийхгүй
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-ErrorDocument 404 underconstruction
+# ---- ROUTES ----
+# Root (/) нь шинэ нүүр хуудсанд заах
+RewriteRule ^$ shuurkhai-home/home-test.php [L]
+RewriteRule ^home/?$ index.php
+RewriteRule ^index/?$ index.php
+RewriteRule ^contact/?$ contact.php
+RewriteRule ^faqs/?$ faqs.php
+RewriteRule ^news/?$ news.php
+RewriteRule ^about/?$ about.php
+RewriteRule ^shop/?$ shop.php [QSA,L]
+RewriteRule ^calculator/?$ calculator.php
+RewriteRule ^qpay/?$ qpay.php
+RewriteRule ^privacy/?$ privacy.php
+RewriteRule ^agent/?$ admin/agents.php
+RewriteRule ^login/?$ admin/login.php
+RewriteRule ^views/logining/?$ admin/views/logining.php
+RewriteRule ^home-new/?$ shuurkhai-home/home-test.php [L]
+RewriteRule ^shuurkhai-home/home_new/?$ shuurkhai-home/home-test.php [L]
 
+# ---- Disable directory listing ----
+Options -Indexes
 
-RewriteRule ^shop?$ shop.php
-RewriteRule ^qpay?$ qpay.php
-RewriteRule ^privacy?$ privacy.php
+# ---- 404 ----
+ErrorDocument 404 /shuurkhai/underconstruction

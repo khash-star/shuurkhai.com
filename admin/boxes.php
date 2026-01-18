@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-    <?  require_once("views/navbar.php"); ?>
+    <?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -20,9 +20,9 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
-          <?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";
+          $action_title = "Удирдлага"; // Default value
           switch ($action)
           {
             case "display": $action_title="Бүх box";break;
@@ -42,8 +42,7 @@
             case "combine_delete": $action_title="Нэгтгэсэн ачаа устгах";break;
             case "badge": $action_title="Box гадуур дагавар";break;
             case "excel": $action_title="Excel файл шинэчлэх";break;
-
-            
+            default: $action_title="Удирдлага";break;
           }
           ?>
           <div class="d-flex justify-content-between">
@@ -51,7 +50,7 @@
               <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="boxes">Boxes удирдлага</a></li>
                 <li class="breadcrumb-item"><a href="?action=active">Идэвхитэй box</a></li>
-                <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+                <li class="breadcrumb-item active" aria-current="page"><?php echo $action_title;?></li>
               </ol>
             </nav>
 
@@ -59,12 +58,12 @@
           </div>
 
 
-          <?
+          <?php
           if ($action =="dashboard")
           {
-            $sql = "SELECT *FROM boxes";
+            $sql = "SELECT * FROM boxes";
             $result = mysqli_query($conn,$sql);
-            $total = mysqli_num_rows($result);
+            $total = $result ? mysqli_num_rows($result) : 0;
             ?>
             <div class="row">
               <div class="col-12 col-xl-12 stretch-card">
@@ -86,7 +85,7 @@
                         </div>
                         <div class="row">
                           <div class="col-6 col-md-12 col-xl-5">
-                            <h3 class="mb-2"><?=number_format($total);?></h3>
+                            <h3 class="mb-2"><?php echo number_format($total);?></h3>
                             <div class="d-flex align-items-baseline">
                               <p class="text-success">
                                 <span>+3.3%</span>
@@ -182,20 +181,25 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action=="active")
           {
+            // Initialize variables
+            $count_box = 0;
+            $name = "";
+            $packages = 0;
+            $created_date = "";
+            $cumulative_weight = 0;
+            $cumulative_packages = 0;
+            
             $sql="SELECT * FROM boxes WHERE status NOT IN ('warehouse','delivered') ORDER BY created_date DESC";
   
-            $cumulative_weight=0;
-            $cumulative_packages = 0;
-          
             $result = mysqli_query($conn,$sql);
-            if (mysqli_num_rows($result) > 0)
+            if ($result && mysqli_num_rows($result) > 0)
             {
               ?>
               <form action="?action=changing" method="post">
@@ -215,31 +219,32 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <?     
+                    <?php     
                     $count_box=1;
                     while ($data = mysqli_fetch_array($result))
                       {
+                          if (!isset($data["box_id"])) continue;
                           $box_id= $data["box_id"];
-                          $name= $data["name"];
-                          $created_date =$data["created_date"];
-                          $status= $data["status"];
-                          $weight=$data["weight"];
+                          $name= isset($data["name"]) ? $data["name"] : "";
+                          $created_date = isset($data["created_date"]) ? $data["created_date"] : "";
+                          $status= isset($data["status"]) ? $data["status"] : "";
+                          $weight= isset($data["weight"]) ? $data["weight"] : 0;
                             //$packages=box_inside($box_id,"packages");
-                          $packages=$data["packages"];
+                          $packages= isset($data["packages"]) ? $data["packages"] : 0;
                       
                           ?>
                           <tr>
-                            <td><input type="checkbox" name="boxes[]" value="<?=$box_id;?>"></td>
-                            <td><?=$count_box;?></td>
-                            <td><a href="?action=detail&id=<?=$box_id;?>"><?=$name;?></td>
-                            <td><?=$packages;?></td>
-                            <td><?=substr($created_date,0,10);?></td>
-                            <td><?=$status;?></td>
-                            <td><?=$weight;?>Kg</td>
-                            <td><a href="?action=detail&id=<?=$box_id;?>">edit</td>
+                            <td><input type="checkbox" name="boxes[]" value="<?php echo $box_id;?>"></td>
+                            <td><?php echo $count_box;?></td>
+                            <td><a href="?action=detail&id=<?php echo $box_id;?>"><?php echo htmlspecialchars($name);?></a></td>
+                            <td><?php echo $packages;?></td>
+                            <td><?php echo substr($created_date,0,10);?></td>
+                            <td><?php echo htmlspecialchars($status);?></td>
+                            <td><?php echo $weight;?>Kg</td>
+                            <td><a href="?action=detail&id=<?php echo $box_id;?>">edit</a></td>
                           </tr>
 
-                          <?
+                          <?php
                           $cumulative_packages+=$packages;
                           $cumulative_weight+=$weight;
                           
@@ -247,7 +252,7 @@
                       }
                       ?>
                   </tbody>
-                  <tfooter><tr><td></td><td colspan='2'>Нийт</td><td><?=$cumulative_packages;?></td><td></td><td></td><td><?=$cumulative_weight;?></td><td></td></tr></tfooter>
+                  <tfooter><tr><td></td><td colspan='2'>Нийт</td><td><?php echo $cumulative_packages;?></td><td></td><td></td><td><?php echo $cumulative_weight;?></td><td></td></tr></tfooter>
                   </table>
 
                   <select name="options" class="form-control">
@@ -260,13 +265,13 @@
                   <button class="btn btn-success" type="submit">өөрчил</button>
 
               </form>
-              <?
+              <?php
             }
             else echo '<div class="alert alert-danger" role="alert">No boxes</div>';
           }
           ?>
 
-          <?
+          <?php
           if ($action =="search")
           {
             ?>         
@@ -284,17 +289,17 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action == "searching")
           {
                 ?>
                 <div class="card">
                     <div class="card-body">
-                        <?
+                        <?php
                             if (isset($_POST["search"])) $search_term= $_POST["search"]; else  $search_term="";
 
                             if ($search_term!="") echo "Хайх:".$search_term."<br>";
@@ -320,40 +325,43 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?
+                                            <?php
                                             $count=1;
                                             $cumulative_weight=0;
                                             $cumulative_packages = 0;
+                                            if ($result) {
                                             while ($data = mysqli_fetch_array($result))
                                             { 
+                                                if (!isset($data["box_id"])) continue;
                                                 $box_id= $data["box_id"]; 
-                                                $name= $data["box_name"]; 
-                                                $packages= $data["packages"];
-                                                $created_date = $data["box_created"];
-                                                $status = $data["status"];
-                                                $order_weight = $data["weight"];
+                                                $name= isset($data["box_name"]) ? $data["box_name"] : ""; 
+                                                $packages= isset($data["packages"]) ? $data["packages"] : 0;
+                                                $created_date = isset($data["box_created"]) ? $data["box_created"] : "";
+                                                $status = isset($data["status"]) ? $data["status"] : "";
+                                                $order_weight = isset($data["weight"]) ? $data["weight"] : 0;
                                                 ?>
 
                                             
                                             
                                                 <tr>
-                                                    <td><input type="checkbox" name="boxes[]" value=<?=$box_id;?>"></td> 
-                                                    <td><?=$count++;?></td>
-                                                    <td><?=$name;?></td> 
-                                                    <td><?=$packages;?></td>
-                                                    <td><?=$created_date;?></td>
-                                                    <td><?=$status;?></td>
-                                                    <td><?=$order_weight;?></td>                                                
-                                                    <td><a href="?action=detail&box_id=<?=$box_id;?>">Edit</a></td>
+                                                    <td><input type="checkbox" name="boxes[]" value="<?php echo $box_id;?>"></td> 
+                                                    <td><?php echo $count++;?></td>
+                                                    <td><?php echo htmlspecialchars($name);?></td> 
+                                                    <td><?php echo $packages;?></td>
+                                                    <td><?php echo $created_date;?></td>
+                                                    <td><?php echo htmlspecialchars($status);?></td>
+                                                    <td><?php echo $order_weight;?></td>                                                
+                                                    <td><a href="?action=detail&box_id=<?php echo $box_id;?>">Edit</a></td>
                                                 </tr>
-                                                <?
+                                                <?php
                                                 $cumulative_packages+=$packages;
                                                 $cumulative_weight+=$order_weight;                                                            
-                                            } 
+                                            }
+                                            }
                                             ?>
                                         </tbody>
                                         <tfoot>
-                                            <tr><td></td><td colspan='2'>Нийт</td><td><?=$cumulative_packages;?></td><td></td><td></td><td><?=$cumulative_weight;?></td><td></td></tr>
+                                            <tr><td></td><td colspan='2'>Нийт</td><td><?php echo $cumulative_packages;?></td><td></td><td></td><td><?php echo $cumulative_weight;?></td><td></td></tr>
                                         </tfoot>
                                     </table>
                                     <select name="options" class="form-control">
@@ -365,24 +373,24 @@
                                     <div id="more"></div>
                                     <button type="submit" class="btn btn-success">өөрчил</button>                                       
                                 </form>
-                                <?
+                                <?php
                             }
                             else echo "No boxes";
                         
                         ?>
                     </div>
                 </div>
-                <?
+                <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action == "changing")
           {
             ?>
                 <div class="card">
                     <div class="card-body">
-                        <? 
+                        <?php 
                         $options=$_POST["options"];
 
                         switch ($options)
@@ -689,18 +697,18 @@
                     ?>
                     </div>
                 </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action == "combine")
           {
             if (isset($_GET["combine_id"])) $combine_id = intval($_GET["combine_id"]); else $combine_id=0;
             ?>
             <div class="card">
                 <div class="card-body">                    
-                    <? 
+                    <?php 
                     if ($combine_id==0)
                     {
                         $sql="SELECT * FROM box_combine WHERE status!='delivered' ORDER BY combine_id DESC"; 
@@ -726,49 +734,53 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?
+                                            <?php
                                             $count=1;
                                             $total_weight=0;
                                             $cumulative_weight=0;
                                             $cumulative_packages = 0;
+                                            if ($result) {
                                             while ($data = mysqli_fetch_array($result))
                                             { 
+                                                if (!isset($data["combine_id"])) continue;
                                                 $combine_id= $data["combine_id"];                                                
-                                                $receiver= $data["receiver"]; 
-                                                $weight= $data["weight"];
-                                                $created_date = $data["created_date"];
-                                                $barcode = $data["barcode"];
-                                                $barcodes = $data["barcodes"];
-                                                $proxy_id = $data["proxy_id"];
-                                                $status = $data["status"];
+                                                $receiver= isset($data["receiver"]) ? $data["receiver"] : 0; 
+                                                $weight= isset($data["weight"]) ? $data["weight"] : 0;
+                                                $created_date = isset($data["created_date"]) ? $data["created_date"] : "";
+                                                $barcode = isset($data["barcode"]) ? $data["barcode"] : "";
+                                                $barcodes = isset($data["barcodes"]) ? $data["barcodes"] : "";
+                                                $proxy_id = isset($data["proxy_id"]) ? $data["proxy_id"] : 0;
+                                                $status = isset($data["status"]) ? $data["status"] : "";
                                                 $total_weight+=$weight;
-                                                $extra = $data["extra"];
+                                                $extra = isset($data["extra"]) ? $data["extra"] : "";
                                                 ?>
                                                     <tr>
-                                                        <td><?=$count++;?></td>
-                                                        <td><input type="checkbox" name="combine_id[]" value="<?=$combine_id;?>"></td>
-                                                        <td><?=$barcode;?></td>
-                                                        <td><?
-                                                            customer($receiver,"name");
-                                                            customer($receiver,"tel");
+                                                        <td><?php echo $count++;?></td>
+                                                        <td><input type="checkbox" name="combine_id[]" value="<?php echo $combine_id;?>"></td>
+                                                        <td><?php echo htmlspecialchars($barcode);?></td>
+                                                        <td><?php
+                                                            echo customer($receiver,"name");
+                                                            echo " ";
+                                                            echo customer($receiver,"tel");
                                                             ?>
                                                         </td>
-                                                        <td><?=$created_date;?></td>
-                                                        <td><?=$status." ".$extra;?></td>
-                                                        <td><?=$weight;?></td>
+                                                        <td><?php echo $created_date;?></td>
+                                                        <td><?php echo htmlspecialchars($status." ".$extra);?></td>
+                                                        <td><?php echo $weight;?></td>
                                                         <td>
-                                                            <a href="?action=combine_delete&combine_id=<?=$combine_id;?>" title='Delete'><i data-feather='delete'></i></a>
-                                                            <a href="?action=combine_display&combine_id=<?=$combine_id;?>" title='Edit'><i data-feather='edit'></i></a>
+                                                            <a href="?action=combine_delete&combine_id=<?php echo $combine_id;?>" title='Delete'><i data-feather='delete'></i></a>
+                                                            <a href="?action=combine_display&combine_id=<?php echo $combine_id;?>" title='Edit'><i data-feather='edit'></i></a>
                                                     
                                                         </td>
                                                     </tr>
-                                                <?
+                                                <?php
                                         
-                                            } 
+                                            }
+                                            }
                                             ?>
                                         </tbody>
                                         <tfoot>
-                                            <tr><td></td><td colspan='2'>Нийт</td><td><?=$cumulative_packages;?></td><td></td><td></td><td><?=$cumulative_weight;?></td><td></td></tr>
+                                            <tr><td></td><td colspan='2'>Нийт</td><td><?php echo $cumulative_packages;?></td><td></td><td></td><td><?php echo $cumulative_weight;?></td><td></td></tr>
                                         </tfoot>
                                         
                                     </table>
@@ -781,7 +793,7 @@
                                     <button class="btn btn-success" type="submit">өөрчил</button>
 
                                 </form>
-                                <?
+                                <?php
 
                                 }
                                 else echo '<div class="alert alert-danger" role="alert">No combines</div>';
@@ -819,18 +831,18 @@
                             ?>
                 </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action == "combine_changing")
           {
             ?>
             <div class="card">
                 <div class="card-body">
-                    <? 
-                    $options=$_POST["options"];
+                    <?php 
+                    $options=isset($_POST["options"]) ? $_POST["options"] : "";
 
                     switch ($options)
                     {
@@ -839,9 +851,28 @@
                     case "delivered":$new_status = "delivered";break;
                     }
 
-                if(isset($_POST['combine_id'])) {$combine_id=$_POST['combine_id'];$N = count($combine_id);}
-                if(isset($_POST['boxes_id'])) {$boxes_id=$_POST['boxes_id'];$N = 1;}
-                else {$N = count($boxes); $boxes_id="";}
+                $boxes = array();
+                $combine_id = array();
+                $boxes_id = "";
+                $N = 0;
+                
+                if(isset($_POST['combine_id'])) {
+                    $combine_id=$_POST['combine_id'];
+                    $N = is_array($combine_id) ? count($combine_id) : 0;
+                }
+                if(isset($_POST['boxes_id'])) {
+                    $boxes_id=$_POST['boxes_id'];
+                    $N = 1;
+                }
+                if(isset($_POST['boxes']) && is_array($_POST['boxes'])) {
+                    $boxes = $_POST['boxes'];
+                    if ($N == 0) {
+                        $N = count($boxes);
+                    }
+                }
+                if ($N == 0 && $boxes_id == "") {
+                    $boxes_id = "";
+                }
 
                 if ($N!=0 || $boxes_id!="")
                 {
@@ -859,7 +890,14 @@
                 echo "</tr>";
                 for($i=0; $i < $N; $i++)
                 {
-                    $boxes_id=$boxes[$i];
+                    if (isset($combine_id[$i])) {
+                        $current_id = $combine_id[$i];
+                    } elseif (isset($boxes[$i])) {
+                        $current_id = $boxes[$i];
+                    } else {
+                        $current_id = $boxes_id;
+                    }
+                    $boxes_id = $current_id;
                     if ($new_status=="onair")
                         {
                             $count=1;		
@@ -1042,17 +1080,19 @@
                 }
                 echo "</table>";
                 }
-                
-                else echo "Хайрцаг тэмдэглэгдээгүй байна";
+                else 
+                {
+                    echo "Хайрцаг тэмдэглэгдээгүй байна";
+                }
             ?>
 
                 </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action == "history")
           {
             if (isset($_POST["from_date"])) $from_date=$_POST["from_date"]; else $from_date= date('Y-m-d', strtotime(date('Y-m-d') . ' -1 month'));
@@ -1060,14 +1100,16 @@
             
             ?>
             <form action="?action=history" method="post">
-                <input type="date" name="from_date" class="form-control" value="<?=$from_date;?>">
-                <input type="date" name="to_date" class="form-control" value="<?=$to_date;?>">
+                <input type="date" name="from_date" class="form-control" value="<?php echo htmlspecialchars($from_date);?>">
+                <input type="date" name="to_date" class="form-control" value="<?php echo htmlspecialchars($to_date);?>">
             </form>
             <div class="panel panel-primary">
               <div class="panel-heading">Түүх</div>
                   <div class="panel-body">
-                <? 
-                $result = mysqli_query($conn,"SELECT * FROM boxes WHERE status IN ('warehouse','delivered') AND created_date >='$from_date' AND  created_date <='$to_date' ORDER BY box_id DESC");
+                <?php 
+                $from_date_escaped = mysqli_real_escape_string($conn, $from_date);
+                $to_date_escaped = mysqli_real_escape_string($conn, $to_date);
+                $result = mysqli_query($conn,"SELECT * FROM boxes WHERE status IN ('warehouse','delivered') AND created_date >='$from_date_escaped' AND  created_date <='$to_date_escaped' ORDER BY box_id DESC");
                 if (mysqli_num_rows($result) > 0)
                     {
                     echo "<table class='table table-hover'>";
@@ -1132,11 +1174,11 @@
 
                 </div>
                 </div> <!--wrapper-->
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action == "reverse_history")
           {
               if (isset($_GET["id"])) 
@@ -1144,15 +1186,15 @@
                 $box_id =  intval($_GET["id"]); 
                 $sql = "SELECT * FROM boxes WHERE box_id=".$box_id;
                 $result = mysqli_query($conn,$sql);
-                if (mysqli_num_rows($result)==1)
+                if ($result && mysqli_num_rows($result)==1)
                 {
                     $data = mysqli_fetch_array($result);
-                    $box_name = $data["name"];
-                    $box_packages = $data["packages"];
-                    $box_created_date = $data["created_date"];
-                    $box_status = $data["status"];
-                    $box_upost_date = $data["upost_date"];
-                    $box_upost_pk = $data["upost_pk"];
+                    $box_name = isset($data["name"]) ? $data["name"] : "";
+                    $box_packages = isset($data["packages"]) ? $data["packages"] : 0;
+                    $box_created_date = isset($data["created_date"]) ? $data["created_date"] : "";
+                    $box_status = isset($data["status"]) ? $data["status"] : "";
+                    $box_upost_date = isset($data["upost_date"]) ? $data["upost_date"] : "";
+                    $box_upost_pk = isset($data["upost_pk"]) ? $data["upost_pk"] : "";
 
                     if ($box_status == "warehouse")
                     {
@@ -1233,7 +1275,7 @@
           }
           ?>
 
-          <?
+          <?php
           if ($action == "detail")
           {
               if (isset($_GET["id"])) 
@@ -1241,24 +1283,24 @@
                 $box_id =  intval($_GET["id"]); 
                 $sql = "SELECT * FROM boxes WHERE box_id=".$box_id;
                 $result = mysqli_query($conn,$sql);
-                if (mysqli_num_rows($result)==1)
+                if ($result && mysqli_num_rows($result)==1)
                 {
                   $data = mysqli_fetch_array($result);
-                  $box_name = $data["name"];
-                  $box_packages = $data["packages"];
-                  $box_created_date = $data["created_date"];
-                  $box_status = $data["status"];
-                  $box_upost_date = $data["upost_date"];
-                  $box_upost_pk = $data["upost_pk"];
+                  $box_name = isset($data["name"]) ? $data["name"] : "";
+                  $box_packages = isset($data["packages"]) ? $data["packages"] : 0;
+                  $box_created_date = isset($data["created_date"]) ? $data["created_date"] : "";
+                  $box_status = isset($data["status"]) ? $data["status"] : "";
+                  $box_upost_date = isset($data["upost_date"]) ? $data["upost_date"] : "";
+                  $box_upost_pk = isset($data["upost_pk"]) ? $data["upost_pk"] : "";
 
 
                   $sql = "SELECT * FROM boxes_packages WHERE box_id=".$box_id;
                   $result = mysqli_query($conn,$sql);
                   $total_weight=0;
-                  if (mysqli_num_rows($result) > 0)
+                  if ($result && mysqli_num_rows($result) > 0)
                   {
                       ?>             
-                      <h5><?=$box_name;?></h5>       
+                      <h5><?php echo htmlspecialchars($box_name);?></h5>       
                       <h6>Box дэлгэрэнгүй</h6>       
                       <table id="box_detail" class='table table-hover'>
                         <thead>
@@ -1272,39 +1314,43 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?
+                          <?php
                           $count=1;
                           while ($data = mysqli_fetch_array($result))
                           { 
-                            $barcode=$data["barcode"];
-                            $weight=$data["weight"];
-                            $combine=$data["combined"];
-                            $order_id=$data["order_id"];
+                            $barcode=isset($data["barcode"]) ? $data["barcode"] : "";
+                            $weight=isset($data["weight"]) ? $data["weight"] : 0;
+                            $combine=isset($data["combined"]) ? $data["combined"] : 0;
+                            $order_id=isset($data["order_id"]) ? $data["order_id"] : 0;
+                            $status = "";
+                            $receiver = 0;
+                            $proxy = 0;
+                            $proxy_type = 0;
+                            
                             if ($order_id!=0)
                             {
                               $result_inside = mysqli_query($conn,"SELECT * FROM orders WHERE order_id=".$order_id);
-                              if (mysqli_num_rows($result_inside)==1)
+                              if ($result_inside && mysqli_num_rows($result_inside)==1)
                                 {
                                   $data_inside=mysqli_fetch_array($result_inside);
-                                  $status=$data_inside["status"];
-                                  $receiver = $data_inside["receiver"];
-                                  $proxy= $data_inside["proxy_id"];
-                                  $proxy_type=$data_inside["proxy_type"];
+                                  $status=isset($data_inside["status"]) ? $data_inside["status"] : "";
+                                  $receiver = isset($data_inside["receiver"]) ? $data_inside["receiver"] : 0;
+                                  $proxy= isset($data_inside["proxy_id"]) ? $data_inside["proxy_id"] : 0;
+                                  $proxy_type=isset($data_inside["proxy_type"]) ? $data_inside["proxy_type"] : 0;
                                 }
-                                else $status=$receiver=$proxy="";
                             }
                             else 
                             {
-                              $result_combine = mysqli_query($conn,"SELECT * FROM box_combine WHERE barcode='".$barcode."'");
-                                if (mysqli_num_rows($result_combine)==1)
+                              $barcode_escaped = mysqli_real_escape_string($conn, $barcode);
+                              $result_combine = mysqli_query($conn,"SELECT * FROM box_combine WHERE barcode='".$barcode_escaped."'");
+                                if ($result_combine && mysqli_num_rows($result_combine)==1)
                                 {
                                   $data_combine=mysqli_fetch_array($result_combine);
-                                  $status=$data_combine["status"];
-                                  $receiver = $data_combine["receiver"];
-                                  $proxy= $data_combine["proxy_id"];
-                                  $proxy_type= $data_combine["proxy_type"];
+                                  $status=isset($data_combine["status"]) ? $data_combine["status"] : "";
+                                  $receiver = isset($data_combine["receiver"]) ? $data_combine["receiver"] : 0;
+                                  $proxy= isset($data_combine["proxy_id"]) ? $data_combine["proxy_id"] : 0;
+                                  $proxy_type= isset($data_combine["proxy_type"]) ? $data_combine["proxy_type"] : 0;
                                 }
-                              else  $status=$receiver=$proxy="";
                             }
                             
         
@@ -1316,19 +1362,19 @@
                             $r_address= customer($receiver,"address");
                             ?>
                               <tr>
-                                <td><?=$count;?></td>
-                                <td><?=barcode_comfort($barcode);?></td>
+                                <td><?php echo $count;?></td>
+                                <td><?php echo barcode_comfort($barcode);?></td>
                                 <td>
-                                  <? 
+                                  <?php 
                                     if($r_name!="") echo '<a href="customers?action=detail&id='.$receiver.'">'.substr($r_surname,0,2).".".$r_name.'</a>';
                                     if ($proxy>0) echo "<br>".$proxy.":".proxy2($proxy,$proxy_type,"name");
                                   ?>
                                 </td>
-                                <td><?=$r_tel;?></td>
-                                <td><?=$weight;?></td>
-                                <td><?=$status;?></td>
+                                <td><?php echo $r_tel;?></td>
+                                <td><?php echo $weight;?></td>
+                                <td><?php echo htmlspecialchars($status);?></td>
                               </tr>
-                              <?
+                              <?php
 
                                 $total_weight+=$weight;
                                 $count++;                                                            
@@ -1338,12 +1384,12 @@
                       <tfooter>
                           <tr>
                             <td colspan="4">Нийт</td>
-                            <td><?=$total_weight;?></td>
+                            <td><?php echo $total_weight;?></td>
                             <td></td>
                           </tr>                          
-                        <tfooter>
+                        </tfooter>
                     </table>
-                    <?
+                    <?php
                   }
                     else echo "Nothing inside Box<br>";
                 }
@@ -1354,30 +1400,34 @@
           }
           ?>
 
-          <?
+          <?php
           if ($action == "combine_display")
           {
             if (isset($_GET["combine_id"]))
             {
               $combine_id = intval($_GET["combine_id"]);
-              $sql="SELECT * FROM box_combine WHERE combine_id='$combine_id'";
+              $combine_id_escaped = mysqli_real_escape_string($conn, $combine_id);
+              $sql="SELECT * FROM box_combine WHERE combine_id='$combine_id_escaped'";
               $result = mysqli_query($conn,$sql);
-              if (mysqli_num_rows($result) == 1)
+              if ($result && mysqli_num_rows($result) == 1)
               {
                 $data = mysqli_fetch_array($result);
-                echo "<h3>".$data["barcode"]."</h3>";
+                echo "<h3>".htmlspecialchars($data["barcode"])."</h3>";
                 echo "<table class='table'>";
-                $barcodes = $data["barcodes"];
+                $barcodes = isset($data["barcodes"]) ? $data["barcodes"] : "";
                 foreach(explode(",",$barcodes) as $barcode_single)
                 {
                   if ($barcode_single!="")
                   {
-                    $query_single  = mysqli_query($conn,"SELECT * FROM orders WHERE barcode = '$barcode_single' LIMIT 1");
-                    $data_single = mysqli_fetch_array($query_single);
-                    echo "<tr>";
-                    echo "<td><a href='tracks?action=detail&id=".$data_single["order_id"]."'>".$data_single["barcode"]."</a></td>";
-                    echo "<td>".$data_single["status"]."</td>";
-                    echo "</tr>";		
+                    $barcode_single_escaped = mysqli_real_escape_string($conn, $barcode_single);
+                    $query_single  = mysqli_query($conn,"SELECT * FROM orders WHERE barcode = '$barcode_single_escaped' LIMIT 1");
+                    if ($query_single && mysqli_num_rows($query_single) == 1) {
+                      $data_single = mysqli_fetch_array($query_single);
+                      echo "<tr>";
+                      echo "<td><a href='tracks?action=detail&id=".$data_single["order_id"]."'>".htmlspecialchars($data_single["barcode"])."</a></td>";
+                      echo "<td>".htmlspecialchars($data_single["status"])."</td>";
+                      echo "</tr>";
+                    }
                   }
                 }
                 echo "</table>";
@@ -1390,7 +1440,7 @@
           }
           ?>
 
-          <?
+          <?php
           if ($action == "combine_delete")
           {
             if (isset($_GET["combine_id"]))
@@ -1398,20 +1448,20 @@
               $combine_id = intval($_GET["combine_id"]);
               $sql="SELECT * FROM box_combine WHERE combine_id='$combine_id'";
               $result = mysqli_query($conn,$sql);
-              if (mysqli_num_rows($result) == 1)
+              if ($result && mysqli_num_rows($result) == 1)
               {
                 $data = mysqli_fetch_array($result);
                 if (mysqli_query($conn,"DELETE FROM box_combine WHERE combine_id=".$combine_id)) 
                 {
                   ?>
                   <div class="alert alert-success">Амжилттай устгалаа</div>
-                  <?
+                  <?php
                 }
                 else 
                 {
                   ?>
-                  <div class="alert alert-danger">Алдаа гарлаа: <?=mysqli_error($conn);?></div>
-                  <?
+                  <div class="alert alert-danger">Алдаа гарлаа: <?php echo mysqli_error($conn);?></div>
+                  <?php
                 }
 
               }
@@ -1423,7 +1473,7 @@
           }
           ?>
 
-          <?
+          <?php
           if ($action == "badge")
           {
             if (isset($_GET["id"]))
@@ -1478,7 +1528,7 @@
 
                   echo "<tr>";
                   echo "<td>".$count++."</td>";
-                  echo "<td><img src='barcode_gen?=".$barcode."' style='width:100%'></td>";
+                  echo "<td><img src='barcode_gen?=".htmlspecialchars($barcode ?? '')."' style='width:100%'></td>";
                   echo "<td>".substr($r_surname,0,2).".".$r_name;
                     if ($proxy!="") echo "<br>".proxy2($proxy,$proxy_type,"name");
                   echo "</td>";
@@ -1501,7 +1551,7 @@
           }
           ?>
 
-          <?
+          <?php
           if ($action == "excel")
           {
               require_once('assets/vendors/PHP_XLSXWriter/xlsxwriter.class.php');
@@ -1645,7 +1695,7 @@
           ?>
 
         </div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

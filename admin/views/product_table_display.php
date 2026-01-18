@@ -12,30 +12,31 @@
         </tr>
         </thead>
         <tbody>
-        <?
+        <?php
             $result = mysqli_query($conn,$sql);
-            if (mysqli_num_rows($result)>0)
+            if ($result && mysqli_num_rows($result)>0)
             {
                 $count =1;
                 while ($data = mysqli_fetch_array($result))
                 {
-
+                    if ($data) {
                     ?>
                     <tr>
-                    <td><?=$count++;?></td>
-                    <td><?=($data["image"]<>"" && file_exists("../".$data["image"]))?'<img src="../'.$data["image"].'" class="product_tiny">':'';?></td>
-                    <td class="text-wrap"><?=$data["name"];?></td>
-                    <td class="text-wrap"><?=$data["price"];?></td>
-                    <td class="text-wrap"><?=$data["transportation"];?></td>
-                    <td><?=substr($data["created_date"],0,10);?></td>
+                    <td><?php echo $count++;?></td>
+                    <td><?php echo (isset($data["image"]) && $data["image"]<>"" && file_exists("../".$data["image"]))?'<img src="../'.htmlspecialchars($data["image"]).'" class="product_tiny">':'';?></td>
+                    <td class="text-wrap"><?php echo htmlspecialchars($data["name"] ?? '');?></td>
+                    <td class="text-wrap"><?php echo htmlspecialchars($data["price"] ?? '');?></td>
+                    <td class="text-wrap"><?php echo htmlspecialchars($data["transportation"] ?? '');?></td>
+                    <td><?php echo isset($data["created_date"]) ? htmlspecialchars(substr($data["created_date"],0,10)) : '';?></td>
                     <td class="tx-18">
                         <div class="btn-group">
-                            <a href="products?action=detail&id=<?=$data["id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="archive"></i></a>
-                            <a href="products?action=edit&id=<?=$data["id"];?>"  class="btn btn-warning btn-xs text-white btn-icon btn-icon" title="Засах"><i data-feather="archive"></i></a>
+                            <a href="products?action=detail&id=<?php echo htmlspecialchars($data["id"] ?? '');?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="archive"></i></a>
+                            <a href="products?action=edit&id=<?php echo htmlspecialchars($data["id"] ?? '');?>"  class="btn btn-warning btn-xs text-white btn-icon btn-icon" title="Засах"><i data-feather="archive"></i></a>
                         </div>
                     </td>
                     </tr>
-                    <?
+                    <?php
+                    }
                 }
             }
             ?>

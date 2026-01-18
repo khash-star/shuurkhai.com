@@ -6,15 +6,15 @@
             <div class="col-lg-12">
                 <div class="footer-social text-center">
                     <ul class="list-unstyled">
-                        <li><a class="wow fadeInUp" href="<?=settings("facebook");?>"><i aria-hidden="true" class="lab la-facebook-f"></i></a></li>
-                        <li><a class="wow fadeInDown" href="<?=settings("youtube");?>"><i aria-hidden="true" class="lab la-youtube"></i></a></li>
-                        <li><a class="wow fadeInUp" href="<?=settings("instagram");?>"><i aria-hidden="true" class="lab la-instagram"></i></a></li>
+                        <li><a class="wow fadeInUp" href="<?php echo htmlspecialchars(settings("facebook") ?? '');?>"><i aria-hidden="true" class="lab la-facebook-f"></i></a></li>
+                        <li><a class="wow fadeInDown" href="<?php echo htmlspecialchars(settings("youtube") ?? '');?>"><i aria-hidden="true" class="lab la-youtube"></i></a></li>
+                        <li><a class="wow fadeInUp" href="<?php echo htmlspecialchars(settings("instagram") ?? '');?>"><i aria-hidden="true" class="lab la-instagram"></i></a></li>
                     </ul>
                 </div>
             </div>
             <!--Text-->
             <div class="col-lg-12 text-center">
-                <p class="company-about fadeIn"><?=settings("footer_text");?>
+                <p class="company-about fadeIn"><?php echo htmlspecialchars(settings("footer_text") ?? '');?>
                 </p>
             </div>
         </div>

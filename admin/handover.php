@@ -1,4 +1,4 @@
-<?
+<?php
 require_once("config.php");
 require_once("views/helper.php");
 require_once("views/login_check.php");
@@ -8,33 +8,33 @@ require_once("views/init.php");
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-		<?  require_once("views/sidebar.php"); ?>
+		<?php  require_once("views/sidebar.php"); ?>
 				
 
 		<div class="page-content">
-			<?
-			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="insert";?>
-			<?
+			<?php
+			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="insert";
+			$action_title = "Хүргэлт"; // Default value
 			switch ($action)
 			{
 				case "select": $action_title="Barcode-г сонгож өөрчлөх";break;
 				case "insert": $action_title="Barcode-г оруулах";break;
 				case "inserting": $action_title="Ачааг сонгож үргэлжлүүлэх";break;
 				case "handovering": $action_title="Хүргэлтээр гаргах";break;
-				
+				default: $action_title="Хүргэлт";break;
 			}
 			?>
 			<nav class="page-breadcrumb">
 				<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="handover">Хүргэлт</a></li>
-				<li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+				<li class="breadcrumb-item active" aria-current="page"><?php echo $action_title;?></li>
 				</ol>
 			</nav>
 
-            <?
+            <?php
            
             if ($action=="insert")
             {
@@ -54,7 +54,7 @@ require_once("views/init.php");
                         </div>
                     </div>
                 </div>
-                <?
+                <?php
             }
             if ($action=="select")
             {
@@ -140,7 +140,7 @@ require_once("views/init.php");
                                 if (sum_weight==0) total_price=0;
                                 
                                 var grand_total = total_price+total_advance;
-                                var grand_total_tug = grand_total*<?=cfg_rate();?>;
+                                var grand_total_tug = grand_total*<?php echo cfg_rate();?>;
 
                                 //alert (grand_total.toFixed(2));
                                 $('#total_weight').val(sum_weight.toFixed(2));
@@ -171,7 +171,7 @@ require_once("views/init.php");
                     <div class="card">
                         <div class="card-header">Хүргэлтээр гаргах</div>
                             <div class="card-body">
-                                <? 
+                                <?php 
                                 if (isset($_POST["handover"]))
                                 {
                                     $deliver = $_POST["handover"];
@@ -201,7 +201,7 @@ require_once("views/init.php");
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                                        <?php
                                             $count=1;$total_weight=0;$total_advance=0; $grand_total=0; $total_admin_value=0;
                                             if (isset($deliver))
                                             {
@@ -210,7 +210,7 @@ require_once("views/init.php");
                                                         
                                                     if ($deliver_barcode!="")
                                                         {
-                                                            $sql = "SELECT *FROM box_combine WHERE barcode='$deliver_barcode' LIMIT 1";
+                                                            $sql = "SELECT * FROM box_combine WHERE barcode='$deliver_barcode' LIMIT 1";
 
                                                             $result =mysqli_query($conn,$sql);
                                                             if (mysqli_num_rows($result)==0)
@@ -254,35 +254,35 @@ require_once("views/init.php");
                                                                         
                                                                         ?>
                                                                         <tr>
-                                                                            <td><input type="checkbox" name="orders[]" value="<?=$order_id;?>" checked="checked" weight="<?=$weight;?>" advance="<?=$advance_value;?>"></td>                                                                    
-                                                                            <td><?=$count++;?></td>
-                                                                            <td><a href="customers?action=detail&id=<?=$sender;?>"><?=substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
+                                                                            <td><input type="checkbox" name="orders[]" value="<?php echo $order_id;?>" checked="checked" weight="<?php echo $weight;?>" advance="<?php echo $advance_value;?>"></td>                                                                    
+                                                                            <td><?php echo $count++;?></td>
+                                                                            <td><a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
                                                                             <td>
-                                                                                <a href="customers?action=detail&id=<?=$receiver;?>"><?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a>
-                                                                                <br><?=customer($receiver,"tel");?></td>
-                                                                                <br><?=proxy2($proxy,$proxy_type,"name");?></td>
+                                                                                <a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a>
+                                                                                <br><?php echo customer($receiver,"tel");?>
+                                                                                <br><?php echo proxy2($proxy,$proxy_type,"name");?></td>
                                                                 
                                                                 
                                                                             <td class='track_td'>
-                                                                                <?=barcode_comfort($barcode);?><br>
-                                                                                <?=$track;?>
+                                                                                <?php echo barcode_comfort($barcode);?><br>
+                                                                                <?php echo $track;?>
                                                                             </td>
-                                                                            <td><?=days($created_date);?></td>
-                                                                            <td><?=$temp_status;?></td>
-                                                                            <td><?=$weight;?></td>                                                                    
+                                                                            <td><?php echo days($created_date);?></td>
+                                                                            <td><?php echo $temp_status;?></td>
+                                                                            <td><?php echo $weight;?></td>                                                                    
                                                                             
                                                                             <td>
-                                                                            <?=($is_online==0)?$Package_advance_value:'';?>
+                                                                            <?php echo ($is_online==0)?$Package_advance_value:'';?>
                                                                             </td>
                                                                             
                                                                             <td>
-                                                                            <?=($admin_value!=0)?$admin_value:'';?>
+                                                                            <?php echo ($admin_value!=0)?$admin_value:'';?>
                                                                             </td>
                                                                 
-                                                                            <td><a href="orders?action=detail&id=<?=$data["order_id"];?>"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                                                            <td><a href="orders?action=detail&id=<?php echo $data["order_id"];?>"><span class="glyphicon glyphicon-edit"></span></a></td>
                                                                         </tr>
                                                             
-                                                                        <?
+                                                                        <?php
                                                                         if ($is_online==1) $total_weight+=$weight;
                                                             
                                                                         $total_admin_value+=$admin_value;
@@ -296,7 +296,7 @@ require_once("views/init.php");
                                                                     }
                                                             }
                                                         
-                                                            $sql = "SELECT *FROM box_combine WHERE barcode='$deliver_barcode' LIMIT 1";
+                                                            $sql = "SELECT * FROM box_combine WHERE barcode='$deliver_barcode' LIMIT 1";
                                                             $result= mysqli_query($conn,$sql);
                                                             if (mysqli_num_rows($result)==1)
 
@@ -311,26 +311,29 @@ require_once("views/init.php");
                                                                     foreach(explode(",",$barcodes) as $barcode_single)
                                                                     {
                                                                     if ($barcode_single!="")
-                                                                        $query_single  = $this->db->query("SELECT * FROM orders WHERE barcode = '$barcode_single'");						
-                                                                        foreach( $query_single->result() as $data_single)
                                                                         {
-                                                                        $order_id=$data_single->order_id;
-                                                                        $created_date=$data_single->created_date;
-                                                                        $sender=$data_single->sender;
-                                                                        $receiver=$data_single->receiver;
-                                                                        $barcode=$data_single->barcode;
-                                                                        $track=$data_single->third_party;
-                                                                        $weight=$data_single->weight;
-                                                                        $advance=$data_single->advance;
-                                                                        $advance_value=$data_single->advance_value;
-                                                                        $extra=$data_single->extra;
-                                                                        $status=$data_single->status;
-                                                                        $admin_value=$data_single->admin_value;
-                                                                        $proxy=$data_single->proxy_id;
+                                                                        $query_single = mysqli_query($conn, "SELECT * FROM orders WHERE barcode = '".mysqli_real_escape_string($conn, $barcode_single)."'");
+                                                                        if ($query_single && mysqli_num_rows($query_single) > 0)
+                                                                        {
+                                                                        while ($data_single = mysqli_fetch_array($query_single))
+                                                                        {
+                                                                        $order_id=$data_single["order_id"];
+                                                                        $created_date=$data_single["created_date"];
+                                                                        $sender=$data_single["sender"];
+                                                                        $receiver=$data_single["receiver"];
+                                                                        $barcode=$data_single["barcode"];
+                                                                        $track=$data_single["third_party"];
+                                                                        $weight=$data_single["weight"];
+                                                                        $advance=$data_single["advance"];
+                                                                        $advance_value=$data_single["advance_value"];
+                                                                        $extra=$data_single["extra"];
+                                                                        $status=$data_single["status"];
+                                                                        $admin_value=$data_single["admin_value"];
+                                                                        $proxy=$data_single["proxy_id"];
                                                                         //$price=$weight*cfg_paymentrate();
-                                                                        $is_online=$data_single->is_online;
-                                                                        $Package_advance = $data_single ->advance;
-                                                                        $Package_advance_value =$data_single->advance_value;
+                                                                        $is_online=$data_single["is_online"];
+                                                                        $Package_advance = $data_single["advance"];
+                                                                        $Package_advance_value =$data_single["advance_value"];
                                                                         $tr=0;
                                                                         if($status=="warehouse"&&$extra!="") 
                                                                         $temp_status=$status." ".$extra."-р тавиур";else $temp_status=$status;
@@ -366,7 +369,7 @@ require_once("views/init.php");
                                                                             if ($admin_value!=0) echo $admin_value;
                                                                             echo "</td>"; 
                                                                 
-                                                                            echo "<td>".anchor('orders/detail/'.$order_id,'<span class="glyphicon glyphicon-edit"></span>')."</td>";
+                                                                            echo "<td><a href='orders?action=detail&id=".$order_id."'><span class='glyphicon glyphicon-edit'></span></a></td>";
                                                                         echo "</tr>";
                                                             
                                                                         if ($is_online==1) $total_weight+=$weight;
@@ -380,8 +383,7 @@ require_once("views/init.php");
                                                                 
                                                                 
                                                                         }
-                                                                        
-                                                                        
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -411,9 +413,11 @@ require_once("views/init.php");
                                         
                                             if (isset($tel))
                                                 {
-                                                    $sql="SELECT orders.*,orders.status AS realstatus FROM orders LEFT JOIN customer ON orders.receiver=customer.customer_id WHERE customer.tel='$tel' AND orders.status NOT IN('weight_missing')";
-                                                    $query= $this->db->query($sql);
-                                                    foreach ($query->result() as $row)
+                                                    $sql="SELECT orders.*,orders.status AS realstatus FROM orders LEFT JOIN customer ON orders.receiver=customer.customer_id WHERE customer.tel='".mysqli_real_escape_string($conn, $tel)."' AND orders.status NOT IN('weight_missing')";
+                                                    $query = mysqli_query($conn, $sql);
+                                                    if ($query && mysqli_num_rows($query) > 0)
+                                                    {
+                                                    while ($data = mysqli_fetch_array($query))
                                                         {
                                                             $order_id=$data["order_id"];
                                                             $created_date=$data["created_date"];
@@ -444,10 +448,10 @@ require_once("views/init.php");
                                                             if (!$tr) echo "<tr>";else $tr=0;
 
                                                             
-                                                            echo "<td>".form_checkbox("orders[]",$order_id,array("checked"=>"checked"))."</td>"; 
+                                                            echo "<td><input type='checkbox' name='orders[]' value='".$order_id."' checked='checked'></td>"; 
                                                             echo "<td>".$count++."</td>"; 
-                                                            echo "<td>".anchor("admin/customers_detail/".$sender,substr(customer($sender,"surname"),0,2).".".customer($sender,"name"))."</td>";
-                                                            echo "<td>".anchor("admin/customers_detail/".$receiver,substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name"))."<br>";
+                                                            echo "<td><a href='customers?action=detail&id=".$sender."'>".substr(customer($sender,"surname"),0,2).".".customer($sender,"name")."</a></td>";
+                                                            echo "<td><a href='customers?action=detail&id=".$receiver."'>".substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name")."</a><br>";
                                                             echo customer($receiver,"tel");
                                                             echo "<br>".proxy2($proxy,$proxy_type,"name")."</td>";
 
@@ -465,7 +469,7 @@ require_once("views/init.php");
                                                             if ($admin_value!=0) echo $admin_value;
                                                             echo "</td>"; 
 
-                                                            echo "<td>".anchor('orders/detail/'.$data["order_id"],'<span class="glyphicon glyphicon-edit"></span>')."</td>";
+                                                            echo "<td><a href='orders?action=detail&id=".$data["order_id"]."'><span class='glyphicon glyphicon-edit'></span></a></td>";
                                                             echo "</tr>";
                                                             
                                                             
@@ -477,6 +481,7 @@ require_once("views/init.php");
                                                             $total_admin_value+=$admin_value;
                                                             //if ($is_online==1) $grand_total+=cfg_price($weight); else $grand_total+=$Package_advance_value;
                                                         }
+                                                    }
                                                     if ($total_advance==0) $grand_total = cfg_price($total_weight);
                                                         else $grand_total =$total_advance;
 
@@ -525,23 +530,23 @@ require_once("views/init.php");
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Тооцоо /КГ/ </label>
-                                    <input type="text" class="form-control" id="total_weight_inmodal" readonly="readonly" value="<?=$total_weight;?>">
+                                    <input type="text" class="form-control" id="total_weight_inmodal" readonly="readonly" value="<?php echo $total_weight;?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Тооцоо /USD/ </label>
-                                    <input type="text" class="form-control" id="grand_total_inmodal" readonly="readonly"  value="<?=$grand_total;?>">
+                                    <input type="text" class="form-control" id="grand_total_inmodal" readonly="readonly"  value="<?php echo $grand_total;?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Дараа тооцоо /USD/ </label>
-                                    <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?=$total_admin_value;?>">
+                                    <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?php echo $total_admin_value;?>">
                                 </div>
                                 
                                 
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Тооцоо /Төг/ </label>
-                                    <input type="text" class="form-control" id="grand_total_inmodal_tug" readonly="readonly"  value="<?=($grand_total+$total_admin_value)*cfg_rate();?>">
+                                    <input type="text" class="form-control" id="grand_total_inmodal_tug" readonly="readonly"  value="<?php echo ($grand_total+$total_admin_value)*cfg_rate();?>">
                                 </div>
                                 
                                 <div class="form-group">
@@ -582,7 +587,7 @@ require_once("views/init.php");
                         <!--div class="panel panel-success">
                         <div class="panel-heading">Хүргэлтээр гаргах мэдээлэл</div>
                         <div class="panel-body"-->
-                        <?
+                        <?php
                         if ($count>1) 
                         {
                             /*echo "<table class='table table-hover'>";
@@ -602,11 +607,11 @@ require_once("views/init.php");
                             echo '<input type="submit" class="btn btn-success" value="Хүргэлтээр гаргах">';
                             ?>
                             </form>
-                            <?
+                            <?php
                         }
                         ?>
                     </div>  
-                    <?
+                    <?php
                 
 	
     
@@ -689,17 +694,17 @@ require_once("views/init.php");
                                 ?>
 
                                 <tr>
-                                    <td><?=$count++;?></td>
+                                    <td><?php echo $count++;?></td>
                                 
-                                    <td><a href="customers?action=detail&id=<?=$receiver;?>"><?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a></td>
-                                    <td><a href="customers?action=detail&id=<?=$deliver;?>"><?=substr(customer($deliver,"surname"),0,2).".".customer($deliver,"name");?></a></td>
+                                    <td><a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a></td>
+                                    <td><a href="customers?action=detail&id=<?php echo $deliver;?>"><?php echo substr(customer($deliver,"surname"),0,2).".".customer($deliver,"name");?></a></td>
                                 
-                                    <td><?=$barcode;?><br><?=$track;?></td>
+                                    <td><?php echo $barcode;?><br><?php echo $track;?></td>
                                 
-                                    <td><?=$weight;?></td>
+                                    <td><?php echo $weight;?></td>
                                 
                                 </tr>
-                                    <?            
+                                    <?php            
                                     $total_weight+=$weight;
                                     $total_admin_value+=$admin_value;
                                     if ($is_online==0&&$advance==1)
@@ -708,20 +713,20 @@ require_once("views/init.php");
                         }   
 
                     ?>
-                    <tr class='total'><td colspan='4'>Нийт</td><td id='total_weight'><?=$total_weight;?></td></tr>
+                    <tr class='total'><td colspan='4'>Нийт</td><td id='total_weight'><?php echo $total_weight;?></td></tr>
                 </table>
 
-                    <?
+                    <?php
                     if ($count>0)
                         {
                         ?>
-                        <script type="text/javascript" language="Javascript">window.open('handover_bill?orders=<?=implode(",",$orders);?>');</script>
+                        <script type="text/javascript" language="Javascript">window.open('handover_bill?orders=<?php echo implode(",",$orders);?>');</script>
                         
-                        <?
+                        <?php
                         }
                     ?>
 
-                <?
+                <?php
                 }
 	
             }
@@ -733,7 +738,7 @@ require_once("views/init.php");
 
 		</div>
 
-		<? require_once("views/footer.php");?>
+		<?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

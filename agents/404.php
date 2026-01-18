@@ -1,6 +1,6 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/init.php");?>
 
     <link rel="stylesheet" href="assets/vendor/css/pages/page-misc.css" />
   <body>

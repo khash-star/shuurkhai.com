@@ -11,6 +11,7 @@ RewriteRule ^dashboard?$ dashboard.php
 RewriteRule ^settings?$ settings.php
 RewriteRule ^settings_old?$ settings_old.php
 RewriteRule ^agents?$ agents.php
+RewriteRule ^agent?$ agents.php
 RewriteRule ^news?$ news.php
 RewriteRule ^news_category?$ news_category.php
 

@@ -4,7 +4,9 @@
  * @license MIT License
  * */
 
-//if (!class_exists('ZipArchive')) { throw new Exception('ZipArchive not found'); }
+if (!class_exists('ZipArchive')) { 
+    throw new Exception('ZipArchive class not found. Please enable the PHP zip extension in php.ini. In XAMPP, uncomment "extension=zip" in C:\\xampp\\php\\php.ini and restart Apache.'); 
+}
 
 class XLSXWriter
 {

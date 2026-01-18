@@ -27,7 +27,7 @@
             <div class="crumbs">
                 <nav aria-label="breadcrumb" class="breadcrumb-items">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index">Нүүр</a></li>
+                        <li class="breadcrumb-item"><a href="index.php">Нүүр</a></li>
                         <li class="breadcrumb-item"><a href="#">Мэдээлэл</a></li>
                     </ol>
                 </nav>
@@ -49,25 +49,35 @@
                     {
                         ?>
                         <div class="main_content text-center text-lg-left">
-                            <?
-                            $sql = "SELECT news.*, news_category.name category_name FROM news LEFT JOIN news_category ON news.category = news_category.id ORDER BY timestamp DESC LIMIT 20";
-                            $result = mysqli_query($conn,$sql);
-                            while ($data = mysqli_fetch_array($result))
-                            {
-                                ?>
-                                <div class="single_blog">
-                                    <div class="single_img">
-                                        <img src="<?=$data["thumb"];?>" alt="<?=$data["title"];?>"/>
-                                    </div>
-                                    <div class="single_detail">
-                                        <p class="blog-sub-heading text-center"><span></span><?=$data["category_name"];?></p>
-                                        <h2><?=$data["title"];?></h2>
-                                        <span class="blog-text"><a href="#"><?=substr($data["timestamp"],0,10);?></a> | BY <a href="#">Shuurkhai</a> | <a href="#"><?=$data["category_name"];?></a></span>
-                                        <!-- <p class="p-text">Nam ut rutrum ex, venenatis sollicitudin urna. Aliquam erat volutpat. Integer eu ipsum sem. Ut bibendum lacus vestibulum maximus suscipit. Quisque vitae nibh iaculis...</p> -->
-                                        <a class="btn web-btn rounded-pill" href="news?id=<?=$data["id"];?>">Унших</a>
-                                    </div>
-                                </div>
-                                <?
+                            <?php
+                            if (isset($conn) && $conn) {
+                                $sql = "SELECT news.*, news_category.name category_name FROM news LEFT JOIN news_category ON news.category = news_category.id ORDER BY timestamp DESC LIMIT 20";
+                                $result = mysqli_query($conn,$sql);
+                                if ($result && mysqli_num_rows($result) > 0) {
+                                    while ($data = mysqli_fetch_array($result)) {
+                                        if ($data && is_array($data)) {
+                                            $thumb = isset($data["thumb"]) ? htmlspecialchars(fix_image_path($data["thumb"])) : '';
+                                            $title = isset($data["title"]) ? htmlspecialchars($data["title"]) : '';
+                                            $category_name = isset($data["category_name"]) ? htmlspecialchars($data["category_name"]) : '';
+                                            $timestamp = isset($data["timestamp"]) ? substr($data["timestamp"],0,10) : '';
+                                            $id = isset($data["id"]) ? $data["id"] : '';
+                                            ?>
+                                            <div class="single_blog">
+                                                <div class="single_img">
+                                                    <img src="<?php echo $thumb;?>" alt="<?php echo $title;?>"/>
+                                                </div>
+                                                <div class="single_detail">
+                                                    <p class="blog-sub-heading text-center"><span></span><?php echo $category_name;?></p>
+                                                    <h2><?php echo $title;?></h2>
+                                                    <span class="blog-text"><a href="#"><?php echo $timestamp;?></a> | BY <a href="#">Shuurkhai</a> | <a href="#"><?php echo $category_name;?></a></span>
+                                                    <!-- <p class="p-text">Nam ut rutrum ex, venenatis sollicitudin urna. Aliquam erat volutpat. Integer eu ipsum sem. Ut bibendum lacus vestibulum maximus suscipit. Quisque vitae nibh iaculis...</p> -->
+                                                    <a class="btn web-btn rounded-pill" href="news?id=<?php echo $id;?>">Унших</a>
+                                                </div>
+                                            </div>
+                                            <?php
+                                        }
+                                    }
+                                }
                             }
                             ?>
                         </div>
@@ -81,19 +91,27 @@
                         $news_id =$_GET["id"];
                         ?>
                         <div class="main_content text-center text-lg-left">
-                            <?
-                            $sql = "SELECT news.*, news_category.name category_name FROM news LEFT JOIN news_category ON news.category = news_category.id WHERE news.id='$news_id'";
-                            $result = mysqli_query($conn,$sql);
-                            $data = mysqli_fetch_array($result);
-                            {
-                                ?>
-                                <div class="detail_blog">
-                                    <div class="blog_detail">
-                                        <p class="blog-sub-heading text-center"><span></span><?=$data["category_name"];?></p>
-                                        <h2><?=$data["title"];?></h2>
-                                        <span class="blog-text"><a href="#"><?=substr($data["timestamp"],0,10);?></a> | BY <a href="#">Shuurkhai</a> | <a href="#"><?=$data["category_name"];?></a></span>
-                                        <img src="<?=$data["image"];?>" class="w-100">
-                                        <p class="d-text"><?=$data["content"];?></p>
+                            <?php
+                            if (isset($conn) && $conn && isset($news_id)) {
+                                $news_id = mysqli_real_escape_string($conn, $news_id);
+                                $sql = "SELECT news.*, news_category.name category_name FROM news LEFT JOIN news_category ON news.category = news_category.id WHERE news.id='$news_id'";
+                                $result = mysqli_query($conn,$sql);
+                                if ($result && mysqli_num_rows($result) > 0) {
+                                    $data = mysqli_fetch_array($result);
+                                    if ($data && is_array($data)) {
+                                        $category_name = isset($data["category_name"]) ? htmlspecialchars($data["category_name"]) : '';
+                                        $title = isset($data["title"]) ? htmlspecialchars($data["title"]) : '';
+                                        $timestamp = isset($data["timestamp"]) ? substr($data["timestamp"],0,10) : '';
+                                        $image = isset($data["image"]) ? htmlspecialchars(fix_image_path($data["image"])) : '';
+                                        $content = isset($data["content"]) ? $data["content"] : '';
+                                        ?>
+                                        <div class="detail_blog">
+                                            <div class="blog_detail">
+                                                <p class="blog-sub-heading text-center"><span></span><?php echo $category_name;?></p>
+                                                <h2><?php echo $title;?></h2>
+                                                <span class="blog-text"><a href="#"><?php echo $timestamp;?></a> | BY <a href="#">Shuurkhai</a> | <a href="#"><?php echo $category_name;?></a></span>
+                                                <img src="<?php echo $image;?>" class="w-100">
+                                                <p class="d-text"><?php echo $content;?></p>
 
                                         <div class="row social">
                                             <!-- <div class="col-12 col-md-8 tags pb-3 pb-md-0">
@@ -140,7 +158,9 @@
                                     </div>
                                     
                                 </div>
-                                <?
+                                        <?php
+                                    }
+                                }
                             }
                             ?>
                         </div>
@@ -168,14 +188,20 @@
                             <div class="cat_sec">
                                 <h4 class="text-center text-lg-left">Ангилал</h4>
                                 <ul>
-                                    <?
-                                    $sql = "SELECT *FROM news_category";
-                                    $result = mysqli_query($conn,$sql);
-                                    while ($data = mysqli_fetch_array($result))
-                                    {
-                                        ?>
-                                        <li><a href="#"><?=$data["name"];?> </a> <span class="dots"></span> <p>2</p></li>
-                                        <?
+                                    <?php
+                                    if (isset($conn) && $conn) {
+                                        $sql = "SELECT * FROM news_category";
+                                        $result = mysqli_query($conn,$sql);
+                                        if ($result && mysqli_num_rows($result) > 0) {
+                                            while ($data = mysqli_fetch_array($result)) {
+                                                if ($data && is_array($data)) {
+                                                    $name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                                                    ?>
+                                                    <li><a href="#"><?php echo $name;?> </a> <span class="dots"></span> <p>2</p></li>
+                                                    <?php
+                                                }
+                                            }
+                                        }
                                     }
                                     ?>
                                 </ul>

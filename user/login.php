@@ -1,6 +1,6 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/init.php");?>
     <link href="assets/css/authentication/form-1.css" rel="stylesheet" type="text/css" />
     <!-- END GLOBAL MANDATORY STYLES -->
     <link rel="stylesheet" type="text/css" href="assets/css/forms/theme-checkbox-radio.css">
@@ -14,12 +14,12 @@
             <div class="form-form-wrap">
                 <div class="form-container">
                     <div class="form-content">
-                    <? //$_COOKIE["login_remember"];?>
+                    <?php //$_COOKIE["login_remember"];?>
                         <a href="https://shuurkhai.com"><img src="assets/images/logo.png" class="pb-3"></a>
                         <p class="signup-link">Шинэ бүртгэл <a href="register">энд дарж</a> үүсгэнэ</p>
                         <form class="text-left" method="post" action="views/logining">
                             <div class="form">
-                                <?
+                                <?php
                                  if (isset($_GET["error"]))
                                  {
                                      ?>
@@ -28,12 +28,12 @@
                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                                          <b>Нууц үг буруу байна
                                      </div>
-                                     <?
+                                     <?php
                                  }
                                 ?>
                                 <div id="username-field" class="field-wrapper input">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                                    <input id="username" name="username" type="text" class="form-control" placeholder="Нэвтрэх нэр" value="<?=(isset($_COOKIE["login_remember"]))?$_COOKIE["login_remember"]:'';?>">
+                                    <input id="username" name="username" type="text" class="form-control" placeholder="Нэвтрэх нэр" value="<?php echo htmlspecialchars((isset($_COOKIE["login_remember"]))?$_COOKIE["login_remember"]:'');?>">
                                 </div>
 
                                 <div id="password-field" class="field-wrapper input mb-2">
@@ -57,7 +57,7 @@
                                 <div class="field-wrapper text-center keep-logged-in">
                                     <div class="n-chk new-checkbox checkbox-outline-primary">
                                         <label class="new-control new-checkbox checkbox-outline-primary">
-                                          <input type="checkbox" class="new-control-input"  <?=(isset($_COOKIE["login_remember"]))?'checked':'';?> name="login_remember">
+                                          <input type="checkbox" class="new-control-input"  <?php echo (isset($_COOKIE["login_remember"]))?'checked':'';?> name="login_remember">
                                           <span class="new-control-indicator"></span>Намайг сана
                                         </label>
                                     </div>
@@ -69,7 +69,7 @@
 
                             </div>
                         </form>                        
-                        <p class="terms-conditions"><?=settings("footer_text");?></p>
+                        <p class="terms-conditions"><?php echo htmlspecialchars(settings("footer_text") ?? '');?></p>
 
                     </div>                    
                 </div>

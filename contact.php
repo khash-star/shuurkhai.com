@@ -1,41 +1,75 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php 
+require_once("config.php");
+require_once("views/helper.php");
 
+// Start session to check if user is logged in
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if user is logged in
+$is_logged_in = isset($_SESSION['customer_id']) && $_SESSION['customer_id'] > 0;
+?>
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <!-- Base URL for relative paths -->
+    <base href="/shuurkhai/">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>Холбоо барих - Shuurkhai</title>
+    <!-- Bundle -->
+    <link href="assets/vendor/css/bundle.min.css" rel="stylesheet">
+    <!-- Plugin Css -->
+    <link href="assets/css/line-awesome.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/revolution-settings.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/jquery.fancybox.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/owl.carousel.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/cubeportfolio.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/LineIcons.min.css" rel="stylesheet">
+    <link href="assets/vendor/css/wow.css" rel="stylesheet">
+    <link href="assets/css/settings.css" rel="stylesheet">
+    <link href="assets/css/blog.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/custom.css" rel="stylesheet">
+    <script>
+        // Pass session status to JavaScript
+        var isLoggedIn = <?php echo $is_logged_in ? 'true' : 'false'; ?>;
+    </script>
+</head>
 <body data-spy="scroll" data-target=".navbar" data-offset="90">
 
-<!-- Preloader -->
-<div class="preloader">
-    <div class="centrize full-width">
-        <div class="vertical-center">
-            <div class="spinner">
-                <div class="double-bounce1"></div>
-                <div class="double-bounce2"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Preloader End -->
+<?php
+$page_title = 'Холбогдох';
+$page_image = '';
+$page_content = 'Бидэнтэй холбогдох';
 
-<? require_once("views/header.php");?>
-
-<?
-$sql = "SELECT *FROM pages WHERE page_id =6";
-$result = mysqli_query($conn,$sql);
-$data= mysqli_fetch_array($result);
-$page_title = $data["title"];
-$page_image = $data["image"];
-$page_content = $data["content"];
+if (isset($conn) && $conn) {
+    $sql = "SELECT * FROM pages WHERE page_id = 6";
+    $result = mysqli_query($conn,$sql);
+    if ($result && mysqli_num_rows($result) > 0) {
+        $data = mysqli_fetch_array($result);
+        if ($data) {
+            $page_title = isset($data["title"]) && !empty($data["title"]) ? $data["title"] : $page_title;
+            $page_image = isset($data["image"]) && !empty($data["image"]) ? fix_image_path($data["image"]) : $page_image;
+            $page_content = isset($data["content"]) && !empty($data["content"]) ? $data["content"] : $page_content;
+        }
+    }
+}
+// Ensure variables are always defined
+if (!isset($page_title)) { $page_title = 'Холбогдох'; }
+if (!isset($page_image)) { $page_image = ''; }
+if (!isset($page_content)) { $page_content = 'Бидэнтэй холбогдох'; }
 ?>
-<!--slider sec strat-->
-<section id="slider-sec" class="slider-sec parallax" style="background: url('<?=$page_image;?>');">
+<!-- Page Header -->
+<section id="slider-sec" class="slider-sec parallax" style="background: url('<?php echo isset($page_image) && !empty($page_image) ? fix_image_path($page_image) : 'assets/images/warehouse-bg.jpg'; ?>');">
     <div class="overlay text-center d-flex justify-content-center align-items-center">
         <div class="slide-contain">
             <h4>Холбогдох хэсэг</h4>
             <div class="crumbs">
                 <nav aria-label="breadcrumb" class="breadcrumb-items">
                     <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="index">Нүүр</a></li>
+                        <li class="breadcrumb-item"><a href="/shuurkhai/">Нүүр</a></li>
                         <li class="breadcrumb-item"><a href="#">Холбогдох хэсэг</a></li>
                     </ol>
                 </nav>
@@ -43,7 +77,6 @@ $page_content = $data["content"];
         </div>
     </div>
 </section>
-<!--slider sec end-->
 
 
 <!-- Contact Us Start -->
@@ -56,12 +89,12 @@ $page_content = $data["content"];
                     <div class="ex-detail">
                         <span class="fly-text">Холбогдох</span>
                         <h4 class="large-heading">
-                            <span class="heading-1"><?=$page_title;?></span>
+                            <span class="heading-1"><?php echo isset($page_title) ? $page_title : 'Холбогдох'; ?></span>
                             <!-- <span class="heading-2">In Touch</span> -->
                         </h4>
                     </div>
                     <p class="small-text text-center text-md-left">
-                        <?=$page_content;?>
+                        <?php echo isset($page_content) ? $page_content : 'Бидэнтэй холбогдох'; ?>
                     </p>
                     <div class="row location-details text-center text-md-left">
                         <div class="col-12 col-md-6 couuntry-1">
@@ -122,12 +155,8 @@ $page_content = $data["content"];
 <!-- Contact Us End -->
 
 
-<? require_once("views/footer.php");?>
-
-
 <!--Scroll Top Start-->
 <span class="scroll-top-arrow"><i class="fas fa-angle-up"></i></span>
-
 <!--Scroll Top End-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.0.4/popper.js"></script>
 

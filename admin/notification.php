@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -7,14 +7,14 @@
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 		<div class="page-content">
-        <? 
+        <?php 
             // if (isset($_GET["id"])) $page_id=protect($_GET["id"]); else $page_id = 1;
             if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="new";
 
@@ -34,30 +34,30 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?
-                        $sql = "SELECT *FROM pages ORDER BY update_date DESC";
+                        <?php
+                        $count = 1;
+                        $sql = "SELECT * FROM pages ORDER BY update_date DESC";
                         $result = mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)>0)
+                        if ($result && mysqli_num_rows($result) > 0)
                         {
-                        $count=1;
-                        while ($data = mysqli_fetch_array($result))
-                        {
-
-                            ?>
-                            <tr>
-                            <td><?=$count++;?></td>
-                            <td><?=$data["title"];?></td>
-                            <td><? if ($data["image"]<>"") echo '<img src="../'.$data["image"].'" width="100%">';?></td>
-                            <td><?=$data["update_date"];?></td>
-                            <td class="tx-18">
-                                <div class="btn-group">
-                                <a href="?action=detail&id=<?=$data["page_id"];?>" class="btn btn-success btn-xs btn-icon" title="Харах"><i data-feather="eye"></i></a>
-                                <a href="?action=edit&id=<?=$data["page_id"];?>"  class="btn btn-warning btn-xs btn-icon text-white" title="Засах"><i data-feather="edit"></i></a>
-                                </div>
-                            </td>
-                            </tr>
-                            <?
-                        }
+                            while ($data = mysqli_fetch_array($result))
+                            {
+                                if (!$data) continue;
+                                ?>
+                                <tr>
+                                <td><?php echo $count++;?></td>
+                                <td><?php echo htmlspecialchars($data["title"] ?? '');?></td>
+                                <td><?php if (isset($data["image"]) && $data["image"]<>"") echo '<img src="../'.htmlspecialchars($data["image"]).'" width="100%">';?></td>
+                                <td><?php echo isset($data["update_date"]) ? htmlspecialchars($data["update_date"]) : '';?></td>
+                                <td class="tx-18">
+                                    <div class="btn-group">
+                                    <a href="?action=detail&id=<?php echo htmlspecialchars($data["page_id"] ?? '');?>" class="btn btn-success btn-xs btn-icon" title="Харах"><i data-feather="eye"></i></a>
+                                    <a href="?action=edit&id=<?php echo htmlspecialchars($data["page_id"] ?? '');?>"  class="btn btn-warning btn-xs btn-icon text-white" title="Засах"><i data-feather="edit"></i></a>
+                                    </div>
+                                </td>
+                                </tr>
+                                <?php
+                            }
                         }
                         ?>
                     </tbody>
@@ -65,12 +65,12 @@
                 </div><!-- table-wrapper -->
                 </div><!-- section-wrapper -->
                 <a href="?action=new" class="btn btn-warning mt-3">Шинэ хуудас</a>
-                <?
+                <?php
             }
             ?>
             
 
-            <?
+            <?php
             if ($action =="new")
             {
                 ?>            
@@ -121,18 +121,18 @@
                     }
 
                 </script>
-                <?
+                <?php
             }
             ?>
 
 
-            <?
+            <?php
             if ($action =="sending")
             {
-                $title = $_POST["title"];
-                $content = $_POST["content"];
-                $to_whom = $_POST["to_whom"];
-                $tel = $_POST["tel"];
+                $title = isset($_POST["title"]) ? protect($_POST["title"]) : '';
+                $content = isset($_POST["content"]) ? protect($_POST["content"]) : '';
+                $to_whom = isset($_POST["to_whom"]) ? protect($_POST["to_whom"]) : 'all';
+                $tel = isset($_POST["tel"]) ? protect($_POST["tel"]) : '';
 
                 require_once 'assets/vendors/fcm/google/vendor/autoload.php';
 
@@ -222,7 +222,7 @@
                     if ($httpCode == 200) {
                         ?>
                         <div class="alert alert-success">Sent!</div>
-                        <?
+                        <?php
                         // $response['response'] = 200;
                         // $response['error_msg'] = "Sent!";
                     } 
@@ -232,7 +232,7 @@
                         <div class="alert alert-danger">
                         Failed to send notification.
                         </div>
-                        <?
+                        <?php
                         // $response['response'] = $httpCode;
                         // $response['error_msg'] = "Failed to send notification.";
                     }
@@ -247,67 +247,72 @@
                         $tel_single = trim($tel_single);
                         if ($tel_single!="")
                         {
-                            $sql = "SELECT customer_id,fcm_token FROM customer WHERE tel='$tel_single' LIMIT 1";
+                            $tel_single_escaped = mysqli_real_escape_string($conn, $tel_single);
+                            $sql = "SELECT customer_id,fcm_token FROM customer WHERE tel='$tel_single_escaped' LIMIT 1";
                             $result = mysqli_query($conn,$sql);
-                            if (mysqli_num_rows($result)==1)
+                            if ($result && mysqli_num_rows($result) == 1)
                             {
                                 $data = mysqli_fetch_array($result);
-                                $fcm_token = $data["fcm_token"];
-                                $customer_id = $data["customer_id"];
-                                $sql = "INSERT INTO notifications (receiver,title,content) VALUES ('$customer_id','$title','$content')";
-                                mysqli_query($conn,$sql);
-                                if ($fcm_token<>"")
-                                {
+                                if ($data) {
+                                    $fcm_token = isset($data["fcm_token"]) ? $data["fcm_token"] : '';
+                                    $customer_id = intval($data["customer_id"] ?? 0);
+                                    $title_escaped = mysqli_real_escape_string($conn, $title);
+                                    $content_escaped = mysqli_real_escape_string($conn, $content);
+                                    $sql = "INSERT INTO notifications (receiver,title,content) VALUES ('$customer_id','$title_escaped','$content_escaped')";
+                                    mysqli_query($conn,$sql);
+                                    if ($fcm_token<>"")
+                                    {
 
-                                    $apiBody = [
-                                        'message' => [
-                                            'token' => $fcm_token,  // This is the FCM token for the device
-                                            'notification' => $notifData,
-                                            'apns' => [
-                                                'headers' => [
-                                                    'apns-priority' => '10',
-                                                ],
-                                                'payload' => [
-                                                    'aps' => [
-                                                        'sound' => 'default',
+                                        $apiBody = [
+                                            'message' => [
+                                                'token' => $fcm_token,  // This is the FCM token for the device
+                                                'notification' => $notifData,
+                                                'apns' => [
+                                                    'headers' => [
+                                                        'apns-priority' => '10',
+                                                    ],
+                                                    'payload' => [
+                                                        'aps' => [
+                                                            'sound' => 'default',
+                                                        ],
                                                     ],
                                                 ],
-                                            ],
-                                            'android' => [
-                                                "priority"=>"high",
-                                                'notification' => [
-                                                    'click_action' => "FLUTTER_NOTIFICATION_CLICK",
-                                                    'sound'=> 'default',
-                                                ]
-                                            ],
-                                        ]
-                                    ];
-                                
-                                    // Initialize curl with the prepared headers and body
-                                    $ch = curl_init();
-                                    curl_setopt($ch, CURLOPT_URL, $url);
-                                    curl_setopt($ch, CURLOPT_POST, true);
-                                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                                    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($apiBody));
-                                
-                                    // Execute call and save result
-                                    $result = curl_exec($ch);
-                                    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-                                    curl_close($ch);
-                                    // echo $result;
-                                    if ($httpCode == 200) {
-                                        alert_div ($tel_single."Sent!","success");
-                                    } 
-                                    else 
-                                    {
-                                        alert_div ($tel_single."Failed to send notification");   
+                                                'android' => [
+                                                    "priority"=>"high",
+                                                    'notification' => [
+                                                        'click_action' => "FLUTTER_NOTIFICATION_CLICK",
+                                                        'sound'=> 'default',
+                                                    ]
+                                                ],
+                                            ]
+                                        ];
+                                    
+                                        // Initialize curl with the prepared headers and body
+                                        $ch = curl_init();
+                                        curl_setopt($ch, CURLOPT_URL, $url);
+                                        curl_setopt($ch, CURLOPT_POST, true);
+                                        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                                        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($apiBody));
+                                    
+                                        // Execute call and save result
+                                        $result = curl_exec($ch);
+                                        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                                        curl_close($ch);
+                                        // echo $result;
+                                        if ($httpCode == 200) {
+                                            alert_div ($tel_single."Sent!","success");
+                                        } 
+                                        else 
+                                        {
+                                            alert_div ($tel_single."Failed to send notification");   
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    alert_div ($tel_single.": Апп-р нэвтрээгүй хэрэглэгч байна.");                                        
+                                    else
+                                    {
+                                        alert_div ($tel_single.": Апп-р нэвтрээгүй хэрэглэгч байна.");                                        
 
+                                    }
                                 }
                             }
                             else
@@ -328,38 +333,49 @@
             }
             ?>
 
-            <?
+            <?php
             if ($action =="delete")
             {
-                $page_id = $_GET["id"];
+                $page_id = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
 
                 ?>
                 <div class="row row-xs mg-t-10">
                 <div class="col-lg-12">
-                    <?
-                    $sql = "DELETE FROM pages WHERE page_id='$page_id' LIMIT 1";
+                    <?php
+                    if ($page_id > 0) {
+                        $sql = "DELETE FROM pages WHERE page_id='$page_id' LIMIT 1";
 
-                    if (mysqli_query($conn,$sql))
-                    {
-                    ?>
-                    <div class="alert alert-success mg-b-10" role="alert">
-                        Амжилттай устгалаа.
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div><!-- alert --> 
-                    <?
-                    }
-                    else 
-                    {
-                    ?>
-                    <div class="alert alert-danger mg-b-10" role="alert">
-                    Алдаа гарлаа. <?=mysqli_query($conn,$sql);?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div><!-- alert --> 
-                    <?
+                        if (mysqli_query($conn,$sql))
+                        {
+                        ?>
+                        <div class="alert alert-success mg-b-10" role="alert">
+                            Амжилттай устгалаа.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div><!-- alert --> 
+                        <?php
+                        }
+                        else 
+                        {
+                        ?>
+                        <div class="alert alert-danger mg-b-10" role="alert">
+                        Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div><!-- alert --> 
+                        <?php
+                        }
+                    } else {
+                        ?>
+                        <div class="alert alert-danger mg-b-10" role="alert">
+                        Алдаа: ID олдсонгүй.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div><!-- alert --> 
+                        <?php
                     }
                     ?>
                 </div><!-- col-lg-12 -->
@@ -367,12 +383,12 @@
                     <a href="pages" class="btn btn-primary">Бүх хуудсууд</a>
                 </div>
                 </div><!-- row -->
-                <?
+                <?php
             }
             ?>
 
         </div>
-        <? require_once("views/footer.php");?>
+        <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

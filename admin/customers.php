@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -20,9 +20,9 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
-          <?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";
+          $action_title = "Удирдлага"; // Default value
           switch ($action)
           {
             case "display": $action_title="Бүх харилцагч";break;
@@ -54,14 +54,14 @@
           <nav class="page-breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="customers">Харилцагч</a></li>
-              <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+              <li class="breadcrumb-item active" aria-current="page"><?php echo $action_title;?></li>
             </ol>
           </nav>
 
-          <?
+          <?php
           if ($action =="dashboard")
           {
-            $sql = "SELECT *FROM customer";
+            $sql = "SELECT * FROM customer";
             $result = mysqli_query($conn,$sql);
             $total = mysqli_num_rows($result);
             ?>
@@ -85,7 +85,7 @@
                         </div>
                         <div class="row">
                           <div class="col-6 col-md-12 col-xl-5">
-                            <h3 class="mb-2"><?=number_format($total);?></h3>
+                            <h3 class="mb-2"><?php echo number_format($total);?></h3>
                             <div class="d-flex align-items-baseline">
                               <p class="text-success">
                                 <span>+3.3%</span>
@@ -190,14 +190,15 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="search")
           {
-            if(isset($_POST["search"])) $search = $_POST["search"]; else $search="";
+            $search = "";
+            if(isset($_POST["search"])) $search = mysqli_real_escape_string($conn, $_POST["search"]);
             ?>
             <div class="row">
               <div class="col-lg-12">
@@ -207,7 +208,7 @@
                     <form action="customers?action=search" method="post">
                       <div class="form-group">
                         <label for="search">Хэрэглэгч хайх</label>
-                        <input type="text" class="form-control" id="search" autocomplete="off" placeholder="Утас, нэр, нэвтрэх нэр, ииэйл, регистрийн дугаараар хайх" value="<?=$search;?>" name="search"> 
+                        <input type="text" class="form-control" id="search" autocomplete="off" placeholder="Утас, нэр, нэвтрэх нэр, ииэйл, регистрийн дугаараар хайх" value="<?php echo htmlspecialchars($search);?>" name="search"> 
                       </div>
                       <button type="submit" class="btn btn-primary mr-2">Хайх</button>
                     </form>
@@ -215,7 +216,7 @@
                 </div>
               </div>
             </div>
-            <? 
+            <?php 
             if (strlen($search)>=3)
             {
               ?>
@@ -237,30 +238,30 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <?
-                              $sql= "SELECT * FROM customer WHERE CONCAT_WS(name,surname,tel,rd,email,username) LIKE '%".$search."%'";
+                            <?php
+                              $sql= "SELECT * FROM customer WHERE CONCAT_WS(name,surname,tel,rd,email,username) LIKE '%".mysqli_real_escape_string($conn, $search)."%'";
                               $result = mysqli_query($conn,$sql);
-                              if (mysqli_num_rows($result)>0)
+                              if ($result && mysqli_num_rows($result)>0)
                               {
                                 while ($data = mysqli_fetch_array($result))
                                 {
 
                                   ?>
                                   <tr>
-                                    <td><?=$data["customer_id"];?></td>
-                                    <td class="text-wrap"><?=$data["name"];?></td>
-                                    <td><?=$data["tel"];?></td>
-                                    <td class="text-wrap"><?=$data["email"];?></td>
-                                    <td class="text-wrap"><?=$data["username"];?></td>
-                                    <td><?=substr($data["last_log"],0,10);?></td>
+                                    <td><?php echo htmlspecialchars($data["customer_id"]);?></td>
+                                    <td class="text-wrap"><?php echo htmlspecialchars($data["name"]);?></td>
+                                    <td><?php echo htmlspecialchars($data["tel"]);?></td>
+                                    <td class="text-wrap"><?php echo htmlspecialchars($data["email"]);?></td>
+                                    <td class="text-wrap"><?php echo htmlspecialchars($data["username"]);?></td>
+                                    <td><?php echo htmlspecialchars(substr($data["last_log"],0,10));?></td>
                                     <td class="tx-18">
                                       <div class="btn-group">
-                                    <a href="customers?action=detail&id=<?=$data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
-                                    <a href="customers?action=edit&id=<?=$data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
+                                    <a href="customers?action=detail&id=<?php echo $data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
+                                    <a href="customers?action=edit&id=<?php echo $data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
                                       </div>
                                     </td>
                                   </tr>
-                                  <?
+                                  <?php
                                 }
                               }
                               ?>
@@ -272,7 +273,7 @@
                   </div>
                 </div>
               </div>
-              <?
+              <?php
             }
             
             if (strlen($search)<3)
@@ -291,13 +292,13 @@
                 </div>
               </div>
             
-              <?
+              <?php
             }
             
           }
           ?>
 
-          <?
+          <?php
           if ($action =="display")
           {
             ?>
@@ -319,30 +320,30 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?
-                            $sql = "SELECT *FROM customer";
+                          <?php
+                            $sql = "SELECT * FROM customer";
                             $result = mysqli_query($conn,$sql);
-                            if (mysqli_num_rows($result)>0)
+                            if ($result && mysqli_num_rows($result)>0)
                             {
                               while ($data = mysqli_fetch_array($result))
                               {
 
                                 ?>
                                 <tr>
-                                  <td><?=$data["customer_id"];?></td>
-                                  <td class="text-wrap"><?=$data["name"];?></td>
-                                  <td><?=$data["tel"];?></td>
-                                  <td class="text-wrap"><?=$data["email"];?></td>
-                                  <td class="text-wrap"><?=$data["username"];?></td>
-                                  <td><?=substr($data["last_log"],0,10);?></td>
+                                  <td><?php echo htmlspecialchars($data["customer_id"]);?></td>
+                                  <td class="text-wrap"><?php echo htmlspecialchars($data["name"]);?></td>
+                                  <td><?php echo htmlspecialchars($data["tel"]);?></td>
+                                  <td class="text-wrap"><?php echo htmlspecialchars($data["email"]);?></td>
+                                  <td class="text-wrap"><?php echo htmlspecialchars($data["username"]);?></td>
+                                  <td><?php echo htmlspecialchars(substr($data["last_log"],0,10));?></td>
                                   <td class="tx-18">
                                     <div class="btn-group">
-                                  <a href="customers?action=detail&id=<?=$data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
-                                  <a href="customers?action=edit&id=<?=$data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon btn-icon" title="Засах"><i data-feather="edit"></i></a>
+                                  <a href="customers?action=detail&id=<?php echo $data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
+                                  <a href="customers?action=edit&id=<?php echo $data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon btn-icon" title="Засах"><i data-feather="edit"></i></a>
                                     </div>
                                   </td>
                                 </tr>
-                                <?
+                                <?php
                               }
                             }
                             ?>
@@ -354,11 +355,11 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="new")
           {
             ?>
@@ -378,30 +379,30 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <?
-                        $sql = "SELECT *FROM customer WHERE registered_date IS NOT NULL ORDER BY registered_date DESC LIMIT 100";
+                      <?php
+                        $sql = "SELECT * FROM customer WHERE registered_date IS NOT NULL ORDER BY registered_date DESC LIMIT 100";
                         $result = mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)>0)
+                        if ($result && mysqli_num_rows($result)>0)
                         {
                           while ($data = mysqli_fetch_array($result))
                           {
 
                             ?>
                             <tr>
-                              <td><?=$data["customer_id"];?></td>
-                              <td class="text-wrap"><?=$data["name"];?></td>
-                              <td><?=$data["tel"];?></td>
-                              <td class="text-wrap"><?=$data["email"];?></td>
-                              <td class="text-wrap"><?=$data["username"];?></td>
-                              <td><?=substr($data["last_log"],0,10);?></td>
+                              <td><?php echo $data["customer_id"];?></td>
+                              <td class="text-wrap"><?php echo $data["name"];?></td>
+                              <td><?php echo $data["tel"];?></td>
+                              <td class="text-wrap"><?php echo $data["email"];?></td>
+                              <td class="text-wrap"><?php echo $data["username"];?></td>
+                              <td><?php echo substr($data["last_log"],0,10);?></td>
                               <td class="tx-18">
                                 <div class="btn-group">
-                                  <a href="customers?action=detail&id=<?=$data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
-                                  <a href="customers?action=edit&id=<?=$data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
+                                  <a href="customers?action=detail&id=<?php echo $data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
+                                  <a href="customers?action=edit&id=<?php echo $data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
                                 </div>
                               </td>
                             </tr>
-                            <?
+                            <?php
                           }
                         }
                         ?>
@@ -411,12 +412,12 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="categorize")
           {
             if (isset($_GET["category"])) $category_id = $_GET["category"]; else header("location:customers?action=category");
@@ -437,30 +438,30 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <?
-                        $sql = "SELECT *FROM customer WHERE category='$category_id'";
+                      <?php
+                        $sql = "SELECT * FROM customer WHERE category='".intval($category_id)."'";
                         $result = mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)>0)
+                        if ($result && mysqli_num_rows($result)>0)
                         {
                           while ($data = mysqli_fetch_array($result))
                           {
 
                             ?>
                             <tr>
-                              <td><?=$data["customer_id"];?></td>
-                              <td class="text-wrap"><?=$data["name"];?></td>
-                              <td><?=$data["tel"];?></td>
-                              <td class="text-wrap"><?=$data["email"];?></td>
-                              <td class="text-wrap"><?=$data["username"];?></td>
-                              <td><?=substr($data["last_log"],0,10);?></td>
+                              <td><?php echo $data["customer_id"];?></td>
+                              <td class="text-wrap"><?php echo $data["name"];?></td>
+                              <td><?php echo $data["tel"];?></td>
+                              <td class="text-wrap"><?php echo $data["email"];?></td>
+                              <td class="text-wrap"><?php echo $data["username"];?></td>
+                              <td><?php echo substr($data["last_log"],0,10);?></td>
                               <td class="tx-18">
                                 <div class="btn-group">
-                                  <a href="customers?action=detail&id=<?=$data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
-                                  <a href="customers?action=edit&id=<?=$data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
+                                  <a href="customers?action=detail&id=<?php echo $data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
+                                  <a href="customers?action=edit&id=<?php echo $data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
                                 </div>
                               </td>
                             </tr>
-                            <?
+                            <?php
                           }
                         }
                         ?>
@@ -470,12 +471,12 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="error")
           {
             ?>
@@ -495,30 +496,30 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <?
-                        $sql = "SELECT *FROM customer WHERE name='' OR name='.' OR tel regexp '[a-z]'";
+                      <?php
+                        $sql = "SELECT * FROM customer WHERE name='' OR name='.' OR tel regexp '[a-z]'";
                         $result = mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)>0)
+                        if ($result && mysqli_num_rows($result)>0)
                         {
                           while ($data = mysqli_fetch_array($result))
                           {
 
                             ?>
                             <tr>
-                              <td><?=$data["customer_id"];?></td>
-                              <td class="text-wrap"><?=$data["name"];?></td>
-                              <td><?=$data["tel"];?></td>
-                              <td class="text-wrap"><?=$data["email"];?></td>
-                              <td class="text-wrap"><?=$data["username"];?></td>
-                              <td><?=substr($data["last_log"],0,10);?></td>
+                              <td><?php echo $data["customer_id"];?></td>
+                              <td class="text-wrap"><?php echo $data["name"];?></td>
+                              <td><?php echo $data["tel"];?></td>
+                              <td class="text-wrap"><?php echo $data["email"];?></td>
+                              <td class="text-wrap"><?php echo $data["username"];?></td>
+                              <td><?php echo substr($data["last_log"],0,10);?></td>
                               <td class="tx-18">
                                 <div class="btn-group">
-                                  <a href="customers?action=detail&id=<?=$data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
-                                  <a href="customers?action=edit&id=<?=$data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
+                                  <a href="customers?action=detail&id=<?php echo $data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
+                                  <a href="customers?action=edit&id=<?php echo $data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
                                 </div>
                               </td>
                             </tr>
-                            <?
+                            <?php
                           }
                         }
                         ?>
@@ -528,13 +529,13 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
 
-          <?
+          <?php
           if ($action =="active")
           {
             ?>
@@ -556,30 +557,30 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?
-                            $sql = "SELECT *FROM customer WHERE last_order_date IS NOT NULL ORDER BY last_order_date DESC LIMIT 100";
+                          <?php
+                            $sql = "SELECT * FROM customer WHERE last_order_date IS NOT NULL ORDER BY last_order_date DESC LIMIT 100";
                             $result = mysqli_query($conn,$sql);
-                            if (mysqli_num_rows($result)>0)
+                            if ($result && mysqli_num_rows($result)>0)
                             {
                               while ($data = mysqli_fetch_array($result))
                               {
 
                                 ?>
                                 <tr>
-                                  <td><?=$data["customer_id"];?></td>
-                                  <td class="text-wrap"><?=$data["name"];?></td>
-                                  <td><?=$data["tel"];?></td>
-                                  <td class="text-wrap"><?=$data["email"];?></td>
-                                  <td class="text-wrap"><?=$data["username"];?></td>
-                                  <td><?=substr($data["last_log"],0,10);?></td>
+                                  <td><?php echo $data["customer_id"];?></td>
+                                  <td class="text-wrap"><?php echo $data["name"];?></td>
+                                  <td><?php echo $data["tel"];?></td>
+                                  <td class="text-wrap"><?php echo $data["email"];?></td>
+                                  <td class="text-wrap"><?php echo $data["username"];?></td>
+                                  <td><?php echo substr($data["last_log"],0,10);?></td>
                                   <td class="tx-18">
                                     <div class="btn-group">
-                                      <a href="customers?action=detail&id=<?=$data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
-                                      <a href="customers?action=edit&id=<?=$data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
+                                      <a href="customers?action=detail&id=<?php echo $data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
+                                      <a href="customers?action=edit&id=<?php echo $data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
                                     </div>
                                   </td>
                                 </tr>
-                                <?
+                                <?php
                               }
                             }
                             ?>
@@ -591,11 +592,11 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="register")
           {
             // $sql = "SELECT max(customer_id) as MAX FROM customer";
@@ -679,14 +680,14 @@
                         <div class="media-body mg-l-15 mg-t-4">
                           <label for="city">Хот, аймаг</label>
                           <select name="city" class="form-control" id="city">
-                            <?
-                            $sql_city =  "SELECT *FROM city";
+                            <?php
+                            $sql_city =  "SELECT * FROM city";
                             $result_city = mysqli_query($conn,$sql_city);
                             while ($data_city = mysqli_fetch_array($result_city))
                             {
                               ?>
-                              <option value="<?=$data_city["id"];?>"><?=$data_city["name"];?></option>
-                              <?
+                              <option value="<?php echo $data_city["id"];?>"><?php echo $data_city["name"];?></option>
+                              <?php
                             }
                             ?>
                           </select>
@@ -697,14 +698,14 @@
                         <div class="media-body mg-l-15 mg-t-4">
                           <label for="city">Дүүрэг, сум</label>
                           <select name="district" class="form-control" id="district">
-                            <?
-                            $sql_district =  "SELECT *FROM district";
+                            <?php
+                            $sql_district =  "SELECT * FROM district";
                             $result_district = mysqli_query($conn,$sql_district);
                             while ($data_district = mysqli_fetch_array($result_district))
                             {
                               ?>
-                              <option value="<?=$data_district["id"];?>" data-chained="<?=$data_district["city_id"];?>"><?=$data_district["name"];?></option>
-                              <?
+                              <option value="<?php echo $data_district["id"];?>" data-chained="<?php echo $data_district["city_id"];?>"><?php echo $data_district["name"];?></option>
+                              <?php
                             }
                             ?>
                           </select>
@@ -759,14 +760,14 @@
                             <label for="category">Ангилал</label>
                             <select class="form-control" name="category" id="category">
                               <option value="0">Ангилалгүй</option>
-                              <?
-                              $sql_cat = "SELECT *FROM customer_category ORDER BY dd";
+                              <?php
+                              $sql_cat = "SELECT * FROM customer_category ORDER BY dd";
                               $result_cat= mysqli_query($conn,$sql_cat);
                               while ($data_cat = mysqli_fetch_array($result_cat))
                               {
                                 ?>
-                                <option value="<?=$data_cat["id"];?>"><?=$data_cat["name"];?></option>
-                                <?
+                                <option value="<?php echo $data_cat["id"];?>"><?php echo $data_cat["name"];?></option>
+                                <?php
                               }
                               ?>
                             </select>
@@ -779,12 +780,12 @@
                   </div>
               </div> 
             </form>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="registering")
           {
             ?>
@@ -795,7 +796,7 @@
                       <h6 class="slim-card-title">Бүртгэл</label>
                     </div><!-- card-header -->
                     <div class="card-body">
-                        <?
+                        <?php
                           $error = 0;
                           $error_msg = "";
                           $rd = $_POST["rd"];
@@ -850,17 +851,17 @@
                                 </button>
                               </div>
                               <div class="btn-group">
-                                <a href="customers?action=detail&id=<?=$customer_id;?>" class="btn btn-success"><i data-feather="edit"></i> Дэлгэрэнгүй</a>
-                                <a href="customers?action=edit&id=<?=$customer_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+                                <a href="customers?action=detail&id=<?php echo $customer_id;?>" class="btn btn-success"><i data-feather="edit"></i> Дэлгэрэнгүй</a>
+                                <a href="customers?action=edit&id=<?php echo $customer_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
                                 <a href="customers?action=new" class="btn btn-primary"><i class="icon ion-ios-list"></i> Шинэ харилцагчид</a>
                               </div>
-                              <?
+                              <?php
                             }
                             else 
                             {
                               ?>
                               <div class="alert alert-danger mg-b-10" role="alert">
-                               алдаа гарлаа. <?=mysqli_error($conn);?>
+                               алдаа гарлаа. <?php echo mysqli_error($conn);?>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
@@ -868,7 +869,7 @@
                               <div class="btn-group">
                                 <a href="customers?action=register" class="btn btn-success"><i data-feather="edit"></i> Ахин оролдох</a>
                               </div>
-                              <?
+                              <?php
                             }
 
 
@@ -881,17 +882,17 @@
                 </form>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="detail")
           {
-              if (isset($_GET["id"])) $id=$_GET["id"]; else header("location:customers");
-              $sql = "SELECT *FROM customer WHERE customer_id='$id' LIMIT 1";
+              if (isset($_GET["id"])) $id=intval($_GET["id"]); else header("location:customers");
+              $sql = "SELECT * FROM customer WHERE customer_id='$id' LIMIT 1";
               $result= mysqli_query($conn,$sql);
-              if (mysqli_num_rows($result)==1)
+              if ($result && mysqli_num_rows($result)==1)
               {
                 $data = mysqli_fetch_array($result);
                 ?>
@@ -905,125 +906,125 @@
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Овог</label>
-                                  <a href="#" class="d-block"><?=$data["surname"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["surname"];?></a>
                                 </div>
                               </div>
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Нэр</label>
-                                  <a href="#" class="d-block"><?=$data["name"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["name"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Утас</label>
-                                  <a href="#" class="d-block"><?=$data["tel"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["tel"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Имэйл</label>
-                                  <a href="#" class="d-block"><?=$data["email"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["email"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>РД</label>
-                                  <a href="#" class="d-block"><?=$data["rd"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["rd"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Хаяг</label>
-                                  <a href="#" class="d-block"><?=$data["address"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["address"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Нэмэлт</label>
-                                  <a href="#" class="d-block"><?=$data["address_extra"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["address_extra"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Хот, аймаг</label>
-                                  <?
-                                  $sql_city =  "SELECT *FROM city WHERE id='".$data["address_city"]."'";
+                                  <?php
+                                  $sql_city =  "SELECT * FROM city WHERE id='".$data["address_city"]."'";
                                   $result_city = mysqli_query($conn,$sql_city);
                                   $data_city = mysqli_fetch_array($result_city);
                                   ?>
-                                  <a href="#" class="d-block"><?=$data_city["name"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data_city["name"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Дүүрэг, сум</label>
-                                  <?
-                                  $sql_district =  "SELECT *FROM district WHERE id='".$data["address_district"]."'";
+                                  <?php
+                                  $sql_district =  "SELECT * FROM district WHERE id='".$data["address_district"]."'";
                                   $result_district = mysqli_query($conn,$sql_district);
                                   $data_district = mysqli_fetch_array($result_district);
                                   ?>
-                                  <a href="#" class="d-block"><?=$data_district["name"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data_district["name"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Хороо, баг</label>
-                                  <a href="#" class="d-block"><?=$data["address_khoroo"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["address_khoroo"];?></a>
                                 </div>
                               </div>
 
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-4">
                                   <label>Байр гудамж</label>
-                                  <a href="#" class="d-block"><?=$data["address_build"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["address_build"];?></a>
                                 </div>
                               </div>
 
                               <div class="btn-group">
-                                <a href="customers?action=edit&id=<?=$data["customer_id"];?>" class="btn btn-success btn-icon-text"><i class="btn-icon-prepend" data-feather="edit"></i> Засах</a>
+                                <a href="customers?action=edit&id=<?php echo $data["customer_id"];?>" class="btn btn-success btn-icon-text"><i class="btn-icon-prepend" data-feather="edit"></i> Засах</a>
                               </div>
 
                             </div>
                           </div>
                           <div class="col-lg-6">
                             <div class="media-list ">
-                              <?
+                              <?php
                               if ($data["avatar"]<>"" && file_exists('../'.$data["avatar"]))
                               {
                                 ?>
                                 <div class="media">
-                                  <img src="../<?=$data["avatar"];?>" style="max-width:100%">
+                                  <img src="../<?php echo $data["avatar"];?>" style="max-width:100%">
                                 </div>
-                                <?
+                                <?php
                               }
                               ?>
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-2">
                                   <label for="exampleInputUsername1">Нэвтрэх нэр</label>
-                                  <a href="#" class="d-block"><?=$data["username"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["username"];?></a>
                                 </div>
                               </div>
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-2">
                                   <label for="exampleInputUsername1">Нууц үг</label>
-                                  <a href="#" class="d-block"><?=$data["password"];?></a>
+                                  <a href="#" class="d-block"><?php echo $data["password"];?></a>
                                 </div>
                               </div>
                               <div class="media">
                                 <div class="media-body mg-l-15 mg-t-2">
                                   <label for="exampleInputUsername1">Огноо</label>
-                                  Бүртгүүлсэн <a href="#" class="d-block"><?=$data["registered_date"];?></a>
-                                  Засварласан <a href="#" class="d-block"><?=$data["modified_date"];?></a>
-                                  Сүүлд нэвтэрсэн <a href="#" class="d-block"><?=$data["last_log"];?></a>
+                                  Бүртгүүлсэн <a href="#" class="d-block"><?php echo $data["registered_date"];?></a>
+                                  Засварласан <a href="#" class="d-block"><?php echo $data["modified_date"];?></a>
+                                  Сүүлд нэвтэрсэн <a href="#" class="d-block"><?php echo $data["last_log"];?></a>
                                 </div>
                               </div>
                             </div>
@@ -1031,7 +1032,7 @@
                         </div>
                       </div>
                     </div>
-                    <?
+                    <?php
                     if ($data["no_proxy"]==0)
                     {
                       $count=1;
@@ -1040,7 +1041,7 @@
                         <div class="card-body">
                           <h5 class="card-title">
                             Proxy 
-                            <a class="btn btn-danger btn-sm float-right" href="customers?action=proxy_clear&id=<?=$id;?>">Бүгдийг чөлөөлөх</a>
+                            <a class="btn btn-danger btn-sm float-right" href="customers?action=proxy_clear&id=<?php echo $id;?>">Бүгдийг чөлөөлөх</a>
                           </h5>
                             <table class="table table-responsive table-striped">
                               <thead>
@@ -1054,7 +1055,7 @@
                                 </tr>
                               </thead>
                               <tbody>
-                                <?
+                                <?php
                                 $sql_proxy = "SELECT * FROM proxies WHERE customer_id='".$id."'";
                                 $result_proxy = mysqli_query($conn,$sql_proxy);
                                 if (mysqli_num_rows($result_proxy)>0)
@@ -1063,20 +1064,20 @@
                                   {
                                   ?>
                                   <tr>
-                                    <td><?=$count++;?></td>
-                                    <td class="text-wrap"><?=$data_proxy["name"];?><br><?=$data_proxy["surname"];?></td>
-                                    <td class="text-wrap"><?=$data_proxy["tel"];?></td>
-                                    <td class="text-wrap"><?=$data_proxy["address"];?></td>
-                                    <td><?=(!$data_proxy["status"])?'Үгүй':'Тийм';?></td>
+                                    <td><?php echo $count++;?></td>
+                                    <td class="text-wrap"><?php echo $data_proxy["name"];?><br><?php echo $data_proxy["surname"];?></td>
+                                    <td class="text-wrap"><?php echo $data_proxy["tel"];?></td>
+                                    <td class="text-wrap"><?php echo $data_proxy["address"];?></td>
+                                    <td><?php echo (!$data_proxy["status"])?'Үгүй':'Тийм';?></td>
                                     <td>
                                       <div class="btn-group">
-                                        <a href="customers?action=proxy_edit&proxy=<?=$data_proxy["proxy_id"];?>" title="Засах" class="btn btn-warning btn-icon btn-xs text-white"><i data-feather="edit"></i></a>
-                                        <a href="customers?action=proxy_delete&proxy=<?=$data_proxy["proxy_id"];?>" title="Устгах" class="btn btn-danger btn-icon btn-xs text-white"><i data-feather="trash"></i></a>
+                                        <a href="customers?action=proxy_edit&proxy=<?php echo $data_proxy["proxy_id"];?>" title="Засах" class="btn btn-warning btn-icon btn-xs text-white"><i data-feather="edit"></i></a>
+                                        <a href="customers?action=proxy_delete&proxy=<?php echo $data_proxy["proxy_id"];?>" title="Устгах" class="btn btn-danger btn-icon btn-xs text-white"><i data-feather="trash"></i></a>
                                       </div>
                                         
                                     </td>
                                   </tr>
-                                  <?
+                                  <?php
                                   }
                                 }
                                 ?>
@@ -1086,7 +1087,7 @@
                           
                         </div>
                       </div>
-                      <?
+                      <?php
                     }          
                     ?>
                   </div>
@@ -1097,7 +1098,7 @@
                       <h5 class="card-title">
                           Идэвхитэй ачаа
                           </h5>
-                            <? $count=1;?>
+                            <?php $count=1;?>
                             <table class="table table-responsive table-striped">
                               <thead>
                                 <tr>
@@ -1110,7 +1111,7 @@
                                 </tr>
                               </thead>
                               <tbody>
-                                <?
+                                <?php
                                 $sql_order = "SELECT * FROM orders WHERE receiver='".$id."' AND status NOT IN ('delivered','customs')";
                                 $result_order = mysqli_query($conn,$sql_order);
                                 if (mysqli_num_rows($result_order)>0)
@@ -1134,42 +1135,42 @@
                                     
                                   ?>
                                   <tr>
-                                    <td><?=$count++;?></td>
-                                    <td class="text-wrap"><?=$data_order["barcode"];?><br><?=$data_order["third_party"];?></td>
+                                    <td><?php echo $count++;?></td>
+                                    <td class="text-wrap"><?php echo $data_order["barcode"];?><br><?php echo $data_order["third_party"];?></td>
                                     
                                     <td class="text-wrap">
-                                    <?=$package1_name;?> (<?=$package1_num;?>) - <?=$package1_price;?> $<br>
-                                    <? if ($package2_name!="")
+                                    <?php echo htmlspecialchars($package1_name ?? '');?> (<?php echo htmlspecialchars($package1_num ?? '');?>) - <?php echo htmlspecialchars($package1_price ?? '');?> $<br>
+                                    <?php if (isset($package2_name) && $package2_name!="")
                                     {
                                       ?>
-                                      <?=$package2_name;?> (<?=$package2_num;?>) - <?=$package2_price;?> $<br>
-                                      <?
+                                      <?php echo htmlspecialchars($package2_name);?> (<?php echo htmlspecialchars($package2_num ?? '');?>) - <?php echo htmlspecialchars($package2_price ?? '');?> $<br>
+                                      <?php
                                     }
 
-                                      if ($package3_name!="")
+                                      if (isset($package3_name) && $package3_name!="")
                                     {
                                       ?>
-                                      <?=$package3_name;?> (<?=$package3_num;?>) - <?=$package3_price;?> $
-                                      <?
+                                      <?php echo htmlspecialchars($package3_name);?> (<?php echo htmlspecialchars($package3_num ?? '');?>) - <?php echo htmlspecialchars($package3_price ?? '');?> $
+                                      <?php
                                     }
-                                      if ($package4_name!="")
+                                      if (isset($package4_name) && $package4_name!="")
                                     {
                                       ?>
-                                      <?=$package4_name;?> (<?=$package4_num;?>) - <?=$package4_price;?> $
-                                      <?
+                                      <?php echo htmlspecialchars($package4_name);?> (<?php echo htmlspecialchars($package4_num ?? '');?>) - <?php echo htmlspecialchars($package4_price ?? '');?> $
+                                      <?php
                                     }
                                     ?>
                                     </td>
-                                    <td class="text-wrap"><?=substr($data_order["timestamp"],0,10);?></td>
-                                    <td class="text-wrap"><?=$data_order["status"];?></td>
+                                    <td class="text-wrap"><?php echo substr($data_order["timestamp"],0,10);?></td>
+                                    <td class="text-wrap"><?php echo $data_order["status"];?></td>
                                     <td>
                                       <div class="btn-group">
-                                        <a href="orders?action=detail&proxy=<?=$data_order["id"];?>" title="Засах" class="btn btn-success btn-icon btn-xs text-white"><i data-feather="more-vertical"></i></a>
+                                        <a href="orders?action=detail&proxy=<?php echo $data_order["id"];?>" title="Засах" class="btn btn-success btn-icon btn-xs text-white"><i data-feather="more-vertical"></i></a>
                                       </div>
                                         
                                     </td>
                                   </tr>
-                                  <?
+                                  <?php
                                   }
                                 }
                                 ?>
@@ -1190,7 +1191,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <?
+                              <?php
                               $sql_order = "SELECT * FROM orders WHERE receiver='".$id."' AND status IN ('delivered','customs') LIMIT 1";
                               $result_order = mysqli_query($conn,$sql_order);
                               if (mysqli_num_rows($result_order)>0)
@@ -1214,45 +1215,45 @@
                                   
                                 ?>
                                 <tr>
-                                  <td class="text-wrap"><?=$data_order["barcode"];?><br><?=$data_order["third_party"];?></td>
-                                  <td class="text-wrap"><?=substr($data_order["timestamp"],0,10);?></td>
+                                  <td class="text-wrap"><?php echo $data_order["barcode"];?><br><?php echo $data_order["third_party"];?></td>
+                                  <td class="text-wrap"><?php echo substr($data_order["timestamp"],0,10);?></td>
                                   <td class="text-wrap">
-                                  <?=$package1_name;?> (<?=$package1_num;?>) - <?=$package1_price;?> $<br>
-                                  <? if ($package2_name!="")
+                                  <?php echo $package1_name;?> (<?php echo $package1_num;?>) - <?php echo $package1_price;?> $<br>
+                                  <?php if ($package2_name!="")
                                   {
                                     ?>
-                                    <?=$package2_name;?> (<?=$package2_num;?>) - <?=$package2_price;?> $<br>
-                                    <?
+                                    <?php echo $package2_name;?> (<?php echo $package2_num;?>) - <?php echo $package2_price;?> $<br>
+                                    <?php
                                   }
 
                                     if ($package3_name!="")
                                   {
                                     ?>
-                                    <?=$package3_name;?> (<?=$package3_num;?>) - <?=$package3_price;?> $
-                                    <?
+                                    <?php echo $package3_name;?> (<?php echo $package3_num;?>) - <?php echo $package3_price;?> $
+                                    <?php
                                   }
                                     if ($package4_name!="")
                                   {
                                     ?>
-                                    <?=$package4_name;?> (<?=$package4_num;?>) - <?=$package4_price;?> $
-                                    <?
+                                    <?php echo $package4_name;?> (<?php echo $package4_num;?>) - <?php echo $package4_price;?> $
+                                    <?php
                                   }
                                   ?>
                                   </td>
                                   <td>
                                     <div class="btn-group">
-                                      <a href="orders?action=detail&proxy=<?=$data_order["id"];?>" title="Засах" class="btn btn-success btn-icon btn-xs text-white"><i data-feather="more-vertical"></i></a>
+                                      <a href="orders?action=detail&proxy=<?php echo $data_order["id"];?>" title="Засах" class="btn btn-success btn-icon btn-xs text-white"><i data-feather="more-vertical"></i></a>
                                     </div>
                                       
                                   </td>
                                 </tr>
-                                <?
+                                <?php
                                 }
                               }
                               ?>
                             </tbody>
                           </table>
-                          <a href="orders?action=list&customer=<?=$id;?>" class="btn btn-success btn-icon-text mt-3"><i data-feather="list" class="btn-icon-prepend"></i>Архивыг харах</a>
+                          <a href="orders?action=list&customer=<?php echo $id;?>" class="btn btn-success btn-icon-text mt-3"><i data-feather="list" class="btn-icon-prepend"></i>Архивыг харах</a>
 
                       </div>
                     </div>
@@ -1263,7 +1264,7 @@
                   <a href="customers" class="btn btn-primary btn-icon-text"><i class="btn-icon-prepend" data-feather="list"></i> Харилцагч</a>
                 </div>
                 
-                <?
+                <?php
               }
               else header("location:customer");
           }
@@ -1271,16 +1272,16 @@
 
 
 
-          <?
+          <?php
           if ($action =="edit")
           {
             ?>
             <form action="customers?action=editing" method="post" enctype="multipart/form-data">
-              <?
-                if (isset($_GET["id"])) $id=$_GET["id"]; else header("location:customers");
-                $sql = "SELECT *FROM customer WHERE customer_id='$id' LIMIT 1";
+              <?php
+                if (isset($_GET["id"])) $id=intval($_GET["id"]); else header("location:customers");
+                $sql = "SELECT * FROM customer WHERE customer_id='$id' LIMIT 1";
                 $result= mysqli_query($conn,$sql);
-                if (mysqli_num_rows($result)==1)
+                if ($result && mysqli_num_rows($result)==1)
                 {
                   $data = mysqli_fetch_array($result);
                   ?>
@@ -1288,36 +1289,36 @@
                     <div class="col-lg-6">
                       <div class="card">
                         <div class="card-body">
-                          <input type="hidden" name="id" value="<?=$data["customer_id"];?>">
+                          <input type="hidden" name="id" value="<?php echo $data["customer_id"];?>">
                           <div class="media-list ">
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <label for="surname">Овог (*)</label>
-                                <input type="text" name="surname" id="surname" value="<?=$data["surname"];?>" class="form-control" required="required">
+                                <input type="text" name="surname" id="surname" value="<?php echo $data["surname"];?>" class="form-control" required="required">
                               </div>
                             </div>
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <label for="name">Нэр (*)</label>
-                                <input type="text" name="name" id="name" value="<?=$data["name"];?>" class="form-control" required="required">
+                                <input type="text" name="name" id="name" value="<?php echo $data["name"];?>" class="form-control" required="required">
                               </div>
                             </div>
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <label for="tel">Утасны дугаар (*)</label>
-                                <input type="text" name="tel" id="tel" value="<?=$data["tel"];?>" class="form-control" required="required">
+                                <input type="text" name="tel" id="tel" value="<?php echo $data["tel"];?>" class="form-control" required="required">
                               </div>
                             </div>
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <label for="rd">РД</label>
-                                <input type="text" name="rd" id="rd" value="<?=$data["rd"];?>" class="form-control">
+                                <input type="text" name="rd" id="rd" value="<?php echo $data["rd"];?>" class="form-control">
                               </div>
                             </div>
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <label for="email">И-мэйл</label>
-                                <input type="text" name="email" id="email" value="<?=$data["email"];?>" class="form-control">
+                                <input type="text" name="email" id="email" value="<?php echo $data["email"];?>" class="form-control">
                               </div>
                             </div>
 
@@ -1325,7 +1326,7 @@
                               <div class="media-body mg-l-15 mg-t-4">
                                 <div class="form-check form-check-flat form-check-primary">
                                   <label class="form-check-label">
-                                  <input type="checkbox" name="no_proxy" <?=(!$data["no_proxy"])?'checked':'';?> id="no_proxy" class="form-check-input">
+                                  <input type="checkbox" name="no_proxy" <?php echo (!$data["no_proxy"])?'checked':'';?> id="no_proxy" class="form-check-input">
                                     Proxy авах эсэх
                                   </label>
                                 </div>
@@ -1341,13 +1342,13 @@
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <label for="address">Хаяг</label>
-                                <input type="text" name="address" id="address" value="<?=$data["address"];?>" class="form-control">
+                                <input type="text" name="address" id="address" value="<?php echo $data["address"];?>" class="form-control">
                               </div>
                             </div>
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <label for="address_extra">Нэмэлт мэдээлэл</label>
-                                <input type="text" name="address_extra" id="address_extra" value="<?=$data["address_extra"];?>" class="form-control">
+                                <input type="text" name="address_extra" id="address_extra" value="<?php echo $data["address_extra"];?>" class="form-control">
                               </div>
                             </div>
                           </div>
@@ -1356,14 +1357,14 @@
                             <div class="media-body mg-l-15 mg-t-4">
                               <label for="city">Хот, аймаг</label>
                               <select name="city" class="form-control" id="city">
-                                <?
-                                $sql_city =  "SELECT *FROM city";
+                                <?php
+                                $sql_city =  "SELECT * FROM city";
                                 $result_city = mysqli_query($conn,$sql_city);
                                 while ($data_city = mysqli_fetch_array($result_city))
                                 {
                                   ?>
-                                  <option value="<?=$data_city["id"];?>" <?=($data_city["id"]==$data["address_city"])?'SELECTED="SELECTED"':'';?>><?=$data_city["name"];?></option>
-                                  <?
+                                  <option value="<?php echo $data_city["id"];?>" <?php echo ($data_city["id"]==$data["address_city"])?'SELECTED="SELECTED"':'';?>><?php echo $data_city["name"];?></option>
+                                  <?php
                                 }
                                 ?>
                               </select>
@@ -1374,14 +1375,14 @@
                             <div class="media-body mg-l-15 mg-t-4">
                               <label for="city">Дүүрэг, сум</label>
                               <select name="district" class="form-control" id="district">
-                                <?
-                                $sql_district =  "SELECT *FROM district";
+                                <?php
+                                $sql_district =  "SELECT * FROM district";
                                 $result_district = mysqli_query($conn,$sql_district);
                                 while ($data_district = mysqli_fetch_array($result_district))
                                 {
                                   ?>
-                                  <option value="<?=$data_district["id"];?>" data-chained="<?=$data_district["city_id"];?>" <?=($data_district["id"]==$data["address_district"])?'SELECTED="SELECTED"':'';?>><?=$data_district["name"];?></option>
-                                  <?
+                                  <option value="<?php echo $data_district["id"];?>" data-chained="<?php echo $data_district["city_id"];?>" <?php echo ($data_district["id"]==$data["address_district"])?'SELECTED="SELECTED"':'';?>><?php echo $data_district["name"];?></option>
+                                  <?php
                                 }
                                 ?>
                               </select>
@@ -1391,14 +1392,14 @@
                           <div class="media">
                             <div class="media-body mg-l-15 mg-t-4">
                               <label for="khoroo">Баг, хороо</label>
-                              <input type="text" name="khoroo" id="khoroo" value="<?=$data["address_khoroo"];?>" class="form-control">
+                              <input type="text" name="khoroo" id="khoroo" value="<?php echo $data["address_khoroo"];?>" class="form-control">
                             </div>
                           </div>
 
                           <div class="media">
                             <div class="media-body mg-l-15 mg-t-4">
                               <label for="build">Байр, гудамж</label>
-                              <input type="text" name="build" id="build" value="<?=$data["address_build"];?>" class="form-control">
+                              <input type="text" name="build" id="build" value="<?php echo $data["address_build"];?>" class="form-control">
                             </div>
                           </div>
                         
@@ -1410,9 +1411,9 @@
                     <div class="col-lg-6">
                       <div class="card">
                         <div class="card-body">
-                          <? if ($data["avatar"]<>"" && file_exists('../'.$data["avatar"]))
+                          <?php if (isset($data["avatar"]) && $data["avatar"]<>"" && file_exists('../'.$data["avatar"]))
                           {
-                            ?><img src="../<?=$data["avatar"];?>" style="max-width: 100%;"><?
+                            ?><img src="../<?php echo htmlspecialchars($data["avatar"] ?? '');?>" style="max-width: 100%;"><?php 
                           }
                           ?>
                           <div class="media-list">
@@ -1426,13 +1427,13 @@
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-2">
                                 <label for="username">Нэвтрэх нэр (*)</label>
-                                <input type="text" name="username"  id="username" value="<?=$data["username"];?>" class="form-control" required="required">
+                                <input type="text" name="username"  id="username" value="<?php echo $data["username"];?>" class="form-control" required="required">
                               </div>
                             </div>
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-2">
                                 <label for="password">Нууц үг (*)</label>
-                                <input type="password" name="password" id="password" value="<?=$data["password"];?>" class="form-control" required="required">
+                                <input type="password" name="password" id="password" value="<?php echo $data["password"];?>" class="form-control" required="required">
                               </div>
                             </div>
 
@@ -1440,15 +1441,15 @@
                               <div class="media-body mg-l-15 mg-t-2">
                                 <label for="category">Ангилал</label>
                                 <select class="form-control" name="category" id="category">
-                                  <option value="0" <?=($data["category"]==0)?'SELECTED="SELECTED"':'';?>>Ангилалгүй</option>
-                                  <?
-                                  $sql_cat = "SELECT *FROM customer_category ORDER BY dd";
+                                  <option value="0" <?php echo ($data["category"]==0)?'SELECTED="SELECTED"':'';?>>Ангилалгүй</option>
+                                  <?php
+                                  $sql_cat = "SELECT * FROM customer_category ORDER BY dd";
                                   $result_cat= mysqli_query($conn,$sql_cat);
                                   while ($data_cat = mysqli_fetch_array($result_cat))
                                   {
                                     ?>
-                                    <option value="<?=$data_cat["id"];?>" <?=($data_cat["id"]==$data["category"])?'SELECTED="SELECTED"':'';?>><?=$data_cat["name"];?></option>
-                                    <?
+                                    <option value="<?php echo $data_cat["id"];?>" <?php echo ($data_cat["id"]==$data["category"])?'SELECTED="SELECTED"':'';?>><?php echo $data_cat["name"];?></option>
+                                    <?php
                                   }
                                   ?>
                                 </select>
@@ -1461,7 +1462,7 @@
                       </div>
                   </div> 
               
-                <?
+                <?php
               }
               ?>
             </form>
@@ -1481,19 +1482,19 @@
                     <i class="icon icon ion-ios-close-outline tx-100 tx-danger lh-1 mg-t-20 d-inline-block"></i>
                     <h4 class="tx-danger mg-b-20">Устгахад итгэлтэй байна уу!</h4>
                     <p class="mg-b-20 mg-x-20">Ахин сэргээх боломжгүйгээр устах болно.</p>
-                    <a href="customers?action=delete&id=<?=$id;?>" class="btn btn-danger">Тийм устгах</a>
+                    <a href="customers?action=delete&id=<?php echo $id;?>" class="btn btn-danger">Тийм устгах</a>
                     <button type="button" class="btn btn-success pd-x-25" data-dismiss="modal" aria-label="Close">Үгүй, үлдээе</button>
                   </div><!-- modal-body -->
                 </div><!-- modal-content -->
               </div><!-- modal-dialog -->
             </div><!-- modal -->
             
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="editing")
           {
             ?>
@@ -1504,9 +1505,9 @@
                     <h6 class="slim-card-title">Бүртгэлийн дэлгэрэнгүй</label>
                   </div><!-- card-header -->
                   <div class="card-body">
-                      <?
+                      <?php
                       if (isset($_POST["id"])) $id=$_POST["id"]; else header("location:customers");
-                      $sql = "SELECT *FROM customer WHERE customer_id='$id' LIMIT 1";
+                      $sql = "SELECT * FROM customer WHERE customer_id='$id' LIMIT 1";
                       $result= mysqli_query($conn,$sql);
                       if (mysqli_num_rows($result)==1)
                       {
@@ -1649,40 +1650,40 @@
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
                           else 
                           {
                             ?>
                             <div class="alert alert-danger mg-b-10" role="alert">
-                              <?=$error;?> алдаа гарлаа. <?=$error_msg;?>
+                              <?php echo htmlspecialchars($error ?? '');?> алдаа гарлаа. <?php echo htmlspecialchars($error_msg ?? '');?>
                               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
 
 
                         ?>                            
                         <div class="btn-group">
-                          <a href="customers?action=edit&id=<?=$data["customer_id"];?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+                          <a href="customers?action=edit&id=<?php echo $data["customer_id"];?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
                           <a href="customers" class="btn btn-primary"><i class="icon ion-ios-list"></i> Харилцагч</a>
                         </div>
-                        <?
+                        <?php
                       }
                       ?>
                   </div>
                 </div>
               </div><!-- col-12 -->
             </div>
-            <?
+            <?php
           }
           ?>
 
 
           
-          <?
+          <?php
           if ($action =="proxy_clear")
           {
             ?>
@@ -1690,37 +1691,37 @@
               <div class="col-lg-12 mg-t-10 order-lg-2">
                 <div class="card">
                   <div class="card-body">
-                      <?
-                      if (isset($_GET["id"])) $id=$_GET["id"]; else header("location:customers");
+                      <?php
+                      if (isset($_GET["id"])) $id=intval($_GET["id"]); else header("location:customers");
                       $sql = "UPDATE proxies SET status=0 WHERE customer_id='$id'";
                     
                         if (mysqli_query($conn,$sql)) 
                           {
                             ?>
                             <div class="alert alert-success mg-b-10" role="alert">
-                              <?=mysqli_affected_rows($conn);?> proxy-г амжилттай чөлөөллөө.
+                              <?php echo mysqli_affected_rows($conn);?> proxy-г амжилттай чөлөөллөө.
                               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
                           else 
                           {
                             ?>
                             <div class="alert alert-danger mg-b-10" role="alert">
-                             Алдаа гарлаа. <?=mysqli_error($conn);?>
+                             Алдаа гарлаа. <?php echo mysqli_error($conn);?>
                               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
 
 
                         ?>                            
                         <div class="btn-group">
-                          <a href="customers?action=detail&id=<?=$id;?>" class="btn btn-success"> Дэлгэрэнгүй</a>
+                          <a href="customers?action=detail&id=<?php echo $id;?>" class="btn btn-success"> Дэлгэрэнгүй</a>
                           <a href="customers" class="btn btn-primary"> Харилцагч</a>
                         </div>
                        
@@ -1728,15 +1729,15 @@
                 </div>
               </div><!-- col-12 -->
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="delete")
           {
-            if (isset($_GET["id"])) $id=$_GET["id"]; else header("location:customers");
+            if (isset($_GET["id"])) $id=intval($_GET["id"]); else header("location:customers");
 
             ?>
             <div class="row row-xs mg-t-10">
@@ -1746,14 +1747,15 @@
                     <h6 class="slim-card-title">Бүртгэл устах</label>
                   </div><!-- card-header -->
                   <div class="card-body">
-                      <?
-                      $sql = "SELECT *FROM customer WHERE customer_id='$id' LIMIT 1";
+                      <?php
+                      if (!isset($id)) $id = 0;
+                      $sql = "SELECT * FROM customer WHERE customer_id='$id' LIMIT 1";
                       $result= mysqli_query($conn,$sql);
-                      if (mysqli_num_rows($result)==1)
+                      if ($result && mysqli_num_rows($result)==1)
                       {
-                            $sql = "SELECT *FROM orders WHERE receiver='$id'";
+                            $sql = "SELECT * FROM orders WHERE receiver='$id'";
                             $result = mysqli_query($conn,$sql);
-                            if (mysqli_num_rows($result)==0)
+                            if ($result && mysqli_num_rows($result)==0)
                             {
                               mysqli_query($conn,"DELETE FROM customer WHERE  customer_id='$id' LIMIT 1");
                               ?>
@@ -1763,7 +1765,7 @@
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
                           else 
                           {
@@ -1774,7 +1776,7 @@
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
                       }
                       else
@@ -1786,7 +1788,7 @@
                             <span aria-hidden="true">&times;</span>
                           </button>
                         </div>
-                        <?
+                        <?php
                       }
                       ?>
                         <div class="btn-group">
@@ -1797,7 +1799,7 @@
                 </div>
               </div><!-- col-12 -->
             </div>
-            <?
+            <?php
           }
           ?>
 
@@ -1809,7 +1811,7 @@
 
 
 
-        <?
+        <?php
           if ($action =="category")
           {
             $count =1;
@@ -1829,8 +1831,8 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?
-                          $sql = "SELECT *FROM customer_category ORDER BY dd,name";
+                          <?php
+                          $sql = "SELECT * FROM customer_category ORDER BY dd,name";
                           $result = mysqli_query($conn,$sql);
                           if (mysqli_num_rows($result)>0)
                           {
@@ -1839,17 +1841,17 @@
 
                               ?>
                               <tr>
-                                <td><?=$count++;?></td>
-                                <td><a href="customers?action=category_edit&id=<?=$data["id"];?>"><?=$data["name"];?></a></td>
-                                <td><a href="customers?action=categorize&category=<?=$data["id"];?>"><?=$data["count"];?></a></td>
+                                <td><?php echo $count++;?></td>
+                                <td><a href="customers?action=category_edit&id=<?php echo $data["id"];?>"><?php echo $data["name"];?></a></td>
+                                <td><a href="customers?action=categorize&category=<?php echo $data["id"];?>"><?php echo $data["count"];?></a></td>
                                 <td>
                                   <div class="btn-group">
-                                    <a href="customers?action=category_edit&id=<?=$data["id"];?>" title="Засах"><i data-feather="edit"></i></a>
+                                    <a href="customers?action=category_edit&id=<?php echo $data["id"];?>" title="Засах"><i data-feather="edit"></i></a>
 
                                   </div>
                                 </td>
                               </tr>
-                              <?
+                              <?php
                             }
                           }
                           ?>
@@ -1861,11 +1863,11 @@
               </div>
             </div>
             <a href="customers?action=category_new" class="btn btn-success mg-t-10"><i class="icon ion-ios-plus"></i> Ангилал нэмэх</a>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="category_new")
           {
             ?>
@@ -1884,18 +1886,18 @@
                 </form>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-         <?
+         <?php
           if ($action =="category_adding")
           {
             ?>
             <div class="card">
               <div class="card-body">
-                        <?
-                          $name = $_POST["name"];
+                        <?php
+                          $name = mysqli_real_escape_string($conn, $_POST["name"]);
 
                             $sql = "INSERT INTO customer_category (name) VALUES ('$name')";
                             if (mysqli_query($conn,$sql))
@@ -1908,24 +1910,24 @@
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
                             else 
                             {
                               ?>
                               <div class="alert alert-danger mg-b-10" role="alert">
-                                Алдаа гарлаа. <?=mysqli_error($conn);?>
+                                Алдаа гарлаа. <?php echo mysqli_error($conn);?>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
 
 
                           ?>                            
                           <div class="btn-group">
-                            <a href="customers?action=edit&id=<?=$category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+                            <a href="customers?action=edit&id=<?php echo $category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
                             <a href="customers?action=category" class="btn btn-primary"><i data-feather="list"></i> Бүх ангилал</a>
                           </div>
                     </div>
@@ -1933,37 +1935,37 @@
                 </form>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="category_edit")
           {
             ?>
             <div class="card">
               <div class="card-body">
                 <form action="customers?action=category_editing" method="post" enctype="multipart/form-data">
-                  <?
-                  if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:customers");
-                  $sql = "SELECT *FROM customer_category WHERE id=$category_id LIMIT 1";
+                  <?php
+                  if (isset($_GET["id"])) $category_id=intval($_GET["id"]); else header("location:customers");
+                  $sql = "SELECT * FROM customer_category WHERE id=$category_id LIMIT 1";
                   $result= mysqli_query($conn,$sql);
-                  if (mysqli_num_rows($result)==1)
+                  if ($result && mysqli_num_rows($result)==1)
                   {
                     $data = mysqli_fetch_array($result);
                     ?>
-                    <input type="hidden" name="id" value="<?=$data["id"];?>">
+                    <input type="hidden" name="id" value="<?php echo $data["id"];?>">
                     <div class="media-list">
                       <div class="media">
                         <div class="media-body">
                           <label for="name">Нэр (*)</label>
-                          <input type="text" name="name" id="name" value="<?=$data["name"];?>" class="form-control" required="required">
+                          <input type="text" name="name" id="name" value="<?php echo htmlspecialchars($data["name"]);?>" class="form-control" required="required">
                         </div>
                       </div>
                     </div>
                     <input type="submit" class="btn btn-success btn-lg mg-t-10" value="Засах">
-                    <?
+                    <?php
                   }
                   ?>
                 </form>
@@ -1971,23 +1973,23 @@
             </div>
 
             <div class="btn-group mg-t-10">
-              <a href="customers?action=cateogory_delete&id=<?=$category_id;?>" class="btn btn-danger btn-xs"><i class="icon ion-ios-trash"></i> Устгах</a>
+              <a href="customers?action=cateogory_delete&id=<?php echo $category_id;?>" class="btn btn-danger btn-xs"><i class="icon ion-ios-trash"></i> Устгах</a>
               <a href="customers?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="category_editing")
           {
             ?>
               <div class="card">
                 <div class="card-body">                
-                        <?
-                        if (isset($_POST["id"])) $category_id=$_POST["id"]; else header("location:customers");
-                        $name = $_POST["name"];
+                        <?php
+                        if (isset($_POST["id"])) $category_id=intval($_POST["id"]); else header("location:customers");
+                        $name = mysqli_real_escape_string($conn, $_POST["name"]);
                         $sql = "UPDATE customer_category SET name='$name' WHERE id=$category_id LIMIT 1";
                        
                           if (mysqli_query($conn,$sql)) 
@@ -1999,18 +2001,18 @@
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
                             else 
                             {
                               ?>
                               <div class="alert alert-danger mg-b-10" role="alert">
-                               Алдаа гарлаа. <?=mysqli_error($conn);?>
+                               Алдаа гарлаа. <?php echo mysqli_error($conn);?>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
 
 
@@ -2020,15 +2022,15 @@
                   </div>
              
             <div class="btn-group mg-t-10">
-              <a href="customers?action=category_edit&id=<?=$category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+              <a href="customers?action=category_edit&id=<?php echo $category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
               <a href="customers?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="category_delete")
           {
             ?>
@@ -2040,37 +2042,35 @@
                     <h6 class="slim-card-title">Мэдээний ангилал устгах</h6>
                   </div><!-- card-header -->
                   <div class="card-body">
-                      <?
-                      if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:customers");
-                      $sql = "SELECT *FROM customer_category WHERE id=$category_id LIMIT 1";
+                      <?php
+                      if (isset($_GET["id"])) $category_id=intval($_GET["id"]); else header("location:customers");
+                      $sql = "SELECT * FROM customer_category WHERE id=$category_id LIMIT 1";
                       $result= mysqli_query($conn,$sql);
-                      if (mysqli_num_rows($result)==1)
+                      if ($result && mysqli_num_rows($result)==1)
                       {
                         // ORDEr ShALGAH ShAARDLAGATAI
-
-                      
-                        if (mysqli_query($conn,"DELETE FRom customer_category WHERE id=$category_id")) 
-                          {
-                            ?>
-                            <div class="alert alert-success mg-b-10" role="alert">
-                              Устгагдлаа.
-                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                            </div>
-                            <?
-                          }
-                          else 
-                          {
-                            ?>
-                            <div class="alert alert-danger mg-b-10" role="alert">
-                              Алдаа гарлаа. <?=mysqli_error($conn);?>
-                              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                              </button>
-                            </div>
-                            <?
-                          }
+                        if (mysqli_query($conn,"DELETE FROM customer_category WHERE id=$category_id")) 
+                        {
+                          ?>
+                          <div class="alert alert-success mg-b-10" role="alert">
+                            Устгагдлаа.
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <?php
+                        }
+                        else 
+                        {
+                          ?>
+                          <div class="alert alert-danger mg-b-10" role="alert">
+                            Алдаа гарлаа. <?php echo mysqli_error($conn);?>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <?php
+                        }
                       }
                       ?>
                   </div>
@@ -2080,7 +2080,7 @@
             <div class="btn-group mg-t-10">
               <a href="customers?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
             </div>
-            <?
+            <?php
           }
           ?>
 
@@ -2093,7 +2093,7 @@
 
 
         </div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

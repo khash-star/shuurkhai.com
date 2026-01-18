@@ -1,4 +1,4 @@
-<? 
+<?php 
 if (isset($_GET["combine_id"])) $combine_id=$_GET["combine_id"]; else $combine_id =0;
 require_once('config.php');
 require_once('views/helper.php');

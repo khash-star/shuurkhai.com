@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -20,14 +20,14 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
-          <?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";
+          $action_title = "Удирдлага"; // Default value
           switch ($action)
           {
             case "dashboard": $action_title="Удирдлага";break;
             case "unpaid": $action_title="Төлөгдөөгүй нэхэмэжлэх";break;
-            case "paid": $action_title="Төлөгдөөгүй нэхэмэжлэх";break;
+            case "paid": $action_title="Төлөгдсөн нэхэмэжлэх";break;
             case "detail": $action_title="Дэлгэрэнгүй";break;
 
             
@@ -36,14 +36,14 @@
           <nav class="page-breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="envoices">Нэхэмжлэх</a></li>
-              <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+              <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
             </ol>
           </nav>
 
-          <?
+          <?php
           if ($action =="dashboard")
           {
-            $sql = "SELECT *FROM envoice";
+            $sql = "SELECT * FROM envoice";
             $result = mysqli_query($conn,$sql);
             $total = mysqli_num_rows($result);
             ?>
@@ -67,7 +67,7 @@
                         </div>
                         <div class="row">
                           <div class="col-6 col-md-12 col-xl-5">
-                            <h3 class="mb-2"><?=number_format($total);?></h3>
+                            <h3 class="mb-2"><?php echo number_format($total ?? 0);?></h3>
                             <div class="d-flex align-items-baseline">
                               <p class="text-success">
                                 <span>+3.3%</span>
@@ -150,11 +150,11 @@
               </div>
             </div> <!-- row -->
            
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="unpaid")
           {
             ?>
@@ -176,26 +176,27 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?
+                          <?php
                             $sql = "SELECT envoice.*,customer.name,customer.tel FROM envoice LEFT JOIN customer ON envoice.customer_id=customer.customer_id WHERE amount>0 ORDER BY envoice_id DESC";
                             $result = mysqli_query($conn,$sql);
-                            if (mysqli_num_rows($result)>0)
+                            if ($result && mysqli_num_rows($result)>0)
                             {
                               while ($data = mysqli_fetch_array($result))
                               {
-
+                                if ($data) {
                                 ?>
                                 <tr>
-                                  <td><?=$data["envoice_id"];?></td>
-                                  <td><?=$data["name"];?></td>
-                                  <td><?=$data["tel"];?></td>
-                                  <td><?=substr($data["created_date"],0,10);?></td>
-                                  <td class="text-wrap"><?=$data["orders"];?></td>
-                                  <td><?=number_format($data["amount"]);?></td>
-                                  <td><?=$data["status"];?></td>
-                                  <td><?=number_format($data["amount"]);?></td>
+                                  <td><?php echo isset($data["envoice_id"]) ? $data["envoice_id"] : '';?></td>
+                                  <td><?php echo isset($data["name"]) ? $data["name"] : '';?></td>
+                                  <td><?php echo isset($data["tel"]) ? $data["tel"] : '';?></td>
+                                  <td><?php echo isset($data["created_date"]) ? substr($data["created_date"],0,10) : '';?></td>
+                                  <td class="text-wrap"><?php echo isset($data["orders"]) ? $data["orders"] : '';?></td>
+                                  <td><?php echo isset($data["amount"]) ? number_format($data["amount"]) : '0';?></td>
+                                  <td><?php echo isset($data["status"]) ? $data["status"] : '';?></td>
+                                  <td><?php echo isset($data["amount"]) ? number_format($data["amount"]) : '0';?></td>
                                 </tr>
-                                <?
+                                <?php
+                                }
                               }
                             }
                             ?>
@@ -207,11 +208,11 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="paid")
           {
             ?>
@@ -234,26 +235,27 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?
+                          <?php
                             $sql = "SELECT envoice.*,customer.name,customer.tel FROM envoice LEFT JOIN customer ON envoice.customer_id=customer.customer_id WHERE envoice.status='paid'";
                             $result = mysqli_query($conn,$sql);
-                            if (mysqli_num_rows($result)>0)
+                            if ($result && mysqli_num_rows($result)>0)
                             {
                               while ($data = mysqli_fetch_array($result))
                               {
-
+                                if ($data) {
                                 ?>
                                 <tr>
-                                  <td><?=$data["envoice_id"];?></td>
-                                  <td><?=$data["name"];?></td>
-                                  <td><?=$data["tel"];?></td>
-                                  <td><?=substr($data["created_date"],0,10);?></td>
-                                  <td class="text-wrap"><?=$data["orders"];?></td>
-                                  <td><?=number_format($data["amount"]);?></td>
-                                  <td><?=$data["status"];?></td>
-                                  <td><?=$data["qpay_paid"];?></td>
+                                  <td><?php echo isset($data["envoice_id"]) ? $data["envoice_id"] : '';?></td>
+                                  <td><?php echo isset($data["name"]) ? $data["name"] : '';?></td>
+                                  <td><?php echo isset($data["tel"]) ? $data["tel"] : '';?></td>
+                                  <td><?php echo isset($data["created_date"]) ? substr($data["created_date"],0,10) : '';?></td>
+                                  <td class="text-wrap"><?php echo isset($data["orders"]) ? $data["orders"] : '';?></td>
+                                  <td><?php echo isset($data["amount"]) ? number_format($data["amount"]) : '0';?></td>
+                                  <td><?php echo isset($data["status"]) ? $data["status"] : '';?></td>
+                                  <td><?php echo isset($data["qpay_paid"]) ? $data["qpay_paid"] : '';?></td>
                                 </tr>
-                                <?
+                                <?php
+                                }
                               }
                             }
                             ?>
@@ -265,12 +267,12 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="categorize")
           {
             if (isset($_GET["category"])) $category_id = $_GET["category"]; else header("location:envoices?action=category");
@@ -291,8 +293,8 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <?
-                        $sql = "SELECT *FROM customer WHERE category='$category_id'";
+                      <?php
+                        $sql = "SELECT * FROM customer WHERE category='$category_id'";
                         $result = mysqli_query($conn,$sql);
                         if (mysqli_num_rows($result)>0)
                         {
@@ -301,20 +303,20 @@
 
                             ?>
                             <tr>
-                              <td><?=$data["customer_id"];?></td>
-                              <td class="text-wrap"><?=$data["name"];?></td>
-                              <td><?=$data["tel"];?></td>
-                              <td class="text-wrap"><?=$data["email"];?></td>
-                              <td class="text-wrap"><?=$data["username"];?></td>
-                              <td><?=substr($data["last_log"],0,10);?></td>
+                              <td><?php echo htmlspecialchars($data["customer_id"] ?? '');?></td>
+                              <td class="text-wrap"><?php echo htmlspecialchars($data["name"] ?? '');?></td>
+                              <td><?php echo htmlspecialchars($data["tel"] ?? '');?></td>
+                              <td class="text-wrap"><?php echo htmlspecialchars($data["email"] ?? '');?></td>
+                              <td class="text-wrap"><?php echo htmlspecialchars($data["username"] ?? '');?></td>
+                              <td><?php echo isset($data["last_log"]) ? htmlspecialchars(substr($data["last_log"],0,10)) : '';?></td>
                               <td class="tx-18">
                                 <div class="btn-group">
-                                  <a href="envoices?action=detail&id=<?=$data["customer_id"];?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
-                                  <a href="envoices?action=edit&id=<?=$data["customer_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
+                                  <a href="envoices?action=detail&id=<?php echo htmlspecialchars($data["customer_id"] ?? '');?>" class="btn btn-success btn-xs text-white btn-icon" title="Харах"><i data-feather="user"></i></a>
+                                  <a href="envoices?action=edit&id=<?php echo htmlspecialchars($data["customer_id"] ?? '');?>"  class="btn btn-warning btn-xs text-white btn-icon" title="Засах"><i data-feather="edit"></i></a>
                                 </div>
                               </td>
                             </tr>
-                            <?
+                            <?php
                           }
                         }
                         ?>
@@ -324,7 +326,7 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
@@ -336,7 +338,7 @@
 
 
 
-        <?
+        <?php
           if ($action =="category")
           {
             $count =1;
@@ -356,27 +358,28 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?
-                          $sql = "SELECT *FROM customer_category ORDER BY dd,name";
+                          <?php
+                          $sql = "SELECT * FROM customer_category ORDER BY dd,name";
                           $result = mysqli_query($conn,$sql);
-                          if (mysqli_num_rows($result)>0)
+                          if ($result && mysqli_num_rows($result)>0)
                           {
                             while ($data = mysqli_fetch_array($result))
                             {
-
+                              if ($data) {
                               ?>
                               <tr>
-                                <td><?=$count++;?></td>
-                                <td><a href="envoices?action=category_edit&id=<?=$data["id"];?>"><?=$data["name"];?></a></td>
-                                <td><a href="envoices?action=categorize&category=<?=$data["id"];?>"><?=$data["count"];?></a></td>
+                                <td><?php echo $count++;?></td>
+                                <td><a href="envoices?action=category_edit&id=<?php echo isset($data["id"]) ? $data["id"] : '';?>"><?php echo isset($data["name"]) ? $data["name"] : '';?></a></td>
+                                <td><a href="envoices?action=categorize&category=<?php echo isset($data["id"]) ? $data["id"] : '';?>"><?php echo isset($data["count"]) ? $data["count"] : '0';?></a></td>
                                 <td>
                                   <div class="btn-group">
-                                    <a href="envoices?action=category_edit&id=<?=$data["id"];?>" title="Засах"><i data-feather="edit"></i></a>
+                                    <a href="envoices?action=category_edit&id=<?php echo isset($data["id"]) ? $data["id"] : '';?>" title="Засах"><i data-feather="edit"></i></a>
 
                                   </div>
                                 </td>
                               </tr>
-                              <?
+                              <?php
+                              }
                             }
                           }
                           ?>
@@ -388,11 +391,11 @@
               </div>
             </div>
             <a href="envoices?action=category_new" class="btn btn-success mg-t-10"><i class="icon ion-ios-plus"></i> Ангилал нэмэх</a>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="category_new")
           {
             ?>
@@ -411,18 +414,18 @@
                 </form>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-         <?
+         <?php
           if ($action =="category_adding")
           {
             ?>
             <div class="card">
               <div class="card-body">
-                        <?
-                          $name = $_POST["name"];
+                        <?php
+                          $name = protect($_POST["name"]);
 
                             $sql = "INSERT INTO customer_category (name) VALUES ('$name')";
                             if (mysqli_query($conn,$sql))
@@ -435,24 +438,24 @@
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
                             else 
                             {
                               ?>
                               <div class="alert alert-danger mg-b-10" role="alert">
-                                Алдаа гарлаа. <?=mysqli_error($conn);?>
+                                Алдаа гарлаа. <?php echo mysqli_error($conn);?>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
 
 
                           ?>                            
                           <div class="btn-group">
-                            <a href="envoices?action=edit&id=<?=$category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+                            <a href="envoices?action=edit&id=<?php echo isset($category_id) ? $category_id : '';?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
                             <a href="envoices?action=category" class="btn btn-primary"><i data-feather="list"></i> Бүх ангилал</a>
                           </div>
                     </div>
@@ -460,37 +463,39 @@
                 </form>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="category_edit")
           {
             ?>
             <div class="card">
               <div class="card-body">
                 <form action="envoices?action=category_editing" method="post" enctype="multipart/form-data">
-                  <?
-                  if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:envoices");
-                  $sql = "SELECT *FROM customer_category WHERE id=$category_id LIMIT 1";
+                  <?php
+                  if (isset($_GET["id"])) $category_id=intval($_GET["id"]); else { header("location:envoices"); exit; }
+                  $sql = "SELECT * FROM customer_category WHERE id=$category_id LIMIT 1";
                   $result= mysqli_query($conn,$sql);
-                  if (mysqli_num_rows($result)==1)
+                  if ($result && mysqli_num_rows($result)==1)
                   {
                     $data = mysqli_fetch_array($result);
+                    if ($data) {
                     ?>
-                    <input type="hidden" name="id" value="<?=$data["id"];?>">
+                    <input type="hidden" name="id" value="<?php echo isset($data["id"]) ? $data["id"] : '';?>">
                     <div class="media-list">
                       <div class="media">
                         <div class="media-body">
                           <label for="name">Нэр (*)</label>
-                          <input type="text" name="name" id="name" value="<?=$data["name"];?>" class="form-control" required="required">
+                          <input type="text" name="name" id="name" value="<?php echo isset($data["name"]) ? htmlspecialchars($data["name"]) : '';?>" class="form-control" required="required">
                         </div>
                       </div>
                     </div>
                     <input type="submit" class="btn btn-success btn-lg mg-t-10" value="Засах">
-                    <?
+                    <?php
+                    }
                   }
                   ?>
                 </form>
@@ -498,24 +503,24 @@
             </div>
 
             <div class="btn-group mg-t-10">
-              <a href="envoices?action=cateogory_delete&id=<?=$category_id;?>" class="btn btn-danger btn-xs"><i class="icon ion-ios-trash"></i> Устгах</a>
+              <a href="envoices?action=cateogory_delete&id=<?php echo isset($category_id) ? $category_id : '';?>" class="btn btn-danger btn-xs"><i class="icon ion-ios-trash"></i> Устгах</a>
               <a href="envoices?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="category_editing")
           {
             ?>
               <div class="card">
                 <div class="card-body">                
-                        <?
-                        if (isset($_POST["id"])) $category_id=$_POST["id"]; else header("location:envoices");
-                        $name = $_POST["name"];
-                        $sql = "UPDATE customer_category SET name='$name' WHERE id=$category_id LIMIT 1";
+                        <?php
+                        if (isset($_POST["id"])) $category_id=intval($_POST["id"]); else { header("location:envoices"); exit; }
+                        $name = protect($_POST["name"]);
+                        $sql = "UPDATE customer_category SET name='".mysqli_real_escape_string($conn, $name)."' WHERE id=$category_id LIMIT 1";
                        
                           if (mysqli_query($conn,$sql)) 
                             {
@@ -526,18 +531,18 @@
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
                             else 
                             {
                               ?>
                               <div class="alert alert-danger mg-b-10" role="alert">
-                               Алдаа гарлаа. <?=mysqli_error($conn);?>
+                               Алдаа гарлаа. <?php echo mysqli_error($conn);?>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
                               </div>
-                              <?
+                              <?php
                             }
 
 
@@ -547,15 +552,15 @@
                   </div>
              
             <div class="btn-group mg-t-10">
-              <a href="envoices?action=category_edit&id=<?=$category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+              <a href="envoices?action=category_edit&id=<?php echo isset($category_id) ? $category_id : '';?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
               <a href="envoices?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="category_delete")
           {
             ?>
@@ -567,16 +572,16 @@
                     <h6 class="slim-card-title">Мэдээний ангилал устгах</h6>
                   </div><!-- card-header -->
                   <div class="card-body">
-                      <?
-                      if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:envoices");
-                      $sql = "SELECT *FROM customer_category WHERE id=$category_id LIMIT 1";
+                      <?php
+                      if (isset($_GET["id"])) $category_id=intval($_GET["id"]); else { header("location:envoices"); exit; }
+                      $sql = "SELECT * FROM customer_category WHERE id=$category_id LIMIT 1";
                       $result= mysqli_query($conn,$sql);
-                      if (mysqli_num_rows($result)==1)
+                      if ($result && mysqli_num_rows($result)==1)
                       {
                         // ORDEr ShALGAH ShAARDLAGATAI
 
                       
-                        if (mysqli_query($conn,"DELETE FRom customer_category WHERE id=$category_id")) 
+                        if (mysqli_query($conn,"DELETE FROM customer_category WHERE id=$category_id")) 
                           {
                             ?>
                             <div class="alert alert-success mg-b-10" role="alert">
@@ -585,18 +590,18 @@
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
                           else 
                           {
                             ?>
                             <div class="alert alert-danger mg-b-10" role="alert">
-                              Алдаа гарлаа. <?=mysqli_error($conn);?>
+                              Алдаа гарлаа. <?php echo mysqli_error($conn);?>
                               <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
                       }
                       ?>
@@ -607,7 +612,7 @@
             <div class="btn-group mg-t-10">
               <a href="envoices?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
             </div>
-            <?
+            <?php
           }
           ?>
 

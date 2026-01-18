@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -7,50 +7,51 @@
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
-          <?  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
-          <?
+          <?php  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
+          <?php
           if ($action=="display")
           {
             ?>
             <div class="row">
             <a href="slides?action=new" class="btn btn-success"><i class="icon ion-plus"></i> Нэмэх</a>
-              <?
+              <?php
 
-              $sql = "SELECT *FROM slides ORDER BY dd";
+              $sql = "SELECT * FROM slides ORDER BY dd";
               $result = mysqli_query($conn,$sql);
-              if (mysqli_num_rows($result)>0)
+              if ($result && mysqli_num_rows($result) > 0)
               {
-                $count =1;
+                $count = 1;
                 while ($data = mysqli_fetch_array($result))
                 {
-                  $id = $data["id"];
-                  $image = $data["image"];
-                  $name = $data["name"];
-                  $text = $data["text"];
-                  $link = $data["link"];
-                  $dd = $data["dd"];                  
+                  if (!$data) continue;
+                  $id = isset($data["id"]) ? intval($data["id"]) : 0;
+                  $image = isset($data["image"]) ? htmlspecialchars($data["image"]) : '';
+                  $name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                  $text = isset($data["text"]) ? htmlspecialchars($data["text"]) : '';
+                  $link = isset($data["link"]) ? htmlspecialchars($data["link"]) : '';
+                  $dd = isset($data["dd"]) ? htmlspecialchars($data["dd"]) : '';
                   ?>
                   <div class="col-lg-12 mt-3">
                     <div class="card">
                       <div class="card-body">
-                        <img src="../<?=$image;?>" style="width: 100%;">
-                        <h5><?=$name;?></h5>
-                        <p><?=$text;?></p>
-                        <p class="card-subtitle tx-normal mg-b-15"><a href="<?=$link;?>"><?=$link;?></p>
+                        <img src="../<?php echo htmlspecialchars($image);?>" style="width: 100%;">
+                        <h5><?php echo htmlspecialchars($name);?></h5>
+                        <p><?php echo htmlspecialchars($text);?></p>
+                        <p class="card-subtitle tx-normal mg-b-15"><a href="<?php echo htmlspecialchars($link);?>"><?php echo htmlspecialchars($link);?></a></p>
 
-                        <a href="slides?action=edit&id=<?=$id;?>" class="card-link" title="Зураг засах"><i class="icon ion-edit"></i> Засах</a>
-                        <a href="slides?action=delete&id=<?=$id;?>" class="card-link" title="Зургын устгах"><i class="icon ion-ios-trash"></i> Устгах</a>
+                        <a href="slides?action=edit&id=<?php echo htmlspecialchars($id);?>" class="card-link" title="Зураг засах"><i class="icon ion-edit"></i> Засах</a>
+                        <a href="slides?action=delete&id=<?php echo htmlspecialchars($id);?>" class="card-link" title="Зургын устгах"><i class="icon ion-ios-trash"></i> Устгах</a>
                       </div>
                     </div><!-- card -->
                   </div><!-- col -->
-                  <?
+                  <?php
                   $count++;
                 }
               }
@@ -63,19 +64,19 @@
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div><!-- alert --> 
-                <?
+                <?php
               }
               ?>              
               <a href="slides?action=new" class="btn btn-success"><i class="icon ion-plus"></i> Нэмэх</a>
 
             </div><!-- row -->
-            <?
+            <?php
           }
           ?>
 
 
 
-          <?
+          <?php
           if ($action =="new")
           {
             ?>
@@ -131,23 +132,23 @@
                 </div>
               </div><!-- row -->
             </form>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="inserting")
           {
             ?>
             <div class="row row-xs mg-t-10">              
               <div class="col-lg-12">
                 
-                <?                
-                $name = $_POST["name"];
-                $text = $_POST["text"];
-                $link = $_POST["link"];
-                $dd = $_POST["dd"];
-                $image ="";
+                <?php                
+                $name = isset($_POST["name"]) ? protect($_POST["name"]) : '';
+                $text = isset($_POST["text"]) ? protect($_POST["text"]) : '';
+                $link = isset($_POST["link"]) ? protect($_POST["link"]) : '';
+                $dd = isset($_POST["dd"]) ? intval($_POST["dd"]) : 0;
+                $image = "";
                 if(isset($_FILES['image']) && $_FILES['image']['name']!="")
                 {
                     if ($_FILES['image']['name']!="")
@@ -158,12 +159,15 @@
                             $target_dir = '../uploads/'.$folder;
                             $target_file = $target_dir."/".@date("his").rand(0,1000). basename($_FILES["image"]["name"]);
                             if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file))
-                            $image=substr($target_file,3);
-                            //$image =.$image;
+                            $image = substr($target_file,3);
                         }
                 }
 
-                $sql = "INSERT INTO slides (name,text,image,link,dd) VALUES ('$text','$text','$image','$link','$dd')";                            
+                $name_escaped = mysqli_real_escape_string($conn, $name);
+                $text_escaped = mysqli_real_escape_string($conn, $text);
+                $image_escaped = mysqli_real_escape_string($conn, $image);
+                $link_escaped = mysqli_real_escape_string($conn, $link);
+                $sql = "INSERT INTO slides (name,text,image,link,dd) VALUES ('$name_escaped','$text_escaped','$image_escaped','$link_escaped','$dd')";                            
                 if (mysqli_query($conn,$sql))
                   {
                     $slides_id = mysqli_insert_id($conn);
@@ -174,49 +178,55 @@
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div><!-- alert --> 
-                    <?
+                    <?php
                   }
                 else
                   {
                     ?>
                     <div class="alert alert-danger" role="alert">
-                      Алдаа гарлаа. <?=mysqli_error($conn);?>
+                      Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error'($conn);?>
                       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div><!-- alert --> 
-                    <?
+                    <?php
 
                   }
                 ?>
               </div><!-- col-6 -->
             </div><!-- row -->
             <div class="btn-group">
-              <a href="slides?action=edit&id=<?=$slides_id;?>" class="btn btn-success"><i class="icon ion-edit"></i> Засах</a>
+              <a href="slides?action=edit&id=<?php echo htmlspecialchars($slides_id ?? 0);?>" class="btn btn-success"><i class="icon ion-edit"></i> Засах</a>
               <a href="slides" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх зураг</a>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="edit")
           {
-            if (isset($_GET["id"])) $slides_id=$_GET["id"]; else header("location:slides");
-            $sql = "SELECT *FROM slides WHERE id='$slides_id' LIMIT 1";
+            if (isset($_GET["id"])) {
+                $slides_id = intval($_GET["id"]);
+            } else {
+                header("location:slides");
+                exit;
+            }
+            $sql = "SELECT * FROM slides WHERE id='$slides_id' LIMIT 1";
             $result = mysqli_query($conn,$sql);
-            if (mysqli_num_rows($result)==1)
+            if ($result && mysqli_num_rows($result) == 1)
             {
-              $data=mysqli_fetch_array($result);
-              $id = $data["id"];
-              $image = $data["image"];
-              $name = $data["name"];
-              $text = $data["text"];
-              $link = $data["link"];
-              $dd = $data["dd"];  
+              $data = mysqli_fetch_array($result);
+              if ($data) {
+                  $id = isset($data["id"]) ? intval($data["id"]) : 0;
+                  $image = isset($data["image"]) ? htmlspecialchars($data["image"]) : '';
+                  $name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                  $text = isset($data["text"]) ? htmlspecialchars($data["text"]) : '';
+                  $link = isset($data["link"]) ? htmlspecialchars($data["link"]) : '';
+                  $dd = isset($data["dd"]) ? htmlspecialchars($data["dd"]) : '';  
               ?>
               <form action="slides?action=editing" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="slides_id" value="<?=$id;?>">
+                <input type="hidden" name="slides_id" value="<?php echo htmlspecialchars($id ?? 0);?>">
                 <div class="row">
                   <div class="col-lg-12">
                     <div class="card">
@@ -225,20 +235,20 @@
                           <div class="media">
                             <div class="media-body mg-l-15 mg-t-4">
                               <h6 class="tx-14 tx-gray-700">Текст (*)</h6>
-                              <input type="text" name="name" class="form-control" required="required" value="<?=$name;?>">
+                              <input type="text" name="name" class="form-control" required="required" value="<?php echo htmlspecialchars($name ?? '');?>">
                             </div><!-- media-body -->
                           </div><!-- media -->
 
                           <div class="media">
                             <div class="media-body mg-l-15 mg-t-4">
                               <h6 class="tx-14 tx-gray-700">Текст 2</h6>
-                              <input type="text" name="text" class="form-control" required="required" value="<?=$text;?>">
+                              <input type="text" name="text" class="form-control" required="required" value="<?php echo htmlspecialchars($text ?? '');?>">
                             </div><!-- media-body -->
                           </div><!-- media -->
 
                           <div class="media mg-t-10">
                             <div class="media-body mg-l-15 mg-t-4">
-                              <img src="../<?=$image;?>" style="width: 100%;">
+                              <img src="../<?php echo htmlspecialchars($image ?? '');?>" style="width: 100%;">
 
                               <h6 class="tx-14 tx-gray-700">Зураг</h6>
                               <div class="custom-file">
@@ -250,14 +260,14 @@
                           <div class="media mg-t-10">
                             <div class="media-body mg-l-15 mg-t-4">
                               <h6 class="tx-14 tx-gray-700">Линк (*)</h6>
-                              <input type="text" name="link" class="form-control" value="<?=$link;?>" required="required" >
+                              <input type="text" name="link" class="form-control" value="<?php echo htmlspecialchars($link ?? '');?>" required="required" >
                             </div><!-- media-body -->
                           </div><!-- media -->
 
                           <div class="media mg-t-10">
                             <div class="media-body mg-l-15 mg-t-4">
                               <h6 class="tx-14 tx-gray-700">Дэс дугаар (*)</h6>
-                              <input type="number" name="dd" class="form-control" value="<?=$dd;?>" required="required">
+                              <input type="number" name="dd" class="form-control" value="<?php echo htmlspecialchars($dd ?? '');?>" required="required">
                             </div><!-- media-body -->
                           </div><!-- media -->
                           
@@ -269,7 +279,8 @@
                   </div>
                 </div><!-- row -->
               </form>
-              <?
+              <?php
+              }
             }
             else 
             {
@@ -280,13 +291,13 @@
                   <span aria-hidden="true">&times;</span>
                 </button>
               </div><!-- alert --> 
-              <?
+              <?php
             }
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="editing")
           {
             $slides_id = $_POST["slides_id"];
@@ -320,7 +331,7 @@
             ?>
             <div class="row row-xs mg-t-10">
               <div class="col-lg-12">
-                <?
+                <?php
                 $sql = "UPDATE slides SET `name`='$name',`text`='$text', dd='$dd', `link`='$link' WHERE id='$slides_id'";
                 if (mysqli_query($conn,$sql))
                 {
@@ -331,46 +342,46 @@
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div><!-- alert --> 
-                  <?
+                  <?php
                 }
                 else 
                 {
                   ?>
                   <div class="alert alert-danger mg-b-10" role="alert">
-                   Алдаа гарлаа. <?=mysqli_query($conn,$sql);?>
+                   Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div><!-- alert --> 
-                  <?
+                  <?php
                 }
                 ?>
               </div><!-- col-lg-12 -->
                <div class="btn-group">
-                <a href="slides?action=edit&id=<?=$slides_id;?>" class="btn btn-success"><i class="icon ion-edit"></i> Засах</a>
+                <a href="slides?action=edit&id=<?php echo htmlspecialchars($slides_id ?? 0);?>" class="btn btn-success"><i class="icon ion-edit"></i> Засах</a>
                 <a href="slides" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх зураг</a>
               </div>
             </div><!-- row -->
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action=="delete")
           {
             if (isset($_GET["id"])) $slides_id=$_GET["id"]; else header("location:slides");
             ?>
             <a href="slides?action=new" class="btn btn-success pull-right mg-b-10"><i class="icon ion-plus"></i> Нэмэх</a>
             <div class="clearfix"></div>
-                  <?
-                  $sql = "SELECT *FROM slides WHERE id=$slides_id LIMIT 1";
+                  <?php
+                  $sql = "SELECT * FROM slides WHERE id=$slides_id LIMIT 1";
                   $result= mysqli_query($conn,$sql);
                   if (mysqli_num_rows($result)==1)
                   {                  
                     $data = mysqli_fetch_array($result);
                     $image = $data["image"];
 
-                    if (mysqli_query($conn,"DELETE FRom slides WHERE id=$slides_id")) 
+                    if (mysqli_query($conn,"DELETE FROM slides WHERE id=$slides_id")) 
                       {
                         if (file_exists("../".$image)) unlink("../".$image);
 
@@ -381,18 +392,18 @@
                             <span aria-hidden="true">&times;</span>
                           </button>
                         </div><!-- alert --> 
-                        <?
+                        <?php
                       }
                       else 
                       {
                         ?>
                         <div class="alert alert-danger mg-b-10" role="alert">
-                          Алдаа гарлаа. <?=mysqli_error($conn);?>
+                          Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error'($conn);?>
                           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                           </button>
                         </div><!-- alert --> 
-                        <?
+                        <?php
                       }                   
                   }
                   ?>
@@ -400,12 +411,12 @@
                 <a href="slides" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх зураг</a>
               </div>
             
-            <?
+            <?php
           }
           ?>
 
       </div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -20,9 +20,9 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
-          <?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";
+          $action_title = "Бүх агент"; // Default value
           switch ($action)
           {
             case "display": $action_title="Бүх агент";break;
@@ -36,7 +36,7 @@
           <nav class="page-breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="agents">агент</a></li>
-              <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+              <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
             </ol>
           </nav>
 
@@ -54,7 +54,7 @@
 
 
 
-          <?
+          <?php
           if ($action =="display")
           {
             ?>
@@ -74,8 +74,8 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <?
-                            $sql = "SELECT *FROM agents";
+                          <?php
+                            $sql = "SELECT * FROM agents";
                             $result = mysqli_query($conn,$sql);
                             if (mysqli_num_rows($result)>0)
                             {
@@ -84,17 +84,17 @@
 
                                 ?>
                                 <tr>
-                                  <td><?=$data["agent_id"];?></td>
-                                  <td class="text-wrap"><?=$data["name"];?></td>
-                                  <td class="text-wrap"><?=$data["username"];?></td>
-                                  <td><?=substr($data["last_log"],0,10);?></td>
+                                  <td><?php echo htmlspecialchars($data["agent_id"] ?? '');?></td>
+                                  <td class="text-wrap"><?php echo htmlspecialchars($data["name"] ?? '');?></td>
+                                  <td class="text-wrap"><?php echo htmlspecialchars($data["username"] ?? '');?></td>
+                                  <td><?php echo isset($data["last_log"]) ? htmlspecialchars(substr($data["last_log"],0,10)) : '';?></td>
                                   <td class="tx-18">
                                     <div class="btn-group">
-                                        <a href="agents?action=edit&id=<?=$data["agent_id"];?>"  class="btn btn-warning btn-xs text-white btn-icon btn-icon" title="Засах"><i data-feather="edit"></i></a>
+                                        <a href="agents?action=edit&id=<?php echo htmlspecialchars($data["agent_id"] ?? '');?>"  class="btn btn-warning btn-xs text-white btn-icon btn-icon" title="Засах"><i data-feather="edit"></i></a>
                                     </div>
                                   </td>
                                 </tr>
-                                <?
+                                <?php
                               }
                             }
                             ?>
@@ -106,11 +106,11 @@
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="new")
           {
             ?>
@@ -151,12 +151,12 @@
                 </div> 
              
             </form>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="adding")
           {
             ?>
@@ -167,7 +167,7 @@
                       <h6 class="slim-card-title">Бүртгэл</label>
                     </div><!-- card-header -->
                     <div class="card-body">
-                        <?
+                        <?php
                           $name = $_POST["name"];
                           $username = $_POST["username"];
                           $password = $_POST["password"];
@@ -185,16 +185,16 @@
                                 </button>
                               </div>
                               <div class="btn-group">
-                                <a href="agents?action=edit&id=<?=$agent_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+                                <a href="agents?action=edit&id=<?php echo htmlspecialchars($agent_id ?? '');?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
                                 <a href="agents?action=new" class="btn btn-primary"><i class="icon ion-ios-list"></i> Шинэ агентид</a>
                               </div>
-                              <?
+                              <?php
                             }
                             else 
                             {
                               ?>
                               <div class="alert alert-danger mg-b-10" role="alert">
-                               алдаа гарлаа. <?=mysqli_error($conn);?>
+                               алдаа гарлаа. <?php echo htmlspecialchars(mysqli_error($conn));?>
                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                   <span aria-hidden="true">&times;</span>
                                 </button>
@@ -202,7 +202,7 @@
                               <div class="btn-group">
                                 <a href="agents?action=new" class="btn btn-success"><i data-feather="edit"></i> Ахин оролдох</a>
                               </div>
-                              <?
+                              <?php
                             }
 
 
@@ -215,19 +215,19 @@
                 </form>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="edit")
           {
             ?>
             <form action="agents?action=editing" method="post" enctype="multipart/form-data">
-              <?
+              <?php
                 if (isset($_GET["id"])) $agent_id=$_GET["id"]; else header("location:customers");
-                $sql = "SELECT *FROM agents WHERE agent_id='$agent_id' LIMIT 1";
+                $sql = "SELECT * FROM agents WHERE agent_id='$agent_id' LIMIT 1";
                 $result= mysqli_query($conn,$sql);
                 if (mysqli_num_rows($result)==1)
                 {
@@ -237,18 +237,18 @@
                     <div class="col-lg-6">
                       <div class="card">
                         <div class="card-body">
-                          <input type="hidden" name="id" value="<?=$data["agent_id"];?>">
+                          <input type="hidden" name="id" value="<?php echo htmlspecialchars($data["agent_id"] ?? '');?>">
                           <div class="media-list ">
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-4">
                                 <label for="name">Нэр (*)</label>
-                                <input type="text" name="name" id="name" value="<?=$data["name"];?>" class="form-control" required="required">
+                                <input type="text" name="name" id="name" value="<?php echo htmlspecialchars($data["name"] ?? '');?>" class="form-control" required="required">
                               </div>
                             </div>
                             <div class="media">
                               <div class="media-body mg-l-15 mg-t-2">
                                 <label for="username">Нэвтрэх нэр (*)</label>
-                                <input type="text" name="username"  id="username" value="<?=$data["username"];?>" class="form-control" required="required">
+                                <input type="text" name="username"  id="username" value="<?php echo htmlspecialchars($data["username"] ?? '');?>" class="form-control" required="required">
                               </div>
                             </div>
                             <div class="media">
@@ -271,7 +271,7 @@
                  
                   </div> 
               
-                <?
+                <?php
               }
               ?>
             </form>
@@ -290,19 +290,19 @@
                     <i class="icon icon ion-ios-close-outline tx-100 tx-danger lh-1 mg-t-20 d-inline-block"></i>
                     <h4 class="tx-danger mg-b-20">Устгахад итгэлтэй байна уу!</h4>
                     <p class="mg-b-20 mg-x-20">Ахин сэргээх боломжгүйгээр устах болно.</p>
-                    <a href="agents?action=delete&id=<?=$agent_id;?>" class="btn btn-danger">Тийм устгах</a>
+                    <a href="agents?action=delete&id=<?php echo htmlspecialchars($agent_id ?? '');?>" class="btn btn-danger">Тийм устгах</a>
                     <button type="button" class="btn btn-success pd-x-25" data-dismiss="modal" aria-label="Close">Үгүй, үлдээе</button>
                   </div><!-- modal-body -->
                 </div><!-- modal-content -->
               </div><!-- modal-dialog -->
             </div><!-- modal -->
             
-            <?
+            <?php
           }
           ?>
 
 
-          <?
+          <?php
           if ($action =="editing")
           {
             ?>
@@ -313,9 +313,9 @@
                     <h6 class="slim-card-title">Бүртгэлийн дэлгэрэнгүй</label>
                   </div><!-- card-header -->
                   <div class="card-body">
-                      <?
+                      <?php
                       if (isset($_POST["id"])) $agent_id=$_POST["id"]; else header("location:customers");
-                      $sql = "SELECT *FROM agents WHERE agent_id='$agent_id' LIMIT 1";
+                      $sql = "SELECT * FROM agents WHERE agent_id='$agent_id' LIMIT 1";
                       $result= mysqli_query($conn,$sql);
                       if (mysqli_num_rows($result)==1)
                       {
@@ -338,7 +338,7 @@
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
                           else 
                           {
@@ -349,28 +349,28 @@
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
-                            <?
+                            <?php
                           }
 
 
                         ?>                            
                         <div class="btn-group">
-                          <a href="agents?action=edit&id=<?=$agent_id;?>" class="btn btn-success"> Засах</a>
+                          <a href="agents?action=edit&id=<?php echo htmlspecialchars($agent_id ?? '');?>" class="btn btn-success"> Засах</a>
                         </div>
-                        <?
+                        <?php
                       }
                       ?>
                   </div>
                 </div>
               </div><!-- col-12 -->
             </div>
-            <?
+            <?php
           }
           ?>
 
 
 
-          <?
+          <?php
           if ($action =="delete")
           {
             if (isset($_GET["id"])) $agent_id=$_GET["id"]; else header("location:agents");
@@ -383,8 +383,8 @@
                     <h6 class="slim-card-title">Бүртгэл устах</label>
                   </div><!-- card-header -->
                   <div class="card-body">
-                      <?
-                      $sql = "SELECT *FROM agents WHERE agent_id='$agent_id' LIMIT 1";
+                      <?php
+                      $sql = "SELECT * FROM agents WHERE agent_id='$agent_id' LIMIT 1";
                       $result= mysqli_query($conn,$sql);
                       if (mysqli_num_rows($result)==1)
                       {
@@ -398,7 +398,7 @@
                                         <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                <?
+                                <?php
                               }
                               else 
                               {
@@ -409,7 +409,7 @@
                                         <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                  <?
+                                  <?php
                               }
                             
                          
@@ -423,7 +423,7 @@
                             <span aria-hidden="true">&times;</span>
                           </button>
                         </div>
-                        <?
+                        <?php
                       }
                       ?>
                         <div class="btn-group">
@@ -434,7 +434,7 @@
                 </div>
               </div><!-- col-12 -->
             </div>
-            <?
+            <?php
           }
           ?>
 

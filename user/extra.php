@@ -1,7 +1,7 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
 
 <link href="assets/css/scrollspyNav.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" type="text/css" href="assets/css/elements/alert.css">
@@ -13,7 +13,7 @@
 
 <body class="sidebar-noneoverflow">
     
-    <? require_once("views/navbar.php");?>
+    <?php require_once("views/navbar.php");?>
 
 
 
@@ -23,27 +23,67 @@
         <div class="cs-overlay"></div>
         <div class="search-overlay"></div>
 
-        <? require_once("views/sidebar.php");?>
+        <?php require_once("views/sidebar.php");?>
 
 
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
-                <? if (isset($_GET["action"])) $action=$_GET["action"]; else $action="contact"; ?>
+                <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="contact"; ?>
 
                 <?
                 if ($action=="contact")
                 {
                     
-                    if (isset($_POST["title"]))
+                    if (isset($_POST["title"]) && isset($_POST["content"]) && !empty(trim($_POST["title"])) && !empty(trim($_POST["content"])))
                     {
-                        $user_id = $_SESSION["c_user_id"];
-                        $name = customer($user_id,"full_name");
-                        $tel = customer($user_id,"tel");
-                        $email = customer($user_id,"email");
-                        $title =mysqli_escape_string($conn,protect($_POST["title"]));
-                        $content = mysqli_escape_string($conn,protect($_POST["content"]));
-                        $sql = "INSERT INTO feedback (title,content,name,contact,email) VALUE ('$title','$content','$name','$tel','$email')";
-                        if (mysqli_query($conn,$sql))
+                        // Хэрэглэгчийн мэдээлэл авах
+                        $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                        $name = '';
+                        $tel = '';
+                        $email = '';
+                        
+                        if ($user_id > 0) {
+                            $name = customer($user_id, "full_name");
+                            $tel = customer($user_id, "tel");
+                            $email = customer($user_id, "email");
+                        }
+                        
+                        // Хэрэв мэдээлэл байхгүй бол default утга ашиглах
+                        if (empty($name)) {
+                            $name = 'Хэрэглэгч';
+                        }
+                        if (empty($tel)) {
+                            $tel = '-';
+                        }
+                        if (empty($email)) {
+                            $email = 'email@example.com';
+                        }
+                        
+                        // SQL injection хамгаалалт
+                        if (isset($conn) && $conn) {
+                            $title = mysqli_real_escape_string($conn, protect(trim($_POST["title"])));
+                            $content = mysqli_real_escape_string($conn, protect(trim($_POST["content"])));
+                            $name_escaped = mysqli_real_escape_string($conn, $name);
+                            $tel_escaped = mysqli_real_escape_string($conn, $tel);
+                            $email_escaped = mysqli_real_escape_string($conn, $email);
+                            
+                            // Check if role column exists (backward compatibility)
+                            $check_role_sql = "SHOW COLUMNS FROM feedback LIKE 'role'";
+                            $role_exists = false;
+                            $check_result = mysqli_query($conn, $check_role_sql);
+                            if ($check_result && mysqli_num_rows($check_result) > 0) {
+                              $role_exists = true;
+                            }
+                            
+                            // Зурвасыг хадгалах - archive=0 (идэвхитэй), read=0 (уншаагүй), role='user' (if column exists)
+                            // read талбар нь MySQL reserved keyword тул backtick ашиглах
+                            if ($role_exists) {
+                              $sql = "INSERT INTO feedback (title, content, name, contact, email, archive, `read`, role, timestamp) VALUES ('$title_escaped', '$content_escaped', '$name_escaped', '$tel_escaped', '$email_escaped', 0, 0, 'user', NOW())";
+                            } else {
+                              $sql = "INSERT INTO feedback (title, content, name, contact, email, archive, `read`, timestamp) VALUES ('$title_escaped', '$content_escaped', '$name_escaped', '$tel_escaped', '$email_escaped', 0, 0, NOW())";
+                            }
+                            
+                            if (mysqli_query($conn, $sql))
                             {
                                 ?>
                                 <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
@@ -59,10 +99,21 @@
                                 <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                    Алдаа гарлаа: <?=mysqli_error($conn);?>
+                                    Алдаа гарлаа: <?php echo (isset($conn) && $conn) ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error'; ?>
                                 </div>
                                 <?
                             }
+                        }
+                        else
+                        {
+                            ?>
+                            <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                Database холболт алдаатай байна.
+                            </div>
+                            <?
+                        }
                     }
                     ?>
                     <div class="contact-us">
@@ -118,28 +169,53 @@
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 layout-top-spacing">
                             <div id="toggleAccordion">
                                 <?
-                                    $sql = "SELECT *FROM faqs ORDER BY dd";
-                                    $result =mysqli_query($conn,$sql);
-                                    while ($data = mysqli_fetch_array($result))
-                                    {
-                                        ?> 
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <section class="mb-0 mt-0">
-                                                    <div role="menu" class="collapsed" data-toggle="collapse" data-target="#faqs_<?=$data["faqs_id"];?>" aria-expanded="true" aria-controls="faqs_<?=$data["faqs_id"];?>">
-                                                        <?=$data["question"];?>
+                                    if (isset($conn) && $conn) {
+                                        $sql = "SELECT *FROM faqs ORDER BY dd";
+                                        $result = mysqli_query($conn,$sql);
+                                        if ($result) {
+                                            while ($data = mysqli_fetch_array($result))
+                                            {
+                                                if (is_array($data) && isset($data["question"]) && isset($data["faqs_id"])) {
+                                                    // Initialize variables with safe defaults
+                                                    $question = '';
+                                                    $faqs_id = '0';
+                                                    
+                                                    if (isset($data["question"]) && $data["question"] !== null) {
+                                                        $question = (string)$data["question"];
+                                                    }
+                                                    if (isset($data["faqs_id"]) && $data["faqs_id"] !== null) {
+                                                        $faqs_id = (string)$data["faqs_id"];
+                                                    }
+                                                    
+                                                    // Ensure they are strings (redundant but safe)
+                                                    $question = is_string($question) ? $question : (string)$question;
+                                                    $faqs_id = is_string($faqs_id) ? $faqs_id : (string)$faqs_id;
+                                                ?> 
+                                                <div class="card">
+                                                    <div class="card-header">
+                                                        <section class="mb-0 mt-0">
+                                                            <?php 
+                                                            // Ensure variables are defined and strings before use
+                                                            $display_question = isset($question) && is_string($question) ? $question : '';
+                                                            $display_faqs_id = isset($faqs_id) && is_string($faqs_id) ? $faqs_id : '0';
+                                                            ?>
+                                                            <div role="menu" class="collapsed" data-toggle="collapse" data-target="#faqs_<?php echo htmlspecialchars($display_faqs_id, ENT_QUOTES, 'UTF-8'); ?>" aria-expanded="true" aria-controls="faqs_<?php echo htmlspecialchars($display_faqs_id, ENT_QUOTES, 'UTF-8'); ?>">
+                                                                <?php echo htmlspecialchars($display_question, ENT_QUOTES, 'UTF-8'); ?>
+                                                            </div>
+                                                        </section>
                                                     </div>
-                                                </section>
-                                            </div>
 
-                                            <div id="faqs_<?=$data["faqs_id"];?>" class="collapse" aria-labelledby="..." data-parent="#toggleAccordion">
-                                                <div class="card-body">
-                                                    <?=$data["answer"];?>
+                                                    <div id="faqs_<?php echo htmlspecialchars($faqs_id, ENT_QUOTES, 'UTF-8'); ?>" class="collapse" aria-labelledby="..." data-parent="#toggleAccordion">
+                                                        <div class="card-body">
+                                                            <?php echo isset($data["answer"]) && $data["answer"] !== null ? htmlspecialchars((string)$data["answer"], ENT_QUOTES, 'UTF-8') : ''; ?>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
 
-                                        <?
+                                                    <?
+                                                }
+                                            }
+                                        }
                                     }
                                     ?>
                             </div>   
@@ -167,16 +243,23 @@
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 layout-top-spacing">
                             <div class="card">
                                 <div class="card-body">                                    
-                                    <?
-                                    $sql = "SELECT *FROM pages WHERE page_id=16";
-                                    $result =mysqli_query($conn,$sql);
-                                    $data = mysqli_fetch_array($result);
-                                    $page_title = $data["title"];
-                                    $page_content = $data["content"];
-                                    $update_date = $data["update_date"];
+                                    <?php
+                                    $page_title = '';
+                                    $page_content = '';
+                                    if (isset($conn) && $conn) {
+                                        $sql = "SELECT *FROM pages WHERE page_id=16";
+                                        $result = mysqli_query($conn,$sql);
+                                        if ($result) {
+                                            $data = mysqli_fetch_array($result);
+                                            if (is_array($data)) {
+                                                $page_title = isset($data["title"]) ? $data["title"] : '';
+                                                $page_content = isset($data["content"]) ? $data["content"] : '';
+                                            }
+                                        }
+                                    }
                                     ?>
-                                    <h5><?=$page_title;?></h5>
-                                    <p><?=$page_content;?></p>
+                                    <h5><?php echo htmlspecialchars($page_title); ?></h5>
+                                    <p><?php echo htmlspecialchars($page_content); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -229,7 +312,7 @@
                                 <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                     <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                    Алдаа гарлаа: <?=mysqli_error($conn);?>
+                                    Алдаа гарлаа: <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error'; ?>
                                 </div>
                                 <?
                             }
@@ -290,16 +373,23 @@
                         <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 layout-top-spacing">
                             <div class="card">
                                 <div class="card-body">                                    
-                                    <?
-                                    $sql = "SELECT *FROM pages WHERE page_id=17";
-                                    $result =mysqli_query($conn,$sql);
-                                    $data = mysqli_fetch_array($result);
-                                    $page_title = $data["title"];
-                                    $page_content = $data["content"];
-                                    $update_date = $data["update_date"];
+                                    <?php
+                                    $page_title = '';
+                                    $page_content = '';
+                                    if (isset($conn) && $conn) {
+                                        $sql = "SELECT *FROM pages WHERE page_id=17";
+                                        $result = mysqli_query($conn,$sql);
+                                        if ($result) {
+                                            $data = mysqli_fetch_array($result);
+                                            if (is_array($data)) {
+                                                $page_title = isset($data["title"]) ? $data["title"] : '';
+                                                $page_content = isset($data["content"]) ? $data["content"] : '';
+                                            }
+                                        }
+                                    }
                                     ?>
-                                    <h5><?=$page_title;?></h5>
-                                    <p><?=$page_content;?></p>
+                                    <h5><?php echo htmlspecialchars($page_title); ?></h5>
+                                    <p><?php echo htmlspecialchars($page_content); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -312,7 +402,7 @@
                 
 
                 </div>
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
         </div>
     </div>
 

@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,16 +8,16 @@
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-		<?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 				
 
 		<div class="page-content">
-			<?
-			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
-			<?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";
+			$action_title = "Удирдлага"; // Default value
 			switch ($action)
 			{
 				case "display": $action_title="Бүх бараа";break;
@@ -45,16 +45,16 @@
 			<nav class="page-breadcrumb">
 				<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="products">Бараа</a></li>
-				<li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+				<li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
 				</ol>
 			</nav>
 
 
 			
-			<?
+							<?php
 			if ($action =="dashboard")
 			{
-				$sql = "SELECT *FROM products";
+				$sql = "SELECT * FROM products";
 				$result = mysqli_query($conn,$sql);
 				$total = mysqli_num_rows($result);
 				?>
@@ -78,7 +78,7 @@
 							</div>
 							<div class="row">
 							<div class="col-6 col-md-12 col-xl-5">
-								<h4 class="mb-2"><?=number_format($total);?></h4>
+								<h4 class="mb-2"><?php echo number_format($total);?></h4>
 								<div class="d-flex align-items-baseline">
 								<p class="text-success">
 									<span>+3.3%</span>
@@ -183,11 +183,11 @@
 					</div>
 				</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
-			<?
+							<?php
 			if ($action =="search")
 			{
 				if(isset($_POST["search"])) $search = $_POST["search"]; else $search="";
@@ -200,7 +200,7 @@
 						<form action="products?action=search" method="post">
 						<div class="form-group">
 							<label for="search">Бараа хайх</label>
-							<input type="text" class="form-control" id="search" autocomplete="off" placeholder="Барааны нэр, баркод, орц найрлага, хэрэглэх заавар зэргээс хайх" value="<?=$search;?>" name="search"> 
+							<input type="text" class="form-control" id="search" autocomplete="off" placeholder="Барааны нэр, баркод, орц найрлага, хэрэглэх заавар зэргээс хайх" value="<?php echo htmlspecialchars($search ?? '');?>" name="search"> 
 						</div>
 						<button type="submit" class="btn btn-primary mr-2">Хайх</button>
 						</form>
@@ -208,7 +208,7 @@
 					</div>
 				</div>
 				</div>
-				<? 
+							<?php 
 				if (strlen($search)>=3)
 				{
 				?>
@@ -216,15 +216,15 @@
 					<div class="col-md-12 grid-margin stretch-card">
 					<div class="card">
 						<div class="card-body">
-							<?
+							<?php
 							$sql= "SELECT * FROM products WHERE CONCAT_WS(name,barcode,code,description,description2,short_name) LIKE '%".$search."%'"; ?>
 								
-							<? require_once("views/product_table_display.php");?>
+							<?php require_once("views/product_table_display.php");?>
 						</div>
 					</div>
 					</div>
 				</div>
-				<?
+							<?php
 				}
 				
 				if (strlen($search)<3)
@@ -243,13 +243,13 @@
 					</div>
 				</div>
 				
-				<?
+							<?php
 				}
 				
 			}
 			?>
 
-			<?
+							<?php
 			if ($action =="display")
 			{
 				?>
@@ -257,54 +257,54 @@
 				<div class="col-md-12 grid-margin stretch-card">
 					<div class="card">
 					<div class="card-body">
-						<? 
-						$sql = "SELECT *FROM products"; 
+							<?php 
+						$sql = "SELECT * FROM products"; 
 						?>
-						<? require_once("views/product_table_display.php");?>
+							<?php require_once("views/product_table_display.php");?>
 					</div>
 					</div>
 				</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
-			<?
+							<?php
 			if ($action =="new")
 			{
 				
 				?>
 				<div class="card">
 				<div class="card-body">
-					<?
-					$sql = "SELECT *FROM products ORDER BY created_date DESC LIMIT 100";
+							<?php
+					$sql = "SELECT * FROM products ORDER BY created_date DESC LIMIT 100";
 					?>
-					<? require_once("views/product_table_display.php");?>
+							<?php require_once("views/product_table_display.php");?>
 				</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
 
-			<?
+							<?php
 			if ($action =="categorize")
 			{
 				if (isset($_GET["category"])) $category_id = $_GET["category"]; else header("location:products?action=category");
 				?>
 				<div class="card">
 					<div class="card-body">
-						<?
+							<?php
 						$sql= "SELECT * FROM products WHERE category ='".$category_id."'"; ?>
 							
-						<? require_once("views/product_table_display.php");?>
+							<?php require_once("views/product_table_display.php");?>
 					</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
-			<?
+							<?php
 			if ($action =="active")
 			{
 				?>
@@ -312,19 +312,19 @@
 				<div class="col-md-12 grid-margin stretch-card">
 					<div class="card">
 					<div class="card-body">
-						<?
-						$sql = "SELECT *FROM products ORDER BY updated_date DESC LIMIT 100";
+							<?php
+						$sql = "SELECT * FROM products ORDER BY updated_date DESC LIMIT 100";
 						?>
-						<? require_once("views/product_table_display.php");?>
+							<?php require_once("views/product_table_display.php");?>
 					</div>
 					</div>
 				</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
-			<?
+							<?php
 			if ($action =="add")
 			{
 				?>
@@ -352,14 +352,14 @@
 											<label for="category">Ангилал</label>
 											<select class="form-control" name="category" id="category">
 											<option value="0">Ангилаагүй</option>
-											<?
-											$sql = "SELECT *FROM product_category";
+							<?php
+											$sql = "SELECT * FROM product_category";
 											$result= mysqli_query($conn,$sql);
 											while ($data = mysqli_fetch_array($result))
 											{
 												?>
 												<option value="<?=$data["id"];?>"><?=$data["name"];?></option>
-												<?
+							<?php
 											}
 											?>
 											</select>
@@ -413,14 +413,14 @@
 											<label for="country">Үйлдвэрлэсэн улс</label>
 											<select class="form-control" name="country" id="country">
 											<option value="0" >Тодорхойгүй</option>
-											<?
-											$sql = "SELECT *FROM countries";
+							<?php
+											$sql = "SELECT * FROM countries";
 											$result= mysqli_query($conn,$sql);
 											while ($data = mysqli_fetch_array($result))
 											{
 												?>
 												<option value="<?=$data["id"];?>"><?=$data["name"];?></option>
-												<?
+							<?php
 											}
 											?>
 											</select>
@@ -451,12 +451,12 @@
 						</div>
 					</div> 
 				</form>
-				<?
+							<?php
 			}
 			?>
 
 
-			<?
+							<?php
 			if ($action =="adding")
 			{
 				?>
@@ -467,7 +467,7 @@
 						<h6 class="slim-card-title">Бараа бүртгэл</label>
 						</div><!-- card-header -->
 						<div class="card-body">
-							<?
+							<?php
 							$name = $_POST["name"];
 							$url = $_POST["url"];
 							$category = $_POST["category"];
@@ -533,17 +533,17 @@
 									</button>
 								</div>
 								<div class="btn-group">
-									<a href="products?action=detail&id=<?=$product_id;?>" class="btn btn-success"><i data-feather="edit"></i> Дэлгэрэнгүй</a>
-									<a href="products?action=edit&id=<?=$product_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+									<a href="products?action=detail&id=<?php echo htmlspecialchars($product_id ?? '');?>" class="btn btn-success"><i data-feather="edit"></i> Дэлгэрэнгүй</a>
+									<a href="products?action=edit&id=<?php echo htmlspecialchars($product_id ?? '');?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
 									<a href="products?action=new" class="btn btn-primary"><i class="icon ion-ios-list"></i> Шинэ барааны жагсаалт</a>
 								</div>
-								<?
+							<?php
 								}
 								else 
 								{
 								?>
 								<div class="alert alert-danger mg-b-10" role="alert">
-								алдаа гарлаа. <?=mysqli_error($conn);?>
+								алдаа гарлаа. <?php echo htmlspecialchars(mysqli_error($conn));?>
 									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
 									</button>
@@ -551,7 +551,7 @@
 								<div class="btn-group">
 									<a href="products?action=add" class="btn btn-success"><i data-feather="edit"></i> Ахин оролдох</a>
 								</div>
-								<?
+							<?php
 								}
 
 
@@ -564,15 +564,15 @@
 					</form>
 				</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
-			<?
+							<?php
 			if ($action =="detail")
 			{
 				if (isset($_GET["id"])) $product_id=$_GET["id"]; else header("location:products");
-				$sql = "SELECT *FROM products WHERE id='$product_id' LIMIT 1";
+				$sql = "SELECT * FROM products WHERE id='$product_id' LIMIT 1";
 				$result= mysqli_query($conn,$sql);
 				if (mysqli_num_rows($result)==1)
 				{
@@ -595,20 +595,20 @@
 											<div class="media">
 												<div class="media-body mg-l-15 mg-t-4">
 													<label for="name">Нэр (*)</label>
-													<h4><?=$name;?></h4>
+													<h4><?php echo htmlspecialchars($name ?? '');?></h4>
 												</div>
 											</div>
 											<div class="media">
 												<div class="media-body mg-l-15 mg-t-4">
 													<label for="short_name">URL</label>
-													<h4><?=$url;?></h4>
+													<h4><?php echo htmlspecialchars($url ?? '');?></h4>
 												</div>
 											</div>
 											<div class="media">
 												<div class="media-body mg-l-15 mg-t-2">
 													<label for="category">Ангилал</label>
-													<?
-														$sql = "SELECT *FROM product_category WHERE id='$category'";
+							<?php
+														$sql = "SELECT * FROM product_category WHERE id='$category'";
 														$result= mysqli_query($conn,$sql);
 														$data = mysqli_fetch_array($result);
 														$category_name = $data["name"];
@@ -648,9 +648,9 @@
 								<div class="col-lg-6">
 									<div class="card">
 										<div class="card-body">
-										<? if ($image<>"" && file_exists('../'.$image))
+							<?php if (isset($image) && $image<>"" && file_exists('../'.$image))
 										{
-											?><img src="../<?=$image;?>" style="max-width: 100%;"><?
+											?><img src="../<?php echo htmlspecialchars($image);?>" style="max-width: 100%;"><?php 
 										}
 										?>
 										<div class="media-list">
@@ -659,8 +659,8 @@
 											<div class="media">
 												<div class="media-body mg-l-15 mg-t-2">
 													<label for="category">Үйлдвэрлэсэн улс</label>
-													<?
-														$sql = "SELECT *FROM countries WHERE id='$country'";
+							<?php
+														$sql = "SELECT * FROM countries WHERE id='$country'";
 														$result= mysqli_query($conn,$sql);
 														$data = mysqli_fetch_array($result);
 														$country_name = $data["name"];
@@ -694,7 +694,7 @@
 					<a href="products" class="btn btn-primary btn-icon-text"><i class="icon ion-ios-list"></i> Бүх бараа</a>
 					</div>
 					
-					<?
+							<?php
 				}
 				else header("location:products");
 			}
@@ -702,15 +702,15 @@
 
 
 
-			<?
+							<?php
 			if ($action =="edit")
 			{
 				if (isset($_GET["id"])) $product_id=$_GET["id"]; else header("location:products");
 				?>
 				<form action="products?action=editing" method="post" enctype="multipart/form-data">
 					<input type="hidden" name="product_id" value="<?=$product_id;?>">
-					<?
-						$sql = "SELECT *FROM products WHERE id='$product_id' LIMIT 1";
+							<?php
+						$sql = "SELECT * FROM products WHERE id='$product_id' LIMIT 1";
 						$result= mysqli_query($conn,$sql);
 						if (mysqli_num_rows($result)==1)
 						{
@@ -750,14 +750,14 @@
 													<label for="category">Ангилал</label>
 													<select class="form-control" name="category" id="category">
 													<option value="0" <?=($category=='0')?'SELECTED="SELECTED"':'';?>>Ангилаагүй</option>
-													<?
-													$sql = "SELECT *FROM product_category";
+							<?php
+													$sql = "SELECT * FROM product_category";
 													$result= mysqli_query($conn,$sql);
 													while ($data = mysqli_fetch_array($result))
 													{
 														?>
 														<option value="<?=$data["id"];?>" <?=($data["id"]==$category)?'SELECTED="SELECTED"':'';?>><?=$data["name"];?></option>
-														<?
+							<?php
 													}
 													?>
 													</select>
@@ -797,9 +797,9 @@
 								<div class="col-lg-6">
 									<div class="card">
 										<div class="card-body">
-										<? if ($image<>"" && file_exists("../".$image))
+							<?php if ($image<>"" && file_exists("../".$image))
 										{
-											?><img src="../<?=$image;?>" style="max-width: 100%;"><?
+											?><img src="../<?php echo htmlspecialchars($image ?? '');?>" style="max-width: 100%;"><?php
 										}
 										?>
 										<div class="media-list">
@@ -815,14 +815,14 @@
 													<label for="country">Үйлдвэрлэсэн улс</label>
 													<select class="form-control" name="country" id="country">
 													<option value="0" >Тодорхойгүй</option>
-													<?
-													$sql = "SELECT *FROM countries";
+							<?php
+													$sql = "SELECT * FROM countries";
 													$result= mysqli_query($conn,$sql);
 													while ($data = mysqli_fetch_array($result))
 													{
 														?>
 														<option value="<?=$data["id"];?>" <?=($data["id"]==$country)?'SELECTED="SELECTED"':'';?>><?=$data["name"];?></option>
-														<?
+							<?php
 													}
 													?>
 													</select>
@@ -852,7 +852,18 @@
 								</div>
 							</div> 
 						
-							<?
+							<?php
+						}
+						else
+						{
+							?>
+							<div class="alert alert-danger mg-b-10" role="alert">
+								Бараа олдсонгүй.
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<?php
 						}
 						?>
 					</form>
@@ -872,19 +883,19 @@
 						<i class="icon icon ion-ios-close-outline tx-100 tx-danger lh-1 mg-t-20 d-inline-block"></i>
 						<h4 class="tx-danger mg-b-20">Устгахад итгэлтэй байна уу!</h4>
 						<p class="mg-b-20 mg-x-20">Ахин сэргээх боломжгүйгээр устах болно.</p>
-						<a href="products?action=delete&id=<?=$id;?>" class="btn btn-danger">Тийм устгах</a>
+						<a href="products?action=delete&id=<?php echo htmlspecialchars($product_id ?? 0);?>" class="btn btn-danger">Тийм устгах</a>
 						<button type="button" class="btn btn-success pd-x-25" data-dismiss="modal" aria-label="Close">Үгүй, үлдээе</button>
 					</div><!-- modal-body -->
 					</div><!-- modal-content -->
 				</div><!-- modal-dialog -->
 				</div><!-- modal -->
 				
-				<?
+							<?php
 			}
 			?>
 
 
-			<?
+							<?php
 			if ($action =="editing")
 			{
 				?>
@@ -895,9 +906,9 @@
 						<h6 class="slim-card-title">Бараа засах</label>
 					</div><!-- card-header -->
 					<div class="card-body">
-						<?
+							<?php
 						if (isset($_POST["product_id"])) $product_id=$_POST["product_id"]; else header("location:products");
-						$sql = "SELECT *FROM products WHERE id='$product_id' LIMIT 1";
+						$sql = "SELECT * FROM products WHERE id='$product_id' LIMIT 1";
 						$result= mysqli_query($conn,$sql);
 						if (mysqli_num_rows($result)==1)
 						{
@@ -963,7 +974,7 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 								</div>
-								<?
+							<?php
 							}
 							else 
 							{
@@ -974,7 +985,7 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 								</div>
-								<?
+							<?php
 							}
 
 
@@ -983,19 +994,19 @@
 							<a href="products?action=edit&id=<?=$product_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
 							<a href="products" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх бүтээгдэхүүн</a>
 							</div>
-							<?
+							<?php
 						}
 						?>
 					</div>
 					</div>
 				</div><!-- col-12 -->
 				</div>
-				<?
+							<?php
 			}
 			?>
 
 
-			<?
+							<?php
 			if ($action =="delete")
 			{
 				?>
@@ -1007,9 +1018,9 @@
 						<h6 class="slim-card-title">Бараа устгах</label>
 						</div><!-- card-header -->
 						<div class="card-body">
-							<?
+							<?php
 							if (isset($_GET["id"])) $id=$_GET["id"]; else header("location:products");
-							$sql = "SELECT *FROM products WHERE id=$id LIMIT 1";
+							$sql = "SELECT * FROM products WHERE id=$id LIMIT 1";
 							$result= mysqli_query($conn,$sql);
 							if (mysqli_num_rows($result)==1)
 							{
@@ -1027,7 +1038,7 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+							<?php
 								}
 								else 
 								{
@@ -1038,7 +1049,7 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+							<?php
 								}
 
 
@@ -1046,7 +1057,7 @@
 							<div class="btn-group">
 								<a href="products" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бусад бараа</a>
 							</div>
-							<?
+							<?php
 							}
 							?>
 						</div>
@@ -1054,7 +1065,7 @@
 					</form>
 				</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
@@ -1066,7 +1077,7 @@
 			<!--------------------------------------------------------->
 
 
-			<?
+							<?php
 			if ($action =="category")
 			{
 				$count =1;
@@ -1086,8 +1097,8 @@
 							</tr>
 							</thead>
 							<tbody>
-							<?
-							$sql = "SELECT *FROM product_category ORDER BY dd,name";
+							<?php
+							$sql = "SELECT * FROM product_category ORDER BY dd,name";
 							$result = mysqli_query($conn,$sql);
 							if (mysqli_num_rows($result)>0)
 							{
@@ -1106,7 +1117,7 @@
 									</div>
 									</td>
 								</tr>
-								<?
+							<?php
 								}
 							}
 							?>
@@ -1118,11 +1129,11 @@
 				</div>
 				</div>
 				<a href="products?action=category_new" class="btn btn-success mg-t-10"><i class="icon ion-ios-plus"></i> Ангилал нэмэх</a>
-				<?
+							<?php
 			}
 			?>
 
-			<?
+							<?php
 			if ($action =="category_new")
 			{
 				?>
@@ -1141,17 +1152,17 @@
 					</form>
 				</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
-			<?
+							<?php
 			if ($action =="category_adding")
 			{
 				?>
 				<div class="card">
 				<div class="card-body">
-							<?
+							<?php
 							$name = $_POST["name"];
 
 								$sql = "INSERT INTO product_category (name) VALUES ('$name')";
@@ -1165,7 +1176,7 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+							<?php
 								}
 								else 
 								{
@@ -1176,7 +1187,7 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+							<?php
 								}
 
 
@@ -1190,21 +1201,21 @@
 					</form>
 				</div>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
 
-			<?
+							<?php
 			if ($action =="category_edit")
 			{
 				?>
 				<div class="card">
 				<div class="card-body">
 					<form action="products?action=category_editing" method="post" enctype="multipart/form-data">
-					<?
+							<?php
 					if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:products");
-					$sql = "SELECT *FROM product_category WHERE id=$category_id LIMIT 1";
+					$sql = "SELECT * FROM product_category WHERE id=$category_id LIMIT 1";
 					$result= mysqli_query($conn,$sql);
 					if (mysqli_num_rows($result)==1)
 					{
@@ -1220,7 +1231,7 @@
 						</div>
 						</div>
 						<input type="submit" class="btn btn-success btn-lg mg-t-10" value="Засах">
-						<?
+							<?php
 					}
 					?>
 					</form>
@@ -1231,18 +1242,18 @@
 				<a href="products?action=cateogory_delete&id=<?=$category_id;?>" class="btn btn-danger btn-xs"><i class="icon ion-ios-trash"></i> Устгах</a>
 				<a href="products?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
 
-			<?
+							<?php
 			if ($action =="category_editing")
 			{
 				?>
 				<div class="card">
 					<div class="card-body">                
-							<?
+							<?php
 							if (isset($_POST["id"])) $category_id=$_POST["id"]; else header("location:products");
 							$name = $_POST["name"];
 							$sql = "UPDATE product_category SET name='$name' WHERE id=$category_id LIMIT 1";
@@ -1256,7 +1267,7 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+							<?php
 								}
 								else 
 								{
@@ -1267,7 +1278,7 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+							<?php
 								}
 
 
@@ -1280,12 +1291,12 @@
 				<a href="products?action=category_edit&id=<?=$category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
 				<a href="products?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
 
-			<?
+							<?php
 			if ($action =="category_delete")
 			{
 				?>
@@ -1297,9 +1308,9 @@
 						<h6 class="slim-card-title">Мэдээний ангилал устгах</h6>
 					</div><!-- card-header -->
 					<div class="card-body">
-						<?
+							<?php
 						if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:products");
-						$sql = "SELECT *FROM product_category WHERE id=$category_id LIMIT 1";
+						$sql = "SELECT * FROM product_category WHERE id=$category_id LIMIT 1";
 						$result= mysqli_query($conn,$sql);
 						if (mysqli_num_rows($result)==1)
 						{
@@ -1315,7 +1326,7 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 								</div>
-								<?
+							<?php
 							}
 							else 
 							{
@@ -1326,7 +1337,7 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 								</div>
-								<?
+							<?php
 							}
 						}
 						?>
@@ -1337,13 +1348,13 @@
 				<div class="btn-group mg-t-10">
 				<a href="products?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
 				</div>
-				<?
+							<?php
 			}
 			?>
 
 
 		</div>
-		<? require_once("views/footer.php");?>
+							<?php  require_once("views/footer.php");?>
 		
 		</div>
 	</div>

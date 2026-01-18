@@ -19,122 +19,117 @@
                         </tr>
                     </thead>
                     <tbody>
-                    <?
-                    $result = mysqli_query($conn,$sql);
-                    $i=mysqli_num_rows($result);
-                    $count=0;
-                    $sum_price=0;
-                    $sum_tax=0;
-                    $sum_shipping=0;
-                    while ($data = mysqli_fetch_array($result))
-                        {  
-                            $sum_price+=$data["price"];
-                            $sum_tax+=$data["tax"];
-                            $sum_shipping+=$data["shipping"];
+                    <?php
+                    $count = 0;
+                    $sum_price = 0;
+                    $sum_tax = 0;
+                    $sum_shipping = 0;
+                    if (isset($conn) && $conn && isset($sql)) {
+                        $result = mysqli_query($conn, $sql);
+                        if ($result) {
+                            $i = mysqli_num_rows($result);
+                            while ($data = mysqli_fetch_array($result)) {
+                                $price = isset($data["price"]) ? floatval($data["price"]) : 0;
+                                $tax = isset($data["tax"]) ? floatval($data["tax"]) : 0;
+                                $shipping = isset($data["shipping"]) ? floatval($data["shipping"]) : 0;
+                                $sum_price += $price;
+                                $sum_tax += $tax;
+                                $sum_shipping += $shipping;
 
+                                $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
+                                $online_id = isset($data["online_id"]) ? intval($data["online_id"]) : 0;
+                                $url = isset($data["url"]) ? htmlspecialchars($data["url"]) : ''; 
+                                $size = isset($data["size"]) ? htmlspecialchars($data["size"]) : ''; 
+                                $color = isset($data["color"]) ? htmlspecialchars($data["color"]) : '';
+                                $number = isset($data["number"]) ? htmlspecialchars($data["number"]) : '';
+                                $receiver = isset($data["receiver"]) ? intval($data["receiver"]) : 0;
+                                $track = isset($data["track"]) ? htmlspecialchars($data["track"]) : '';
+                                $comment = isset($data["comment"]) ? htmlspecialchars($data["comment"]) : '';
+                                $status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
+                                $title = isset($data["title"]) ? htmlspecialchars($data["title"]) : '';
+                                $transport = isset($data["transport"]) ? htmlspecialchars($data["transport"]) : '';
+                                
+                                if (mb_strlen($title, 'UTF-8') > 50) $title = mb_substr($title, 0, 50, 'UTF-8') . "...";
+                                if (mb_strlen($title, 'UTF-8') == 0) $title = mb_substr($url, 0, 50, 'UTF-8') . "...";
+                                ?>
+                                <tr>
+                                    <td><?php echo ++$count; ?></td>
+                                    <td><?php echo !empty($created_date) ? htmlspecialchars(short_date(substr($created_date, 0, 10))) : ''; ?></td>
+                                    <td><span class="badge badge-info badge-pills"><?php echo !empty($status) ? htmlspecialchars($status) : ''; ?></span></td>
 
-                            $created_date=$data["created_date"];
-                            $online_id=$data["online_id"];
-                            $url=$data["url"]; 
-                            $size=$data["size"]; 
-                            $color=$data["color"];
-                            $number=$data["number"];
-                            $receiver=$data["receiver"];
-                            $track=$data["track"];
-                            $comment=$data["comment"];
-                            $status=$data["status"];
-                            $price=$data["price"];
-                            $tax=$data["tax"];
-                            $shipping=$data["shipping"];
-                            $title=$data["title"];
-                            $comment=$data["comment"];
-                            $transport = $data["transport"];
-                            ?>
-                            <tr>
-                                <td><?=++$count;?></td>
-                                <td><?=short_date(substr($created_date,0,10));?></td>
-                                <td><span class="badge badge-info badge-pills"><?=$status;?></span></td>
-
-                                <?
-                                if (strlen($title)>50) $title=substr($title,0,50)."...";
-                                if (strlen($title)==0) $title=substr($url,0,50)."...";
-                                ?>
-                                <td class="text-wrap"><a href='<?=$url;?>' target='new' title="<?=$title;?>"><?=$title;?></a></td>	
-                                <td><?=$number;?></td>
-                                <td><?=$size;?></td>
-                                <td><?=$color;?></td>
-                                <td>
-                                <?
-                                    if ($price>0)
-                                    echo '<span style="color:#090; font-weight:bold;">'.$price.'$</span>';
-                                    else {	if ($comment!="") echo $comment; else echo "-";	}
-                                ?>
-                                </td>
-                                <td>
-                                <?
-                                    if ($tax>0)
-                                    echo '<span style="color:#090; font-weight:bold;">'.$tax.'$</span>';
-                                ?>
-                                </td>
-                                <td>
-                                <?
-                                    if ($shipping>0)
-                                    echo '<span style="color:#090; font-weight:bold;">'.$shipping.'$</span>';
-                                ?>
-                                </td>
-                                <td>
-                                <?
-                                if ($status=="online")
-                                    {
+                                    <td class="text-wrap"><a href='<?php echo htmlspecialchars($url ?? ''); ?>' target='new' title="<?php echo htmlspecialchars($title ?? ''); ?>"><?php echo htmlspecialchars($title ?? ''); ?></a></td>	
+                                    <td><?php echo htmlspecialchars($number ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($size ?? ''); ?></td>
+                                    <td><?php echo htmlspecialchars($color ?? ''); ?></td>
+                                    <td>
+                                    <?php
+                                        if ($price > 0) {
+                                            echo '<span style="color:#090; font-weight:bold;">' . htmlspecialchars($price) . '$</span>';
+                                        } else {
+                                            if (!empty($comment)) {
+                                                echo htmlspecialchars($comment);
+                                            } else {
+                                                echo "-";
+                                            }
+                                        }
+                                    ?>
+                                    </td>
+                                    <td>
+                                    <?php
+                                        if ($tax > 0) {
+                                            echo '<span style="color:#090; font-weight:bold;">' . htmlspecialchars($tax) . '$</span>';
+                                        }
+                                    ?>
+                                    </td>
+                                    <td>
+                                    <?php
+                                        if ($shipping > 0) {
+                                            echo '<span style="color:#090; font-weight:bold;">' . htmlspecialchars($shipping) . '$</span>';
+                                        }
+                                    ?>
+                                    </td>
+                                    <td>
+                                    <?php
+                                    if ($status == "online") {
                                         ?>
                                         <div class="btn-group btn-sm">
-                                            <a href="online?action=delete&id=<?=$online_id;?>" class='btn btn-sm btn-danger'>Устгах</a>
-                                            <a href="online?action=payment&id=<?=$online_id;?>" class='btn btn-sm btn-warning'>Төлөх</a>
-                                            <a href="online?action=makelater&id=<?=$online_id;?>" class='btn btn-sm btn-primary'>Хойшлуулах</a>
+                                            <a href="online?action=delete&id=<?php echo htmlspecialchars($online_id ?? 0); ?>" class='btn btn-sm btn-danger'>Устгах</a>
+                                            <a href="online?action=payment&id=<?php echo htmlspecialchars($online_id ?? 0); ?>" class='btn btn-sm btn-warning'>Төлөх</a>
+                                            <a href="online?action=makelater&id=<?php echo htmlspecialchars($online_id ?? 0); ?>" class='btn btn-sm btn-primary'>Хойшлуулах</a>
                                         </div>
-                                        <?
+                                        <?php
                                     }
-                                if ($status=="later")
-                                    {
+                                    if ($status == "later") {
                                         ?>
                                         <div class="btn-group btn-sm">
-                                            <a href="online?action=delete&id=<?=$online_id;?>" class='btn btn-sm btn-danger'>Устгах</a>
-                                            <a href="online?action=makeactive&id=<?=$online_id;?>" class='btn btn-sm btn-success'>Идэвхижүүлэх</a>
+                                            <a href="online?action=delete&id=<?php echo htmlspecialchars($online_id ?? 0); ?>" class='btn btn-sm btn-danger'>Устгах</a>
+                                            <a href="online?action=makeactive&id=<?php echo htmlspecialchars($online_id ?? 0); ?>" class='btn btn-sm btn-success'>Идэвхижүүлэх</a>
                                         </div>
-                                        <?
+                                        <?php
                                     }
-                                ?>
-                                </td>
-                                <!-- <td><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle table-cancel"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></td> -->
-                            </tr>
-                            <?
+                                    ?>
+                                    </td>
+                                    <!-- <td><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle table-cancel"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg></td> -->
+                                </tr>
+                                <?php
+                            }
                         }
-                        ?>
+                    }
+                    ?>
 
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th><?=$count;?>ш</th>
+                            <th><?php echo htmlspecialchars($count ?? 0); ?>ш</th>
                             <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
-                            <th><?=number_format($sum_price);?>$</th>
-                            <th><?=number_format($sum_tax);?>$</th>
-                            <th><?=number_format($sum_shipping);?>$</th>
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th></th>
-                            <th colspan="3" class="text-right border">Нийт /$/: <?=number_format($sum_price+$sum_tax+$sum_shipping);?>$</th>
+                            <th><?php echo number_format($sum_price ?? 0); ?>$</th>
+                            <th><?php echo number_format($sum_tax ?? 0); ?>$</th>
+                            <th><?php echo number_format($sum_shipping ?? 0); ?>$</th>
                             <th></th>
                         </tr>
                         <tr>
@@ -145,7 +140,18 @@
                             <th></th>
                             <th></th>
                             <th></th>
-                            <th colspan="3" class="text-right ">Нийт /₮/: <?=number_format(settings("rate")*($sum_price+$sum_tax+$sum_shipping));?>$</th>
+                            <th colspan="3" class="text-right border">Нийт /$/: <?php echo number_format(($sum_price ?? 0) + ($sum_tax ?? 0) + ($sum_shipping ?? 0)); ?>$</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th colspan="3" class="text-right ">Нийт /₮/: <?php echo number_format((settings("rate") ?? 0) * (($sum_price ?? 0) + ($sum_tax ?? 0) + ($sum_shipping ?? 0))); ?>₮</th>
                             <th></th>
                         </tr>
                     </tfoot>

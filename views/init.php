@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Base URL for relative paths -->
+    <base href="/shuurkhai/">
     <!-- Meta Tags -->
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
     <!-- Author -->
-    <meta name="author" content="<?=$g_title;?>">
+    <meta name="author" content="<?php echo htmlspecialchars($g_title ?? '');?>">
     <!-- description -->
-    <meta name="description" content="<?=$g_description;?>">
+    <meta name="description" content="<?php echo htmlspecialchars($g_description ?? '');?>">
 
     <!-- keywords -->
-    <meta name="keywords" content="<?=$g_keywords;?>">
+    <meta name="keywords" content="<?php echo htmlspecialchars($g_keywords ?? '');?>">
     
     <!-- Page Title -->
-    <title><?=$g_title;?></title>
+    <title><?php echo htmlspecialchars($g_title ?? '');?></title>
     <!-- Favicon -->
-    <link href="<?=$g_favicon;?>" rel="icon">
+    <link href="<?php echo htmlspecialchars($g_favicon ?? '');?>" rel="icon">
 
     <!-- Bundle -->
     <link href="assets/vendor/css/bundle.min.css" rel="stylesheet">

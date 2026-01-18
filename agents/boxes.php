@@ -1,20 +1,20 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
   <body>
     <div class="layout-wrapper layout-navbar-full layout-horizontal layout-without-menu">
       <div class="layout-container">
-        <? require_once("views/header.php");?>
+        <?php require_once("views/header.php");?>
 
-        <? if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
+        <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
 
         <div class="layout-page">          
           <div class="content-wrapper">
-            <? require_once("views/topmenu.php");?>
+            <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
-                <?
+                    <?php                    
                 if ($action=="active")
                 {                
                     $sql="SELECT * FROM boxes";
@@ -40,7 +40,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                    <?php                    
                                             $count=1;
                                             $cumulative_weight=0;
                                             $cumulative_packages = 0;
@@ -81,7 +81,7 @@
                                 <div id="more"></div>
                                 <button type="submit" class="btn btn-success">өөрчил</button>            
                             </form>
-                            <?
+                    <?php                    
                     }
                     else echo '<div class="alert alert-danger" role="alert">No boxes</div>';                            
                 }
@@ -257,11 +257,11 @@
                             {
                                 ?>
                                 <a href="?action=fill&id=<?=$box_id;?>" class="btn btn-success btn-sm">Fill box</a>
-                                <?
+                    <?php                    
                             }
                             ?>
                             <a href="boxes_preview?id=<?=$box_id;?>" class="btn btn-warning btn-sm" target="new">Box badge</a>
-                            <?
+                    <?php                    
                         }
                         if (mysqli_num_rows($query) > 0)
                         {	 
@@ -410,7 +410,7 @@
                     
 
                     </form>
-                    <?
+                    <?php                    
                 }
                 if ($action=="creating")
                 {
@@ -434,7 +434,7 @@
                     ?>
                     <br>
                     <a href="?action=active" class="btn btn-primary mt-3">Boxes</a>
-                    <?                    
+                    <?php                    
                 }
 
                 if ($action=="fill")
@@ -448,18 +448,18 @@
                             <h4 class="legend">Track or Barcode</h4>
                             <input type="text" name="barcode" value="" class="form-control" placeholder="GO15101588MN">
                             
-                            <?
+                    <?php                    
                             if (isset($_GET["message"]))            
                             {
                                 ?>
                                 <div class="alert <?=($_GET["message"]=="ok")?'alert-success':'alert-danger';?>"><?=$_GET["message"];?></div>
-                                <?
+                    <?php                    
                             }                 
                             ?>
 
                             <button type="submit" class="btn btn-success">Оруулах</button>
                         </form>
-                        <?
+                    <?php                    
                     }
                     else echo '<div class="alert alert-danger" role="alert">Хоосон утга байж болохгүй.</div>';
                 }
@@ -663,7 +663,7 @@
                             </form>                               
                         </div>
                     </div>
-                    <?
+                    <?php                    
                 }
 
                 if ($action=="searching")
@@ -855,14 +855,14 @@
                         <textarea class="form-control" name="combine_barcodes" placeholder="GO15091855MN" autofocus required style="height:100px"></textarea>
                         <button type="submit" class="btn btn-success mt-3">Нэгтгэх</button>
                     </form>
-                    <?
+                    <?php                    
                 }
 
                 if ($action=="combining")
                 {
                     ?>
                     <h5>Нэгтгэх ачааны barcode-г оруулна уу.</h5>
-                    <?
+                    <?php                    
                     if (isset($_POST["combine_barcodes"]))
                     {
                         $combine = $_POST["combine_barcodes"];
@@ -1179,14 +1179,14 @@
                             <button type="submit" class="btn btn-success">Хайх</button>
                         </div>
                     </form>                                           
-                    <?
+                    <?php                    
                 }
 
                 if ($action=="relative_search")
                 {
                     ?>
                     <h6>Хамааралтай ачааг олох</h6>
-                    <?
+                    <?php                    
                     if (isset($_POST["barcode"]))
                     {
                         $barcode = $_POST["barcode"];
@@ -1211,7 +1211,7 @@
                                 {
                                     ?>
                                     <form action="?action=combining" method="post">
-                                        <?
+                    <?php                    
                                         echo "<table class='table table-striped'>";
                                         echo "<tr><th><input type='checkbox' name='select_all' title='Select all barcodes' checked></th><th>Barcode</th><th>Track</th><th>Weight</th><th>Status</th></tr>";
                                         while($relatives_data=mysqli_fetch_array($relatives_result))
@@ -1228,7 +1228,7 @@
                                         ?>
                                         <button type="submit" class="btn btn-success">Нэгтгэх</button>
                                     </form>
-                                    <?
+                    <?php                    
                                 }
 
                             }
@@ -1250,7 +1250,7 @@
                         <a title="Хайрцаглагдаагүй бэлэн ачаа" class="btn btn-secondary" href="?action=outside&type=combine">(<?=agent_boxed_combine();?>) new combine</a>
                     </div>
 
-                    <?
+                    <?php                    
 
                     if ( $type=="order")
                     {
@@ -1403,7 +1403,7 @@
                 ?>
             </div>
 
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
 
             <div class="content-backdrop fade"></div>
           </div>

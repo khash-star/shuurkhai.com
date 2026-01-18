@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-    <?  require_once("views/navbar.php"); ?>
+    <?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 
 			<div class="page-content">
 
@@ -19,9 +19,9 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
-          <?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";
+          $action_title = "Удирдлага"; // Default value
           switch ($action)
           {
             case "display": $action_title="Бүх Ачаа";break;
@@ -43,26 +43,23 @@
             case "commenting": $action_title="Тайлбар бичих";break;
             case "price": $action_title="Үнэ оруулах";break;
             case "pricing": $action_title="Үнэ оруулах";break;
-            case "pending_track": $action_title="Pending track";break;
-            case "all_later": $action_title="Дараа болгосон";break;
-
-            
+            default: $action_title="Удирдлага";break;
           }
           ?>
           <nav class="page-breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="online">Онлайн удирдлага</a></li>
               <li class="breadcrumb-item"><a href="online?action=all">Бүх онлайн</a></li>
-              <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+              <li class="breadcrumb-item active" aria-current="page"><?php echo $action_title;?></li>
             </ol>
           </nav>
 
-          <?
+          <?php
           if ($action =="dashboard")
           {
-            $sql = "SELECT *FROM online";
+            $sql = "SELECT * FROM online";
             $result = mysqli_query($conn,$sql);
-            $total = mysqli_num_rows($result);
+            $total = $result ? mysqli_num_rows($result) : 0;
             ?>
             <div class="row">
               <div class="col-12 col-xl-12 stretch-card">
@@ -84,7 +81,7 @@
                         </div>
                         <div class="row">
                           <div class="col-6 col-md-12 col-xl-5">
-                            <h3 class="mb-2"><?=number_format($total);?></h3>
+                            <h3 class="mb-2"><?php echo number_format($total);?></h3>
                             <div class="d-flex align-items-baseline">
                               <p class="text-success">
                                 <span>+3.3%</span>
@@ -166,11 +163,11 @@
                 </div>
               </div>
             </div> <!-- row -->           
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action=="all")
           {
             $sql="SELECT online.customer_id, SUM(price) AS total_price, SUM(tax) AS total_tax, SUM(shipping) AS total_shipping, COUNT(customer_id) AS count, SUM(owe) AS total_owe, SUM(new) AS total_new FROM online";
@@ -179,6 +176,8 @@
 
             $result = mysqli_query($conn,$sql);
             $count=1;$total_weight=0;$total_price=0;
+            $j = 0;
+            $receiver = 0;
 
             ?>
             <div class="row">
@@ -197,48 +196,49 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <?
+                              <?php
                               
-                              $j=mysqli_num_rows($result);
+                              if ($result) {
+                                $j=mysqli_num_rows($result);
 
-                              while ($data = mysqli_fetch_array($result))
-                                {  
-
-                                    $receiver=$data["customer_id"];	
-                                    ?>
-                                    <tr>
-                                      <td><?=$j--;?></td>
+                                while ($data = mysqli_fetch_array($result))
+                                  {  
+                                      if (!isset($data["customer_id"])) continue;
+                                      $receiver=$data["customer_id"];	
+                                      ?>
+                                      <tr>
+                                        <td><?php echo $j--;?></td>
+                                      
+                                        <td>
+                                        <a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a>
+                                        </td>
                                     
-                                      <td>
-                                      <a href="customers?action=detail&id="<?=$receiver;?>"><?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a>
-                                      </td>
-                                    
 
                                       <td>
-                                      <?=(customer($receiver,"email")!="")?'<a href="mailto:'.customer($receiver,"email").'">mail</a>':'';?> 
+                                      <?php echo (customer($receiver,"email")!="")?'<a href="mailto:'.customer($receiver,"email").'">mail</a>':'';?> 
                                       </td>
                                       <td>
-                                      <?=customer($receiver,"tel");?>
+                                      <?php echo customer($receiver,"tel");?>
                                       </td>
 
                                       <td>
-                                        <span style="color:#000; font-weight:bold;">Нийт online: <?=$data["count"];?>ш</span><br>
-                                        <span style="color:#0F0; font-weight:bold;">Дүн бодогдоогүй: <?=$data["total_new"];?>ш</span><br>
-                                        <span style="color:#F00; font-weight:bold;">Үнэ: <?=number_format($data["total_price"],2);?>$</span><br>
-                                        <span style="color:#1079b2; font-weight:bold;">Tax: <?=number_format($data["total_tax"],2);?>$</span><br>
-                                        <span style="color:#f0861b; font-weight:bold;">Shipping: <?=number_format($data["total_shipping"],2);?>$</span><br>
-                                        <span style="color:#ff0000; font-weight:bold;">Дараа төлбөр: <?=number_format($data["total_owe"],2);?>$</span><br>
-                                            <? 
-                                            $total = $data["total_price"]+$data["total_tax"]+$data["total_shipping"]+$data["total_owe"];
+                                        <span style="color:#000; font-weight:bold;">Нийт online: <?php echo isset($data["count"]) ? $data["count"] : 0;?>ш</span><br>
+                                        <span style="color:#0F0; font-weight:bold;">Дүн бодогдоогүй: <?php echo isset($data["total_new"]) ? $data["total_new"] : 0;?>ш</span><br>
+                                        <span style="color:#F00; font-weight:bold;">Үнэ: <?php echo number_format(isset($data["total_price"]) ? $data["total_price"] : 0,2);?>$</span><br>
+                                        <span style="color:#1079b2; font-weight:bold;">Tax: <?php echo number_format(isset($data["total_tax"]) ? $data["total_tax"] : 0,2);?>$</span><br>
+                                        <span style="color:#f0861b; font-weight:bold;">Shipping: <?php echo number_format(isset($data["total_shipping"]) ? $data["total_shipping"] : 0,2);?>$</span><br>
+                                        <span style="color:#ff0000; font-weight:bold;">Дараа төлбөр: <?php echo number_format(isset($data["total_owe"]) ? $data["total_owe"] : 0,2);?>$</span><br>
+                                            <?php 
+                                            $total = (isset($data["total_price"]) ? $data["total_price"] : 0) + (isset($data["total_tax"]) ? $data["total_tax"] : 0) + (isset($data["total_shipping"]) ? $data["total_shipping"] : 0) + (isset($data["total_owe"]) ? $data["total_owe"] : 0);
                                             ?>
-                                        <span style="color:#be0fce; font-weight:bold;font-size:14px;">Нийт: <?=number_format($total,2).'$ ('.number_format($total*cfg_rate());?>₮)</span><br>
+                                        <span style="color:#be0fce; font-weight:bold;font-size:14px;">Нийт: <?php echo number_format($total,2).'$ ('.number_format($total*cfg_rate());?>₮)</span><br>
                                       </td>
                                       
                                       <td>
-                                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#online_detail_<?=$receiver;?>">Дэлгэх</button>
+                                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#online_detail_<?php echo $receiver;?>">Дэлгэх</button>
                                                           
 
-                                        <div class="modal" tabindex="-1" role="dialog" id="online_detail_<?=$receiver;?>">
+                                        <div class="modal" tabindex="-1" role="dialog" id="online_detail_<?php echo $receiver;?>">
                                           <div class="modal-dialog modal-xl" role="document">
                                             <div class="modal-content">
                                               <div class="modal-header">
@@ -248,19 +248,19 @@
                                                 </button>
                                               </div>
                                               <div class="modal-body">
-                                                <?
+                                                <?php
                                                     $sql_online="SELECT * FROM online";
                                                     $sql_online.=" WHERE status!='order' AND status!='later' AND status!='pending' AND customer_id='".$receiver."'";
                                                     $sql_online.=" ORDER BY created_date DESC";
                                                     
                                                     $result_single = mysqli_query($conn,$sql_online);
-                                                    if (mysqli_num_rows($result_single) > 0)
+                                                    if ($result_single && mysqli_num_rows($result_single) > 0)
                                                     {
                                                       ?>
                                                       <table class='table table-striped'>
                                                       
                                                         <tr><th>№</th><th>Үүсгэсэн</th><th>Үнэ</th><th>Коммент</th><th>Тайлбар</th><th>Үйлдэл</th></tr>
-                                                        <?
+                                                        <?php
 
                                                         $i=mysqli_num_rows($result_single);
                                                         while ($data_single = mysqli_fetch_array($result_single))
@@ -284,46 +284,46 @@
 
                                                             
                                                             <tr>
-                                                            <td><?=$i--;?></td>
-                                                            <td><?=substr($created_date,0,10);?>
-                                                            <?
+                                                            <td><?php echo $i--;?></td>
+                                                            <td><?php echo substr($created_date,0,10);?>
+                                                            <?php
                                                               if ($transport) echo "<br><span class='glyphicon glyphicon-home' title='Улаанбаатарт хүргэлттэй'></span> Хүргэлттэй"; 
                                                             ?>
                                                             </td>
                                                             
                                                             <td>
-                                                              <a href='<?=$url;?>' target='_blank'><?=substr($url,0,20);?>".......</a><br>
-                                                              <?=$number."/".$size."/".$color."<br>";?>
+                                                              <a href='<?php echo $url;?>' target='_blank'><?php echo substr($url,0,20);?>".......</a><br>
+                                                              <?php echo $number."/".$size."/".$color."<br>";?>
 
-                                                              <span style="color:#F00; font-weight:bold;">Үнэ: <?=$price;?>$</span><br>
-                                                              <span style="color:#1079b2; font-weight:bold;">Tax: <?=$tax;?>$</span><br>
-                                                              <span style="color:#f0861b; font-weight:bold;">Shipping: <?=$shipping;?>$</span><br>
-                                                              <span style="color:#ff0000; font-weight:bold;">Дараа төлбөр: <?=$owe;?>$</span>
-                                                            <td><?=$comment;?></td>	
-                                                            <td><?=$context;?></td>
+                                                              <span style="color:#F00; font-weight:bold;">Үнэ: <?php echo $price;?>$</span><br>
+                                                              <span style="color:#1079b2; font-weight:bold;">Tax: <?php echo $tax;?>$</span><br>
+                                                              <span style="color:#f0861b; font-weight:bold;">Shipping: <?php echo $shipping;?>$</span><br>
+                                                              <span style="color:#ff0000; font-weight:bold;">Дараа төлбөр: <?php echo $owe;?>$</span>
+                                                            <td><?php echo $comment;?></td>	
+                                                            <td><?php echo $context;?></td>
                                                           
                                                               <td>
-                                                              <a href="?action=price&id=<?=$online_id;?>" title="<?=$comment;?>" class="btn btn-xs btn-primary btn-shuurkhai w-100">Үнэ</a>
+                                                              <a href="?action=price&id=<?php echo $online_id;?>" title="<?php echo $comment;?>" class="btn btn-xs btn-primary btn-shuurkhai w-100">Үнэ</a>
                                                               <br>
-                                                              <a href="?action=comment&id=<?=$online_id;?>" title="<?=$comment;?>" class="btn btn-xs btn-primary btn-shuurkhai w-100">Бичих</a>
+                                                              <a href="?action=comment&id=<?php echo $online_id;?>" title="<?php echo $comment;?>" class="btn btn-xs btn-primary btn-shuurkhai w-100">Бичих</a>
                                                               <br>
-                                                              <a href="?action=renew&id=<?=$online_id;?>" title="Make it order!" class="btn btn-xs btn-success btn-shuurkhai w-100">Захиалга</a>
+                                                              <a href="?action=renew&id=<?php echo $online_id;?>" title="Make it order!" class="btn btn-xs btn-success btn-shuurkhai w-100">Захиалга</a>
                                                               <br>
-                                                              <a href="?action=online_pending&id=<?=$online_id;?>" title="Track pending!" class="btn btn-xs btn-success btn-shuurkhai w-100">Track pending</a>
+                                                              <a href="?action=online_pending&id=<?php echo $online_id;?>" title="Track pending!" class="btn btn-xs btn-success btn-shuurkhai w-100">Track pending</a>
                                                               <br>
-                                                              <a href="?action=track_renew&id=<?=$online_id;?>" title="Only Give Track!" class="btn btn-xs btn-warning btn-shuurkhai w-100">Track</a>
+                                                              <a href="?action=track_renew&id=<?php echo $online_id;?>" title="Only Give Track!" class="btn btn-xs btn-warning btn-shuurkhai w-100">Track</a>
                                                               <br>
-                                                              <a href="?action=online_later&id=<?=$online_id;?>" title="Make later!" class="btn btn-xs btn-warning btn-shuurkhai w-100">Дараа болгох</a>
+                                                              <a href="?action=online_later&id=<?php echo $online_id;?>" title="Make later!" class="btn btn-xs btn-warning btn-shuurkhai w-100">Дараа болгох</a>
                                                               <br>
-                                                              <a href="?action=delete&id=<?=$online_id;?>" title="Delete!" class="btn btn-xs btn-danger btn-shuurkhai w-100">Устгах</a>                            
+                                                              <a href="?action=delete&id=<?php echo $online_id;?>" title="Delete!" class="btn btn-xs btn-danger btn-shuurkhai w-100">Устгах</a>                            
                                                               
                                                               </td>
                                                             </tr>	
-                                                            <?
+                                                            <?php
                                                         }
                                                         ?>
                                                       </table>
-                                                      <?
+                                                      <?php
                                                     }
                                                 ?>
                                               </div>
@@ -340,14 +340,14 @@
                                       </td>
                                   
                                     </tr>
-                                    <?                                  
+                                    <?php                                  
                                 }
-                              
+                              }
                               ?>
                             
                             </tbody>
                             <tfoot>
-                              <tr><td>Нийт</td><td><?=$total_weight;?></td><td><?=$total_weight*cfg_paymentrate();?></td><td><?=$total_price;?></td><td></td></tr>
+                              <tr><td>Нийт</td><td><?php echo $total_weight;?></td><td><?php echo $total_weight*cfg_paymentrate();?></td><td><?php echo $total_price;?></td><td></td></tr>
                             </tfoot>
                         </table>
                     </div>
@@ -356,11 +356,11 @@
             </div>
 
 
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action=="history")
           {
             ?>
@@ -368,7 +368,7 @@
               <div class="col-lg-12">
                 <div class="card">
                   <div class="card-body">
-                    <?                    
+                    <?php                    
                     /*if(isset($_POST["search"])) 
                       {
                       $search_term=str_replace(" ","%",$_POST["search"]);
@@ -413,48 +413,48 @@
                         
                         ?>
                          <tr>
-                         <td><?=$i--;?></td>
+                         <td><?php echo $i--;?></td>
                          <td>
-                          <?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?><br>
-                          <?=customer($receiver,"tel");?>
-                          <?
+                          <?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?><br>
+                          <?php echo customer($receiver,"tel");?>
+                          <?php
 
                           if ($transport) echo "<br><span class='glyphicon glyphicon-home' title='Улаанбаатарт хүргэлттэй'></span> Хүргэлттэй"; 
                           ?>
                         </td>
                         
                         <td>
-                          <a href="<?=$url;?>" target="_blank"><?=substr($url,0,30);?>.......</a><br>
-                          <?=$track;?><br>
-                          <span style="color:#F00; font-weight:bold;">Үнэ: <?=number_format($price,2);?>$</span><br>
-                          <span style="color:#1079b2; font-weight:bold;">Tax: <?=number_format($tax,2);?>$</span><br>
-                          <span style="color:#f0861b; font-weight:bold;">Shipping: <?=number_format($shipping,2);?>$</span>
+                          <a href="<?php echo $url;?>" target="_blank"><?php echo substr($url,0,30);?>.......</a><br>
+                          <?php echo $track;?><br>
+                          <span style="color:#F00; font-weight:bold;">Үнэ: <?php echo number_format($price,2);?>$</span><br>
+                          <span style="color:#1079b2; font-weight:bold;">Tax: <?php echo number_format($tax,2);?>$</span><br>
+                          <span style="color:#f0861b; font-weight:bold;">Shipping: <?php echo number_format($shipping,2);?>$</span>
                         </td>
-                        <td><?=$number."/".$size."/".$color;?></td>
-                        <td><?=substr($created_date,0,11)."<br>".substr($proceed_date,0,11);?></td>
+                        <td><?php echo $number."/".$size."/".$color;?></td>
+                        <td><?php echo substr($created_date,0,11)."<br>".substr($proceed_date,0,11);?></td>
                       </tr>	
-                      <?
+                      <?php
                       }
                       ?>
                       </table>
-                      <?
+                      <?php
                     }
                     else //$query->num_rows() ==0
                       {
                         ?>
                         <div class="alert alert-danger" role="alert">Онлайн түүх олдсонгүй.</div>
-                        <?
+                        <?php
                       }
                     ?>
                   </div>
                 </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="pending_track")
           {
             $sql="SELECT online.customer_id, SUM(price) AS total_price, SUM(tax) AS total_tax, SUM(shipping) AS total_shipping, COUNT(customer_id) AS count, SUM(owe) AS total_owe, SUM(new) AS total_new FROM online";
@@ -463,6 +463,8 @@
 
             $result = mysqli_query($conn,$sql);
             $count=1;$total_weight=0;$total_price=0;
+            $j = 0;
+            $receiver = 0;
 
             ?>
             <div class="row">
@@ -481,48 +483,49 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <?
+                              <?php
                               
-                              $j=mysqli_num_rows($result);
+                              if ($result) {
+                                $j=mysqli_num_rows($result);
 
-                              while ($data = mysqli_fetch_array($result))
-                                {  
+                                while ($data = mysqli_fetch_array($result))
+                                  {  
+                                      if (!isset($data["customer_id"])) continue;
+                                      $receiver=$data["customer_id"];	
+                                      ?>
+                                      <tr>
+                                        <td><?php echo $j--;?></td>
+                                      
+                                        <td>
+                                        <a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a>
+                                        </td>
+                                      
 
-                                    $receiver=$data["customer_id"];	
-                                    ?>
-                                    <tr>
-                                      <td><?=$j--;?></td>
-                                    
-                                      <td>
-                                      <a href="customers?action=detail&id="<?=$receiver;?>"><?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a>
+                                        <td>
+                                        <?php echo (customer($receiver,"email")!="")?'<a href="mailto:'.customer($receiver,"email").'">mail</a>':'';?> 
                                       </td>
-                                    
-
                                       <td>
-                                      <?=(customer($receiver,"email")!="")?'<a href="mailto:'.customer($receiver,"email").'">mail</a>':'';?> 
-                                      </td>
-                                      <td>
-                                      <?=customer($receiver,"tel");?>
+                                      <?php echo customer($receiver,"tel");?>
                                       </td>
 
                                       <td>
-                                        <span style="color:#000; font-weight:bold;">Нийт online: <?=$data["count"];?>ш</span><br>
-                                        <span style="color:#0F0; font-weight:bold;">Дүн бодогдоогүй: <?=$data["total_new"];?>ш</span><br>
-                                        <span style="color:#F00; font-weight:bold;">Үнэ: <?=number_format($data["total_price"],2);?>$</span><br>
-                                        <span style="color:#1079b2; font-weight:bold;">Tax: <?=number_format($data["total_tax"],2);?>$</span><br>
-                                        <span style="color:#f0861b; font-weight:bold;">Shipping: <?=number_format($data["total_shipping"],2);?>$</span><br>
-                                        <span style="color:#ff0000; font-weight:bold;">Дараа төлбөр: <?=number_format($data["total_owe"],2);?>$</span><br>
-                                            <? 
+                                        <span style="color:#000; font-weight:bold;">Нийт online: <?php echo $data["count"];?>ш</span><br>
+                                        <span style="color:#0F0; font-weight:bold;">Дүн бодогдоогүй: <?php echo $data["total_new"];?>ш</span><br>
+                                        <span style="color:#F00; font-weight:bold;">Үнэ: <?php echo number_format($data["total_price"],2);?>$</span><br>
+                                        <span style="color:#1079b2; font-weight:bold;">Tax: <?php echo number_format($data["total_tax"],2);?>$</span><br>
+                                        <span style="color:#f0861b; font-weight:bold;">Shipping: <?php echo number_format($data["total_shipping"],2);?>$</span><br>
+                                        <span style="color:#ff0000; font-weight:bold;">Дараа төлбөр: <?php echo number_format($data["total_owe"],2);?>$</span><br>
+                                            <?php 
                                             $total = $data["total_price"]+$data["total_tax"]+$data["total_shipping"]+$data["total_owe"];
                                             ?>
-                                        <span style="color:#be0fce; font-weight:bold;font-size:14px;">Нийт: <?=number_format($total,2).'$ ('.number_format($total*cfg_rate());?>₮)</span><br>
+                                        <span style="color:#be0fce; font-weight:bold;font-size:14px;">Нийт: <?php echo number_format($total,2).'$ ('.number_format($total*cfg_rate());?>₮)</span><br>
                                       </td>
                                       
                                       <td>
-                                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#online_detail_<?=$receiver;?>">Дэлгэх</button>
+                                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#online_detail_<?php echo $receiver;?>">Дэлгэх</button>
                                                           
 
-                                        <div class="modal" tabindex="-1" role="dialog" id="online_detail_<?=$receiver;?>">
+                                        <div class="modal" tabindex="-1" role="dialog" id="online_detail_<?php echo $receiver;?>">
                                           <div class="modal-dialog modal-xl" role="document">
                                             <div class="modal-content">
                                               <div class="modal-header">
@@ -532,7 +535,7 @@
                                                 </button>
                                               </div>
                                               <div class="modal-body">
-                                                <?
+                                                <?php
                                                     $sql_online="SELECT * FROM online";
                                                     $sql_online.=" WHERE status!='order' AND status!='later' AND status!='pending' AND customer_id='".$receiver."'";
                                                     $sql_online.=" ORDER BY created_date DESC";
@@ -544,7 +547,7 @@
                                                       <table class='table table-striped'>
                                                       
                                                         <tr><th>№</th><th>Үүсгэсэн</th><th>Үнэ</th><th>Коммент</th><th>Тайлбар</th><th>Үйлдэл</th></tr>
-                                                        <?
+                                                        <?php
 
                                                         $i=mysqli_num_rows($result_single);
                                                         while ($data_single = mysqli_fetch_array($result_single))
@@ -568,46 +571,46 @@
 
                                                             
                                                             <tr>
-                                                            <td><?=$i--;?></td>
-                                                            <td><?=substr($created_date,0,10);?>
-                                                            <?
+                                                            <td><?php echo $i--;?></td>
+                                                            <td><?php echo substr($created_date,0,10);?>
+                                                            <?php
                                                               if ($transport) echo "<br><span class='glyphicon glyphicon-home' title='Улаанбаатарт хүргэлттэй'></span> Хүргэлттэй"; 
                                                             ?>
                                                             </td>
                                                             
                                                             <td>
-                                                              <a href='<?=$url;?>' target='_blank'><?=substr($url,0,20);?>".......</a><br>
-                                                              <?=$number."/".$size."/".$color."<br>";?>
+                                                              <a href='<?php echo $url;?>' target='_blank'><?php echo substr($url,0,20);?>".......</a><br>
+                                                              <?php echo $number."/".$size."/".$color."<br>";?>
 
-                                                              <span style="color:#F00; font-weight:bold;">Үнэ: <?=$price;?>$</span><br>
-                                                              <span style="color:#1079b2; font-weight:bold;">Tax: <?=$tax;?>$</span><br>
-                                                              <span style="color:#f0861b; font-weight:bold;">Shipping: <?=$shipping;?>$</span><br>
-                                                              <span style="color:#ff0000; font-weight:bold;">Дараа төлбөр: <?=$owe;?>$</span>
-                                                            <td><?=$comment;?></td>	
-                                                            <td><?=$context;?></td>
+                                                              <span style="color:#F00; font-weight:bold;">Үнэ: <?php echo $price;?>$</span><br>
+                                                              <span style="color:#1079b2; font-weight:bold;">Tax: <?php echo $tax;?>$</span><br>
+                                                              <span style="color:#f0861b; font-weight:bold;">Shipping: <?php echo $shipping;?>$</span><br>
+                                                              <span style="color:#ff0000; font-weight:bold;">Дараа төлбөр: <?php echo $owe;?>$</span>
+                                                            <td><?php echo $comment;?></td>	
+                                                            <td><?php echo $context;?></td>
                                                           
                                                               <td>
-                                                              <a href="?action=price&id=<?=$online_id;?>" title="<?=$comment;?>" class="btn btn-xs btn-primary btn-shuurkhai w-100">Үнэ</a>
+                                                              <a href="?action=price&id=<?php echo $online_id;?>" title="<?php echo $comment;?>" class="btn btn-xs btn-primary btn-shuurkhai w-100">Үнэ</a>
                                                               <br>
-                                                              <a href="?action=comment&id=<?=$online_id;?>" title="<?=$comment;?>" class="btn btn-xs btn-primary btn-shuurkhai w-100">Бичих</a>
+                                                              <a href="?action=comment&id=<?php echo $online_id;?>" title="<?php echo $comment;?>" class="btn btn-xs btn-primary btn-shuurkhai w-100">Бичих</a>
                                                               <br>
-                                                              <a href="?action=renew&id=<?=$online_id;?>" title="Make it order!" class="btn btn-xs btn-success btn-shuurkhai w-100">Захиалга</a>
+                                                              <a href="?action=renew&id=<?php echo $online_id;?>" title="Make it order!" class="btn btn-xs btn-success btn-shuurkhai w-100">Захиалга</a>
                                                               <br>
-                                                              <a href="?action=online_pending&id=<?=$online_id;?>" title="Unpending!" class="btn btn-xs btn-success btn-shuurkhai w-100">Unpending</a>
+                                                              <a href="?action=online_pending&id=<?php echo $online_id;?>" title="Unpending!" class="btn btn-xs btn-success btn-shuurkhai w-100">Unpending</a>
                                                               <br>
-                                                              <a href="?action=track_renew&id=<?=$online_id;?>" title="Only Give Track!" class="btn btn-xs btn-warning btn-shuurkhai w-100">Track</a>
+                                                              <a href="?action=track_renew&id=<?php echo $online_id;?>" title="Only Give Track!" class="btn btn-xs btn-warning btn-shuurkhai w-100">Track</a>
                                                               <br>
-                                                              <a href="?action=online_later&id=<?=$online_id;?>" title="Make later!" class="btn btn-xs btn-warning btn-shuurkhai w-100">Дараа болгох</a>
+                                                              <a href="?action=online_later&id=<?php echo $online_id;?>" title="Make later!" class="btn btn-xs btn-warning btn-shuurkhai w-100">Дараа болгох</a>
                                                               <br>
-                                                              <a href="?action=delete&id=<?=$online_id;?>" title="Delete!" class="btn btn-xs btn-danger btn-shuurkhai w-100">Устгах</a>                            
+                                                              <a href="?action=delete&id=<?php echo $online_id;?>" title="Delete!" class="btn btn-xs btn-danger btn-shuurkhai w-100">Устгах</a>                            
                                                               
                                                               </td>
                                                             </tr>	
-                                                            <?
+                                                            <?php
                                                         }
                                                         ?>
                                                       </table>
-                                                      <?
+                                                      <?php
                                                     }
                                                 ?>
                                               </div>
@@ -624,14 +627,14 @@
                                       </td>
                                   
                                     </tr>
-                                    <?                                  
+                                    <?php                                  
                                 }
-                              
+                              }
                               ?>
                             
                             </tbody>
                             <tfoot>
-                              <tr><td>Нийт</td><td><?=$total_weight;?></td><td><?=$total_weight*cfg_paymentrate();?></td><td><?=$total_price;?></td><td></td></tr>
+                              <tr><td>Нийт</td><td><?php echo $total_weight;?></td><td><?php echo $total_weight*cfg_paymentrate();?></td><td><?php echo $total_price;?></td><td></td></tr>
                             </tfoot>
                         </table>
                     </div>
@@ -640,11 +643,11 @@
             </div>
 
 
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="all_later")
           {
             
@@ -709,7 +712,7 @@
           }
           ?>
 
-          <?
+          <?php
           if ($action == "online_later")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -723,25 +726,25 @@
               {
                 ?>
                 <div class="alert alert-success" role="alert">Online захиалгыг дараа болголоо.</div>
-                <?
+                <?php
               }
               else 
               {
                 ?>
-                <div class="alert alert-success" role="alert">Алдаа:<?=mysqli_error($conn);?></div>
-                <?
+                <div class="alert alert-success" role="alert">Алдаа:<?php echo mysqli_error($conn);?></div>
+                <?php
               }
             } 
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }             
           }
           ?>
 
-          <?
+          <?php
           if ($action == "unlater")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -755,26 +758,26 @@
               {
                 ?>
                 <div class="alert alert-success" role="alert">Online захиалгыг одоо болголоо.</div>
-                <?
+                <?php
               }
               else 
               {
                 ?>
-                <div class="alert alert-success" role="alert">Алдаа:<?=mysqli_error($conn);?></div>
-                <?
+                <div class="alert alert-success" role="alert">Алдаа:<?php echo mysqli_error($conn);?></div>
+                <?php
               }
             } 
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }             
           }
           ?>
 
 
-          <?
+          <?php
           if ($action == "delete")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -788,26 +791,26 @@
               {
                 ?>
                 <div class="alert alert-success" role="alert">Online захиалгыг амжилттай устгалаа.</div>
-                <?
+                <?php
               }
               else 
               {
                 ?>
-                <div class="alert alert-success" role="alert">Алдаа:<?=mysqli_error($conn);?></div>
-                <?
+                <div class="alert alert-success" role="alert">Алдаа:<?php echo mysqli_error($conn);?></div>
+                <?php
               }
             } 
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }             
           }
           ?>
 
 
-          <?
+          <?php
           if ($action == "track_renew")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -819,7 +822,7 @@
             if (mysqli_num_rows($result) == 1)
             {
               ?>
-              <form action="?action=track_renewing&id=<?=$online_id;?>" method="post">
+              <form action="?action=track_renewing&id=<?php echo $online_id;?>" method="post">
                 <div class="card">
                   <div class="card-body">
                     <h5>Трак олгох</h5>
@@ -828,19 +831,19 @@
                   </div>
                 </div>
               </form>
-              <?
+              <?php
             } 
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }             
           }
           ?>
 
           
-          <?
+          <?php
           if ($action == "track_renewing")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -855,25 +858,25 @@
               {
                 ?>
                 <div class="alert alert-success" role="alert">Online захиалгыг дараа болголоо.</div>
-                <?
+                <?php
               }
               else 
               {
                 ?>
-                <div class="alert alert-success" role="alert">Алдаа:<?=mysqli_error($conn);?></div>
-                <?
+                <div class="alert alert-success" role="alert">Алдаа:<?php echo mysqli_error($conn);?></div>
+                <?php
               }
             } 
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }                  
           }
           ?>
 
-          <?
+          <?php
           if ($action == "online_pending")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -895,32 +898,32 @@
                     {
                       ?>
                       <div class="alert alert-success" role="alert">Online захиалгыг төлөвт өөрчлөлт орлоо.</div>
-                      <?
+                      <?php
                     }
                     else 
                     {
                       ?>
-                      <div class="alert alert-success" role="alert">Алдаа:<?=mysqli_error($conn);?></div>
-                      <?
+                      <div class="alert alert-success" role="alert">Алдаа:<?php echo mysqli_error($conn);?></div>
+                      <?php
                     }
                   }    
                   else 
                   {
                     ?>
                     <div class="alert alert-success" role="alert">Алдаа: төлөв буруу байна</div>
-                    <?
+                    <?php
                   }                  
               }
               else 
                 {
                   ?>
                   <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-                  <?
+                  <?php
                 }        
           }
           ?>       
 
-          <?
+          <?php
           if ($action =="renew")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -929,8 +932,8 @@
               <div class="panel panel-primary">
                 <div class="panel-heading">Илгээмж оруулах</div>
                 <div class="panel-body">
-                  <form action="?action=renewing&id=<?=$online_id;?>" method="post">
-                    <? 
+                  <form action="?action=renewing&id=<?php echo $online_id;?>" method="post">
+                    <?php 
                         $sql = "SELECT * FROM online WHERE online_id=".$online_id;
                         $result = mysqli_query($conn,$sql);
             
@@ -951,21 +954,21 @@
                                 ?>
                                 <table class="table table-hover table-striped">
                                 <tr><td colspan='2'><h4>Хүлээн авагч</h4></td></tr>
-                                <tr><td>Нэр</td><td><input type="text" name="name" value="<?=customer($receiver,"name");?>" class="form-control" readonly></td></tr>
-                                <tr><td>Овог</td><td><input type="text" name="name" value="<?=customer($receiver,"surname");?>" class="form-control" readonly></td></tr>
-                                <tr><td>РД</td><td><input type="text" name="rd" value="<?=customer($receiver,"rd");?>" class="form-control" readonly></td></tr>
-                                <tr><td>Утас</td><td><input type="text" name="contacts" value="<?=customer($receiver,"tel");?>" class="form-control" readonly></td></tr>
-                                <tr><td>Э-мэйл</td><td><input type="text" name="email" value="<?=customer($receiver,"email");?>" class="form-control" readonly></td></tr>
-                                <tr><td>Хаяг</td><td><input type="text" name="address" value="<?=customer($receiver,"address");?>" class="form-control" readonly></td></tr>
+                                <tr><td>Нэр</td><td><input type="text" name="name" value="<?php echo customer($receiver,"name");?>" class="form-control" readonly></td></tr>
+                                <tr><td>Овог</td><td><input type="text" name="name" value="<?php echo customer($receiver,"surname");?>" class="form-control" readonly></td></tr>
+                                <tr><td>РД</td><td><input type="text" name="rd" value="<?php echo customer($receiver,"rd");?>" class="form-control" readonly></td></tr>
+                                <tr><td>Утас</td><td><input type="text" name="contacts" value="<?php echo customer($receiver,"tel");?>" class="form-control" readonly></td></tr>
+                                <tr><td>Э-мэйл</td><td><input type="text" name="email" value="<?php echo customer($receiver,"email");?>" class="form-control" readonly></td></tr>
+                                <tr><td>Хаяг</td><td><input type="text" name="address" value="<?php echo customer($receiver,"address");?>" class="form-control" readonly></td></tr>
 
 
                               <tr><td>Барааны тайлбар</td>
                               <td>
                               <table class="table table-hover">
                                   <tr>
-                                    <td><input type="text" name="package1_name" value="<?=$title;?>" placeholder="Цамц, Цүнх, Утас г.м" class="form-control"></td>
-                                    <td><input type="text" name="package1_num" value="<?=$number;?>" placeholder="Тоо ширхэг" class="form-control"></td>
-                                    <td><input type="text" name="package1_price" value="<?=$price;?>" placeholder="Үнэ ($)" class="form-control"></td>
+                                    <td><input type="text" name="package1_name" value="<?php echo $title;?>" placeholder="Цамц, Цүнх, Утас г.м" class="form-control"></td>
+                                    <td><input type="text" name="package1_num" value="<?php echo $number;?>" placeholder="Тоо ширхэг" class="form-control"></td>
+                                    <td><input type="text" name="package1_price" value="<?php echo $price;?>" placeholder="Үнэ ($)" class="form-control"></td>
                                   </tr>
 
                                   <tr>
@@ -992,16 +995,16 @@
                               <tr><td>TRACK(*)</td><td><input type="text" name="track" class="form-control" required></td></tr>                             
                               </table>
 
-                              <?
+                              <?php
                           }
                         ?>
                         <button class="btn btn-success">Оруулах</button>
                   </form>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action =="renewing")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -1173,7 +1176,7 @@
           }
           ?>
 
-          <?
+          <?php
           if ($action == "comment")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -1185,7 +1188,7 @@
             if (mysqli_num_rows($result) == 1)
             {
               ?>
-              <form action="?action=commenting&id=<?=$online_id;?>" method="post">
+              <form action="?action=commenting&id=<?php echo $online_id;?>" method="post">
                 <div class="card">
                   <div class="card-body">
                     <h5>Тайлбар бичих</h5>
@@ -1194,19 +1197,19 @@
                   </div>
                 </div>
               </form>
-              <?
+              <?php
             } 
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }             
           }
           ?>
 
           
-          <?
+          <?php
           if ($action == "commenting")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -1221,25 +1224,25 @@
               {
                 ?>
                 <div class="alert alert-success" role="alert">Амжилттай тэмдэглэлээ.</div>
-                <?
+                <?php
               }
               else 
               {
                 ?>
-                <div class="alert alert-success" role="alert">Алдаа:<?=mysqli_error($conn);?></div>
-                <?
+                <div class="alert alert-success" role="alert">Алдаа:<?php echo mysqli_error($conn);?></div>
+                <?php
               }
             } 
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }                  
           }
           ?>
 
-          <?
+          <?php
           if ($action =="price")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -1258,29 +1261,29 @@
               $owe = $data["owe"];
               $owe = $data["owe"];
               ?>
-              <form action="?action=pricing&id=<?=$online_id;?>" method="post">
+              <form action="?action=pricing&id=<?php echo $online_id;?>" method="post">
                 
             
-              Бодит үнэ:<input type="text" name="price" class="form-control" value="<?=$price;?>" placeholder="бодит үнэ"><br>
-              Тах:<input type="text" name="tax" class="form-control" value="<?=$tax;?>" placeholder="Тах"><br>
-              Shipping:<input type="text" name="shipping" class="form-control" value="<?=$shipping;?>" placeholder="Shipping"><br>
-              Дараа төлбөр:<input type="text" name="owe" class="form-control" value="<?=$owe;?>" placeholder="Дараа төлбөр"><br>
+              Бодит үнэ:<input type="text" name="price" class="form-control" value="<?php echo $price;?>" placeholder="бодит үнэ"><br>
+              Тах:<input type="text" name="tax" class="form-control" value="<?php echo $tax;?>" placeholder="Тах"><br>
+              Shipping:<input type="text" name="shipping" class="form-control" value="<?php echo $shipping;?>" placeholder="Shipping"><br>
+              Дараа төлбөр:<input type="text" name="owe" class="form-control" value="<?php echo $owe;?>" placeholder="Дараа төлбөр"><br>
 
               <button class="btn btn-success" type="submit">Оруулах</button>
               </form>
-              <?
+              <?php
             }            
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }             
 
           }
           ?>
 
-          <?
+          <?php
           if ($action == "pricing")
           {
             if (isset($_GET["id"])) $online_id = intval($_GET["id"]); else $online_id=0;
@@ -1306,21 +1309,21 @@
               {
                 ?>
                 <div class="alert alert-success" role="alert">Үнийг амжилттай орууллаа.</div>
-                <?
+                <?php
                 mysqli_query($conn,"INSERT INTO alert (customer_id,context,target) VALUES ('$customer_id','Cагсанд дахь барааны үнэ бодогдож $total $ болсон','online')");                      
               }
               else 
               {
                 ?>
-                <div class="alert alert-success" role="alert">Алдаа:<?=mysqli_error($conn);?></div>
-                <?
+                <div class="alert alert-success" role="alert">Алдаа:<?php echo mysqli_error($conn);?></div>
+                <?php
               }
             } 
             else 
             {
               ?>
               <div class="alert alert-success" role="alert">Алдаа: онлайн захиалга олдсонгүй</div>
-              <?
+              <?php
             }                  
           }
           ?>
@@ -1328,7 +1331,7 @@
           
 
         </div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

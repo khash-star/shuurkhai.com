@@ -1,4 +1,4 @@
-<?
+<?php
 
 if (! function_exists ('string_clean'))
 {
@@ -140,9 +140,9 @@ if (!function_exists("settings"))
 	{
 		global $conn;
 		if (is_int($id_or_shortname))
-			$sql = "SELECT *FROM settings WHERE id='$id_or_shortname' LIMIT 1";
+			$sql = "SELECT * FROM settings WHERE id='$id_or_shortname' LIMIT 1";
 		else 
-			$sql = "SELECT *FROM settings WHERE shortname='$id_or_shortname' LIMIT 1";
+			$sql = "SELECT * FROM settings WHERE shortname='$id_or_shortname' LIMIT 1";
 
 		$result = mysqli_query($conn,$sql);
 		
@@ -176,6 +176,47 @@ if (! function_exists ('cfg_price'))
 	elseif ($weight>=0.5) return settings("paymentrate");
 			elseif ($weight==0) return 0;
 				else return settings("paymentrate_min");
+	}
+}
+
+// Fix image paths for base href
+if (!function_exists('fix_image_path'))
+{
+	function fix_image_path($path)
+	{
+		if (empty($path)) {
+			return '';
+		}
+		
+		// Trim whitespace
+		$path = trim($path);
+		
+		// If path is already a full URL, return as is
+		if (preg_match('/^https?:\/\//', $path)) {
+			return $path;
+		}
+		
+		// Remove leading slash if present (base tag will handle it)
+		$path = ltrim($path, '/');
+		
+		// If path starts with shuurkhai/, remove it
+		if (substr($path, 0, 10) === 'shuurkhai/') {
+			$path = substr($path, 10);
+		}
+		
+		// Check if uploads file exists, if not return empty to avoid 404 errors
+		// This prevents 404 errors for missing images
+		if (strpos($path, 'uploads/') === 0) {
+			$file_path = dirname(__DIR__) . DIRECTORY_SEPARATOR . $path;
+			if (!file_exists($file_path)) {
+				// Return empty string to avoid broken image tags
+				// Database might have paths to files that don't exist
+				return '';
+			}
+		}
+		
+		// Return cleaned path (base tag will add /shuurkhai/ prefix)
+		return $path;
 	}
 }
 

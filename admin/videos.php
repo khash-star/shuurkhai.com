@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -6,16 +6,25 @@
 ?>
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-            <?  require_once("views/sidebar.php"); ?>
+            <?php  require_once("views/sidebar.php"); ?>
 			
-            <?  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
+            <?php  
+            if (isset($_GET["action"])) {
+                $action = protect($_GET["action"]);
+            } else {
+                $action = "display";
+            }
+            if (isset($_GET['id'])) {
+                $id = intval(protect($_GET['id']));
+            } else {
+                $id = 0;
+            }
+            ?>
 
 			<div class="page-content">
-            <? if (isset($_GET['action'])) $action=$_GET['action']; else $action="display";?>
-            <? if (isset($_GET['id'])) $id=$_GET['id']; ?>
 
             <?php if ($action=="display")
                 { 
@@ -41,19 +50,25 @@
                                         $count=1;
                                         $sql="SELECT * FROM videos";
                                         $result=mysqli_query($conn,$sql);
-                                        if (mysqli_num_rows($result)==0) echo "<td colspan='5'>There are no videos</td>";
-                                        while ($data=mysqli_fetch_array($result))
-                                        {
+                                        if ($result) {
+                                            if (mysqli_num_rows($result)==0) {
+                                                echo "<td colspan='5'>There are no videos</td>";
+                                            } else {
+                                                while ($data=mysqli_fetch_array($result))
+                                                {
+                                                    if (!$data) continue;
 
                                             ?>
                                             <tr>
-                                                <td><?=$count++;?></td>       
-                                                <td class="text-wrap"><?=$data["name"];?></td>
-                                                <td class="text-wrap"><a href="<?=$data["url"];?>"><i class="red" data-feather="youtube"></i></a></td>
-                                                <td class="text-wrap"><?=$data["description"];?></td>
-                                                <td><a href="videos?action=edit&id=<?=$data["id"];?>" title="Засах" class="btn btn-warning btn-icon"><i data-feather="edit"></i></a></td>
+                                                <td><?php echo $count++;?></td>       
+                                                <td class="text-wrap"><?php echo htmlspecialchars($data["name"] ?? '');?></td>
+                                                <td class="text-wrap"><a href="<?php echo htmlspecialchars($data["url"] ?? '');?>" target="_blank"><i class="red" data-feather="youtube"></i></a></td>
+                                                <td class="text-wrap"><?php echo htmlspecialchars($data["description"] ?? '');?></td>
+                                                <td><a href="videos?action=edit&id=<?php echo htmlspecialchars($data["id"] ?? 0);?>" title="Засах" class="btn btn-warning btn-icon"><i data-feather="edit"></i></a></td>
                                             </tr>
-                                            <?
+                                            <?php
+                                                }
+                                            }
                                         }
                                         ?>      
                                     </tbody>
@@ -65,11 +80,11 @@
                     </div>
                     <a href="videos?action=add" class="btn btn-success btn-xs mt-3 btn-icon-text"><i data-feather="plus"></i> Видео нэмэх</a>
 
-                    <?
+                    <?php
                 } 
                 ?>
                 
-            <? if($action=="add")
+            <?php if($action=="add")
                 {
                     ?>
                     <div class="card">
@@ -97,27 +112,35 @@
                             </form>
                         </div>
                     </div>
-                    <?
+                    <?php
                 }
                 ?>
 
 
-            <? if($action=="adding")
+            <?php if($action=="adding")
                 {
-                    $name=$_POST["name"];
-                    $url=$_POST["url"];
-                    $description=$_POST["description"];                    
+                    $name = isset($_POST["name"]) ? protect($_POST["name"]) : '';
+                    $url = isset($_POST["url"]) ? protect($_POST["url"]) : '';
+                    $description = isset($_POST["description"]) ? protect($_POST["description"]) : '';
                     
-                    $sql="INSERT INTO videos (name,url,description) VALUES('$name','$url','$description')";
+                    $name_escaped = mysqli_real_escape_string($conn, $name);
+                    $url_escaped = mysqli_real_escape_string($conn, $url);
+                    $description_escaped = mysqli_real_escape_string($conn, $description);
+                    
+                    $sql="INSERT INTO videos (name,url,description) VALUES('$name_escaped','$url_escaped','$description_escaped')";
 
-                    if (mysqli_query($conn,$sql)) header('location:videos');
-                    else echo mysqli_error($conn);//header('location:faqs_add.php?m=e');
+                    if (mysqli_query($conn,$sql)) {
+                        header('location:videos');
+                        exit;
+                    } else {
+                        echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';
+                    }
                     
                 }
                 ?>
 
 
-            <? if($action=="edit")
+            <?php if($action=="edit")
                 {
                     ?>
                     <span>
@@ -132,31 +155,35 @@
                     }
                     ?>
                     </span>
-                    <?
-                    if (isset($_GET['id']))
+                    <?php
+                    if (isset($_GET['id']) && $id > 0)
                     {
-                        $id = $_GET['id'];
-                        $sql="SELECT * FROM videos WHERE id='$id' LIMIT 1";
+                        $id_escaped = mysqli_real_escape_string($conn, $id);
+                        $sql="SELECT * FROM videos WHERE id=".$id_escaped." LIMIT 1";
                         $result=mysqli_query($conn,$sql);
-                        $data=mysqli_fetch_array($result);
-                        ?>
+                        if ($result && mysqli_num_rows($result) == 1) {
+                            $data=mysqli_fetch_array($result);
+                            if (!$data) {
+                                header("location:videos");
+                                exit;
+                            }
+                            ?>
                         <div class="card">
                             <div class="card-body">
                                 <form action="videos?action=editing" method="post" enctype="multipart/form-data">
-                                <input type="hidden" name="id" value="<?=$id;?>" />
+                                <input type="hidden" name="id" value="<?php echo htmlspecialchars($id);?>" />
                                 <table  class="table table-hover">
                                     <tr>
                                         <td width="25%">Нэр</td>
-                                        <td width="75%"><input type="text"  class="form-control" name="name" placeholder="Нэр" value="<?=$data["name"];?>"/></td>
+                                        <td width="75%"><input type="text"  class="form-control" name="name" placeholder="Нэр" value="<?php echo htmlspecialchars($data["name"] ?? '');?>"/></td>
                                     </tr>
                                     <tr>
                                         <td>Хаяг</td>
-                                        <td width="75%"><input type="text"  class="form-control" name="url" placeholder="https://www.youtube.com/watch?v=kRLGTpKjg04" value="<?=$data["url"];?>"/></td>
+                                        <td width="75%"><input type="text"  class="form-control" name="url" placeholder="https://www.youtube.com/watch?v=kRLGTpKjg04" value="<?php echo htmlspecialchars($data["url"] ?? '');?>"/></td>
                                     </tr>
                                     <tr>
                                         <td>Тайлбар</td>
-                                        <td><textarea name="description" class="form-control"><?=$data["description"];?></textarea></td></tr>
-                                
+                                        <td><textarea name="description" class="form-control"><?php echo htmlspecialchars($data["description"] ?? '');?></textarea></td>
                                     </tr>
                                     <tr>
                                         <td><input type="submit" class="btn btn-success" value="Хадгалах" /></td>
@@ -166,13 +193,20 @@
                                 </table>
 
                                 <br><br>
-                                <a href="videos?action=delete&id=<?=$id;?>" class="btn btn-danger btn-xs">устгах</a><br />
+                                <a href="videos?action=delete&id=<?php echo htmlspecialchars($id);?>" class="btn btn-danger btn-xs">устгах</a><br />
                                 </form>
                             </div>
                         </div>
-                        <?
+                        <?php
+                        } else {
+                            header("location:videos");
+                            exit;
+                        }
                     }
-                    else header("location:videos");
+                    else {
+                        header("location:videos");
+                        exit;
+                    }
                 }
                 ?>
 
@@ -211,7 +245,7 @@
         
 
 			</div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

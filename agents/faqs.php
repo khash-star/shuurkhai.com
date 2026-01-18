@@ -1,14 +1,14 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
     
     <link rel="stylesheet" href="assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
     <link rel="stylesheet" href="assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="assets/vendor/libs/select2/select2.css" />
 
-    <?
+                    <?php                                 
     if (isset($_GET["action"])) $action=$_GET["action"]; else $action="list";
     ?>
 
@@ -19,7 +19,7 @@
       <div class="layout-container">
         <!-- Menu -->
 
-        <? require_once("views/sidebar.php");?>
+                    <?php                                  require_once("views/sidebar.php");?>
 
         <!-- / Menu -->
 
@@ -27,7 +27,7 @@
         <div class="layout-page">
           <!-- Navbar -->
           
-          <? require_once("views/header.php");?>
+          <?php require_once("views/header.php");?>
 
 
           <!-- / Navbar -->
@@ -57,7 +57,7 @@
                     </div>
                 </div>
                 
-                <? 
+                <?php 
                 if ($action=="list")
                 {
                     ?><!-- Basic table -->
@@ -77,7 +77,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?
+                    <?php                                 
                                         $count =1;
                                         $sql = "SELECT *FROM faqs ORDER BY dd";
                                         $result = mysqli_query($conn,$sql);
@@ -98,7 +98,7 @@
                                                 </div>
                                             </td>
                                             </tr>
-                                            <?
+                    <?php                                 
                                         }
                                         }
                                         ?>
@@ -109,11 +109,11 @@
                         </div>                   
                     </section>
                     <!--/ Basic table -->
-                    <?
+                    <?php                                 
                 }
                 ?>
 
-                <?
+                    <?php                                 
                 if ($action=="edit")
                 {
                     $faq_id = $_GET["id"];
@@ -172,13 +172,13 @@
                             
                             </div>
                         </section>
-                        <?
+                    <?php                                 
                     }
                 }
                 ?>
 
 
-            <?
+                    <?php                                 
             if ($action=="editing")
             {
                 if (isset($_POST["id"])) $faq_id=$_POST["id"]; else header("location:faqs");
@@ -196,7 +196,7 @@
                             Амжилттай засагдлаа
                             </div>
                         </div>
-                    <?
+                    <?php                                 
                     }
                     else 
                     {
@@ -206,7 +206,7 @@
                         Error occured <?=mysqli_error($conn);?>
                         </div>
                     </div>
-                    <?
+                    <?php                                 
                     }
 
                 ?>                            
@@ -214,11 +214,11 @@
                     <a href="?action=edit&id=<?=$faq_id;?>" class="btn btn-success"><i class="icon ion-edit"></i> Edit</a>
                     <a href="faqs" class="btn btn-primary"><i class="icon ion-ios-list"></i> Return</a>
                 </div>   
-                <?                                 
+                <?php                                 
             }
             ?>
 
-            <?
+                    <?php                                 
             if ($action=="new")
             {
                 ?>
@@ -271,12 +271,12 @@
                                     
                                     </div>
                                 </section>
-                                <?
+                    <?php                                 
                 
                 }
                 ?>
 
-                <?
+                    <?php                                 
                 if ($action=="adding")
                 {
                 
@@ -293,7 +293,7 @@
                                 Created successfully
                                 </div>
                             </div>
-                        <?
+                    <?php                                 
                         }
                         else 
                         {
@@ -303,7 +303,7 @@
                             Error occured
                             </div>
                         </div>
-                        <?
+                    <?php                                 
                         }
 
                     ?>                            
@@ -311,11 +311,11 @@
                         <a href="?action=edit&id=<?=$faq_id;?>" class="btn btn-success"><i class="icon ion-edit"></i> Edit</a>
                         <a href="faqs" class="btn btn-primary"><i class="icon ion-ios-list"></i> Return</a>
                     </div>   
-                    <?                                 
+                <?php                                 
                 }
                 ?>
 
-                <?
+                    <?php                                 
                 if ($action=="delete")
                 {
                     $faq_id = $_GET["id"];
@@ -333,7 +333,7 @@
                                 Deleted
                                 </div>
                             </div>
-                        <?
+                    <?php                                 
                         }
                         else 
                         {
@@ -343,14 +343,14 @@
                                 Error occured 
                             </div>
                         </div>
-                        <?
+                    <?php                                 
                         }
 
                     ?>                            
                     <div class="btn-group">
                         <a href="faqs" class="btn btn-primary"><i class="icon ion-ios-list"></i> Return</a>
                     </div>   
-                    <?                                 
+                <?php                                 
                     }
                     else 
                     header("location:faqs");
@@ -361,7 +361,7 @@
             </div>
             <!-- / Content -->
 
-            <? require_once("views/footer.php");?>
+                <?php require_once("views/footer.php");?>
 
 
             <div class="content-backdrop fade"></div>

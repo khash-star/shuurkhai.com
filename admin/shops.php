@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,16 +8,16 @@
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-		<?  require_once("views/navbar.php"); ?>
+		<?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-		<?  require_once("views/sidebar.php"); ?>
+		<?php  require_once("views/sidebar.php"); ?>
 				
 
 		<div class="page-content">
-			<?
-			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
-			<?
+			<?php
+			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";
+			$action_title = "Дэлгүүр"; // Default value
 			switch ($action)
 			{
 				case "display": $action_title="Бүх бараа";break;
@@ -45,12 +45,12 @@
 			<nav class="page-breadcrumb">
 				<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="shops">Дэлгүүр</a></li>
-				<li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+				<li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
 				</ol>
 			</nav>
 	
 
-            <? if ($action =="display")
+            <?php if ($action =="display")
             {
                 ?>
                 <a href="shops?action=add" class="btn btn-warning mb-3">Шинэ дэлгүүр</a>
@@ -68,29 +68,35 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?
+                        <?php
                         $sql = "SELECT shops.*,shops_category.name cateogory_name FROM shops LEFT JOIN shops_category ON shops.category=shops_category.id ORDER BY created_date DESC";
                         $result = mysqli_query($conn,$sql);
-                        if (mysqli_num_rows($result)>0)
+                        $count = 1;
+                        if ($result && mysqli_num_rows($result) > 0)
                         {
-                        $count=1;
                         while ($data = mysqli_fetch_array($result))
                         {
+                            if (!$data) continue;
+                            $id = isset($data["id"]) ? intval($data["id"]) : 0;
+                            $image = isset($data["image"]) ? htmlspecialchars($data["image"]) : '';
+                            $name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                            $category_name = isset($data["cateogory_name"]) ? htmlspecialchars($data["cateogory_name"]) : '';
+                            $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
 
                             ?>
                             <tr>
-                            <td><?=$count++;?></td>
-                            <td><? if ($data["image"]<>"") echo '<img src="../'.$data["image"].'" width="100%">';?></td>
-                            <td><?=$data["name"];?></td>
-                            <td><?=$data["cateogory_name"];?></td>
-                            <td><?=$data["created_date"];?></td>
+                            <td><?php echo $count++;?></td>
+                            <td><?php if ($image != "") echo '<img src="../'.htmlspecialchars($image).'" width="100%">';?></td>
+                            <td><?php echo $name;?></td>
+                            <td><?php echo $category_name;?></td>
+                            <td><?php echo $created_date;?></td>
                             <td class="tx-18">
                                 <div class="btn-group">
-                                <a href="shops?action=edit&id=<?=$data["id"];?>"  class="btn btn-warning btn-xs btn-icon text-white" title="Засах"><i data-feather="edit"></i></a>
+                                <a href="shops?action=edit&id=<?php echo htmlspecialchars($id);?>"  class="btn btn-warning btn-xs btn-icon text-white" title="Засах"><i data-feather="edit"></i></a>
                                 </div>
                             </td>
                             </tr>
-                            <?
+                            <?php
                         }
                         }
                         ?>
@@ -99,14 +105,14 @@
                 </div><!-- table-wrapper -->
                 </div><!-- section-wrapper -->
                 <a href="shops?action=add" class="btn btn-warning mb-3">Шинэ дэлгүүр</a>
-                <?
+                <?php
             }
             ?>
 
 			
 
 
-			<?
+			<?php
 			if ($action =="add")
 			{
 				?>
@@ -134,14 +140,19 @@
 											<label for="category">Ангилал</label>
 											<select class="form-control" name="category" id="category">
 											<option value="0">Ангилаагүй</option>
-											<?
-											$sql = "SELECT *FROM shops_category";
-											$result= mysqli_query($conn,$sql);
-											while ($data = mysqli_fetch_array($result))
-											{
-												?>
-												<option value="<?=$data["id"];?>"><?=$data["name"];?></option>
-												<?
+											<?php
+											$sql = "SELECT * FROM shops_category";
+											$result = mysqli_query($conn,$sql);
+											if ($result) {
+												while ($data = mysqli_fetch_array($result))
+												{
+													if (!$data) continue;
+													$cat_id = isset($data["id"]) ? intval($data["id"]) : 0;
+													$cat_name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+													?>
+													<option value="<?php echo htmlspecialchars($cat_id);?>"><?php echo $cat_name;?></option>
+													<?php
+												}
 											}
 											?>
 											</select>
@@ -175,12 +186,12 @@
 						</div>
 					</div> 
 				</form>
-				<?
+				<?php
 			}
 			?>
 
 
-			<?
+			<?php
 			if ($action =="adding")
 			{
 				?>
@@ -191,11 +202,11 @@
 						<h6 class="slim-card-title">Дэлгүүр бүртгэл</label>
 						</div><!-- card-header -->
 						<div class="card-body">
-							<?
-							$name = $_POST["name"];
-							$url = $_POST["url"];
-							$category = $_POST["category"];
-							$target_file ="";
+							<?php
+							$name = isset($_POST["name"]) ? protect($_POST["name"]) : '';
+							$url = isset($_POST["url"]) ? protect($_POST["url"]) : '';
+							$category = isset($_POST["category"]) ? intval($_POST["category"]) : 0;
+							$target_file = "";
 
 							if(isset($_FILES['image']) && $_FILES['image']['name']!="")
 							{
@@ -217,6 +228,10 @@
 									}
 							}
 
+							$name_escaped = mysqli_real_escape_string($conn, $name);
+							$url_escaped = mysqli_real_escape_string($conn, $url);
+							$target_file_escaped = mysqli_real_escape_string($conn, $target_file);
+							
 							$sql = "INSERT INTO shops
 							(
 								name,
@@ -225,9 +240,9 @@
 								category
 							) 
 							VALUES (
-								'$name',
-								'$url',
-								'$target_file',
+								'$name_escaped',
+								'$url_escaped',
+								'$target_file_escaped',
 								'$category'
 							)";                   
 							if (mysqli_query($conn,$sql))
@@ -242,16 +257,16 @@
 									</button>
 								</div>
 								<div class="btn-group">
-									<a href="shops?action=edit&id=<?=$shop_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+									<a href="shops?action=edit&id=<?php echo htmlspecialchars($shop_id ?? 0);?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
 									<a href="shops?action=add" class="btn btn-primary"><i data-feather="list"></i> Бүх дэлгүүр</a>
 								</div>
-								<?
+								<?php
 								}
 								else 
 								{
 								?>
 								<div class="alert alert-danger mg-b-10" role="alert">
-								алдаа гарлаа. <?=mysqli_error($conn);?>
+								алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
 									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
 									</button>
@@ -259,7 +274,7 @@
 								<div class="btn-group">
 									<a href="shops?action=add" class="btn btn-success"><i data-feather="edit"></i> Ахин оролдох</a>
 								</div>
-								<?
+								<?php
 								}
 
 
@@ -272,67 +287,77 @@
 					</form>
 				</div>
 				</div>
-				<?
+				<?php
 			}
 			?>
 
 
-			<?
+			<?php
 			if ($action =="edit")
 			{
-				if (isset($_GET["id"])) $shop_id=$_GET["id"]; else header("location:shops");
+				if (isset($_GET["id"])) {
+					$shop_id = intval(protect($_GET["id"]));
+				} else {
+					header("location:shops");
+					exit;
+				}
 				?>
 				<form action="shops?action=editing" method="post" enctype="multipart/form-data">
-					<input type="hidden" name="shop_id" value="<?=$shop_id;?>">
-					<?
-						$sql = "SELECT *FROM shops WHERE id='$shop_id' LIMIT 1";
-						$result= mysqli_query($conn,$sql);
-						if (mysqli_num_rows($result)==1)
+					<?php
+						$shop_id_escaped = mysqli_real_escape_string($conn, $shop_id);
+						$sql = "SELECT * FROM shops WHERE id=" . $shop_id_escaped . " LIMIT 1";
+						$result = mysqli_query($conn,$sql);
+						if ($result && mysqli_num_rows($result) == 1)
 						{
 							$data = mysqli_fetch_array($result);
-							$shop_id = $data["id"];
-							$name = $data["name"];
-							$url = $data["url"];
-							$image = $data["image"];
-							$category = $data["category"];
-							$country = $data["produced_country"];
-							$weight = $data["weight"];
-							$description = $data["description"];
-							$price = $data["price"];
-							$transportation = $data["transportation"];
+							if (!$data) {
+								echo "Мэдээлэл олдсонгүй.";
+							} else {
+								$data_shop_id = isset($data["id"]) ? intval($data["id"]) : 0;
+								$name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+								$url = isset($data["url"]) ? htmlspecialchars($data["url"]) : '';
+								$image = isset($data["image"]) ? htmlspecialchars($data["image"]) : '';
+								$category = isset($data["category"]) ? intval($data["category"]) : 0;
 							
 							?>
+							<input type="hidden" name="shop_id" value="<?php echo htmlspecialchars($data_shop_id);?>">
 							<div class="row">
 								<div class="col-lg-6">
 									<div class="card">
 										<div class="card-body">
-										<input type="hidden" name="shop_id" value="<?=$shop_id;?>">
+										<input type="hidden" name="shop_id" value="<?php echo htmlspecialchars($data_shop_id);?>">
 										<div class="media-list ">
 											<div class="media">
 												<div class="media-body mg-l-15 mg-t-4">
 													<label for="name">Нэр (*)</label>
-													<input type="text" name="name" id="name" value="<?=$name;?>" class="form-control" required="required">
+													<input type="text" name="name" id="name" value="<?php echo $name;?>" class="form-control" required="required">
 												</div>
 											</div>
 											<div class="media">
 												<div class="media-body mg-l-15 mg-t-4">
 													<label for="url">URL</label>
-													<input type="text" name="url" id="url" value="<?=$url;?>" class="form-control">
+													<input type="text" name="url" id="url" value="<?php echo $url;?>" class="form-control">
 												</div>
 											</div>
 											<div class="media">
 												<div class="media-body mg-l-15 mg-t-2">
 													<label for="category">Ангилал</label>
 													<select class="form-control" name="category" id="category">
-													<option value="0" <?=($category=='0')?'SELECTED="SELECTED"':'';?>>Ангилаагүй</option>
-													<?
-													$sql = "SELECT *FROM shops_category";
-													$result= mysqli_query($conn,$sql);
-													while ($data = mysqli_fetch_array($result))
-													{
-														?>
-														<option value="<?=$data["id"];?>" <?=($data["id"]==$category)?'SELECTED="SELECTED"':'';?>><?=$data["name"];?></option>
-														<?
+													<option value="0" <?php echo ($category==0)?'SELECTED="SELECTED"':'';?>>Ангилаагүй</option>
+													<?php
+													$sql = "SELECT * FROM shops_category";
+													$result = mysqli_query($conn,$sql);
+													if ($result) {
+														while ($cat_data = mysqli_fetch_array($result))
+														{
+															if (!$cat_data) continue;
+															$cat_id = isset($cat_data["id"]) ? intval($cat_data["id"]) : 0;
+															$cat_name = isset($cat_data["name"]) ? htmlspecialchars($cat_data["name"]) : '';
+															$selected = ($cat_id == $category) ? 'SELECTED="SELECTED"' : '';
+															?>
+															<option value="<?php echo htmlspecialchars($cat_id);?>" <?php echo $selected;?>><?php echo $cat_name;?></option>
+															<?php
+														}
 													}
 													?>
 													</select>
@@ -351,9 +376,9 @@
 								<div class="col-lg-6">
 									<div class="card">
 										<div class="card-body">
-										<? if ($image<>"" && file_exists("../".$image))
+										<?php if ($image != "" && file_exists("../".$image))
 										{
-											?><img src="../<?=$image;?>" style="max-width: 100%;"><?
+											?><img src="../<?php echo htmlspecialchars($image);?>" style="max-width: 100%;"><?php
 										}
 										?>
 										<div class="media-list">
@@ -369,7 +394,8 @@
 								</div>
 							</div> 
 						
-							<?
+							<?php
+							}
 						}
 						?>
 					</form>
@@ -389,19 +415,19 @@
 						<i class="icon icon ion-ios-close-outline tx-100 tx-danger lh-1 mg-t-20 d-inline-block"></i>
 						<h4 class="tx-danger mg-b-20">Устгахад итгэлтэй байна уу!</h4>
 						<p class="mg-b-20 mg-x-20">Ахин сэргээх боломжгүйгээр устах болно.</p>
-						<a href="shops?action=delete&id=<?=$shop_id;?>" class="btn btn-danger">Тийм устгах</a>
+						<a href="shops?action=delete&id=<?php echo htmlspecialchars($shop_id ?? 0);?>" class="btn btn-danger">Тийм устгах</a>
 						<button type="button" class="btn btn-success pd-x-25" data-dismiss="modal" aria-label="Close">Үгүй, үлдээе</button>
 					</div><!-- modal-body -->
 					</div><!-- modal-content -->
 				</div><!-- modal-dialog -->
 				</div><!-- modal -->
 				
-				<?
+				<?php
 			}
 			?>
 
 
-			<?
+			<?php
 			if ($action =="editing")
 			{
 				?>
@@ -412,98 +438,105 @@
 						<h6 class="slim-card-title">Бараа засах</label>
 					</div><!-- card-header -->
 					<div class="card-body">
-						<?
+						<?php
 						if (isset($_POST["shop_id"])) $shop_id=$_POST["shop_id"]; else header("location:shops");
-						$sql = "SELECT *FROM shops WHERE id='$shop_id' LIMIT 1";
-						$result= mysqli_query($conn,$sql);
-						if (mysqli_num_rows($result)==1)
+						$shop_id_escaped = mysqli_real_escape_string($conn, $shop_id);
+						$sql = "SELECT * FROM shops WHERE id=" . $shop_id_escaped . " LIMIT 1";
+						$result = mysqli_query($conn,$sql);
+						if ($result && mysqli_num_rows($result) == 1)
 						{
 							$data = mysqli_fetch_array($result);
-                            $old_category = $data["category"];
-                            $old_image = $data["image"];
+							if (!$data) {
+								echo "Мэдээлэл олдсонгүй.";
+							} else {
+								$old_category = isset($data["category"]) ? intval($data["category"]) : 0;
+								$old_image = isset($data["image"]) ? $data["image"] : '';
+
+								$name = isset($_POST["name"]) ? protect($_POST["name"]) : '';
+								$url = isset($_POST["url"]) ? protect($_POST["url"]) : '';
+								$category = isset($_POST["category"]) ? intval($_POST["category"]) : 0;
 
 
-							$name = $_POST["name"];
-							$url = $_POST["url"];
-							$category = $_POST["category"];
-
-
-							if(isset($_FILES['image']) && $_FILES['image']['name']!="")
-							{
-								if ($_FILES['image']['name']!="")
-									{                        
-										@$folder = date("Ym");
-										if(!file_exists('../uploads/'.$folder))
-										mkdir ( '../uploads/'.$folder);
-										$target_dir = '../uploads/'.$folder;
-										$target_file = $target_dir."/".@date("his").rand(0,1000). basename($_FILES["image"]["name"]);
-										if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file))
-										{
-											// $thumb_image_content = resize_image($target_file,300,200);
-											// $thumb = substr($target_file,0,-4)."_thumb".substr($target_file,-4,4);
-											// imagejpeg($thumb_image_content,$thumb,75);
-											$target_file = substr($target_file,3);
-											//$thumb = substr($thumb,3);
-											
-											$sql = "UPDATE shops SET image='$target_file' WHERE id='$shop_id'";
-                                            mysqli_query($conn,$sql);
-                                            if (file_exists('../'.$old_image)) unlink ('../'.$old_image);
+								if(isset($_FILES['image']) && $_FILES['image']['name']!="")
+								{
+									if ($_FILES['image']['name']!="")
+										{                        
+											@$folder = date("Ym");
+											if(!file_exists('../uploads/'.$folder))
+											mkdir ( '../uploads/'.$folder);
+											$target_dir = '../uploads/'.$folder;
+											$target_file = $target_dir."/".@date("his").rand(0,1000). basename($_FILES["image"]["name"]);
+											if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file))
+											{
+												// $thumb_image_content = resize_image($target_file,300,200);
+												// $thumb = substr($target_file,0,-4)."_thumb".substr($target_file,-4,4);
+												// imagejpeg($thumb_image_content,$thumb,75);
+												$target_file = substr($target_file,3);
+												//$thumb = substr($thumb,3);
+												
+												$target_file_escaped = mysqli_real_escape_string($conn, $target_file);
+												$update_image_sql = "UPDATE shops SET image='$target_file_escaped' WHERE id=" . $shop_id_escaped;
+												mysqli_query($conn, $update_image_sql);
+												if ($old_image && file_exists('../'.$old_image)) unlink ('../'.$old_image);
+											}
 										}
-									}
-							}
+								}
 
-							$sql = "UPDATE shops SET
-							name = '$name',
-							url = '$url',
-							category = '$category'
-							WHERE id='$shop_id' LIMIT 1";
-							//echo $sql;
-						
-							if (mysqli_query($conn,$sql)) 
-							{
-								mysqli_query ($conn,"UPDATE shops_category SET count=count-1 WHERE id='$old_category' LIMIT 1");
-								mysqli_query ($conn,"UPDATE shops_category SET count=count+1 WHERE id='$category' LIMIT 1");                            
-								
-								?>
-								<div class="alert alert-success mg-b-10" role="alert">
-								Амжилттай шинэчиллээ.
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
+								$name_escaped = mysqli_real_escape_string($conn, $name);
+								$url_escaped = mysqli_real_escape_string($conn, $url);
+								$sql = "UPDATE shops SET
+								name = '$name_escaped',
+								url = '$url_escaped',
+								category = '$category'
+								WHERE id=" . $shop_id_escaped . " LIMIT 1";
+								//echo $sql;
+							
+								if (mysqli_query($conn,$sql)) 
+								{
+									mysqli_query ($conn,"UPDATE shops_category SET count=count-1 WHERE id=" . intval($old_category) . " LIMIT 1");
+									mysqli_query ($conn,"UPDATE shops_category SET count=count+1 WHERE id=" . intval($category) . " LIMIT 1");                            
+									
+									?>
+									<div class="alert alert-success mg-b-10" role="alert">
+									Амжилттай шинэчиллээ.
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									</div>
+									<?php
+								}
+								else 
+								{
+									?>
+									<div class="alert alert-danger mg-b-10" role="alert">
+									Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+									</div>
+									<?php
+								}
+
+
+								?>                            
+								<div class="btn-group">
+								<a href="shops?action=edit&id=<?php echo htmlspecialchars($shop_id);?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+								<a href="shops" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх дэлгүүр</a>
 								</div>
-								<?
+								<?php
 							}
-							else 
-							{
-								?>
-								<div class="alert alert-danger mg-b-10" role="alert">
-								Алдаа гарлаа. <?=mysqli_error($conn);?>
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
-								</div>
-								<?
-							}
-
-
-							?>                            
-							<div class="btn-group">
-							<a href="shops?action=edit&id=<?=$shop_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
-							<a href="shops" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх дэлгүүр</a>
-							</div>
-							<?
 						}
 						?>
 					</div>
 					</div>
 				</div><!-- col-12 -->
 				</div>
-				<?
+				<?php
 			}
 			?>
 
 
-			<?
+			<?php
 			if ($action =="delete")
 			{
 				?>
@@ -515,18 +548,23 @@
 						<h6 class="slim-card-title">Дэлгүүр устгах</label>
 						</div><!-- card-header -->
 						<div class="card-body">
-							<?
+							<?php
 							if (isset($_GET["id"])) $id=$_GET["id"]; else header("location:shops");
-							$sql = "SELECT *FROM shops WHERE id=$id LIMIT 1";
-							$result= mysqli_query($conn,$sql);
-							if (mysqli_num_rows($result)==1)
+							$id_escaped = mysqli_real_escape_string($conn, $id);
+							$sql = "SELECT * FROM shops WHERE id=" . $id_escaped . " LIMIT 1";
+							$result = mysqli_query($conn,$sql);
+							if ($result && mysqli_num_rows($result) == 1)
 							{
 							$data = mysqli_fetch_array($result);
-							if (file_exists("../".$data["image"])) unlink("../".$data["image"]);
+							if ($data) {
+								$data_image = isset($data["image"]) ? $data["image"] : '';
+								if ($data_image && file_exists("../".$data_image)) unlink("../".$data_image);
+							}
 							// ORDEr ShALGAH ShAARDLAGATAI
 
 							
-							if (mysqli_query($conn,"DELETE FROM shops WHERE id=$id")) 
+							$delete_sql = "DELETE FROM shops WHERE id=" . $id_escaped;
+							if (mysqli_query($conn, $delete_sql)) 
 								{
 								?>
 								<div class="alert alert-success mg-b-10" role="alert">
@@ -535,18 +573,18 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+								<?php
 								}
 								else 
 								{
 								?>
 								<div class="alert alert-danger mg-b-10" role="alert">
-									Алдаа гарлаа. <?=mysqli_error($conn);?>
+									Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
 									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+								<?php
 								}
 
 
@@ -554,7 +592,7 @@
 							<div class="btn-group">
 								<a href="shops" class="btn btn-primary"><i class="icon ion-ios-list"></i> Бүх дэлгүүр</a>
 							</div>
-							<?
+								<?php
 							}
 							?>
 						</div>
@@ -562,7 +600,7 @@
 					</form>
 				</div>
 				</div>
-				<?
+				<?php
 			}
 			?>
 
@@ -574,10 +612,10 @@
 			<!--------------------------------------------------------->
 
 
-			<?
+			<?php
 			if ($action =="category")
 			{
-				$count =1;
+				$count = 1;
 				?>
 				<div class="row">
 				<div class="col-md-12 grid-margin stretch-card">
@@ -594,27 +632,31 @@
 							</tr>
 							</thead>
 							<tbody>
-							<?
-							$sql = "SELECT *FROM shops_category ORDER BY dd,name";
+							<?php
+							$sql = "SELECT * FROM shops_category ORDER BY dd,name";
 							$result = mysqli_query($conn,$sql);
-							if (mysqli_num_rows($result)>0)
+							if ($result && mysqli_num_rows($result) > 0)
 							{
 								while ($data = mysqli_fetch_array($result))
 								{
+									if (!$data) continue;
+									$cat_id = isset($data["id"]) ? intval($data["id"]) : 0;
+									$cat_name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+									$cat_count = isset($data["count"]) ? intval($data["count"]) : 0;
 
 								?>
 								<tr>
-									<td><?=$count++;?></td>
-									<td><a href="shops?action=category_edit&id=<?=$data["id"];?>"><?=$data["name"];?></a></td>
-									<td><a href="shops?action=categorize&category=<?=$data["id"];?>"><?=$data["count"];?></a></td>
+									<td><?php echo $count++;?></td>
+									<td><a href="shops?action=category_edit&id=<?php echo htmlspecialchars($cat_id);?>"><?php echo $cat_name;?></a></td>
+									<td><a href="shops?action=categorize&category=<?php echo htmlspecialchars($cat_id);?>"><?php echo $cat_count;?></a></td>
 									<td>
 									<div class="btn-group">
-										<a href="shops?action=category_edit&id=<?=$data["id"];?>" title="Засах"><i data-feather="edit"></i></a>
+										<a href="shops?action=category_edit&id=<?php echo htmlspecialchars($cat_id);?>" title="Засах"><i data-feather="edit"></i></a>
 
 									</div>
 									</td>
 								</tr>
-								<?
+								<?php
 								}
 							}
 							?>
@@ -626,11 +668,11 @@
 				</div>
 				</div>
 				<a href="shops?action=category_new" class="btn btn-success mg-t-10"><i class="icon ion-ios-plus"></i> Ангилал нэмэх</a>
-				<?
+				<?php
 			}
 			?>
 
-			<?
+			<?php
 			if ($action =="category_new")
 			{
 				?>
@@ -649,20 +691,21 @@
 					</form>
 				</div>
 				</div>
-				<?
+				<?php
 			}
 			?>
 
-			<?
+			<?php
 			if ($action =="category_adding")
 			{
 				?>
 				<div class="card">
 				<div class="card-body">
-							<?
-							$name = $_POST["name"];
+							<?php
+							$name = isset($_POST["name"]) ? protect($_POST["name"]) : '';
 
-								$sql = "INSERT INTO shops_category (name) VALUES ('$name')";
+								$name_escaped = mysqli_real_escape_string($conn, $name);
+								$sql = "INSERT INTO shops_category (name) VALUES ('$name_escaped')";
 								if (mysqli_query($conn,$sql))
 								{
 								$category_id = mysqli_insert_id($conn);
@@ -673,18 +716,18 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+								<?php
 								}
 								else 
 								{
 								?>
 								<div class="alert alert-danger mg-b-10" role="alert">
-									Алдаа гарлаа. <?=mysqli_error($conn);?>
+									Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
 									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+								<?php
 								}
 
 
@@ -698,37 +741,49 @@
 					</form>
 				</div>
 				</div>
-				<?
+				<?php
 			}
 			?>
 
 
-			<?
+			<?php
 			if ($action =="category_edit")
 			{
 				?>
 				<div class="card">
 				<div class="card-body">
 					<form action="shops?action=category_editing" method="post" enctype="multipart/form-data">
-					<?
-					if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:shops");
-					$sql = "SELECT *FROM shops_category WHERE id=$category_id LIMIT 1";
-					$result= mysqli_query($conn,$sql);
-					if (mysqli_num_rows($result)==1)
+					<?php
+					if (isset($_GET["id"])) {
+						$category_id = intval(protect($_GET["id"]));
+					} else {
+						header("location:shops");
+						exit;
+					}
+					$category_id_escaped = mysqli_real_escape_string($conn, $category_id);
+					$sql = "SELECT * FROM shops_category WHERE id=" . $category_id_escaped . " LIMIT 1";
+					$result = mysqli_query($conn,$sql);
+					if ($result && mysqli_num_rows($result) == 1)
 					{
 						$data = mysqli_fetch_array($result);
+						if (!$data) {
+							echo "Мэдээлэл олдсонгүй.";
+						} else {
+							$data_id = isset($data["id"]) ? intval($data["id"]) : 0;
+							$data_name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
 						?>
-						<input type="hidden" name="id" value="<?=$data["id"];?>">
+						<input type="hidden" name="id" value="<?php echo htmlspecialchars($data_id);?>">
 						<div class="media-list">
 						<div class="media">
 							<div class="media-body">
 							<label for="name">Нэр (*)</label>
-							<input type="text" name="name" id="name" value="<?=$data["name"];?>" class="form-control" required="required">
+							<input type="text" name="name" id="name" value="<?php echo $data_name;?>" class="form-control" required="required">
 							</div>
 						</div>
 						</div>
 						<input type="submit" class="btn btn-success btn-lg mg-t-10" value="Засах">
-						<?
+						<?php
+						}
 					}
 					?>
 					</form>
@@ -736,24 +791,31 @@
 				</div>
 
 				<div class="btn-group mg-t-10">
-				<a href="shops?action=cateogory_delete&id=<?=$category_id;?>" class="btn btn-danger btn-xs"><i class="icon ion-ios-trash"></i> Устгах</a>
+				<a href="shops?action=cateogory_delete&id=<?php echo htmlspecialchars($category_id ?? 0);?>" class="btn btn-danger btn-xs"><i class="icon ion-ios-trash"></i> Устгах</a>
 				<a href="shops?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
 				</div>
-				<?
+				<?php
 			}
 			?>
 
 
-			<?
+			<?php
 			if ($action =="category_editing")
 			{
 				?>
 				<div class="card">
 					<div class="card-body">                
-							<?
-							if (isset($_POST["id"])) $category_id=$_POST["id"]; else header("location:shops");
-							$name = $_POST["name"];
-							$sql = "UPDATE shops_category SET name='$name' WHERE id=$category_id LIMIT 1";
+							<?php
+							if (isset($_POST["id"])) {
+								$category_id = intval(protect($_POST["id"]));
+							} else {
+								header("location:shops");
+								exit;
+							}
+							$name = isset($_POST["name"]) ? protect($_POST["name"]) : '';
+							$name_escaped = mysqli_real_escape_string($conn, $name);
+							$category_id_escaped = mysqli_real_escape_string($conn, $category_id);
+							$sql = "UPDATE shops_category SET name='$name_escaped' WHERE id=" . $category_id_escaped . " LIMIT 1";
 						
 							if (mysqli_query($conn,$sql)) 
 								{
@@ -764,18 +826,18 @@
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+								<?php
 								}
 								else 
 								{
 								?>
 								<div class="alert alert-danger mg-b-10" role="alert">
-								Алдаа гарлаа. <?=mysqli_error($conn);?>
+								Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
 									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
 									</button>
 								</div>
-								<?
+								<?php
 								}
 
 
@@ -785,15 +847,15 @@
 					</div>
 				
 				<div class="btn-group mg-t-10">
-				<a href="shops?action=category_edit&id=<?=$category_id;?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
+				<a href="shops?action=category_edit&id=<?php echo htmlspecialchars($category_id ?? 0);?>" class="btn btn-success"><i data-feather="edit"></i> Засах</a>
 				<a href="shops?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
 				</div>
-				<?
+				<?php
 			}
 			?>
 
 
-			<?
+			<?php
 			if ($action =="category_delete")
 			{
 				?>
@@ -805,16 +867,18 @@
 						<h6 class="slim-card-title">Мэдээний ангилал устгах</h6>
 					</div><!-- card-header -->
 					<div class="card-body">
-						<?
+						<?php
 						if (isset($_GET["id"])) $category_id=$_GET["id"]; else header("location:shops");
-						$sql = "SELECT *FROM shops_category WHERE id=$category_id LIMIT 1";
-						$result= mysqli_query($conn,$sql);
-						if (mysqli_num_rows($result)==1)
+						$category_id_escaped = mysqli_real_escape_string($conn, $category_id);
+						$sql = "SELECT * FROM shops_category WHERE id=" . $category_id_escaped . " LIMIT 1";
+						$result = mysqli_query($conn,$sql);
+						if ($result && mysqli_num_rows($result) == 1)
 						{
 							// ORDEr ShALGAH ShAARDLAGATAI
 
 						
-							if (mysqli_query($conn,"DELETE FRom shops_category WHERE id=$category_id")) 
+							$delete_sql = "DELETE FROM shops_category WHERE id=" . $category_id_escaped;
+							if (mysqli_query($conn, $delete_sql)) 
 							{
 								?>
 								<div class="alert alert-success mg-b-10" role="alert">
@@ -823,18 +887,18 @@
 									<span aria-hidden="true">&times;</span>
 								</button>
 								</div>
-								<?
+								<?php
 							}
 							else 
 							{
 								?>
 								<div class="alert alert-danger mg-b-10" role="alert">
-								Алдаа гарлаа. <?=mysqli_error($conn);?>
+								Алдаа гарлаа. <?php echo $conn ? htmlspecialchars(mysqli_error($conn)) : 'Database connection error';?>
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
 								</button>
 								</div>
-								<?
+								<?php
 							}
 						}
 						?>
@@ -845,13 +909,13 @@
 				<div class="btn-group mg-t-10">
 				<a href="shops?action=category" class="btn btn-primary btn-xs"><i data-feather="list"></i> Бүх ангилал</a>
 				</div>
-				<?
+				<?php
 			}
 			?>
 
 
 		</div>
-		<? require_once("views/footer.php");?>
+		<?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

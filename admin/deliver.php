@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -8,10 +8,10 @@
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-    <?  require_once("views/navbar.php"); ?>
+    <?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php  require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -20,9 +20,8 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="initiate";?>
-          <?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="initiate";
           $action_title = "";
           switch ($action)
           {
@@ -37,17 +36,18 @@
             case "later_pay": $action_title="Дараа тооцоог төлөх";break;
             case "later_paid": $action_title="Дараа тооцоог төлөх";break;
             case "later_transaction": $action_title="Дараа тооцоог тулгах";break;                               
-            case "delivered": $action_title="Гардуулсан илгээмж";break;                               
+            case "delivered": $action_title="Гардуулсан илгээмж";break;
+            default: $action_title="Гардуулалт";break;
           }
           ?>
           <nav class="page-breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="deliver">Гардуулалт</a></li>
-              <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+              <li class="breadcrumb-item active" aria-current="page"><?php echo $action_title;?></li>
             </ol>
           </nav>
 
-          <?
+          <?php
           if ($action == "initiate")
           {
             ?>
@@ -62,7 +62,7 @@
               </div>
             </div>
 
-            <?
+            <?php
 
           }
 
@@ -83,7 +83,7 @@
               </div>
             </div>
 
-            <?
+            <?php
 
           }
 
@@ -106,7 +106,7 @@
               </div>
             </div>
 
-            <?
+            <?php
 
           }
 
@@ -116,7 +116,7 @@
             <div class="panel panel-primary">
               <div class="panel-heading">Чингэлэгийн гардуулалт</div>
               <div class="panel-body">
-              <? 
+              <?php 
               $count=0;
 
               if (isset($_POST["tel"]))
@@ -166,7 +166,7 @@
                           <br>      
                           <button type="submit" class="btn btn-primary">Гүйцэтгэх</button>
                       </form>
-                      <?                      
+                      <?php                      
                     }
                     else 
 					          echo "Хэрэглэгч олдсонгүй.";
@@ -264,7 +264,7 @@
                       <th></th>
                     </tr>
 
-                      <?
+                      <?php
 
                         
 
@@ -277,7 +277,7 @@
                               
                               if ($deliver_barcode!="")
                                 {
-                                    $sql = "SELECT *FROM box_combine WHERE barcode='$deliver_barcode' LIMIT 1";
+                                    $sql = "SELECT * FROM box_combine WHERE barcode='$deliver_barcode' LIMIT 1";
                                     $result = mysqli_query($conn,$sql);
                                     if (mysqli_num_rows($result)==0)
                                     //if (substr($deliver_barcode,0,3)=="GO1" || substr($deliver_barcode,0,4)!="GO2") //SINGLE BARCODE
@@ -319,16 +319,16 @@
                                           
                                           ?>
                                           
-                                          <td><input type="checkbox" name="orders[]" checked="checked" weight="<?=$weight;?>" package_advance="<?=$Package_advancel?>"  advance="<?=$advance_value;?>" admin_value="<?=$admin_value;?>" value="<?=$order_id;?>" <?=($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?=($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                
-                                          <td><?=$count++;?></td>
-                                          <td><a href="customers?action=detail&id=<?=$sender;?>"><?=substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
-                                          <td><a href="customers?action=detail&id=<?=$receiver;?>"><?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
-                                          <?=customer($receiver,"tel");?>
-                                          <br><?=proxy2($proxy,$proxy_type,"name");?></td>
+                                          <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advancel?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                
+                                          <td><?php echo $count++;?></td>
+                                          <td><a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
+                                          <td><a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
+                                          <?php echo customer($receiver,"tel");?>
+                                          <br><?php echo proxy2($proxy,$proxy_type,"name");?></td>
                                     
                                     
                                           <td class='track_td'>
-                                          <?
+                                          <?php
                                             barcode_comfort($barcode);
                                             if ($is_branch) echo '<span class="badge badge-success round">DE</span>';
                                             echo "<br>"; 
@@ -336,26 +336,26 @@
                                             
                                             ?>
                                           </td>
-                                          <td><?=intval(days($created_date));?></td>
-                                          <td><?=$temp_status;?></td>
-                                          <td><?=$weight;?></td>                            
+                                          <td><?php echo intval(days($created_date));?></td>
+                                          <td><?php echo $temp_status;?></td>
+                                          <td><?php echo $weight;?></td>                            
                                           
                                           <td>
-                                            <? if ($is_online==0) echo $Package_advance_value; ?>
+                                            <?php if ($is_online==0) echo $Package_advance_value; ?>
                                           </td> 
                                           
                                           <td>
-                                          <? if ($admin_value!=0) echo $admin_value; ?>
+                                          <?php if ($admin_value!=0) echo $admin_value; ?>
                                           </td>
 
                                           <td>
-                                          <? if ($is_branch) echo "D"; ?>
+                                          <?php if ($is_branch) echo "D"; ?>
                                           </td> 
                                     
-                                          <td><a href="tracks?action=detail&id=<?=$order_id;?>"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                          <td><a href="tracks?action=detail&id=<?php echo $order_id;?>"><span class="glyphicon glyphicon-edit"></span></a></td>
                                           </tr>
 
-                                          <?
+                                          <?php
                                     
                                           if ($is_online==1) 
                                           {
@@ -430,16 +430,16 @@
                                             
                                             
                                                 ?>
-                                                <td><input type="checkbox" name="orders[]" checked="checked" weight="<?=$weight;?>" package_advance="<?=$Package_advancel?>"  advance="<?=$advance_value;?>" admin_value="<?=$admin_value;?>" value="<?=$order_id;?>" <?=($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?=($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                
-                                                <td><?=$count++;?></td>
-                                                <td><a href="customers?action=detail&id=<?=$sender;?>"><?=substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
-                                                <td><a href="customers?action=detail&id=<?=$receiver;?>"><?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
-                                                <?=customer($receiver,"tel");?>
-                                                <br><?=proxy2($proxy,$proxy_type,"name");?></td>
+                                                <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advancel?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                
+                                                <td><?php echo $count++;?></td>
+                                                <td><a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
+                                                <td><a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
+                                                <?php echo customer($receiver,"tel");?>
+                                                <br><?php echo proxy2($proxy,$proxy_type,"name");?></td>
                                           
                                           
                                                 <td class='track_td'>
-                                                <?
+                                                <?php
                                                   barcode_comfort($barcode);
                                                   if ($is_branch) echo '<span class="badge badge-success">DE</span>';
                                                   echo "<br>"; 
@@ -447,26 +447,26 @@
                                                   
                                                   ?>
                                                 </td>
-                                                <td><?=intval(days($created_date));?></td>
-                                                <td><?=$temp_status;?></td>
-                                                <td><?=$weight;?></td>                            
+                                                <td><?php echo intval(days($created_date));?></td>
+                                                <td><?php echo $temp_status;?></td>
+                                                <td><?php echo $weight;?></td>                            
                                                 
                                                 <td>
-                                                  <? if ($is_online==0) echo $Package_advance_value; ?>
+                                                  <?php if ($is_online==0) echo $Package_advance_value; ?>
                                                 </td> 
                                                 
                                                 <td>
-                                                <? if ($admin_value!=0) echo $admin_value; ?>
+                                                <?php if ($admin_value!=0) echo $admin_value; ?>
                                                 </td>
 
                                                 <td>
-                                                <? if ($is_branch) echo "D"; ?>
+                                                <?php if ($is_branch) echo "D"; ?>
                                                 </td> 
                                           
-                                                <td><a href="tracks?action=detail&id=<?=$order_id;?>"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                                <td><a href="tracks?action=detail&id=<?php echo $order_id;?>"><span class="glyphicon glyphicon-edit"></span></a></td>
                                                 </tr>
 
-                                                <?
+                                                <?php
                                           
                                                 if ($is_online==1) $total_weight+=$weight;
                                           
@@ -550,16 +550,16 @@
                             
                                   
                                     ?>
-                                    <td><input type="checkbox" name="orders[]" checked="checked" weight="<?=$weight;?>" package_advance="<?=$Package_advancel?>"  advance="<?=$advance_value;?>" admin_value="<?=$admin_value;?>" value="<?=$order_id;?>" <?=($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?=($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                                                    
-                                    <td><?=$count++;?></td>
-                                    <td><a href="customers?action=detail&id=<?=$sender;?>"><?=substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
-                                    <td><a href="customers?action=detail&id=<?=$receiver;?>"><?=substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
-                                    <?=customer($receiver,"tel");?>
-                                    <br><?=proxy2($proxy,$proxy_type,"name");?></td>
+                                    <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advancel?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                                                    
+                                    <td><?php echo $count++;?></td>
+                                    <td><a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
+                                    <td><a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
+                                    <?php echo customer($receiver,"tel");?>
+                                    <br><?php echo proxy2($proxy,$proxy_type,"name");?></td>
                               
                               
                                     <td class='track_td'>
-                                    <?
+                                    <?php
                                       barcode_comfort($barcode);
                                       if ($is_branch) echo '<span class="badge badge-success">DE</span>';
                                       echo "<br>"; 
@@ -567,25 +567,25 @@
                                       
                                       ?>
                                     </td>
-                                    <td><?=intval(days($created_date));?></td>
-                                    <td><?=$temp_status;?></td>
-                                    <td><?=$weight;?></td>                            
+                                    <td><?php echo intval(days($created_date));?></td>
+                                    <td><?php echo $temp_status;?></td>
+                                    <td><?php echo $weight;?></td>                            
                                     
                                     <td>
-                                      <? if ($is_online==0) echo $Package_advance_value; ?>
+                                      <?php if ($is_online==0) echo $Package_advance_value; ?>
                                     </td> 
                                     
                                     <td>
-                                    <? if ($admin_value!=0) echo $admin_value; ?>
+                                    <?php if ($admin_value!=0) echo $admin_value; ?>
                                     </td>
 
                                     <td>
-                                    <? if ($is_branch) echo "D"; ?>
+                                    <?php if ($is_branch) echo "D"; ?>
                                     </td> 
                               
-                                    <td><a href="tracks?action=detail&id=<?=$order_id;?>"><span class="glyphicon glyphicon-edit"></span></a></td>
+                                    <td><a href="tracks?action=detail&id=<?php echo $order_id;?>"><span class="glyphicon glyphicon-edit"></span></a></td>
                                     </tr>
-                                    <?
+                                    <?php
                               
                               
                               
@@ -642,23 +642,23 @@
                         <div class="modal-body">
                             <div class="form-group">
                               <label for="recipient-name" class="control-label">Тооцоо /КГ/ </label>
-                              <input type="text" class="form-control" id="total_weight_inmodal" readonly="readonly" value="<?=$total_weight;?>">
+                              <input type="text" class="form-control" id="total_weight_inmodal" readonly="readonly" value="<?php echo $total_weight;?>">
                             </div>
                             
                             <div class="form-group">
                               <label for="recipient-name" class="control-label">Тооцоо /USD/ </label>
-                              <input type="text" class="form-control" id="grand_total_inmodal" readonly="readonly"  value="<?=$grand_total;?>">
+                              <input type="text" class="form-control" id="grand_total_inmodal" readonly="readonly"  value="<?php echo $grand_total;?>">
                             </div>
                             
                             <div class="form-group">
                               <label for="recipient-name" class="control-label">Дараа тооцоо /USD/ </label>
-                              <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?=$total_admin_value;?>">
+                              <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?php echo $total_admin_value;?>">
                             </div>
                             
                             
                             <div class="form-group">
                               <label for="recipient-name" class="control-label">Тооцоо /Төг/ </label>
-                              <input type="text" class="form-control" id="grand_total_inmodal_tug" readonly="readonly"  value="<?=($grand_total+$total_admin_value)*cfg_rate();?>">
+                              <input type="text" class="form-control" id="grand_total_inmodal_tug" readonly="readonly"  value="<?php echo ($grand_total+$total_admin_value)*cfg_rate();?>">
                             </div>
                             
                             <div class="form-group">
@@ -702,7 +702,7 @@
                 <div class="card mt-3">
                   <div class="card-body">
                     <div class="card-title">Гардаж авж буй хүн</div>
-                    <?
+                    <?php
                     if ($count>1) {
                       echo "<table class='table table-hover'>";
                       
@@ -717,34 +717,34 @@
                     echo "<tr><td>Хот, аймаг</td><td>";
                     ?>
                       <select name="city" class="form-control" id="city">
-                      <?
-                      $sql =  "SELECT *FROM city";
+                      <?php
+                      $sql =  "SELECT * FROM city";
                       $result_cities = mysqli_query($conn,$sql);
                       while ($data_cities = mysqli_fetch_array($result_cities))
                       {
                         ?>
-                        <option value="<?=$data_cities["id"];?>"><?=$data_cities["name"];?></option>
-                        <?
+                        <option value="<?php echo $data_cities["id"];?>"><?php echo $data_cities["name"];?></option>
+                        <?php
                       }
                       ?>
                       </select>
-                    <?
+                    <?php
                     echo "</td></tr>";
                     echo "<tr><td>Дүүрэг, сум</td><td>";
                     ?>
                       <select name="district" class="form-control" id="district">
-                      <?
-                      $sql =  "SELECT *FROM district";
+                      <?php
+                      $sql =  "SELECT * FROM district";
                       $result_districts = mysqli_query($conn,$sql);
                       while ($data_districts = mysqli_fetch_array($result_districts))
                       {
                         ?>
-                          <option value="<?=$data_districts["id"];?>" data-chained="<?=$data_districts["city_id"];?>"><?=$data_districts["name"];?></option>
-                        <?
+                          <option value="<?php echo $data_districts["id"];?>" data-chained="<?php echo $data_districts["city_id"];?>"><?php echo $data_districts["name"];?></option>
+                        <?php
                       }          
                       ?>
                       </select>
-                    <?
+                    <?php
                     echo "</td></tr>";
 
                     echo "<tr><td>Баг, хороо</td><td><input type='text' name='khoroo' class='form-control'></td></tr>";
@@ -759,7 +759,7 @@
                       echo '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">Тооцоо бодох</button>';
                       ?>
                       </form>
-                      <?
+                      <?php
                     }
                     // if ($count==1) header("location:deliver");
 
@@ -769,7 +769,7 @@
 
                           
                          
-              <?
+              <?php
           }
 
           if ($action == "delivering")
@@ -778,7 +778,7 @@
             <div class="card">
               <div class="card-body">
                 <div class="card-title">Гардуулалт</div>
-                  <? 
+                  <?php 
 
                   //DELIVER costumer
 
@@ -980,7 +980,7 @@
                     if ($method=='mix') {$account = $_POST["account_value"];$pos = $_POST["pos_value"];$cash=$_POST["cash_value"];}
                     $later = 0;
                     if ($method=='later') {$account = 0;$pos = 0;$cash=0; $later = $grand_total_tug;}
-                    $sql = "SELECT *FROM bills WHERE deliver='$deliver_id' AND barcode='".implode(',',$barcodes)."'";
+                    $sql = "SELECT * FROM bills WHERE deliver='$deliver_id' AND barcode='".implode(',',$barcodes)."'";
 
                     $result_delivered = mysqli_query($conn,$sql);
 
@@ -1075,13 +1075,12 @@
                             // }
 
                           ?>
-                          <script type="text/javascript" language="Javascript">window.open('bill?deliver_id=<?=$deliver_id;?>&orders=<?=implode(",",$orders);?>&method=<?=$method;?>');</script>
+                          <script type="text/javascript" language="Javascript">window.open('bill?deliver_id=<?php echo $deliver_id;?>&orders=<?php echo implode(",",$orders);?>&method=<?php echo $method;?>');</script>
                           
                           <?php
                           }
                         echo "<a href='?action=reverse&bill_id=$bill_id' class='btn btn-danger btn-sm'>Энэ олголтыг хүчингүй болгох!!!!</a>";
                       }
-
                       else 
                       {
                         echo "Энэ ачаа гардуулагдаж тооцоонд орсон байна. Тооцоог буцаана уу.";
@@ -1091,7 +1090,7 @@
 
               </div>
             </div>
-            <?
+            <?php
           }
 
           if ($action=='reverse')
@@ -1107,16 +1106,16 @@
             if ($bill_id>0) 
             {
               ?>
-              <div class="alert alert-danger"><?=$bill_id;?> дугаартай баримтын буцаах гэж байна.</div>
-              <?              
+              <div class="alert alert-danger"><?php echo $bill_id;?> дугаартай баримтын буцаах гэж байна.</div>
+              <?php              
             }
             ?>
 
             <form action="?action=reversing" method="post">
-                <input type="text" name="bill_id" value="<?=($bill_id>0)?$bill_id:'';?>" class="form-control" placeholder="12345" autofocus="autofocus">
+                <input type="text" name="bill_id" value="<?php echo ($bill_id>0)?$bill_id:'';?>" class="form-control" placeholder="12345" autofocus="autofocus">
                 <button type="submit" class="btn btn-success">Буцаах</button>
             </form>
-            <?             
+            <?php             
           
           }
           
@@ -1228,37 +1227,37 @@
                     <div class="card-body">
                       <form action="?action=delivered" method="post">
                         <div class="input-group">
-                          <input type="text" class="form-control" name="search" placeholder="Хайх..." value="<?=$search_term;?>">
+                          <input type="text" class="form-control" name="search" placeholder="Хайх..." value="<?php echo $search_term;?>">
             
 
                           <select  name="status" class="form-control">
-                            <option value="all" <?=($search_status=="all")?'SELECTED':'';?> >Бүx идэвхитэй</option>
-                            <option value="new"  <?=($search_status=="new")?'SELECTED':'';?>>Нисэхэд бэлэн</option>
-                            <option value="order" <?=($search_status=="order")?'SELECTED':'';?>>Хүлээн авагчгүй</option>
-                            <option value="filled" <?=($search_status=="filled")?'SELECTED':'';?>>Х/авагч бөглөсөн</option>
-                            <option value="weight_missing" <?=($search_status=="weight_missing")?'SELECTED':'';?>>Жин нь бөглөгдөөгүй</option>				 
-                            <option value="onair" <?=($search_status=="onair")?'SELECTED':'';?>>Онгоцоор ирж байгаа</option>				 
-                            <option value="warehouse" <?=($search_status=="warehouse")?'SELECTED':'';?>>Агуулахад байгаа</option>				 
-                            <option value="delivered" <?=($search_status=="delivered")?'SELECTED':'';?>>Хүргэгдсэн</option>				 
-                            <option value="custom" <?=($search_status=="custom")?'SELECTED':'';?>>Гаальд саатсан</option>				 
-                            <option value="transport" <?=($search_status=="transport")?'SELECTED':'';?>>Хүргэлттэй</option>				 
-                            <option value="db" <?=($search_status=="db")?'SELECTED':'';?>>Баазаас</option>				 
+                            <option value="all" <?php echo ($search_status=="all")?'SELECTED':'';?> >Бүx идэвхитэй</option>
+                            <option value="new"  <?php echo ($search_status=="new")?'SELECTED':'';?>>Нисэхэд бэлэн</option>
+                            <option value="order" <?php echo ($search_status=="order")?'SELECTED':'';?>>Хүлээн авагчгүй</option>
+                            <option value="filled" <?php echo ($search_status=="filled")?'SELECTED':'';?>>Х/авагч бөглөсөн</option>
+                            <option value="weight_missing" <?php echo ($search_status=="weight_missing")?'SELECTED':'';?>>Жин нь бөглөгдөөгүй</option>				 
+                            <option value="onair" <?php echo ($search_status=="onair")?'SELECTED':'';?>>Онгоцоор ирж байгаа</option>				 
+                            <option value="warehouse" <?php echo ($search_status=="warehouse")?'SELECTED':'';?>>Агуулахад байгаа</option>				 
+                            <option value="delivered" <?php echo ($search_status=="delivered")?'SELECTED':'';?>>Хүргэгдсэн</option>				 
+                            <option value="custom" <?php echo ($search_status=="custom")?'SELECTED':'';?>>Гаальд саатсан</option>				 
+                            <option value="transport" <?php echo ($search_status=="transport")?'SELECTED':'';?>>Хүргэлттэй</option>				 
+                            <option value="db" <?php echo ($search_status=="db")?'SELECTED':'';?>>Баазаас</option>				 
                           </select>
 
                           <select  name="status_type" class="form-control">
-                            <option value="advance" <?=($status_type=="advance")?'SELECTED':'';?> >Төлбөртэйг</option>
-                            <option value="all"  <?=($status_type=="all")?'SELECTED':'';?>>Бүгдийг</option>
+                            <option value="advance" <?php echo ($status_type=="advance")?'SELECTED':'';?> >Төлбөртэйг</option>
+                            <option value="all"  <?php echo ($status_type=="all")?'SELECTED':'';?>>Бүгдийг</option>
                           </select>           
                           
                           <select  name="method_type" class="form-control">
-                            <option value="all" <?=($method_type=="all")?'SELECTED':'';?> >Бүгдийг</option>
-                            <option value="cash"  <?=($method_type=="cash")?'SELECTED':'';?>>Бэлэн</option>
-                            <option value="account" <?=($method_type=="account")?'SELECTED':'';?>>Банкаар</option>
-                            <option value="pos" <?=($method_type=="pos")?'SELECTED':'';?>>POS</option>
+                            <option value="all" <?php echo ($method_type=="all")?'SELECTED':'';?> >Бүгдийг</option>
+                            <option value="cash"  <?php echo ($method_type=="cash")?'SELECTED':'';?>>Бэлэн</option>
+                            <option value="account" <?php echo ($method_type=="account")?'SELECTED':'';?>>Банкаар</option>
+                            <option value="pos" <?php echo ($method_type=="pos")?'SELECTED':'';?>>POS</option>
                           </select>
                           
-                          <input type="date" class="form-control" name="start_date" value="<?=substr($start_date,0,10);?>">
-                          <input type="date" class="form-control" name="finish_date" value="<?=substr($finish_date,0,10);?>">
+                          <input type="date" class="form-control" name="start_date" value="<?php echo substr($start_date,0,10);?>">
+                          <input type="date" class="form-control" name="finish_date" value="<?php echo substr($finish_date,0,10);?>">
                         
                           <button type="submit" class="btn btn-primary mr-2">Хайх</button>
                         </div>
@@ -1269,7 +1268,7 @@
 
                 <div class="col-lg-12">
 
-                  <?
+                  <?php
 
                   //
                   //$sql.=" ORDER BY created_date DESC";
@@ -1436,7 +1435,7 @@
                   ?>
                 </div>
                </div>
-               <?
+               <?php
 
           
           }
@@ -1462,7 +1461,7 @@
                         <span>Төлбөр:</span>
                         <input type="text" name="payment" class="form-control"><br>
                         <span>Огноо:</span>
-                        <input type="date" name="date"  value="<?=date("Y-m-d");?>" class="form-control"><br>
+                        <input type="date" name="date"  value="<?php echo date("Y-m-d");?>" class="form-control"><br>
                         <span>Тайлбар:</span>
                         <input type="text" name="description"  placeholder="Тайлбар"  class="form-control"><br>
                         <button type="submit" class="btn btn-success">Төлбөр төлсөн</button>
@@ -1471,7 +1470,7 @@
 
                   </div>
                 </div>
-                <?
+                <?php
           }
 
           if ($action== "later_paid")
@@ -1526,11 +1525,11 @@
             <form action ="?action=later_transaction" method="POST">
               <h5>Утас</h5>
               <div class="form-group">
-                <input type="text" placeholder="12345678" class="form-control" name="tel"  value="<?=(isset($_POST["tel"]))?$_POST["tel"]:'';?>" required autofocus>
+                <input type="text" placeholder="12345678" class="form-control" name="tel"  value="<?php echo (isset($_POST["tel"]))?$_POST["tel"]:'';?>" required autofocus>
                 <button class="btn btn-success" type="submit">Хайх</button>
               </div>
             </form>
-            <?
+            <?php
                 
             if (isset($_POST["tel"]))
             {
@@ -1608,7 +1607,7 @@
 
 
         </div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>
@@ -1738,13 +1737,13 @@
             );
             var gt_weight = sum_weight+sum_weight_branch;
 
-            total_price = sum_weight * <?=cfg_paymentrate();?>;
-            total_price_branch = sum_weight_branch * <?=cfg_paymentrate_branch();?>;
+            total_price = sum_weight * <?php echo cfg_paymentrate();?>;
+            total_price_branch = sum_weight_branch * <?php echo cfg_paymentrate_branch();?>;
             // total_price_branch = 17*sum_weight_branch;
             // if (total_price_branch>0 && total_price_branch<17) total_price_branch =17;
             total_weight = sum_weight+sum_weight_branch;
             var grand_total = total_price+total_price_branch+total_advance;
-            var grand_total_tug = grand_total*<?=cfg_rate();?>;
+            var grand_total_tug = grand_total*<?php echo cfg_rate();?>;
 
             
             $('#total_weight').val(gt_weight.toFixed(2));

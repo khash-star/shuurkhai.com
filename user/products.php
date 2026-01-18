@@ -1,7 +1,7 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
 
 <link href="assets/css/apps/notes.css" rel="stylesheet" type="text/css" />
 <link href="assets/css/elements/breadcrumb.css" rel="stylesheet" type="text/css" />
@@ -10,7 +10,7 @@
 
 <body class="sidebar-noneoverflow">
     
-    <? require_once("views/navbar.php");?>
+    <?php require_once("views/navbar.php");?>
 
 
 
@@ -20,12 +20,12 @@
         <div class="cs-overlay"></div>
         <div class="search-overlay"></div>
 
-        <? require_once("views/sidebar.php");?>
+        <?php require_once("views/sidebar.php");?>
 
 
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
-                <? if (isset($_GET["action"])) $action=$_GET["action"]; else $action="display"; ?>
+                <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display"; ?>
 
                 <?
                 if ($action=="display")
@@ -73,7 +73,7 @@
 
 
                 </div>
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
         </div>
     </div>
 

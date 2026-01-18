@@ -1,7 +1,7 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/login_check.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("views/init.php");?>
 
 <link href="assets/css/apps/notes.css" rel="stylesheet" type="text/css" />
 <link href="assets/css/elements/breadcrumb.css" rel="stylesheet" type="text/css" />
@@ -10,7 +10,7 @@
 
 <body class="sidebar-noneoverflow">
     
-    <? require_once("views/navbar.php");?>
+    <?php require_once("views/navbar.php");?>
 
 
 
@@ -20,19 +20,19 @@
         <div class="cs-overlay"></div>
         <div class="search-overlay"></div>
 
-        <? require_once("views/sidebar.php");?>
+        <?php require_once("views/sidebar.php");?>
 
 
         <div id="content" class="main-content">
             <div class="layout-px-spacing">
-                <? if (isset($_GET["action"])) $action=$_GET["action"]; else $action="display"; ?>
+                <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display"; ?>
 
-                <?
+                <?php
                 if ($action=="display")
                 {
-                
-                    $user_id = $_SESSION["c_user_id"];
-                    $sql = "SELECT * FROM envoice WHERE customer_id=".$user_id." ORDER BY created_date DESC";
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                    $sql = "SELECT * FROM envoice WHERE customer_id=".$user_id_escaped." ORDER BY created_date DESC";
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -74,16 +74,20 @@
                                             <p class="group-section"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-tag"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7" y2="7"></line></svg> Ангилал</p>
 
                                             <ul class="nav nav-pills d-block group-list" id="pills-tab" role="tablist">
-                                                <?
-                                                $sql = "SELECT *FROM shops_category ORDER BY dd";
+                                                <?php
+                                                $sql = "SELECT * FROM shops_category ORDER BY dd";
                                                 $result = mysqli_query($conn,$sql);
-                                                while ($data = mysqli_fetch_array($result))
-                                                {
-                                                    ?>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link list-actions g-dot-primary" id="note-<?=$data["id"];?>"><?=$data["name"];?></a>
-                                                    </li>
-                                                    <?
+                                                if ($result) {
+                                                    while ($data = mysqli_fetch_array($result))
+                                                    {
+                                                        $cat_id = isset($data["id"]) ? intval($data["id"]) : 0;
+                                                        $cat_name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                                                        ?>
+                                                        <li class="nav-item">
+                                                            <a class="nav-link list-actions g-dot-primary" id="note-<?php echo htmlspecialchars($cat_id); ?>"><?php echo htmlspecialchars($cat_name); ?></a>
+                                                        </li>
+                                                        <?php
+                                                    }
                                                 }
                                                 ?>
                                                 <!--                                                 
@@ -103,48 +107,55 @@
 
 
                                 <div id="ct" class="note-container note-grid">
-                                    <?
-                                    $sql = "SELECT *FROM shops ORDER BY category,name";
+                                    <?php
+                                    $sql = "SELECT * FROM shops ORDER BY category,name";
                                     $result = mysqli_query($conn,$sql);
-                                    while($data = mysqli_fetch_array($result))
-                                    {
-                                        ?>
-                                        <div class="note-item all-notes note-<?=$data["category"];?>">
-                                            <div class="note-inner-content">
-                                                <div class="note-content">
-                                                    <p class="note-title" data-noteTitle="<?=$data["name"];?>"><?=$data["name"];?></p>
-                                                    <p class="meta-time"><a href="<?=$data["url"];?>"><?=$data["url"];?></a></p>
-                                                    <div class="note-description-content">
-                                                        <p class="note-description" data-noteDescription="Curabitur facilisis vel elit sed dapibus sodales purus rhoncus."><?=$data["description"];?></p>
+                                    if ($result) {
+                                        while($data = mysqli_fetch_array($result))
+                                        {
+                                            $shop_id = isset($data["id"]) ? intval($data["id"]) : 0;
+                                            $category = isset($data["category"]) ? htmlspecialchars($data["category"]) : '';
+                                            $name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
+                                            $url = isset($data["url"]) ? htmlspecialchars($data["url"]) : '';
+                                            $description = isset($data["description"]) ? htmlspecialchars($data["description"]) : '';
+                                            ?>
+                                            <div class="note-item all-notes note-<?php echo htmlspecialchars($category); ?>">
+                                                <div class="note-inner-content">
+                                                    <div class="note-content">
+                                                        <p class="note-title" data-noteTitle="<?php echo htmlspecialchars($name); ?>"><?php echo htmlspecialchars($name); ?></p>
+                                                        <p class="meta-time"><a href="<?php echo htmlspecialchars($url); ?>" target="_blank"><?php echo htmlspecialchars($url); ?></a></p>
+                                                        <div class="note-description-content">
+                                                            <p class="note-description" data-noteDescription="<?php echo htmlspecialchars($description); ?>"><?php echo htmlspecialchars($description); ?></p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="note-action">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star fav-note"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                                        <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2 delete-note"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> -->
+                                                    </div>
+                                                    <div class="note-footer">
+                                                        <!-- <div class="tags-selector btn-group">
+                                                            <a class="nav-link dropdown-toggle d-icon label-group" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
+                                                                <div class="tags">
+                                                                    <div class="g-dot-personal"></div>
+                                                                    <div class="g-dot-work"></div>
+                                                                    <div class="g-dot-social"></div>
+                                                                    <div class="g-dot-important"></div>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                                                </div>
+                                                            </a>
+                                                            <div class="dropdown-menu dropdown-menu-right d-icon-menu">
+                                                                <a class="note-personal label-group-item label-personal dropdown-item position-relative g-dot-personal" href="javascript:void(0);"> Personal</a>
+                                                                <a class="note-work label-group-item label-work dropdown-item position-relative g-dot-work" href="javascript:void(0);"> Work</a>
+                                                                <a class="note-social label-group-item label-social dropdown-item position-relative g-dot-social" href="javascript:void(0);"> Social</a>
+                                                                <a class="note-important label-group-item label-important dropdown-item position-relative g-dot-important" href="javascript:void(0);"> Important</a>
+                                                            </div>
+                                                        </div> -->
                                                     </div>
                                                 </div>
-                                                <div class="note-action">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star fav-note"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                                                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2 delete-note"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> -->
-                                                </div>
-                                                <div class="note-footer">
-                                                    <!-- <div class="tags-selector btn-group">
-                                                        <a class="nav-link dropdown-toggle d-icon label-group" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="true">
-                                                            <div class="tags">
-                                                                <div class="g-dot-personal"></div>
-                                                                <div class="g-dot-work"></div>
-                                                                <div class="g-dot-social"></div>
-                                                                <div class="g-dot-important"></div>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-                                                            </div>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-right d-icon-menu">
-                                                            <a class="note-personal label-group-item label-personal dropdown-item position-relative g-dot-personal" href="javascript:void(0);"> Personal</a>
-                                                            <a class="note-work label-group-item label-work dropdown-item position-relative g-dot-work" href="javascript:void(0);"> Work</a>
-                                                            <a class="note-social label-group-item label-social dropdown-item position-relative g-dot-social" href="javascript:void(0);"> Social</a>
-                                                            <a class="note-important label-group-item label-important dropdown-item position-relative g-dot-important" href="javascript:void(0);"> Important</a>
-                                                        </div>
-                                                    </div> -->
-                                                </div>
                                             </div>
-                                        </div>
 
-                                        <?
+                                            <?php
+                                        }
                                     }
                                     ?>
                                     
@@ -237,14 +248,14 @@
                     </div>
                 </div>
 
-                    <?
+                    <?php
                 }
                 ?>
 
 
 
                 </div>
-            <? require_once("views/footer.php");?>
+            <?php require_once("views/footer.php");?>
         </div>
     </div>
 

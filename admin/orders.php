@@ -1,17 +1,25 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
     require_once("views/init.php");
+    
+    // Initialize variables
+    $action_title = "Ачаа";
+    $search = isset($_GET["search"]) ? protect($_GET["search"]) : "";
+    $search_status = isset($_GET["status"]) ? protect($_GET["status"]) : "all";
+    $status_type = isset($_GET["status_type"]) ? protect($_GET["status_type"]) : "all";
+    $search_date = isset($_GET["search_date"]) ? protect($_GET["search_date"]) : "created";
+    $Stotal = 0;
 ?>
 
 <link rel="stylesheet" href="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.css">
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-    <?  require_once("views/navbar.php"); ?>
+    <?php require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -20,9 +28,10 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";?>
-          <?
+          <?php
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="dashboard";
+          ?>
+          <?php
           switch ($action)
           {
             case "display": $action_title="Бүх Ачаа";break;
@@ -47,21 +56,20 @@
             case "search": $action_title="Ачаа хайх";break;
             case "proxy_clear": $action_title="Proxy чөлөөлөх";break;
             case "error": $action_title="Мэдээлэл алдаатай";break;
-
-            
+            default: $action_title="Ачаа";break;
           }
           ?>
           <nav class="page-breadcrumb">
             <ol class="breadcrumb">
               <li class="breadcrumb-item"><a href="orders">Ачаа</a></li>
-              <li class="breadcrumb-item active" aria-current="page"><?=$action_title;?></li>
+              <li class="breadcrumb-item active" aria-current="page"><?php echo $action_title;?></li>
             </ol>
           </nav>
 
-          <?
+          <?php
           if ($action =="dashboard")
           {
-            $sql = "SELECT *FROM orders";
+            $sql = "SELECT * FROM orders";
             $result = mysqli_query($conn,$sql);
             $total = mysqli_num_rows($result);
             ?>
@@ -85,7 +93,7 @@
                         </div>
                         <div class="row">
                           <div class="col-6 col-md-12 col-xl-5">
-                            <h3 class="mb-2"><?=number_format($total);?></h3>
+                            <h3 class="mb-2"><?php echo number_format($total);?></h3>
                             <div class="d-flex align-items-baseline">
                               <p class="text-success">
                                 <span>+3.3%</span>
@@ -169,7 +177,7 @@
             </div> 
             
 
-            <?
+            <?php
             if (isset($_POST["search"])) {$search =$_POST["search"]; $search_term=str_replace(" ","%",$_POST["search"]);} else { $search=""; $search_term="";}
             if (isset($_POST["status"])) $search_status =$_POST["status"]; else $search_status="all";
             if (isset($_POST["status_type"])) $status_type =$_POST["status_type"]; else $status_type="all";
@@ -202,6 +210,7 @@
   
             $sql.=" AND is_online='0'";
   
+            $date_column = "created_date"; // default
             switch($search_date)
             {
               case "created": $date_column = "created_date";break;
@@ -210,8 +219,8 @@
               case "delivered": $date_column = "delivered_date";break;
               
             }
-            if ($start_date!="")  $sql.=" AND ".$date_column.">'$start_date'";
-            if ($finish_date!="")  $sql.=" AND ".$date_column."<'$finish_date'";
+            if ($start_date!="")  $sql.=" AND ".$date_column.">'".$start_date."'";
+            if ($finish_date!="")  $sql.=" AND ".$date_column."<'".$finish_date."'";
   
   
   
@@ -228,37 +237,37 @@
                   <div class="card-body">
                     <form action="?action=search" method="post">
                       <div class="input-group">
-                        <input type="text" class="form-control" name="search" placeholder="Хайх..." value="<?=$search;?>">
+                        <input type="text" class="form-control" name="search" placeholder="Хайх..." value="<?php echo $search;?>">
           
 
                         <select  name="status" class="form-control">
-                          <option value="all" <?=($search_status=="all")?'SELECTED':'';?> >Бүx идэвхитэй</option>
-                          <option value="new"  <?=($search_status=="new")?'SELECTED':'';?>>Нисэхэд бэлэн</option>
-                          <option value="order" <?=($search_status=="order")?'SELECTED':'';?>>Хүлээн авагчгүй</option>
-                          <option value="filled" <?=($search_status=="filled")?'SELECTED':'';?>>Х/авагч бөглөсөн</option>
-                          <option value="weight_missing" <?=($search_status=="weight_missing")?'SELECTED':'';?>>Жин нь бөглөгдөөгүй</option>				 
-                          <option value="onair" <?=($search_status=="onair")?'SELECTED':'';?>>Онгоцоор ирж байгаа</option>				 
-                          <option value="warehouse" <?=($search_status=="warehouse")?'SELECTED':'';?>>Агуулахад байгаа</option>				 
-                          <option value="delivered" <?=($search_status=="delivered")?'SELECTED':'';?>>Хүргэгдсэн</option>				 
-                          <option value="custom" <?=($search_status=="custom")?'SELECTED':'';?>>Гаальд саатсан</option>				 
-                          <option value="transport" <?=($search_status=="transport")?'SELECTED':'';?>>Хүргэлттэй</option>				 
-                          <option value="db" <?=($search_status=="db")?'SELECTED':'';?>>Баазаас</option>				 
+                          <option value="all" <?php echo ($search_status=="all")?'SELECTED':'';?> >Бүx идэвхитэй</option>
+                          <option value="new"  <?php echo ($search_status=="new")?'SELECTED':'';?>>Нисэхэд бэлэн</option>
+                          <option value="order" <?php echo ($search_status=="order")?'SELECTED':'';?>>Хүлээн авагчгүй</option>
+                          <option value="filled" <?php echo ($search_status=="filled")?'SELECTED':'';?>>Х/авагч бөглөсөн</option>
+                          <option value="weight_missing" <?php echo ($search_status=="weight_missing")?'SELECTED':'';?>>Жин нь бөглөгдөөгүй</option>				 
+                          <option value="onair" <?php echo ($search_status=="onair")?'SELECTED':'';?>>Онгоцоор ирж байгаа</option>				 
+                          <option value="warehouse" <?php echo ($search_status=="warehouse")?'SELECTED':'';?>>Агуулахад байгаа</option>				 
+                          <option value="delivered" <?php echo ($search_status=="delivered")?'SELECTED':'';?>>Хүргэгдсэн</option>				 
+                          <option value="custom" <?php echo ($search_status=="custom")?'SELECTED':'';?>>Гаальд саатсан</option>				 
+                          <option value="transport" <?php echo ($search_status=="transport")?'SELECTED':'';?>>Хүргэлттэй</option>				 
+                          <option value="db" <?php echo ($search_status=="db")?'SELECTED':'';?>>Баазаас</option>				 
                         </select>
 
                         <select  name="status_type" class="form-control">
-                          <option value="advance" <?=($status_type=="advance")?'SELECTED':'';?> >Төлбөртэйг</option>
-                          <option value="all"  <?=($status_type=="all")?'SELECTED':'';?>>Бүгдийг</option>
+                          <option value="advance" <?php echo ($status_type=="advance")?'SELECTED':'';?> >Төлбөртэйг</option>
+                          <option value="all"  <?php echo ($status_type=="all")?'SELECTED':'';?>>Бүгдийг</option>
                         </select>                      
 
                         <select  name="search_date" class="form-control">
-                          <option value="created" <?=($search_date=="created")?'SELECTED':'';?> >created</option>
-                          <option value="onair"  <?=($search_date=="onair")?'SELECTED':'';?>>onair</option>
-                          <option value="warehouse" <?=($search_date=="warehouse")?'SELECTED':'';?>>warehouse</option>
-                          <option value="delivered" <?=($search_date=="delivered")?'SELECTED':'';?>>delivered</option>
+                          <option value="created" <?php echo ($search_date=="created")?'SELECTED':'';?> >created</option>
+                          <option value="onair"  <?php echo ($search_date=="onair")?'SELECTED':'';?>>onair</option>
+                          <option value="warehouse" <?php echo ($search_date=="warehouse")?'SELECTED':'';?>>warehouse</option>
+                          <option value="delivered" <?php echo ($search_date=="delivered")?'SELECTED':'';?>>delivered</option>
                         </select>
                         
-                        <input type="date" class="form-control" name="start_date" value="<?=substr($start_date,0,10);?>">
-                        <input type="date" class="form-control" name="finish_date" value="<?=substr($finish_date,0,10);?>">
+                        <input type="date" class="form-control" name="start_date" value="<?php echo substr($start_date,0,10);?>">
+                        <input type="date" class="form-control" name="finish_date" value="<?php echo substr($finish_date,0,10);?>">
                       
                         <button type="submit" class="btn btn-primary mr-2">Хайх</button>
                       </div>
@@ -291,7 +300,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <?
+                            <?php
                             while ($data = mysqli_fetch_array($result))
                             {  
                               $created_date=$data["created_date"];
@@ -368,7 +377,7 @@
                           
                           </tbody>
                           <tfoot>
-                            <tr><td colspan='7'>Нийт</td><td><?=$total_weight;?></td><td><?=$total_weight*cfg_paymentrate();?>$<br><b><?=$total_price;?>$</b></td><td></td></tr>
+                            <tr><td colspan='7'>Нийт</td><td><?php echo $total_weight;?></td><td><?php echo $total_weight*cfg_paymentrate();?>$<br><b><?php echo $total_price;?>$</b></td><td></td></tr>
                           </tfoot>
                         </table>
                       </div>
@@ -376,11 +385,11 @@
                   </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action=="search")
           {
             if (isset($_POST["search"])) {$search =$_POST["search"]; $search_term=str_replace(" ","%",$_POST["search"]);} else { $search=""; $search_term="";}
@@ -415,6 +424,7 @@
   
             $sql.=" AND is_online='0'";
   
+            $date_column = "created_date"; // default
             switch($search_date)
             {
               case "created": $date_column = "created_date";break;
@@ -423,8 +433,8 @@
               case "delivered": $date_column = "delivered_date";break;
               
             }
-            if ($start_date!="")  $sql.=" AND ".$date_column.">'$start_date'";
-            if ($finish_date!="")  $sql.=" AND ".$date_column."<'$finish_date'";
+            if ($start_date!="")  $sql.=" AND ".$date_column.">'".$start_date."'";
+            if ($finish_date!="")  $sql.=" AND ".$date_column."<'".$finish_date."'";
   
   
   
@@ -440,37 +450,37 @@
                   <div class="card-body">
                     <form action="?action=active" method="post">
                       <div class="input-group">
-                        <input type="text" class="form-control" name="search" placeholder="Хайх..." value="<?=$search;?>">
+                        <input type="text" class="form-control" name="search" placeholder="Хайх..." value="<?php echo $search;?>">
           
 
                         <select  name="status" class="form-control">
-                          <option value="all" <?=($search_status=="all")?'SELECTED':'';?> >Бүx идэвхитэй</option>
-                          <option value="new"  <?=($search_status=="new")?'SELECTED':'';?>>Нисэхэд бэлэн</option>
-                          <option value="order" <?=($search_status=="order")?'SELECTED':'';?>>Хүлээн авагчгүй</option>
-                          <option value="filled" <?=($search_status=="filled")?'SELECTED':'';?>>Х/авагч бөглөсөн</option>
-                          <option value="weight_missing" <?=($search_status=="weight_missing")?'SELECTED':'';?>>Жин нь бөглөгдөөгүй</option>				 
-                          <option value="onair" <?=($search_status=="onair")?'SELECTED':'';?>>Онгоцоор ирж байгаа</option>				 
-                          <option value="warehouse" <?=($search_status=="warehouse")?'SELECTED':'';?>>Агуулахад байгаа</option>				 
-                          <option value="delivered" <?=($search_status=="delivered")?'SELECTED':'';?>>Хүргэгдсэн</option>				 
-                          <option value="custom" <?=($search_status=="custom")?'SELECTED':'';?>>Гаальд саатсан</option>				 
-                          <option value="transport" <?=($search_status=="transport")?'SELECTED':'';?>>Хүргэлттэй</option>				 
-                          <option value="db" <?=($search_status=="db")?'SELECTED':'';?>>Баазаас</option>				 
+                          <option value="all" <?php echo ($search_status=="all")?'SELECTED':'';?> >Бүx идэвхитэй</option>
+                          <option value="new"  <?php echo ($search_status=="new")?'SELECTED':'';?>>Нисэхэд бэлэн</option>
+                          <option value="order" <?php echo ($search_status=="order")?'SELECTED':'';?>>Хүлээн авагчгүй</option>
+                          <option value="filled" <?php echo ($search_status=="filled")?'SELECTED':'';?>>Х/авагч бөглөсөн</option>
+                          <option value="weight_missing" <?php echo ($search_status=="weight_missing")?'SELECTED':'';?>>Жин нь бөглөгдөөгүй</option>				 
+                          <option value="onair" <?php echo ($search_status=="onair")?'SELECTED':'';?>>Онгоцоор ирж байгаа</option>				 
+                          <option value="warehouse" <?php echo ($search_status=="warehouse")?'SELECTED':'';?>>Агуулахад байгаа</option>				 
+                          <option value="delivered" <?php echo ($search_status=="delivered")?'SELECTED':'';?>>Хүргэгдсэн</option>				 
+                          <option value="custom" <?php echo ($search_status=="custom")?'SELECTED':'';?>>Гаальд саатсан</option>				 
+                          <option value="transport" <?php echo ($search_status=="transport")?'SELECTED':'';?>>Хүргэлттэй</option>				 
+                          <option value="db" <?php echo ($search_status=="db")?'SELECTED':'';?>>Баазаас</option>				 
                         </select>
 
                         <select  name="status_type" class="form-control">
-                          <option value="advance" <?=($status_type=="advance")?'SELECTED':'';?> >Төлбөртэйг</option>
-                          <option value="all"  <?=($status_type=="all")?'SELECTED':'';?>>Бүгдийг</option>
+                          <option value="advance" <?php echo ($status_type=="advance")?'SELECTED':'';?> >Төлбөртэйг</option>
+                          <option value="all"  <?php echo ($status_type=="all")?'SELECTED':'';?>>Бүгдийг</option>
                         </select>                      
 
                         <select  name="search_date" class="form-control">
-                          <option value="created" <?=($search_date=="created")?'SELECTED':'';?> >created</option>
-                          <option value="onair"  <?=($search_date=="onair")?'SELECTED':'';?>>onair</option>
-                          <option value="warehouse" <?=($search_date=="warehouse")?'SELECTED':'';?>>warehouse</option>
-                          <option value="delivered" <?=($search_date=="delivered")?'SELECTED':'';?>>delivered</option>
+                          <option value="created" <?php echo ($search_date=="created")?'SELECTED':'';?> >created</option>
+                          <option value="onair"  <?php echo ($search_date=="onair")?'SELECTED':'';?>>onair</option>
+                          <option value="warehouse" <?php echo ($search_date=="warehouse")?'SELECTED':'';?>>warehouse</option>
+                          <option value="delivered" <?php echo ($search_date=="delivered")?'SELECTED':'';?>>delivered</option>
                         </select>
                         
-                        <input type="date" class="form-control" name="start_date" value="<?=substr($start_date,0,10);?>">
-                        <input type="date" class="form-control" name="finish_date" value="<?=substr($finish_date,0,10);?>">
+                        <input type="date" class="form-control" name="start_date" value="<?php echo substr($start_date,0,10);?>">
+                        <input type="date" class="form-control" name="finish_date" value="<?php echo substr($finish_date,0,10);?>">
                       
                         <button type="submit" class="btn btn-primary mr-2">Хайх</button>
                       </div>
@@ -503,7 +513,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <?
+                            <?php
                             while ($data = mysqli_fetch_array($result))
                             {  
                               $created_date=$data["created_date"];
@@ -580,7 +590,7 @@
                           
                           </tbody>
                           <tfoot>
-                            <tr><td colspan='7'>Нийт</td><td><?=$total_weight;?></td><td><?=$total_weight*cfg_paymentrate();?>$<br><b><?=$total_price;?>$</b></td><td></td></tr>
+                            <tr><td colspan='7'>Нийт</td><td><?php echo $total_weight;?></td><td><?php echo $total_weight*cfg_paymentrate();?>$<br><b><?php echo $total_price;?>$</b></td><td></td></tr>
                           </tfoot>
                         </table>
                       </div>
@@ -588,11 +598,11 @@
                   </div>
               </div>
             </div>
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action=="detail")
           {
             
@@ -774,10 +784,10 @@
 
                 ?>
                 <div class="btn-group mt-3">
-                  <a href="?action=edit&id=<?=$order_id;?>" class="btn btn-success">Засах</a>
-                  <a href="?action=delete&id=<?=$order_id;?>" class="btn btn-danger">Устгах</a>
+                  <a href="?action=edit&id=<?php echo $order_id;?>" class="btn btn-success">Засах</a>
+                  <a href="?action=delete&id=<?php echo $order_id;?>" class="btn btn-danger">Устгах</a>
                 </div>
-                <?
+                <?php
                 }
                 else echo "Илгээмж олдсонгүй<br>";
 
@@ -785,7 +795,7 @@
           }
           ?>
 
-          <?
+          <?php
           if ($action=="delete")
           {
             
@@ -823,28 +833,28 @@
                     {
                       ?>
                       <div class="alert alert-success">Захиалгыг амжилттай устгалаа.</div>
-                      <?
+                      <?php
                       
                     } 
                     else 
                     {
                       ?>
-                      <div class="alert alert-danger">Алдаа:<?=mysqli_error($conn);?></div>
-                      <?
+                      <div class="alert alert-danger">Алдаа:<?php echo mysqli_error($conn);?></div>
+                      <?php
                     }                    
                   }
                   else 
                   {
                     ?>
                     <div class="alert alert-danger">Алдаа: зөвхөн weight_missing төлөвтэй ачааг устгах боломжтой</div>
-                    <?
+                    <?php
                   }
                 }
                 else 
                 {
                   ?>
                   <div class="alert alert-danger">Алдаа: Илгээмж олдсонгүй</div>
-                  <?
+                  <?php
                 }
 
 
