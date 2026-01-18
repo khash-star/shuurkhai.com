@@ -1,15 +1,15 @@
-DirectoryIndex index.php
+DirectoryIndex shuurkhai-home/home-test.php index.php
 RewriteEngine On
 RewriteBase /shuurkhai/
+
+# ---- ROUTES ----
+# Root (/) нь шинэ нүүр хуудсанд заах
+RewriteRule ^$ shuurkhai-home/home-test.php [L]
 
 # ✅ Хэрвээ файл эсвэл folder байвал rewrite хийхгүй
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
-
-# ---- ROUTES ----
-# Root (/) нь шинэ нүүр хуудсанд заах
-RewriteRule ^$ shuurkhai-home/home-test.php [L]
 RewriteRule ^home/?$ index.php
 RewriteRule ^index/?$ index.php
 RewriteRule ^contact/?$ contact.php

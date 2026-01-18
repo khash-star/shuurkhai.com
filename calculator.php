@@ -132,6 +132,11 @@ if (function_exists('settings')) {
 // error_log("Calculator: Using air cargo price: " . $airCargoPricePerKg);
 ?>
 <div class="calculator-container">
+    <div class="mb-3">
+        <a href="/shuurkhai/" class="btn btn-secondary btn-sm">
+            <i class="las la-arrow-left"></i> Нүүр рүү буцах
+        </a>
+    </div>
     <h2 class="text-center mb-4" style="color: #1e3a5f;">Үнийн тооцоолуур</h2>
     <p class="text-center text-muted mb-4">Карго төрөл болон жингийн мэдээллийг оруулаад үнээ тооцоол.</p>
     <input type="hidden" id="airCargoPricePerKg" value="<?php echo htmlspecialchars($airCargoPricePerKg); ?>">
