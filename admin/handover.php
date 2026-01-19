@@ -204,11 +204,11 @@ require_once("views/init.php");
                                 if (total_advance_from_table > 0 || total_admin_from_table > 0 || total_weight_from_table > 0) {
                                     var rate = <?php echo cfg_rate(); ?>;
                                     
-                                    $('#total_weight_inmodal').val(total_weight_from_table.toFixed(2));
-                                    $('#total_advance_inmodal').val(total_advance_from_table.toFixed(2));
-                                    $('#total_admin_inmodal').val(total_admin_from_table.toFixed(2));
-                                    $('#grand_total_inmodal').val(grand_total_from_table.toFixed(2));
-                                    $('#grand_total_inmodal_tug').val((grand_total_from_table * rate).toLocaleString() + '₮');
+                                    $('#total_weight_inmodal').val(parseFloat(total_weight_from_table).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#total_advance_inmodal').val(parseFloat(total_advance_from_table).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#total_admin_inmodal').val(parseFloat(total_admin_from_table).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#grand_total_inmodal').val(parseFloat(grand_total_from_table).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#grand_total_inmodal_tug').val(parseFloat(grand_total_from_table * rate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '₮');
                                     
                                     console.log('updateModalFields - Using table values, set total_advance_inmodal to:', total_advance_from_table.toFixed(2));
                                 } else {
@@ -249,11 +249,11 @@ require_once("views/init.php");
                                     var grand_total = total_price + total_advance + total_admin_value;
                                     var rate = <?php echo cfg_rate(); ?>;
 
-                                    $('#total_weight_inmodal').val(sum_weight.toFixed(2));
-                                    $('#total_advance_inmodal').val(total_advance.toFixed(2));
-                                    $('#total_admin_inmodal').val(total_admin_value.toFixed(2));
-                                    $('#grand_total_inmodal').val(grand_total.toFixed(2));
-                                    $('#grand_total_inmodal_tug').val((grand_total * rate).toLocaleString() + '₮');
+                                    $('#total_weight_inmodal').val(sum_weight.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#total_advance_inmodal').val(total_advance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#total_admin_inmodal').val(total_admin_value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#grand_total_inmodal').val(grand_total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+                                    $('#grand_total_inmodal_tug').val((grand_total * rate).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '₮');
                                     
                                     console.log('updateModalFields - Set total_advance_inmodal to:', total_advance.toFixed(2));
                                 }
@@ -359,7 +359,7 @@ require_once("views/init.php");
                                                                         if($status=="warehouse"&&$extra!="") 
                                                                         $temp_status=$status." ".$extra."-р тавиур";else $temp_status=$status;
                                                                         if ($Package_advance==1&&$is_online==0)
-                                                                        {echo "<tr class='red' title='Үлдэгдэлтэй илгээмж:".$Package_advance_value."$' alt='order'>"; $tr=1;}
+                                                                        {echo "<tr class='red' title='Үлдэгдэлтэй илгээмж:".number_format($Package_advance_value, 2, '.', ',')."$' alt='order'>"; $tr=1;}
                                                                         
                                                                         if ($Package_advance==0&&$is_online==0&&$tr==0)
                                                                         {echo "<tr class='green' title='Илгээмжийг шууд олго төлбөргүй' alt='order'>"; $tr=1;}
@@ -388,11 +388,11 @@ require_once("views/init.php");
                                                                             <td><?php echo $weight;?></td>                                                                    
                                                                             
                                                                             <td>
-                                                                            <?php echo ($is_online==0)?$Package_advance_value:'';?>
+                                                                            <?php echo ($is_online==0)?number_format($Package_advance_value, 2, '.', ','):'';?>
                                                                             </td>
                                                                             
                                                                             <td>
-                                                                            <?php echo ($admin_value!=0)?$admin_value:'';?>
+                                                                            <?php echo ($admin_value!=0)?number_format($admin_value, 2, '.', ','):'';?>
                                                                             </td>
                                                                 
                                                                             <td><a href="orders?action=detail&id=<?php echo $data["order_id"];?>"><span class="glyphicon glyphicon-edit"></span></a></td>
@@ -454,7 +454,7 @@ require_once("views/init.php");
                                                                         if($status=="warehouse"&&$extra!="") 
                                                                         $temp_status=$status." ".$extra."-р тавиур";else $temp_status=$status;
                                                                         if ($Package_advance==1&&$is_online==0)
-                                                                        {echo "<tr class='red' title='Үлдэгдэлтэй илгээмж:".$Package_advance_value."$' alt='order'>"; $tr=1;}
+                                                                        {echo "<tr class='red' title='Үлдэгдэлтэй илгээмж:".number_format($Package_advance_value, 2, '.', ',')."$' alt='order'>"; $tr=1;}
                                                                         
                                                                         if ($Package_advance==0&&$is_online==0&&$tr==0)
                                                                         {echo "<tr class='green' title='Илгээмжийг шууд олго төлбөргүй' alt='order'>"; $tr=1;}
@@ -480,11 +480,11 @@ require_once("views/init.php");
                                                                         //	echo "<td>".$weight*cfg_paymentrate()."</td>"; 
                                                                             
                                                                             echo "<td>";
-                                                                            if ($is_online==0) echo $Package_advance_value;
+                                                                            if ($is_online==0) echo number_format($Package_advance_value, 2, '.', ',');
                                                                             echo "</td>"; 
                                                                             
                                                                             echo "<td>";
-                                                                            if ($admin_value!=0) echo $admin_value;
+                                                                            if ($admin_value!=0) echo number_format($admin_value, 2, '.', ',');
                                                                             echo "</td>"; 
                                                                 
                                                                             echo "<td><a href='orders?action=detail&id=".$order_id."'><span class='glyphicon glyphicon-edit'></span></a></td>";
@@ -520,7 +520,7 @@ require_once("views/init.php");
                                                 echo "<tr class='total'><td colspan='5'>Нийт төлбөр зохих ($)</td><td colspan='5'>";
                                                 echo "<input type='text' id='grand_total' value='".number_format($grand_total+$total_admin_value,2)."' readonly='readonly' name='grand_total'></td></tr>";
                                                 echo "<tr class='total'><td colspan='5'>Нийт төлбөр зохих (₮)</td><td colspan='5'>";
-                                                echo "<input type='text' id='grand_total_tug' value='".($grand_total+$total_admin_value)*cfg_rate()."₮' readonly='readonly' name='grand_total_tug'></td></tr>";
+                                                echo "<input type='text' id='grand_total_tug' value='".number_format(($grand_total+$total_admin_value)*cfg_rate(), 2, '.', ',')."₮' readonly='readonly' name='grand_total_tug'></td></tr>";
                                             }
                                         
                                         
@@ -582,11 +582,11 @@ require_once("views/init.php");
                                                             echo "<td>".$weight."</td>"; 
                                                             
                                                             echo "<td>";
-                                                            if ($is_online==0) echo $Package_advance_value;
+                                                            if ($is_online==0) echo number_format($Package_advance_value, 2, '.', ',');
                                                             echo "</td>"; 
                                                             
                                                             echo "<td>";
-                                                            if ($admin_value!=0) echo $admin_value;
+                                                            if ($admin_value!=0) echo number_format($admin_value, 2, '.', ',');
                                                             echo "</td>"; 
 
                                                             echo "<td><a href='orders?action=detail&id=".$data["order_id"]."'><span class='glyphicon glyphicon-edit'></span></a></td>";
@@ -617,7 +617,7 @@ require_once("views/init.php");
                                                             echo "<tr class='total'><td colspan='5'>Нийт төлбөр зохих ($)</td><td colspan='6'>";
                                                             echo "<input type='text' id='grand_total' value='".number_format($grand_total+$total_admin_value,2)."' readonly='readonly' name='grand_total'></td></tr>";
                                                             echo "<tr class='total'><td colspan='5'>Нийт төлбөр зохих (₮)</td><td colspan='6'>";
-                                                            echo "<input type='text' id='grand_total_tug' value='".($grand_total+$total_admin_value)*cfg_rate()."₮' readonly='readonly' name='grand_total_tug'></td></tr>";
+                                                            echo "<input type='text' id='grand_total_tug' value='".number_format(($grand_total+$total_admin_value)*cfg_rate(), 2, '.', ',')."₮' readonly='readonly' name='grand_total_tug'></td></tr>";
 
                                                 }
 
@@ -650,27 +650,27 @@ require_once("views/init.php");
                             <div class="modal-body">
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Тооцоо /КГ/ </label>
-                                    <input type="text" class="form-control" id="total_weight_inmodal" readonly="readonly" value="<?php echo $total_weight;?>">
+                                    <input type="text" class="form-control" id="total_weight_inmodal" readonly="readonly" value="<?php echo number_format($total_weight, 2, '.', ',');?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Тооцоо /USD/ </label>
-                                    <input type="text" class="form-control" id="grand_total_inmodal" readonly="readonly"  value="<?php echo $grand_total;?>">
+                                    <input type="text" class="form-control" id="grand_total_inmodal" readonly="readonly"  value="<?php echo number_format($grand_total, 2, '.', ',');?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Дараа тооцоо /USD/ (Ачааны үлдэгдэл)</label>
-                                    <input type="text" class="form-control" id="total_advance_inmodal" readonly="readonly"  value="<?php echo $total_advance;?>">
+                                    <input type="text" class="form-control" id="total_advance_inmodal" readonly="readonly"  value="<?php echo number_format($total_advance, 2, '.', ',');?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Дараа тооцоо /USD/ (Хашбал)</label>
-                                    <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?php echo $total_admin_value;?>">
+                                    <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?php echo number_format($total_admin_value, 2, '.', ',');?>">
                                 </div>
                                 
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Тооцоо /Төг/ </label>
-                                    <input type="text" class="form-control" id="grand_total_inmodal_tug" readonly="readonly"  value="<?php echo ($grand_total+$total_admin_value)*cfg_rate();?>">
+                                    <input type="text" class="form-control" id="grand_total_inmodal_tug" readonly="readonly"  value="<?php echo number_format(($grand_total+$total_admin_value)*cfg_rate(), 2, '.', ',');?>₮">
                                 </div>
                                 
                                 <div class="form-group">
