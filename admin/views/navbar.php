@@ -71,6 +71,50 @@
 		<i data-feather="menu"></i>
 	</a>
 	<div class="navbar-content">
+		<style>
+			.olglot-btn {
+				display: inline-block;
+				padding: 10px 24px;
+				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+				color: white !important;
+				text-decoration: none;
+				border-radius: 8px;
+				font-weight: 700;
+				font-size: 14px;
+				box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+				transition: all 0.3s ease;
+				text-transform: uppercase;
+				letter-spacing: 1.5px;
+				border: 2px solid transparent;
+				position: absolute;
+				left: 20px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+			.olglot-btn:hover {
+				transform: translateY(-50%) translateY(-2px);
+				box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+				background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+				border-color: rgba(255, 255, 255, 0.3);
+			}
+			.olglot-btn:active {
+				transform: translateY(-50%) translateY(0);
+				box-shadow: 0 3px 12px rgba(102, 126, 234, 0.3);
+			}
+			.olglot-btn i {
+				width: 16px;
+				height: 16px;
+				vertical-align: middle;
+				margin-right: 8px;
+			}
+			.navbar-content {
+				position: relative;
+			}
+		</style>
+		<a href="deliver?action=initiate" class="olglot-btn">
+			<i data-feather="package"></i>
+			ОЛГОЛТ
+		</a>
 		<?php if ($current_page=="products") require_once("views/product_nav.php");?> 
 		<?php if (in_array($current_page, ["news","news_category"])) require_once("views/news_nav.php");?> 
 		<?php if ($current_page=="customers") require_once("views/customer_nav.php");?> 

@@ -652,7 +652,7 @@
                             
                             <div class="form-group">
                               <label for="recipient-name" class="control-label">Дараа тооцоо /USD/ </label>
-                              <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?php echo $total_admin_value;?>">
+                              <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?php echo $total_advance;?>">
                             </div>
                             
                             
@@ -783,17 +783,17 @@
                   //DELIVER costumer
 
                     
-                    $contacts = $_POST["contacts"];
-                    $name = $_POST["name"];
-                    $surname = $_POST["surname"];
-                    $rd = $_POST["rd"];
-                    $email = $_POST["email"];
-                    $address = $_POST["address"];
+                    $contacts = isset($_POST["contacts"]) ? $_POST["contacts"] : "";
+                    $name = isset($_POST["name"]) ? $_POST["name"] : "";
+                    $surname = isset($_POST["surname"]) ? $_POST["surname"] : "";
+                    $rd = isset($_POST["rd"]) ? $_POST["rd"] : "";
+                    $email = isset($_POST["email"]) ? $_POST["email"] : "";
+                    $address = isset($_POST["address"]) ? $_POST["address"] : "";
 
-                    $city=$_POST["city"];
-                    $district=$_POST["district"];
-                    $khoroo=$_POST["khoroo"];
-                    $build=$_POST["build"];
+                    $city = isset($_POST["city"]) ? $_POST["city"] : "";
+                    $district = isset($_POST["district"]) ? $_POST["district"] : "";
+                    $khoroo = isset($_POST["khoroo"]) ? $_POST["khoroo"] : "";
+                    $build = isset($_POST["build"]) ? $_POST["build"] : "";
 
                     
                     
@@ -1757,9 +1757,30 @@
             
             $('#total_weight_inmodal').val(total_weight.toFixed(2));
             $('#grand_total_inmodal').val(grand_total.toFixed(2));
-            $('#total_admin_inmodal').val(total_admin_value.toFixed(2));
+            
+            // Хүснэгтийн хөл хэсгийн "Төлбөртэй илгээмж ($)" талбарын утгыг модал цонхны "Дараа тооцоо /USD/" талбарт оруулах
+            var total_advance_from_table = parseFloat($('#total_advance').val()) || 0;
+            $('#total_admin_inmodal').val(total_advance_from_table.toFixed(2));
+            
             $('#grand_total_inmodal_tug').val(grand_total_tug.toFixed(2));
         })
+        
+        // Модал цонх нээгдэхэд хүснэгтийн талбаруудын утгыг модал цонхны талбарт оруулах
+        $(document).on('shown.bs.modal', '#exampleModal', function (event) {
+            var total_advance_from_table = parseFloat($('#total_advance').val()) || 0;
+            var total_admin_from_table = parseFloat($('#total_admin').val()) || 0;
+            var total_weight_from_table = parseFloat($('#total_weight').val()) || 0;
+            var grand_total_from_table = parseFloat($('#grand_total').val()) || 0;
+            
+            if (total_advance_from_table > 0 || total_admin_from_table > 0 || total_weight_from_table > 0) {
+                var rate = <?php echo cfg_rate(); ?>;
+                
+                $('#total_weight_inmodal').val(total_weight_from_table.toFixed(2));
+                $('#total_admin_inmodal').val(total_advance_from_table.toFixed(2));
+                $('#grand_total_inmodal').val(grand_total_from_table.toFixed(2));
+                $('#grand_total_inmodal_tug').val((grand_total_from_table * rate).toFixed(2) + '₮');
+            }
+        });
 
       $('input[type="radio"]').change(function(){
         if ($('input[type="radio"]:checked').val()=="mix")

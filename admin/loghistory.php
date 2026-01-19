@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -7,10 +7,10 @@
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-    <?  require_once("views/navbar.php"); ?>
+    <?php require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-      <?  require_once("views/sidebar.php"); ?>
+      <?php require_once("views/sidebar.php"); ?>
 			
 
 			<div class="page-content">
@@ -19,9 +19,9 @@
         
           <!--label class="section-title">Basic Responsive DataTable</label>
           <p class="mg-b-20 mg-sm-b-40">Searching, ordering and paging goodness will be immediately added to the table, as shown in this example.</p-->
-          <?
-          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="history";?>
-          <?
+<?php 
+          if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="history";
+          $action_title = "Тодорхойгүй"; // Initialize default value
           switch ($action)
           {
             case "history": $action_title="Түүх";break;           
@@ -41,7 +41,7 @@
             <!-- <a href="?action=clearlog" class="btn btn-warning mb-3">Түүх цэвэрлэх</a> -->
           </div>
 
-          <?
+          <?php
           if ($action == "history")
           {
             if (isset($_POST["from_date"])) $from_date=$_POST["from_date"]; else $from_date= date('Y-m-d', strtotime(date('Y-m-d') . ' -1 days'));
@@ -58,7 +58,7 @@
             <div class="panel panel-primary">
               <div class="panel-heading">Түүх</div>
                   <div class="panel-body">
-                <? 
+                <?php 
                 $sql = "SELECT * FROM logs WHERE timestamp >='$from_date 00:00:00' AND  timestamp <='$to_date 23:59:59' ORDER BY id DESC";
                 $result = mysqli_query($conn,$sql);                
                 
@@ -102,16 +102,18 @@
                         } 
                         echo "</table>";
                     }
-                else alert_div("Энэ хугацаанд түүх бичигдээгүй байна");
+                else {
+                    alert_div("Энэ хугацаанд түүх бичигдээгүй байна");
+                }
                 ?>
 
                 </div>
                 </div> <!--wrapper-->
-            <?
+            <?php
           }
           ?>
 
-          <?
+          <?php
           if ($action == "clearlog")
           {
                                 
@@ -119,7 +121,7 @@
           ?>
 
         </div>
-      <? require_once("views/footer.php");?>
+      <?php require_once("views/footer.php");?>
 		
 		</div>
 	</div>

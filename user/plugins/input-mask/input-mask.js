@@ -118,38 +118,42 @@ $(document).ready(function(){
 
     // isComplete
 
-    $("#isComplete").inputmask({mask:"999.999.999.99"})
-    $("#isComplete").inputmask("setvalue", "117.247.169.64");
-    $('#isComplete').on('focus keyup', function(event) {
-        event.preventDefault();
-        if($(this).inputmask("isComplete")){
-            $('#isCompleteHelp').css('display', 'block');
-        }
-    });
-    $('#isComplete').on('keyup', function(event) {
-        event.preventDefault();
-        if(!$(this).inputmask("isComplete")){
-            $('#isCompleteHelp').css('display', 'none');
-        }
-    });
+    if ($("#isComplete").length > 0) {
+        $("#isComplete").inputmask({mask:"999.999.999.99"});
+        $("#isComplete").inputmask("setvalue", "117.247.169.64");
+        $('#isComplete').on('focus keyup', function(event) {
+            event.preventDefault();
+            if($(this).inputmask("isComplete")){
+                $('#isCompleteHelp').css('display', 'block');
+            }
+        });
+        $('#isComplete').on('keyup', function(event) {
+            event.preventDefault();
+            if(!$(this).inputmask("isComplete")){
+                $('#isCompleteHelp').css('display', 'none');
+            }
+        });
+    }
 
 
     // Set Default Value
 
-    $("#setVal").inputmask({
-        mask:"*{1,20}[.*{1,20}][.*{1,20}][.*{1,20}]@*{1,20}[.*{2,6}][.*{1,2}]",
-        greedy:!1,onBeforePaste:function(m,a){return(m=m.toLowerCase()).replace("mailto:","")},
-        definitions:{"*":
-            {
-                validator:"[0-9A-Za-z!#$%&'*+/=?^_`{|}~-]",
-                cardinality:1,
-                casing:"lower"
+    if ($("#setVal").length > 0) {
+        $("#setVal").inputmask({
+            mask:"*{1,20}[.*{1,20}][.*{1,20}][.*{1,20}]@*{1,20}[.*{2,6}][.*{1,2}]",
+            greedy:!1,onBeforePaste:function(m,a){return(m=m.toLowerCase()).replace("mailto:","")},
+            definitions:{"*":
+                {
+                    validator:"[0-9A-Za-z!#$%&'*+/=?^_`{|}~-]",
+                    cardinality:1,
+                    casing:"lower"
+                }
             }
-        }
-    })
-    $('#setVal').on('focus', function(event) {
-        $(this).inputmask("setvalue", 'test@mail.com');
-    });
+        });
+        $('#setVal').on('focus', function(event) {
+            $(this).inputmask("setvalue", 'test@mail.com');
+        });
+    }
 
 
 });

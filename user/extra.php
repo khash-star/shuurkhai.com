@@ -33,6 +33,17 @@
                 <?php
                 if ($action=="contact")
                 {
+                    // Show success message if redirected after successful submission
+                    if (isset($_SESSION['feedback_success']) && $_SESSION['feedback_success']) {
+                        unset($_SESSION['feedback_success']);
+                        ?>
+                        <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                            Амжилттай илгээлээ
+                        </div>
+                        <?php
+                    }
                     
                     if (isset($_POST["content"]) && !empty(trim($_POST["content"])))
                     {
@@ -85,13 +96,10 @@
                             
                             if (mysqli_query($conn, $sql))
                             {
-                                ?>
-                                <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                    Амжилттай илгээлээ
-                                </div>
-                                <?php
+                                // POST-Redirect-GET pattern: redirect after successful insert to prevent duplicate submissions on refresh
+                                $_SESSION['feedback_success'] = true;
+                                header("Location: extra?action=contact");
+                                exit;
                             }
                             else 
                             {
@@ -168,11 +176,11 @@
                         $user_tel_escaped = mysqli_real_escape_string($conn, $user_tel);
                         
                         if ($role_exists) {
-                            // Get all messages (user messages and admin replies) for this contact
-                            $messages_sql = "SELECT * FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 ORDER BY timestamp ASC";
+                            // Get all messages (user messages and admin replies) for this contact - ORDER BY ensures correct order
+                            $messages_sql = "SELECT * FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 ORDER BY id ASC, timestamp ASC";
                         } else {
                             // Fallback: get messages by contact only (role column doesn't exist)
-                            $messages_sql = "SELECT * FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 ORDER BY timestamp ASC";
+                            $messages_sql = "SELECT * FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 ORDER BY id ASC, timestamp ASC";
                         }
                         
                         $messages_result = mysqli_query($conn, $messages_sql);
@@ -186,11 +194,36 @@
                                     <div class="card-body">
                                         <div class="chat-messages" style="max-height: 600px; overflow-y: auto; padding: 20px; background: #fafafa; border-radius: 8px;">
                                             <?php
+                                            $displayed_ids = array(); // Track displayed message IDs to prevent duplicates
+                                            $displayed_signatures = array(); // Track by content+timestamp to catch exact duplicates
                                             if ($messages_result && mysqli_num_rows($messages_result) > 0) {
-                                                while ($msg_data = mysqli_fetch_array($messages_result)) {
-                                                    if (!$msg_data) continue;
+                                                while ($msg_data = mysqli_fetch_assoc($messages_result)) {
+                                                    if (!$msg_data || !is_array($msg_data)) continue;
                                                     
                                                     $msg_id = isset($msg_data["id"]) ? intval($msg_data["id"]) : 0;
+                                                    
+                                                    // Skip if message ID is invalid or already displayed
+                                                    if ($msg_id <= 0) {
+                                                        continue; // Skip messages without valid ID
+                                                    }
+                                                    
+                                                    // Check by ID first
+                                                    if (in_array($msg_id, $displayed_ids)) {
+                                                        continue; // Skip already displayed messages
+                                                    }
+                                                    
+                                                    // Also check by content+timestamp signature to catch exact duplicates with different IDs
+                                                    $msg_content = isset($msg_data["content"]) ? trim($msg_data["content"]) : '';
+                                                    $msg_timestamp = isset($msg_data["timestamp"]) ? $msg_data["timestamp"] : '';
+                                                    $msg_signature = md5($msg_content . '|' . $msg_timestamp . '|' . $msg_id);
+                                                    
+                                                    if (in_array($msg_signature, $displayed_signatures)) {
+                                                        continue; // Skip exact duplicate messages
+                                                    }
+                                                    
+                                                    // Add this ID and signature to the displayed lists BEFORE processing
+                                                    $displayed_ids[] = $msg_id;
+                                                    $displayed_signatures[] = $msg_signature;
                                                     $msg_title = isset($msg_data["title"]) ? htmlspecialchars($msg_data["title"]) : '';
                                                     $msg_content = isset($msg_data["content"]) ? htmlspecialchars($msg_data["content"]) : '';
                                                     $msg_read = isset($msg_data["read"]) ? intval($msg_data["read"]) : 0;

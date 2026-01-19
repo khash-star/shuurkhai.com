@@ -107,7 +107,7 @@ require_once("views/init.php");
                         });
                         
                         
-                        $(document).on('click', 'input[type="checkbox"][name="orders[]"]', function(event) {
+                        $('input[type="checkbox"]').click(function(event) {
                             var sum=0;
                             var count=0;
                             var total_price = 0;
@@ -115,37 +115,22 @@ require_once("views/init.php");
                             var total_advance=0;
                             var grand_total=0;
                             var total_admin_value=0;
-                            $('input[type="checkbox"][name="orders[]"]').each(function() {
+                            $('input[type="checkbox"]').each(function() {
                             if (this.checked == true) { 
-                                var weight = $(this).attr('weight');
-                                var advance = $(this).attr('advance');
+                                var weight = $(this).parent().next().next().next().next().next().next().next().text();
+                                var advance = $(this).parent().next().next().next().next().next().next().next().next().text();
                                 var admin_value = $(this).parent().next().next().next().next().next().next().next().next().next().text();
-                                
-                                // Debug
-                                console.log('Checkbox Click - weight:', weight, 'advance:', advance, 'checked:', this.checked);
-                                
                                 if (!isNaN(parseFloat(admin_value)))
                                     total_admin_value +=parseFloat(admin_value);
 
-                                // Жин нэмэх - зөвхөн advance байхгүй үед (is_online==1 эсвэл advance==0)
-                                if (weight && weight!="0" && weight!="")
+                                if (weight!="Жин")
                                     {
-                                        if (!advance || advance=="" || advance=="0" || advance==0)
+                                        if (advance=="")
                                         sum_weight+=parseFloat(weight);
                                     }
-                                // advance attribute-аас шууд утгыг авна - монголд тооцоотой илгээмж
-                                if (advance !== undefined && advance !== null && advance !== "" && String(advance) !== "0")
+                                if (advance>0)
                                     {
-                                        var advance_num = parseFloat(advance);
-                                        console.log('Checkbox click - Parsing advance:', advance, 'to number:', advance_num, 'isNaN:', isNaN(advance_num));
-                                        if (!isNaN(advance_num) && advance_num > 0)
-                                        {
-                                            console.log('Checkbox click - Adding advance:', advance_num, 'to total_advance (current:', total_advance, ')');
-                                            total_advance += advance_num;
-                                            console.log('Checkbox click - New total_advance:', total_advance);
-                                        }
-                                    } else {
-                                        console.log('Checkbox click - Advance not added, value:', advance);
+                                    total_advance+=parseFloat(advance);
                                     }			 
                                 }
                                 
@@ -171,106 +156,7 @@ require_once("views/init.php");
                                 $('#grand_total_inmodal').val(grand_total.toFixed(2));
                                 $('#total_admin_inmodal').val(total_admin_value.toFixed(2));
                                 $('#grand_total_inmodal_tug').val(grand_total_tug.toFixed(2));
-                                
-                                // Модал цонхны "Дараа тооцоо /USD/" талбарт үлдэгдэл оруулах
-                                var $total_advance_inmodal = $('#total_advance_inmodal');
-                                if ($total_advance_inmodal.length > 0) {
-                                    var value_to_set = total_advance.toFixed(2);
-                                    $total_advance_inmodal.val(value_to_set);
-                                    console.log('Checkbox clicked - Set #total_advance_inmodal to:', value_to_set, 'Current value:', $total_advance_inmodal.val());
-                                } else {
-                                    console.warn('Checkbox clicked - #total_advance_inmodal not found!');
-                                }
-                                
-                                console.log('Checkbox clicked - total_advance:', total_advance, 'sum_weight:', sum_weight);
                             })
-                            
-                            // Модал цонхны талбаруудыг шинэчлэх функц
-                            var updateModalFields = function() {
-                                // Хүснэгтийн хөл хэсгийн "Төлбөртэй илгээмж ($)" талбарын утгыг авах
-                                var total_advance_from_table = parseFloat($('#total_advance').val()) || 0;
-                                var total_admin_from_table = parseFloat($('#total_admin').val()) || 0;
-                                var total_weight_from_table = parseFloat($('#total_weight').val()) || 0;
-                                var grand_total_from_table = parseFloat($('#grand_total').val()) || 0;
-                                
-                                console.log('updateModalFields - Table values:', {
-                                    total_advance: total_advance_from_table,
-                                    total_admin: total_admin_from_table,
-                                    total_weight: total_weight_from_table,
-                                    grand_total: grand_total_from_table
-                                });
-                                
-                                // Хэрэв хүснэгтийн талбарт утга байвал түүнийг ашиглах
-                                if (total_advance_from_table > 0 || total_admin_from_table > 0 || total_weight_from_table > 0) {
-                                    var rate = <?php echo cfg_rate(); ?>;
-                                    
-                                    $('#total_weight_inmodal').val(total_weight_from_table.toFixed(2));
-                                    $('#total_advance_inmodal').val(total_advance_from_table.toFixed(2));
-                                    $('#total_admin_inmodal').val(total_admin_from_table.toFixed(2));
-                                    $('#grand_total_inmodal').val(grand_total_from_table.toFixed(2));
-                                    $('#grand_total_inmodal_tug').val((grand_total_from_table * rate).toLocaleString() + '₮');
-                                    
-                                    console.log('updateModalFields - Using table values, set total_advance_inmodal to:', total_advance_from_table.toFixed(2));
-                                } else {
-                                    // Хэрэв хүснэгтийн талбар хоосон бол checkbox-уудаас тооцоолох
-                                    var sum_weight = 0, total_advance = 0, total_price = 0, total_admin_value = 0;
-
-                                    $('input[type="checkbox"][name="orders[]"]:checked').each(function() {
-                                        var weight_attr = $(this).attr('weight');
-                                        var advance_attr = $(this).attr('advance');
-                                        var admin_attr = $(this).attr('admin-value');
-                                        
-                                        var weight = parseFloat(weight_attr) || 0;
-                                        var advance = parseFloat(advance_attr) || 0;
-                                        var admin = parseFloat(admin_attr) || 0;
-                                        
-                                        console.log('Checkbox - order_id:', $(this).val(), 'weight_attr:', weight_attr, 'advance_attr:', advance_attr, 'admin_attr:', admin_attr, 'parsed:', {weight: weight, advance: advance, admin: admin});
-
-                                        total_admin_value += admin;
-
-                                        if (advance > 0) {
-                                            total_advance += advance;
-                                        } else if (weight > 0) {
-                                            sum_weight += weight;
-                                        }
-                                    });
-
-                                    console.log('updateModalFields - Calculated from checkboxes:', {
-                                        sum_weight: sum_weight,
-                                        total_advance: total_advance,
-                                        total_admin_value: total_admin_value
-                                    });
-
-                                    // Тээврийн зардлын логик
-                                    if (sum_weight > 1) total_price = 7 * sum_weight;
-                                    else if (sum_weight > 0.5) total_price = 7;
-                                    else if (sum_weight > 0) total_price = 5;
-
-                                    var grand_total = total_price + total_advance + total_admin_value;
-                                    var rate = <?php echo cfg_rate(); ?>;
-
-                                    $('#total_weight_inmodal').val(sum_weight.toFixed(2));
-                                    $('#total_advance_inmodal').val(total_advance.toFixed(2));
-                                    $('#total_admin_inmodal').val(total_admin_value.toFixed(2));
-                                    $('#grand_total_inmodal').val(grand_total.toFixed(2));
-                                    $('#grand_total_inmodal_tug').val((grand_total * rate).toLocaleString() + '₮');
-                                    
-                                    console.log('updateModalFields - Set total_advance_inmodal to:', total_advance.toFixed(2));
-                                }
-                            };
-                            
-                            // Модал цонх бүрэн нээгдсэний дараа утгыг шинэчлэх
-                            $(document).on('shown.bs.modal', '#exampleModal', function (event) {
-                                console.log('Modal opened (shown.bs.modal), updating fields...');
-                                setTimeout(function() {
-                                    updateModalFields();
-                                }, 200);
-                            });
-                            
-                            // Checkbox click үед модал цонхны талбаруудыг шинэчлэх
-                            $(document).on('click', 'input[type="checkbox"][name="orders[]"]', function() {
-                                setTimeout(updateModalFields, 50);
-                            });
 
                         $('input[type="radio"]').change(function(){
                             if ($('input[type="radio"]:checked').val()=="mix")
@@ -370,7 +256,7 @@ require_once("views/init.php");
                                                                         
                                                                         ?>
                                                                         <tr>
-                                                                            <td><input type="checkbox" name="orders[]" value="<?php echo $order_id;?>" checked="checked" weight="<?php echo $weight;?>" advance="<?php echo ($Package_advance==1) ? $Package_advance_value : '0';?>" admin-value="<?php echo ($admin_value!=0) ? $admin_value : '0';?>"></td>                                                                    
+                                                                            <td><input type="checkbox" name="orders[]" value="<?php echo $order_id;?>" checked="checked" weight="<?php echo $weight;?>" advance="<?php echo $advance_value;?>"></td>                                                                    
                                                                             <td><?php echo $count++;?></td>
                                                                             <td><a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
                                                                             <td>
@@ -403,7 +289,7 @@ require_once("views/init.php");
                                                             
                                                                         $total_admin_value+=$admin_value;
                                                             
-                                                                        if ($Package_advance==1)
+                                                                        if ($is_online==0&&$Package_advance==1)
                                                                         $total_advance+=$Package_advance_value;
                                                                         
                                                                         //if ($is_online==1) $grand_total+=cfg_price($weight); else $grand_total+=$Package_advance_value;
@@ -462,9 +348,7 @@ require_once("views/init.php");
                                                                         if (!$tr) echo "<tr>";else $tr=0;
                                                                 
                                                                 
-                                                                            $advance_attr = ($Package_advance==1) ? $Package_advance_value : '0';
-                                                                            $admin_attr = ($admin_value != 0) ? $admin_value : '0';
-                                                                            echo "<td><input type='checkbox' name='orders[]' value='".$order_id."' checked='checked' weight='$weight' advance='$advance_attr' admin-value='$admin_attr'></td>"; 
+                                                                            echo "<td><input type='checkbox' name='orders[]' checked='checked' weight='$weight' advance='$advance_value'>".$order_id."</td>"; 
                                                                             echo "<td>".$count++."</td>"; 
                                                                             echo "<td><a href='customers?action=detail&id=".$sender."'>".substr(customer($sender,"surname"),0,2).".".customer($sender,"name")."</a></td>";
                                                                             echo "<td>";
@@ -494,7 +378,7 @@ require_once("views/init.php");
                                                             
                                                                         $total_admin_value+=$admin_value;
                                                             
-                                                                        if ($Package_advance==1)
+                                                                        if ($is_online==0&&$Package_advance==1)
                                                                         $total_advance+=$Package_advance_value;
                                                                 
                                                                         //if ($is_online==1) $grand_total+=cfg_price($weight); else $grand_total+=$Package_advance_value;
@@ -515,7 +399,7 @@ require_once("views/init.php");
                                                 echo "<input type='text' id='total_advance' value='".number_format($total_advance,2)."' readonly='readonly' name='total_advance'></td></tr>";
                                                 
                                                 echo "<tr class='total'><td colspan='5'>Дараа тооцоо ($) /Хашбал/</td><td colspan='5'>";
-                                                echo "<input type='text' id='total_admin' value='".number_format($total_admin_value,2)."' readonly='readonly' name='total_admin'></td></tr>";
+                                                echo "<input type='text' id='total_admin' value='".number_format($total_admin_value,2)."' readonly='readonly' name='total_advance'></td></tr>";
                                                 
                                                 echo "<tr class='total'><td colspan='5'>Нийт төлбөр зохих ($)</td><td colspan='5'>";
                                                 echo "<input type='text' id='grand_total' value='".number_format($grand_total+$total_admin_value,2)."' readonly='readonly' name='grand_total'></td></tr>";
@@ -566,9 +450,7 @@ require_once("views/init.php");
                                                             if (!$tr) echo "<tr>";else $tr=0;
 
                                                             
-                                                            $advance_attr = ($Package_advance==1) ? $Package_advance_value : '0';
-                                                            $admin_attr = ($admin_value != 0) ? $admin_value : '0';
-                                                            echo "<td><input type='checkbox' name='orders[]' value='".$order_id."' checked='checked' weight='".$weight."' advance='".$advance_attr."' admin-value='".$admin_attr."'></td>"; 
+                                                            echo "<td><input type='checkbox' name='orders[]' value='".$order_id."' checked='checked'></td>"; 
                                                             echo "<td>".$count++."</td>"; 
                                                             echo "<td><a href='customers?action=detail&id=".$sender."'>".substr(customer($sender,"surname"),0,2).".".customer($sender,"name")."</a></td>";
                                                             echo "<td><a href='customers?action=detail&id=".$receiver."'>".substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name")."</a><br>";
@@ -612,7 +494,7 @@ require_once("views/init.php");
                                                             echo "<input type='text' id='total_advance' value='".number_format($total_advance,2)."' readonly='readonly' name='total_advance'></td></tr>";
                                                             
                                                             echo "<tr class='total'><td colspan='5'>Дараа тооцоо ($) /Хашбал/</td><td colspan='6'>";
-                                                            echo "<input type='text' id='total_admin' value='".number_format($total_admin_value,2)."' readonly='readonly' name='total_admin'></td></tr>";
+                                                            echo "<input type='text' id='total_admin' value='".number_format($total_admin_value,2)."' readonly='readonly' name='total_advance'></td></tr>";
                                                             
                                                             echo "<tr class='total'><td colspan='5'>Нийт төлбөр зохих ($)</td><td colspan='6'>";
                                                             echo "<input type='text' id='grand_total' value='".number_format($grand_total+$total_admin_value,2)."' readonly='readonly' name='grand_total'></td></tr>";
@@ -659,14 +541,10 @@ require_once("views/init.php");
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="recipient-name" class="control-label">Дараа тооцоо /USD/ (Ачааны үлдэгдэл)</label>
-                                    <input type="text" class="form-control" id="total_advance_inmodal" readonly="readonly"  value="<?php echo $total_advance;?>">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="recipient-name" class="control-label">Дараа тооцоо /USD/ (Хашбал)</label>
+                                    <label for="recipient-name" class="control-label">Дараа тооцоо /USD/ </label>
                                     <input type="text" class="form-control" id="total_admin_inmodal" readonly="readonly"  value="<?php echo $total_admin_value;?>">
                                 </div>
+                                
                                 
                                 <div class="form-group">
                                     <label for="recipient-name" class="control-label">Тооцоо /Төг/ </label>
@@ -735,7 +613,6 @@ require_once("views/init.php");
                         ?>
                             </form>
             <?php
-            }
                 
 	
     

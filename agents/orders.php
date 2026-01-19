@@ -14,6 +14,18 @@
             <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
+                <style>
+                tr.red { 
+                    background-color: #ffcdd2 !important; 
+                    border-left: 4px solid #f44336 !important;
+                }
+                tr.red:hover { 
+                    background-color: #ef9a9a !important; 
+                }
+                tr.red td {
+                    font-weight: 500;
+                }
+                </style>
                 <?php
                 if ($action=="all")
                 {                    

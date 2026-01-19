@@ -1,4 +1,4 @@
-<?
+<?php
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
@@ -21,13 +21,13 @@
                 hr {border-bottom:2px #000000 solid;}
                 </style>
 
-                <? if (isset($_GET["deliver_id"])) $deliver_id=$_GET["deliver_id"]; ?>
-                <? if (isset($_GET["orders"])) $orders=$_GET["orders"]; ?>
-                <? if (isset($_GET["method"])) $method=$_GET["method"]; ?>
+                <?php if (isset($_GET["deliver_id"])) $deliver_id=$_GET["deliver_id"]; ?>
+                <?php if (isset($_GET["orders"])) $orders=$_GET["orders"]; ?>
+                <?php if (isset($_GET["method"])) $method=$_GET["method"]; ?>
 
                 <img src="assets/images/logo.png" style="max-width:300px; width:80%;margin-top: 0px;">  
                       
-                <? 	
+                <?php 	
                     $result_deliver = mysqli_query($conn,'SELECT * FROM customer WHERE customer_id="'.$deliver_id.'"');
                     if(mysqli_num_rows($result_deliver)==1)
                             {

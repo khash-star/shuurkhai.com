@@ -1,4 +1,4 @@
-                                        <?php                                                                       php
+                                        <?php
 require_once("config.php");
 require_once("views/helper.php");
 require_once("views/login_check.php");
@@ -8,14 +8,14 @@ require_once("views/init.php");
 
 <body class="sidebar-dark">
 	<div class="main-wrapper">
-                                        <?php                                                                       php  require_once("views/navbar.php"); ?>
+                                        <?php  require_once("views/navbar.php"); ?>
 	
 		<div class="page-wrapper">
-                                        <?php                                                                       php  require_once("views/sidebar.php"); ?>
+                                        <?php  require_once("views/sidebar.php"); ?>
 				
 
 		<div class="page-content">
-                                        <?php                                                                       php
+                                        <?php
 			if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="select";
 			$action_title = "Barcode-г сонгож өөрчлөх"; // Default value
 			switch ($action)
@@ -34,7 +34,7 @@ require_once("views/init.php");
 				</ol>
 			</nav>
 
-                                        <?php                                                                       php
+                                        <?php
             if ($action=="select")
             {
                 $result = mysqli_query($conn,"SELECT barcode.* FROM barcode ORDER BY timestamp DESC");
@@ -58,7 +58,7 @@ require_once("views/init.php");
                                 <th>Төлөв</th>
                                 <th></th>
                             </tr>
-                                        <?php                                                                       php
+                                        <?php
 
                             $count=1;
                             while ($data = mysqli_fetch_array($result))
@@ -141,12 +141,12 @@ require_once("views/init.php");
                                                         ?>
                                                         <a href="tracks_detail?id=<?php echo htmlspecialchars($order_id ?? '');?>"><span class="glyphicon glyphicon-edit"></span></a>
 
-                                        <?php                                                                       php
+                                        <?php
                                                     } 
 
                                                 ?>
                                             </td>
-                                        <?php                                                                       php                                                                       
+                                        <?php                                                                       
                                     echo "</tr>";
                             } 
                             ?>
