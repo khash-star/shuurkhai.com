@@ -407,8 +407,7 @@
                                                     }
                                                 }
                                             }
-                                        }
-
+                                            
                                             if (isset($_POST["container_trigger"]))
                                             {
                                                 if (isset($conn) && $conn) {
@@ -525,7 +524,6 @@
                                         }
                                         ?>
 
-
                                         <form action="tracks?action=insert"method="post" enctype="multipart/form-data">
                                             <div class="form-group">
                                                 <label for="track">Трак оруулах</label>
@@ -575,14 +573,14 @@
                                             </div>
                                             <div class="input-group">
                                                 <select name="proxies" id="proxies" class="form-control">
-                                                    <?
+                                                    <?php
                                                     $sql ="SELECT * from proxies WHERE customer_id='$user_id' AND status=0";
                                                     $result = mysqli_query($conn,$sql);
                                                     while ($data = mysqli_fetch_array($result))
                                                         {
                                                             ?>
                                                             <option value="<?php echo htmlspecialchars($data["proxy_id"] ?? '');?>"> <?php echo htmlspecialchars($data["name"] ?? '');?> - <?php echo htmlspecialchars($data["tel"] ?? '');?></option>
-                                                            <?
+                                                            <?php
                                                         }
                                                         ?>
                                                     <option value="0">Шинэ хүн оруулах</option>
@@ -604,17 +602,41 @@
                                 </div>
                             </div>
                         </div>
-                        <?
+                        <?php
                     }
                     else 
                     header("location:login");
                 }
                 ?>
 
-                <?
+                <?php
                 if ($action=="edit")
                 {
-                    $user_id = $_SESSION["c_user_id"];
+                    $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                    // Initialize variables to prevent undefined variable errors
+                    $order_id = 0;
+                    $receiver = 0;
+                    $third_party = '';
+                    $proxy_id_old = 0;
+                    $proxy_id = 0;
+                    $proxy_type = '';
+                    $package = '';
+                    $package1_name = '';
+                    $package1_num = '';
+                    $package1_price = '';
+                    $package2_name = '';
+                    $package2_num = '';
+                    $package2_price = '';
+                    $package3_name = '';
+                    $package3_num = '';
+                    $package3_price = '';
+                    $package4_name = '';
+                    $package4_num = '';
+                    $package4_price = '';
+                    $status = '';
+                    $can_edit = false;
+                    $order_found = false;
+                    $is_receiver = false;
                     ?>
                     <nav class="breadcrumb-two" aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -630,40 +652,40 @@
                                 <div class="card-body">
                                     <h5 class="card-title">Трактай ачааны тайлбар засах</h5>
                                     <?php
-                                    if (isset($_GET["id"]))
+                                    if (isset($_GET["id"]) && !empty($_GET["id"]))
                                     {
                                         $order_id = isset($_GET["id"]) ? intval(protect($_GET["id"])) : 0;
-                                        $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
-                                        $sql = "SELECT * FROM orders WHERE order_id='".$order_id_escaped."'";
-                                        $result = mysqli_query($conn,$sql);
-                                        $receiver = 0;
-                                        $third_party = '';
-                                        $proxy_id_old = 0;
-                                        $proxy_id = 0;
-                                        $proxy_type = '';
-                                        if ($result && mysqli_num_rows($result)==1)
-                                        {
-                                            $data = mysqli_fetch_array($result);
-                                            $receiver = isset($data["receiver"]) ? intval($data["receiver"]) : 0;
-                                            $third_party = isset($data["third_party"]) ? htmlspecialchars($data["third_party"]) : '';
-                                            $proxy_id_old = isset($data["proxy_id"]) ? intval($data["proxy_id"]) : 0;
-                                            $proxy_id = isset($data["proxy_id"]) ? intval($data["proxy_id"]) : 0;
-                                            $proxy_type = isset($data["proxy_type"]) ? htmlspecialchars($data["proxy_type"]) : '';
-                                            $package = isset($data["package"]) ? htmlspecialchars($data["package"]) : '';
-                                            $package_array = !empty($package) ? explode("##", $package) : array();
-                                            $package1_name = isset($package_array[0]) ? htmlspecialchars($package_array[0]) : '';
-                                            $package1_num = isset($package_array[1]) ? htmlspecialchars($package_array[1]) : '';
-                                            $package1_price = isset($package_array[2]) ? htmlspecialchars($package_array[2]) : '';
-                                            $package2_name = isset($package_array[3]) ? htmlspecialchars($package_array[3]) : '';
-                                            $package2_num = isset($package_array[4]) ? htmlspecialchars($package_array[4]) : '';
-                                            $package2_price = isset($package_array[5]) ? htmlspecialchars($package_array[5]) : '';
-                                            $package3_name = isset($package_array[6]) ? htmlspecialchars($package_array[6]) : '';
-                                            $package3_num = isset($package_array[7]) ? htmlspecialchars($package_array[7]) : '';
-                                            $package3_price = isset($package_array[8]) ? htmlspecialchars($package_array[8]) : '';
-                                            $package4_name = isset($package_array[9]) ? htmlspecialchars($package_array[9]) : '';
-                                            $package4_num = isset($package_array[10]) ? htmlspecialchars($package_array[10]) : '';
-                                            $package4_price = isset($package_array[11]) ? htmlspecialchars($package_array[11]) : '';
-                                            if ($user_id==$receiver)
+                                        if ($order_id > 0) {
+                                            $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                                            $sql = "SELECT * FROM orders WHERE order_id='".$order_id_escaped."'";
+                                            $result = mysqli_query($conn,$sql);
+                                            if ($result && mysqli_num_rows($result)==1)
+                                            {
+                                                $order_found = true;
+                                                $data = mysqli_fetch_array($result);
+                                                $receiver = isset($data["receiver"]) ? intval($data["receiver"]) : 0;
+                                                $third_party = isset($data["third_party"]) ? htmlspecialchars($data["third_party"]) : '';
+                                                $proxy_id_old = isset($data["proxy_id"]) ? intval($data["proxy_id"]) : 0;
+                                                $proxy_id = isset($data["proxy_id"]) ? intval($data["proxy_id"]) : 0;
+                                                $proxy_type = isset($data["proxy_type"]) ? htmlspecialchars($data["proxy_type"]) : '';
+                                                $package = isset($data["package"]) ? htmlspecialchars($data["package"]) : '';
+                                                $package_array = !empty($package) ? explode("##", $package) : array();
+                                                $package1_name = isset($package_array[0]) ? htmlspecialchars($package_array[0]) : '';
+                                                $package1_num = isset($package_array[1]) ? htmlspecialchars($package_array[1]) : '';
+                                                $package1_price = isset($package_array[2]) ? htmlspecialchars($package_array[2]) : '';
+                                                $package2_name = isset($package_array[3]) ? htmlspecialchars($package_array[3]) : '';
+                                                $package2_num = isset($package_array[4]) ? htmlspecialchars($package_array[4]) : '';
+                                                $package2_price = isset($package_array[5]) ? htmlspecialchars($package_array[5]) : '';
+                                                $package3_name = isset($package_array[6]) ? htmlspecialchars($package_array[6]) : '';
+                                                $package3_num = isset($package_array[7]) ? htmlspecialchars($package_array[7]) : '';
+                                                $package3_price = isset($package_array[8]) ? htmlspecialchars($package_array[8]) : '';
+                                                $package4_name = isset($package_array[9]) ? htmlspecialchars($package_array[9]) : '';
+                                                $package4_num = isset($package_array[10]) ? htmlspecialchars($package_array[10]) : '';
+                                                $package4_price = isset($package_array[11]) ? htmlspecialchars($package_array[11]) : '';
+                                                $status = isset($data["status"]) ? htmlspecialchars($data["status"]) : '';
+                                                $is_receiver = ($user_id == $receiver);
+                                                $can_edit = ($status == 'weight_missing' || $status == 'received') && $is_receiver;
+                                                if ($is_receiver)
                                             {
                                                 if (isset($_POST["order_id"]) && $_POST["order_id"]<>"")
                                                 {
@@ -759,7 +781,26 @@
                                                     
                                                 }
                                                 
+                                                // Show the form inside the query block
+                                                if (!$is_receiver) {
+                                                    ?>
+                                                    <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                        Уучлаарай, таны ачаа биш байна.
+                                                    </div>
+                                                    <?php
+                                                }
+                                                
+                                                // Show the form (it will be disabled if user can't edit)
                                                 ?>
+                                                <?php if (!$can_edit && $is_receiver): ?>
+                                                <div class="alert alert-arrow-left alert-icon-left alert-light-warning mb-4" role="alert">
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                    Зөвхөн "weight_missing" эсвэл "received" статустай захиалгыг засварлах боломжтой.
+                                                </div>
+                                                <?php endif; ?>
                                                 <form action="tracks?action=edit&id=<?php echo htmlspecialchars($order_id); ?>" method="post" enctype="multipart/form-data">
                                                     <input type="hidden" name="order_id" value="<?php echo htmlspecialchars($order_id); ?>">
                                                     <div class="form-group">
@@ -769,46 +810,39 @@
                                                     <h5 class="card-title">Барааны тайлбар</h5>
                                                     <table class="table table-hover">
                                                         <tr>	
-                                                            <td><input type="text" name="package1_name" value="<?php echo htmlspecialchars($package1_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м" required></td>
-                                                            <td><input type="text" name="package1_num" value="<?php echo htmlspecialchars($package1_num); ?>" class="form-control" placeholder="Тоо ширхэг" required></td>
-                                                            <td><input type="text" name="package1_price" value="<?php echo htmlspecialchars($package1_price); ?>" class="form-control" placeholder="Үнэ ($)" required></td>
+                                                            <td><input type="text" name="package1_name" value="<?php echo htmlspecialchars($package1_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м" <?php echo $can_edit ? 'required' : 'disabled'; ?>></td>
+                                                            <td><input type="text" name="package1_num" value="<?php echo htmlspecialchars($package1_num); ?>" class="form-control" placeholder="Тоо ширхэг" <?php echo $can_edit ? 'required' : 'disabled'; ?>></td>
+                                                            <td><input type="text" name="package1_price" value="<?php echo htmlspecialchars($package1_price); ?>" class="form-control" placeholder="Үнэ ($)" <?php echo $can_edit ? 'required' : 'disabled'; ?>></td>
                                                         </tr>
 
 
                                                         <tr>	
-                                                            <td><input type="text" name="package2_name" value="<?php echo htmlspecialchars($package2_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
-                                                            <td><input type="text" name="package2_num" value="<?php echo htmlspecialchars($package2_num); ?>" class="form-control" placeholder="Тоо ширхэг"></td>
-                                                            <td><input type="text" name="package2_price" value="<?php echo htmlspecialchars($package2_price); ?>" class="form-control" placeholder="Үнэ ($)"></td>
+                                                            <td><input type="text" name="package2_name" value="<?php echo htmlspecialchars($package2_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
+                                                            <td><input type="text" name="package2_num" value="<?php echo htmlspecialchars($package2_num); ?>" class="form-control" placeholder="Тоо ширхэг" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
+                                                            <td><input type="text" name="package2_price" value="<?php echo htmlspecialchars($package2_price); ?>" class="form-control" placeholder="Үнэ ($)" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
                                                         </tr>
 
                                                         <tr>	
-                                                            <td><input type="text" name="package3_name" value="<?php echo htmlspecialchars($package3_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
-                                                            <td><input type="text" name="package3_num" value="<?php echo htmlspecialchars($package3_num); ?>" class="form-control" placeholder="Тоо ширхэг"></td>
-                                                            <td><input type="text" name="package3_price" value="<?php echo htmlspecialchars($package3_price); ?>" class="form-control" placeholder="Үнэ ($)"></td>
+                                                            <td><input type="text" name="package3_name" value="<?php echo htmlspecialchars($package3_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
+                                                            <td><input type="text" name="package3_num" value="<?php echo htmlspecialchars($package3_num); ?>" class="form-control" placeholder="Тоо ширхэг" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
+                                                            <td><input type="text" name="package3_price" value="<?php echo htmlspecialchars($package3_price); ?>" class="form-control" placeholder="Үнэ ($)" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
                                                         </tr>
                                                         
                                                         <tr>	
-                                                            <td><input type="text" name="package4_name" value="<?php echo htmlspecialchars($package4_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м"></td>
-                                                            <td><input type="text" name="package4_num" value="<?php echo htmlspecialchars($package4_num); ?>" class="form-control" placeholder="Тоо ширхэг"></td>
-                                                            <td><input type="text" name="package4_price" value="<?php echo htmlspecialchars($package4_price); ?>" class="form-control" placeholder="Үнэ ($)"></td>
+                                                            <td><input type="text" name="package4_name" value="<?php echo htmlspecialchars($package4_name); ?>" class="form-control" placeholder="Цамц, Цүнх, Утас г.м" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
+                                                            <td><input type="text" name="package4_num" value="<?php echo htmlspecialchars($package4_num); ?>" class="form-control" placeholder="Тоо ширхэг" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
+                                                            <td><input type="text" name="package4_price" value="<?php echo htmlspecialchars($package4_price); ?>" class="form-control" placeholder="Үнэ ($)" <?php echo $can_edit ? '' : 'disabled'; ?>></td>
                                                         </tr>
                                                     </table>
-                                                    <!-- <div class="input-group">
-                                                        <label for="container_trigger" class="mr-3"><b>Газраар /чингэлэг/ ирэх эсэх</b></label>
-                                                        <label class="switch s-icons s-outline s-outline-primary">
-                                                            <input type="checkbox" name="container_trigger" value="container" id="container_trigger">
-                                                            <span class="slider round"></span>
-                                                        </label>
-                                                    </div> -->
 
                                                     <div class="input-group">
                                                         <label for="proxy_trigger" class="mr-3"><b>Өөр хүн авах</b></label>
                                                         <label class="switch s-icons s-outline s-outline-primary">
-                                                            <input type="checkbox" name="proxy_trigger" value="container" id="proxy_trigger" <?php echo (isset($proxy_id) && $proxy_id>0) ? 'checked' : ''; ?>>
+                                                            <input type="checkbox" name="proxy_trigger" value="container" id="proxy_trigger" <?php echo (isset($proxy_id) && $proxy_id>0) ? 'checked' : ''; ?> <?php echo $can_edit ? '' : 'disabled'; ?>>
                                                             <span class="slider round"></span>
                                                         </label>
                                                     </div>
-                                                    <select name="proxies" id="proxies" class="form-control">
+                                                    <select name="proxies" id="proxies" class="form-control" <?php echo $can_edit ? '' : 'disabled'; ?>>
                                                         <?php
                                                         $proxy_id_safe = isset($proxy_id) ? intval($proxy_id) : 0;
                                                         $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
@@ -831,31 +865,21 @@
                                                     </select>
 
                                                     <table class="table" id="proxy">
-                                                        <tr></tr><td>Нэр(*)</td><td><input type="text" name="proxy_name" placeholder="Нэр" class="form-control"></td></tr>
-                                                        <tr><td>Овог(*)</td><td><input type="text" name="proxy_surname" placeholder="Овог" class="form-control"></td></tr>
-                                                        <tr><td>Утасны дугаар(*)</td><td><input type="text" name="proxy_tel" placeholder="Утасны дугаар" class="form-control"></td></tr>
-                                                        <tr><td>Хаяг</td><td><textarea name="proxy_address" placeholder="Гэрийн хаяг" class="form-control"></textarea></td></tr>
+                                                        <tr></tr><td>Нэр(*)</td><td><input type="text" name="proxy_name" placeholder="Нэр" class="form-control" <?php echo $can_edit ? '' : 'disabled'; ?>></td></tr>
+                                                        <tr><td>Овог(*)</td><td><input type="text" name="proxy_surname" placeholder="Овог" class="form-control" <?php echo $can_edit ? '' : 'disabled'; ?>></td></tr>
+                                                        <tr><td>Утасны дугаар(*)</td><td><input type="text" name="proxy_tel" placeholder="Утасны дугаар" class="form-control" <?php echo $can_edit ? '' : 'disabled'; ?>></td></tr>
+                                                        <tr><td>Хаяг</td><td><textarea name="proxy_address" placeholder="Гэрийн хаяг" class="form-control" <?php echo $can_edit ? '' : 'disabled'; ?>></textarea></td></tr>
                                                     </table>
                                                     
-                                                    <input type="submit" class="btn btn-primary" value="Хадгалах">
+                                                    <input type="submit" class="btn btn-primary" value="Хадгалах" <?php echo $can_edit ? '' : 'disabled'; ?>>
                                                 </form>
                                                 <?php
                                             }
-                                            else 
-                                            {
-                                                ?>
-                                                 <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                    Уучлаарай, таны ачаа биш байна.
-                                                </div>
-                                                <?php
-                                            }
-                                       
-                                            
                                         }
                                         else 
                                         {
+                                            // Order not found in database
+                                            $order_found = false;
                                             ?>
                                              <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
                                                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
@@ -864,6 +888,31 @@
                                             </div>
                                             <?php
                                         }
+                                        }
+                                        else 
+                                        {
+                                            // Invalid order ID
+                                            $order_found = false;
+                                            ?>
+                                            <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                Захиалгын дугаар буруу байна.
+                                            </div>
+                                            <?php
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        // No ID provided
+                                        $order_found = false;
+                                        ?>
+                                        <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                            Захиалгын дугаар байхгүй байна.
+                                        </div>
+                                        <?php
                                     }
                                     ?>
                                 </div>
@@ -989,7 +1038,6 @@
                                                 ?>
                                                 </tbody>
                                             </table>
-                                            
                                             <?php
                                         }
                                         

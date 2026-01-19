@@ -1,4 +1,22 @@
-<?php $current_page = basename($_SERVER['REQUEST_URI'], '?' . ($_SERVER['QUERY_STRING'] ?? '')); ?>
+<?php 
+// Get current page from script name (more reliable)
+$script_name = $_SERVER['SCRIPT_NAME'] ?? '';
+$current_page = basename($script_name, '.php');
+
+// If script name doesn't work, try REQUEST_URI
+if (empty($current_page) || $current_page == 'index' || $current_page == '') {
+    $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+    $parsed_url = parse_url($request_uri);
+    $path = $parsed_url['path'] ?? '';
+    $current_page = basename($path);
+    $current_page = str_replace('.php', '', $current_page);
+}
+
+// Handle special cases
+if ($current_page == 'index' || $current_page == '') {
+    $current_page = 'home';
+}
+?>
 
 <!--  BEGIN SIDEBAR  -->
 <div class="sidebar-wrapper sidebar-theme">
