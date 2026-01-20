@@ -26,6 +26,12 @@
                             <i class="menu-icon tf-icons ti ti-square-rounded-plus"></i>
                             <div data-i18n="Place order">Place order</div>
                             </a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="orders?action=search" class="menu-link">
+                            <i class="menu-icon tf-icons ti ti-search"></i>
+                            <div data-i18n="Search orders">Search orders</div>
+                            </a>
                         </li>                      
                         </ul>
                     </li>

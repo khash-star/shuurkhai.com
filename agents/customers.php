@@ -186,11 +186,17 @@
                                         <div class="media-body mg-l-15 mg-t-4">
                                         <label>Хот, аймаг</label>
                     <?php 
-                                        $sql_city =  "SELECT *FROM city WHERE id='".$data["address_city"]."'";
-                                        $result_city = mysqli_query($conn,$sql_city);
-                                        $data_city = mysqli_fetch_array($result_city);
+                                        $city_name = '';
+                                        if (!empty($data["address_city"])) {
+                                            $sql_city =  "SELECT *FROM city WHERE id='".intval($data["address_city"])."'";
+                                            $result_city = mysqli_query($conn,$sql_city);
+                                            if ($result_city && mysqli_num_rows($result_city) > 0) {
+                                                $data_city = mysqli_fetch_array($result_city);
+                                                $city_name = isset($data_city["name"]) ? $data_city["name"] : '';
+                                            }
+                                        }
                                         ?>
-                                        <a href="#" class="d-block"><?=$data_city["name"];?></a>
+                                        <a href="#" class="d-block"><?=$city_name ? $city_name : '-';?></a>
                                         </div>
                                     </div>
 
@@ -198,11 +204,17 @@
                                         <div class="media-body mg-l-15 mg-t-4">
                                         <label>Дүүрэг, сум</label>
                     <?php 
-                                        $sql_district =  "SELECT *FROM district WHERE id='".$data["address_district"]."'";
-                                        $result_district = mysqli_query($conn,$sql_district);
-                                        $data_district = mysqli_fetch_array($result_district);
+                                        $district_name = '';
+                                        if (!empty($data["address_district"])) {
+                                            $sql_district =  "SELECT *FROM district WHERE id='".intval($data["address_district"])."'";
+                                            $result_district = mysqli_query($conn,$sql_district);
+                                            if ($result_district && mysqli_num_rows($result_district) > 0) {
+                                                $data_district = mysqli_fetch_array($result_district);
+                                                $district_name = isset($data_district["name"]) ? $data_district["name"] : '';
+                                            }
+                                        }
                                         ?>
-                                        <a href="#" class="d-block"><?=$data_district["name"];?></a>
+                                        <a href="#" class="d-block"><?=$district_name ? $district_name : '-';?></a>
                                         </div>
                                     </div>
 

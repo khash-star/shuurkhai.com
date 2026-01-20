@@ -83,6 +83,7 @@
                     $sql.=" AND LOWER(CONVERT(CONCAT_WS(barcode,package,senders.name,senders.tel,receivers.name,receivers.tel,created_date)USING utf8)) LIKE '%".($search_term)."%'";
                     $sql.= " AND agents='$g_agent_logged_id'";
                     $sql.= " AND is_online='0'";
+                    $sql.= " AND (boxed=0 OR boxed IS NULL)";
                     $sql.=" ORDER BY created_date DESC";
 
                     //echo $sql;
@@ -240,7 +241,7 @@
                             echo "<tr>";
                             echo "<td><input type='text' name='package1_name' class='form-control' placeholder='Цамц, Цүнх, Утас г.м' required></td>";
                             echo "<td><input type='text' name='package1_num' class='form-control' placeholder='Тоо ширхэг'></td>";
-                            echo "<td><input type='text' name='package1_price' class='form-control' placeholder='Үнэ ($)'></td>";
+                            echo "<td><input type='text' name='package1_price' class='form-control' placeholder='Үнэ ($)' pattern='[0-9]+(\.[0-9]{1,2})?' title='Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\"></td>";
                             echo "</tr>";
                             
                             echo "<tr>";
@@ -264,7 +265,7 @@
                             echo "</table>";
 
 
-                        echo "<tr><td>Нийт жин/кг/(*)</td><td><input type='text' name='weight' class='form-control' id='weight' required></td></tr>";
+                        echo "<tr><td>Нийт жин/кг/(*)</td><td><input type='text' name='weight' class='form-control' id='weight' required pattern='[0-9]+(\.[0-9]{1,2})?' title='Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\"></td></tr>";
 
 
                         echo "<tr>";
@@ -273,7 +274,7 @@
                         echo 'Үлдэгдэл төлбөртэй: <div class="input-group">';
                         echo '<span class="input-group-addon" id="basic-addon1">Төлбөр</span>';
                         echo '<span class="input-group-addon"><input type="checkbox" name="Package_advance" value="1" checked></span>';
-                        echo "<input type='text' name='Package_advance_value' class='form-control' id='Package_advance_value'>" ;
+                        echo "<input type='text' name='Package_advance_value' class='form-control' id='Package_advance_value' pattern='[0-9]+(\.[0-9]{1,2})?' title='Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">" ;
                         echo "</td>";
                         echo "</tr>";
 
@@ -665,6 +666,99 @@
                         else alert_div("Илгээмж олдсонгүй"); 
                     }
                     else alert_div("Илгээмжийн дугаар олдсонгүй");
+                }
+
+                if ($action=="search")
+                {
+                    ?>
+                    <div class="panel panel-primary">
+                    <div class="panel-heading">Orders Search - Бүх order-уудаас хайх</div>
+                    <div class="panel-body">
+                    <form method="POST" action="?action=search">
+                        <div class="form-group mb-3">
+                            <label>Хайх үг (Barcode, Track number, Нэр, Утас, огноо):</label>
+                            <input type="text" name="search" class="form-control" value="<?=isset($_POST['search'])?htmlspecialchars($_POST['search']):'';?>" placeholder="Хайх үг оруулна уу..." autofocus>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Хайх</button>
+                        <a href="orders?action=search" class="btn btn-secondary">Цэвэрлэх</a>
+                    </form>
+                    <?php
+                    
+                    if (isset($_POST["search"]) && $_POST["search"] != "")
+                    {
+                        $search_term = mysqli_real_escape_string($conn, $_POST["search"]);
+                        $search_term = str_replace(" ", "%", $search_term);
+                        
+                        $sql="SELECT orders.*,senders.name AS s_name,senders.surname AS s_surname,senders.tel AS s_contact,senders.address AS s_address,receivers.surname AS r_surname,receivers.name AS r_name,receivers.tel AS r_contact,receivers.address AS r_address 
+                        FROM orders 
+                        JOIN customer AS senders ON orders.sender=senders.customer_id 
+                        LEFT JOIN customer AS receivers ON orders.receiver=receivers.customer_id
+                        WHERE LOWER(CONVERT(CONCAT_WS(barcode,third_party,package,senders.name,senders.surname,senders.tel,receivers.name,receivers.surname,receivers.tel,created_date)USING utf8)) LIKE '%".strtolower($search_term)."%'
+                        AND agents='$g_agent_logged_id'
+                        AND is_online='0'
+                        ORDER BY created_date DESC
+                        LIMIT 500";
+                        
+                        $result = mysqli_query($conn,$sql);
+                        
+                        if (mysqli_num_rows($result) > 0)
+                        {
+                            echo "<h4 class='mt-4'>Хайлтын үр дүн: ".mysqli_num_rows($result)."</h4>";
+                            echo "<table class='table table-hover small'>";
+                            echo "<tr>";
+                            echo "<th>№</th>"; 
+                            echo "<th>Үүсгэсэн огноо</th>"; 
+                            echo "<th>Илгээгч</th>"; 
+                            echo "<th>Хүлээн авагч</th>"; 
+                            echo "<th>Хүлээн авагчын утас</th>"; 
+                            echo "<th>Barcode</th>";
+                            echo "<th>Track</th>";
+                            echo "<th>Төлөв</th>"; 
+                            echo "<th>Жин</th>"; 
+                            echo "<th>Boxed</th>";
+                            echo "<th></th>"; 
+                            echo "</tr>";
+                            $count=1;
+                            
+                            while ($data = mysqli_fetch_array($result))
+                            {
+                                $created_date=$data["created_date"];
+                                $order_id=$data["order_id"];
+                                $weight=$data["weight"];
+                                $sender_id=$data["sender"];
+                                $sender=$data["s_name"];
+                                $sender_surname=$data["s_surname"];
+                                $receiver=$data["r_name"];
+                                $receiver_id=$data["receiver"];
+                                $receiver_surname=$data["r_surname"];
+                                $receiver_contact=$data["r_contact"];
+                                $barcode=$data["barcode"];
+                                $third_party=$data["third_party"];
+                                $status=$data["status"];
+                                $boxed = isset($data["boxed"]) ? $data["boxed"] : 0;
+                                
+                                echo "<tr>"; 
+                                echo "<td>".$count++."</td>"; 
+                                echo "<td>".$created_date."</td>"; 
+                                echo "<td><a href='customers?action=detail&id=".$sender_id."'>".substr($sender_surname,0,2).".".$sender."</a></td>";
+                                echo "<td><a href='customers?action=detail&id=".$receiver_id."'>".substr($receiver_surname,0,2).".".$receiver."</a></td>";
+                                echo "<td>".$receiver_contact."</td>"; 
+                                echo "<td>".$barcode."</td>";
+                                echo "<td>".($third_party ? $third_party : '-')."</td>";
+                                echo "<td>".$status."</td>";
+                                echo "<td>".$weight."</td>";
+                                echo "<td>".($boxed == 1 ? 'Тийм' : 'Үгүй')."</td>";
+                                echo "<td><a href='?action=detail&id=".$order_id."'><i class='ti ti-edit'></i></a></td>"; 
+                                echo "</tr>";
+                            }
+                            echo "</table>";
+                        }
+                        else
+                        {
+                            echo "<div class='alert alert-warning mt-4'>Илгээмж олдсонгүй.</div>";
+                        }
+                    }
+                    echo "</div></div>";
                 }
                 ?>
             </div>

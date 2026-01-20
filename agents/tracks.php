@@ -51,6 +51,7 @@
                     if(isset($_POST["search"])) 
                     $sql.=" AND LOWER(CONVERT(CONCAT_WS(barcode,package,third_party,created_date)USING utf8)) LIKE '%".$search_term."%'";
                     $sql.=" AND is_online='1'";
+                    $sql.=" AND (boxed=0 OR boxed IS NULL)";
 
                     $sql.=" ORDER BY order_id DESC";
 
@@ -349,7 +350,7 @@
 
                         if ($order_id!="")
                         {
-                            $sql = "SELECT * FROM orders WHERE order_id = '$order_id'";
+                            $sql = "SELECT * FROM orders WHERE order_id = '".intval($order_id)."' AND agents='$g_agent_logged_id' AND is_online='0'";
                             $result = mysqli_query($conn,$sql);
 
                             if (mysqli_num_rows($result) > 0)
@@ -418,7 +419,11 @@
                                     if ($status=='received'&&!$tr)
                                     {echo "<tr class='yellow' title='Жин бөглөгдөөгүй байна:'>"; $tr=1; $class="maroon";}
                                     
-                                    if($status=="warehouse"&&$extra!="") $temp_status=$status." ".$extra."-р тавиур";else $temp_status=$status; 
+                                    // Always initialize temp_status from database status
+                                    $temp_status = $status;
+                                    if($status=="warehouse" && $extra!="") {
+                                        $temp_status = $status." ".$extra."-р тавиур";
+                                    } 
                                     if (!$tr) echo "<tr>";else $tr=0;
                                    echo "<td class='$class'><span class='$class'></span>".$count++."</td>"; 
                                    echo "<td  class='$class'>".substr($created_date,0,10)."</td>"; 
@@ -483,10 +488,12 @@
                         else 
                         {
                             $track = strtolower($track);
+                            $track = mysqli_real_escape_string($conn, $track);
 
                             $sql="SELECT orders.*,customer.name,customer.tel FROM orders, customer WHERE orders.receiver=customer.customer_id AND ";
 
-                            $sql.=" LOWER(CONVERT(CONCAT_WS(barcode,package,customer.name,customer.tel,third_party)USING utf8)) LIKE '%".$track."%' ORDER BY created_date DESC"; 
+                            // Search all orders regardless of status or boxed status
+                            $sql.=" LOWER(CONVERT(CONCAT_WS(barcode,package,customer.name,customer.tel,third_party)USING utf8)) LIKE '%".$track."%' AND orders.agents='$g_agent_logged_id' AND orders.is_online='0' ORDER BY created_date DESC"; 
                            
                             $result = mysqli_query($conn,$sql);
                             //$result = $this->db->like("barcode","CP87");
@@ -556,7 +563,11 @@
                                     if ($status=='received'&&!$tr)
                                     {echo "<tr class='yellow' title='Жин бөглөгдөөгүй байна:'>"; $tr=1; $class="maroon";}
                                     
-                                    if($status=="warehouse"&&$extra!="") $temp_status=$status." ".$extra."-р тавиур";else $temp_status=$status; 
+                                    // Always initialize temp_status from database status
+                                    $temp_status = $status;
+                                    if($status=="warehouse" && $extra!="") {
+                                        $temp_status = $status." ".$extra."-р тавиур";
+                                    } 
                                     if (!$tr) echo "<tr>";else $tr=0;
                                    echo "<td class='$class'><span class='$class'></span>".$count++."</td>"; 
                                    echo "<td  class='$class'>".substr($created_date,0,10)."</td>"; 
@@ -809,7 +820,7 @@
                                         <input type="hidden" name="track" value="<?=$track;?>">
                                         <input type="hidden" name="delaware" value="<?=$delaware;?>">
                                         <tr><td>Track</td><td><?=$track;?></td></tr>
-                                        <tr><td>Weight /KG/</td><td><input type="text" class="form-control <?=($delaware==1)?'border-primary bg-primary-subtle':'';?>" name="weight" placeholder="Eg:5.4"></td></tr>
+                                        <tr><td>Weight /KG/</td><td><input type="text" class="form-control <?=($delaware==1)?'border-primary bg-primary-subtle':'';?>" name="weight" placeholder="Eg:5.4" pattern="[0-9]+(\.[0-9]{1,2})?" title="Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"></td></tr>
                                         </table>
                                         <button type="submit" class="btn btn-success">Add</button>                                       
                                     </form>
@@ -847,7 +858,7 @@
                                         <input type="hidden" name="track" value="<?=$track;?>">
                                         <input type="hidden" name="delaware" value="<?=$delaware;?>">
                                         <tr><td>Track</td><td><?=$track;?></td></tr>
-                                        <tr><td>Weight /KG/</td><td><input type="text" class="form-control <?=($delaware==1)?'border-primary bg-primary-subtle':'';?>" name="weight" placeholder="Eg:5.4"></td></tr>
+                                        <tr><td>Weight /KG/</td><td><input type="text" class="form-control <?=($delaware==1)?'border-primary bg-primary-subtle':'';?>" name="weight" placeholder="Eg:5.4" pattern="[0-9]+(\.[0-9]{1,2})?" title="Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');"></td></tr>
 
                                         <tr><td>Extra tracks</td><td><textarea class="form-control <?=($delaware==1)?'border-primary bg-primary-subtle':'';?>" name="extratracks" placeholder="Илгээмжнд буй бусад тракийг оруулна уу."></textarea></td></tr>
                                         </table>
@@ -1009,7 +1020,7 @@
                                               <tr>
                                                 <td><input type='text' name='package1_name' class='form-control' placeholder='Цамц, Цүнх, Утас г.м' required></td>
                                                 <td><input type='text' name='package1_num' class='form-control' placeholder='Тоо ширхэг'></td>
-                                                <td><input type='text' name='package1_price' class='form-control' placeholder='Үнэ ($)'></td>
+                                                <td><input type='text' name='package1_price' class='form-control' placeholder='Үнэ ($)' pattern='[0-9]+(\.[0-9]{1,2})?' title='Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\"></td>";
                                               </tr>
                                               <tr>
                                                 <td><input type='text' name='package2_name' class='form-control' placeholder='Цамц, Цүнх, Утас г.м' required></td>
@@ -1061,7 +1072,7 @@
                                                     <tr>
                                                         <td><input type='text' name='package1_name' class='form-control' placeholder='Цамц, Цүнх, Утас г.м' required></td>
                                                         <td><input type='text' name='package1_num' class='form-control' placeholder='Тоо ширхэг'></td>
-                                                        <td><input type='text' name='package1_price' class='form-control' placeholder='Үнэ ($)'></td>
+                                                        <td><input type='text' name='package1_price' class='form-control' placeholder='Үнэ ($)' pattern='[0-9]+(\.[0-9]{1,2})?' title='Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\"></td>";
                                                     </tr>
                                                     <tr>
                                                         <td><input type='text' name='package2_name' class='form-control' placeholder='Цамц, Цүнх, Утас г.м'></td>
@@ -1169,7 +1180,7 @@
                                     
                     
                     
-                                    <tr><td>Нийт жин эсвэл хэмжээ /кг/(*)</td><td><input type='text' name='weight' id='weight' class='form-control' placeholder='' required></td></tr>
+                                    <tr><td>Нийт жин эсвэл хэмжээ /кг/(*)</td><td><input type='text' name='weight' id='weight' class='form-control' placeholder='' required pattern='[0-9]+(\.[0-9]{1,2})?' title='Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\"></td></tr>";
                                     <tr><td>Авсан төлбөр/$/</td><td><input type='text' name='payment' class='form-control'></td></tr>
                                     <tr><td>Монголд авах төлбөр/$/</td><td><input type='text' name='pay_in_mongolia' class='form-control'></td></tr>
                         
@@ -1370,7 +1381,7 @@
                 
                         
                 
-                        $sql="SELECT orders.* FROM orders WHERE receiver='".$customer_id."' AND status NOT IN('completed','delivered','warehouse','custom','weight_missing','onair')";
+                        $sql="SELECT orders.* FROM orders WHERE receiver='".$customer_id."' AND status NOT IN('completed','delivered','warehouse','custom','weight_missing','onair') AND (boxed=0 OR boxed IS NULL)";
                         $sql.=" ORDER BY created_date DESC";
                 
                         $result = mysqli_query($conn,$sql);
@@ -1440,7 +1451,11 @@
                                             echo "<tr class='yellow' title='Жин бөглөгдөөгүй байна:'>"; $tr=1; $class="yellow";
                                         }
                                     
-                                    if($status=="warehouse"&&$extra!="") $temp_status=$status." ".$extra."-р тавиур";else $temp_status=$status; 
+                                    // Always initialize temp_status from database status
+                                    $temp_status = $status;
+                                    if($status=="warehouse" && $extra!="") {
+                                        $temp_status = $status." ".$extra."-р тавиур";
+                                    } 
                                     if (!$tr) echo "<tr>";else $tr=0;
                                    echo "<td class='$class'><span class='$class'></span>".$count++."</td>"; 
                                    echo "<td  class='$class'>".$created_date."</td>"; 

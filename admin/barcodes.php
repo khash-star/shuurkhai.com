@@ -165,6 +165,7 @@ require_once("views/init.php");
                         </select>
                         <div id="more"></div>
                         <button class="btn btn-success" type="submit">Өөрчилөх</button>
+                        <button class="btn btn-danger" type="button" id="clear_all_barcodes" style="margin-left:10px;">Баркод цэвэрлэх</button>
                     </form>
                                         <?php                                                                       
                 }
@@ -348,7 +349,19 @@ require_once("views/init.php");
                                 case "weight_missing":$new_status = "weight_missing";break;
                                 case "new":$new_status = "new";break;
                                 case "onair":$new_status = "onair";break;
-                                case "warehouse":$new_status = "warehouse";$extra=$_POST["bench"];break;
+                                case "warehouse":
+                                    // Check if barcode is already in warehouse
+                                    if ($single_status == "warehouse") {
+                                        echo "<td colspan='10' style='color:red;'>Алдаа: Энэ баркод аль хэдийн агуулахад байна!</td>";
+                                        continue 2; // Skip to next barcode
+                                    }
+                                    $new_status = "warehouse";
+                                    $extra = isset($_POST["bench"]) && !empty($_POST["bench"]) ? intval($_POST["bench"]) : "";
+                                    if (empty($extra)) {
+                                        echo "<td colspan='10' style='color:red;'>Алдаа: Тавиурын дугаар сонгоно уу!</td>";
+                                        continue 2; // Skip to next barcode
+                                    }
+                                    break;
                                 case "hand":$new_status = "hand";break;
                                 case "unhandover":$new_status = "unhandover";break;
                                 case "custom":$new_status = "custom";$extra="";break;
@@ -412,73 +425,77 @@ require_once("views/init.php");
                     {
                         //if ($single_status!='delivered')
                         //	{
-                        $this->db->where('order_id', $order_id);
-                        if ($this->db->update('orders', $data))
+                        // Build UPDATE query
+                        $update_fields = [];
+                        foreach ($data as $key => $value) {
+                            $value_escaped = mysqli_real_escape_string($conn, $value);
+                            $update_fields[] = "`$key`='$value_escaped'";
+                        }
+                        $update_sql = "UPDATE orders SET " . implode(", ", $update_fields) . " WHERE order_id='" . intval($order_id) . "'";
+                        
+                        if (mysqli_query($conn, $update_sql))
                             {
-                            //	echo $this->db->sql;
-                            $this->db->query("DELETE FROM barcode WHERE barcode='".$barcode_id[$i]."' LIMIT 1");
+                            // Delete from barcode table after successful update
+                            mysqli_query($conn, "DELETE FROM barcode WHERE barcode='".mysqli_real_escape_string($conn, $barcode_id[$i])."' LIMIT 1");
                             echo "<td>".$new_status."</td>"; 
 
                             if ($options=="warehouse")
                             {
                                 // BOX OF THIS ITEM STATUS CHANGE
 
-                                $sql = "SELECT * FROM boxes_packages WHERE barcode='".$barcode_id[$i]."' OR barcodes LIKE '%".$barcode_id[$i]."%' LIMIT 1";
-                                $box_query = $this->db->query($sql);
-                                if ($box_query->num_rows()==1)
+                                $sql = "SELECT * FROM boxes_packages WHERE barcode='".mysqli_real_escape_string($conn, $barcode_id[$i])."' OR barcodes LIKE '%".mysqli_real_escape_string($conn, $barcode_id[$i])."%' LIMIT 1";
+                                $box_query = mysqli_query($conn, $sql);
+                                if (mysqli_num_rows($box_query)==1)
                                 {
-                                    $box_rows = $box_query->row();
-                                    $box_id = $box_rows->box_id;
-                                    $packages_query = $this->db->query("SELECT * FROM boxes_packages WHERE box_id=$box_id");
-                                    if ($packages_query->num_rows()>0)
+                                    $box_rows = mysqli_fetch_array($box_query);
+                                    $box_id = $box_rows['box_id'];
+                                    $packages_query = mysqli_query($conn, "SELECT * FROM boxes_packages WHERE box_id=".intval($box_id));
+                                    if (mysqli_num_rows($packages_query)>0)
                                         {
-                                            $inside_item =$packages_query->num_rows();
+                                            $inside_item = mysqli_num_rows($packages_query);
                                             $inside_count =0;
                                         
-                                            foreach($packages_query->result() as $package_row)
+                                            while($package_row = mysqli_fetch_array($packages_query))
                                             {
-                                                $barcode=$package_row->barcode;
-                                                $combined=$package_row->combined;
-                                                $order_id=$package_row->order_id;
-                                                $barcodes=$package_row->barcodes;
-                                                $order_id=$package_row->order_id;
+                                                $barcode=$package_row['barcode'];
+                                                $combined=$package_row['combined'];
+                                                $order_id=$package_row['order_id'];
+                                                $barcodes=$package_row['barcodes'];
                                                 if ($combined!=1) //SINGLE
                                                     {
-                                                    $order_query= $this->db->query("SELECT * FROM orders WHERE barcode='$barcode'");
-                                                    if ($order_query->num_rows()==1)
+                                                    $order_query= mysqli_query($conn, "SELECT * FROM orders WHERE barcode='".mysqli_real_escape_string($conn, $barcode)."'");
+                                                    if (mysqli_num_rows($order_query)==1)
                                                         {
-                                                        $row_orders = $order_query->row();
-                                                        $proxy_id = $row_orders->proxy_id;
-                                                        $proxy_type = $row_orders->proxy_type;
+                                                        $row_orders = mysqli_fetch_array($order_query);
+                                                        $proxy_id = $row_orders['proxy_id'];
+                                                        $proxy_type = $row_orders['proxy_type'];
                                                         proxy_available($proxy_id,$proxy_type,0);
-                                                        if($row_orders->status=="warehouse" || $row_orders->status=="custom" || $row_orders->status=="delivered") 
+                                                        if($row_orders['status']=="warehouse" || $row_orders['status']=="custom" || $row_orders['status']=="delivered") 
                                                         $inside_count++;  // COUNT WAREHOUSE OR CUSTOM
                                                         }
                                                     } //SINGLE ENDING
                                                 if ($combined==1) //COMBINED
                                                     {
                                                         
-                                                    $box_query= $this->db->query("SELECT * FROM box_combine WHERE barcode='$barcode'");
-                                                    if ($box_query->num_rows()==1)
+                                                    $box_query_combine= mysqli_query($conn, "SELECT * FROM box_combine WHERE barcode='".mysqli_real_escape_string($conn, $barcode)."'");
+                                                    if (mysqli_num_rows($box_query_combine)==1)
                                                         {
-                                                        $row_box = $box_query->row();
+                                                        $row_box = mysqli_fetch_array($box_query_combine);
 
-                                                        if($row_box->status=="warehouse" || $row_box->status=="custom" || $row_box->status=="delivered") 
-                                                        //$this->db->query("UPDATE orders SET status='warehouse',warehouse_date='".date("Y-m-d H:i:s")."' WHERE order_id=$order_id");
+                                                        if($row_box['status']=="warehouse" || $row_box['status']=="custom" || $row_box['status']=="delivered") 
                                                         $inside_count++;  // COUNT WAREHOUSE OR CUSTOM
                                                         }								
-                                                    //$inside_count++;
                                                     } //COMBINED ENDING
                                             }
 
                                             if ($inside_item==$inside_count)
-                                            $this->db->query("UPDATE boxes SET status='".$options."' WHERE box_id='$box_id' LIMIT 1");
+                                            mysqli_query($conn, "UPDATE boxes SET status='".mysqli_real_escape_string($conn, $options)."' WHERE box_id='".intval($box_id)."' LIMIT 1");
                                         }
                                 }
                                 // BOX OF THIS ITEM STATUS CHANGE				 	
                             }
                             }
-                        else echo "<td>Алдаа".$this->db->error()."</td>";
+                        else echo "<td>Алдаа: ".mysqli_error($conn)."</td>";
                     //	}
                         //else echo "<td>Алдаа: Хүргэгдсэн</td>"; 
                         
@@ -534,23 +551,35 @@ require_once("views/init.php");
                     $barcodes_array = explode(",",$barcodes);
                         foreach($barcodes_array as $barcode_box_inside)
                         {
-                            $this->db->where('barcode', $barcode_box_inside);
-                            $this->db->update('orders', $data);
+                            // Build UPDATE query for orders
+                            $update_fields = [];
+                            foreach ($data as $key => $value) {
+                                $value_escaped = mysqli_real_escape_string($conn, $value);
+                                $update_fields[] = "`$key`='$value_escaped'";
+                            }
+                            $update_sql = "UPDATE orders SET " . implode(", ", $update_fields) . " WHERE barcode='".mysqli_real_escape_string($conn, $barcode_box_inside)."'";
+                            mysqli_query($conn, $update_sql);
                         }
-                    $this->db->where('barcode', $barcode_id[$i]);
-                    if ($this->db->update('box_combine', $data))
+                    // Build UPDATE query for box_combine
+                    $update_fields = [];
+                    foreach ($data as $key => $value) {
+                        $value_escaped = mysqli_real_escape_string($conn, $value);
+                        $update_fields[] = "`$key`='$value_escaped'";
+                    }
+                    $update_sql = "UPDATE box_combine SET " . implode(", ", $update_fields) . " WHERE barcode='".mysqli_real_escape_string($conn, $barcode_id[$i])."'";
+                    if (mysqli_query($conn, $update_sql))
                         {
-                        $this->db->query("DELETE FROM barcode WHERE barcode='".$barcode_id[$i]."' LIMIT 1");
+                        mysqli_query($conn, "DELETE FROM barcode WHERE barcode='".mysqli_real_escape_string($conn, $barcode_id[$i])."' LIMIT 1");
                         echo "<td>".$new_status."</td>"; 
                         }
-                    else echo "<td>Алдаа".$this->db->error()."</td>";
+                    else echo "<td>Алдаа: ".mysqli_error($conn)."</td>";
                     //}
                     //else echo "<td>Алдаа: Хүргэгдсэн</td>"; 
                     
                 }
                 elseif ($options=="delete")
                     {
-                        $this->db->query("DELETE FROM barcode WHERE barcode='".$barcode_id[$i]."' LIMIT 1");
+                        mysqli_query($conn, "DELETE FROM barcode WHERE barcode='".mysqli_real_escape_string($conn, $barcode_id[$i])."' LIMIT 1");
                     echo "<td>".$new_status."</td>"; 
                     }
                 echo "<td>".anchor('orders/detail/'.$order_id,'<span class="glyphicon glyphicon-edit"></span>')."</td>";
@@ -619,34 +648,33 @@ require_once("views/init.php");
             
             $('select[name="options"]').change(function()
             {
-                if ($('select[name="options"]').val()=="weight_missing")
-                    {
-                    $('#more').empty();
-                    }
-                if ($('select[name="options"]').val()=="new")
-                    {
-                    $('#more').empty();
-                    }
+                var selectedOption = $(this).val();
+                $('#more').empty();
                 
-                if ($('select[name="options"]').val()=="onair")
+                if (selectedOption=="weight_missing")
                     {
-                    $('#more').empty();
+                    // Empty - no additional fields
                     }
-                    
-                if ($('select[name="options"]').val()=="custom")
+                else if (selectedOption=="new")
                     {
-                    $('#more').empty();
+                    // Empty - no additional fields
                     }
-
-                if ($('select[name="options"]').val()=="unhandover")
+                else if (selectedOption=="onair")
                     {
-                    $('#more').empty();
+                    // Empty - no additional fields
                     }
-            
-                if ($('select[name="options"]').val()=="warehouse")
+                else if (selectedOption=="custom")
                     {
-                        $('#more').empty();
-                        $('#more').append('<select name="bench" class="form-control">'+
+                    // Empty - no additional fields
+                    }
+                else if (selectedOption=="unhandover")
+                    {
+                    // Empty - no additional fields
+                    }
+                else if (selectedOption=="warehouse")
+                    {
+                        // Show shelf/bench selection dropdown
+                        $('#more').html('<div style="margin-top:10px;"><label>Тавиур сонгох:</label><select name="bench" class="form-control" required>'+
                         '<option value="1">1-р тавиур</option>'+
                         '<option value="2">2-р тавиур</option>'+
                         '<option value="3">3-р тавиур</option>'+
@@ -847,18 +875,35 @@ require_once("views/init.php");
                         '<option value="198">198-р тавиур</option>'+
                         '<option value="199">199-р тавиур</option>'+
                         '<option value="200">200-р тавиур</option>'+
-                        '</select>');
+                        '</select></div>');
                     }
-                    
-                if ($('select[name="options"]').val()=="delete")
+                else if (selectedOption=="delete")
                     {
-                    $('#more').empty();
+                    // Empty - no additional fields
                     }
-                    
-                if ($('select[name="options"]').val()=="hand")
+                else if (selectedOption=="hand")
                     {
-                    $('#more').empty();
+                    // Empty - no additional fields
                     }
+            });
+            
+            // Trigger change event on page load if warehouse is already selected
+            setTimeout(function() {
+                if ($('select[name="options"]').length > 0 && $('select[name="options"]').val()=="warehouse") {
+                    $('select[name="options"]').trigger('change');
+                }
+            }, 100);
+            
+            // Clear all barcodes button
+            $('#clear_all_barcodes').click(function() {
+                if (confirm('Бүх түр хадгалсан баркодуудыг устгах уу? Энэ үйлдлийг буцаах боломжгүй.')) {
+                    // Select all checkboxes
+                    $('input[type="checkbox"][name="barcode_id[]"]').prop('checked', true);
+                    // Set delete option
+                    $('select[name="options"]').val('delete');
+                    // Submit form
+                    $('form').submit();
+                }
             });
         })
     </script>

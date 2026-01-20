@@ -16,7 +16,27 @@
             <div class="container-xxl flex-grow-1 container-p-y">
                     <?php                    
                 if ($action=="active")
-                {                
+                {
+                    // Display messages
+                    if (isset($_GET["message"])) {
+                        if ($_GET["message"] == "deleted") {
+                            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">';
+                            echo '<strong>Амжилттай!</strong> Хайрцгийг амжилттай устгалаа.';
+                            echo '<button type="button" class="close" data-dismiss="alert" aria-label="Close">';
+                            echo '<span aria-hidden="true">&times;</span>';
+                            echo '</button>';
+                            echo '</div>';
+                        }
+                        elseif ($_GET["message"] == "delete_error") {
+                            echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">';
+                            echo '<strong>Алдаа!</strong> Зөвхөн хоосон хайрцгийг устгах боломжтой.';
+                            echo '<button type="button" class="close" data-dismiss="alert" aria-label="Close">';
+                            echo '<span aria-hidden="true">&times;</span>';
+                            echo '</button>';
+                            echo '</div>';
+                        }
+                    }
+                    
                     $sql="SELECT * FROM boxes";
                     $sql.= " WHERE agent='$g_agent_logged_id' AND status NOT IN ('delivered','warehouse') ORDER BY created_date DESC";
                     $result = mysqli_query($conn,$sql);
@@ -61,7 +81,13 @@
                                                 echo "<td>".$status."</td>"; 
                                                 echo "<td>".$packages."</td>"; 
                                                 echo "<td>".$weight."</td>"; 
-                                                echo "<td><a href='?action=detail&id=$box_id'><i class='ti ti-edit'></i></a></td>"; 
+                                                echo "<td>";
+                                                echo "<a href='?action=detail&id=$box_id'><i class='ti ti-edit'></i></a>";
+                                                // Show delete button only for empty boxes (packages=0 or weight=0)
+                                                if ($packages == 0 || $weight == 0) {
+                                                    echo " <a href='?action=delete_box&id=$box_id' onclick=\"return confirm('Энэ хайрцгийг устгахдаа итгэлтэй байна уу?');\" title='Устгах'><i class='ti ti-trash text-danger'></i></a>";
+                                                }
+                                                echo "</td>"; 
                                                 echo "</tr>";
                                                 $total_weight+=$weight;
                                                 $cumulative_packages+=$packages;
@@ -97,8 +123,16 @@
                     case "delete": $new_status = "delete";break;
                     }
 
-                    if(isset($_POST['boxes'])) {$boxes=$_POST['boxes'];$N = count($boxes);}
-                    if(isset($_POST['boxes_id'])) {$boxes_id=$_POST['boxes_id'];$N = 1;} else {$N = count($boxes); $boxes_id="";}
+                    $boxes = isset($_POST['boxes']) ? $_POST['boxes'] : array();
+                    $N = isset($_POST['boxes']) ? count($boxes) : 0;
+                    
+                    if(isset($_POST['boxes_id'])) {
+                        $boxes_id=$_POST['boxes_id'];
+                        $N = 1;
+                    } else {
+                        $boxes_id="";
+                    }
+                    
                     if ($N!=0 || $boxes_id!="")
                     {
                     $count=1;
@@ -233,6 +267,49 @@
 
                 }
 
+                if ($action=="delete_box")
+                {
+                    if (isset($_GET["id"])) 
+                    {
+                        $box_id = intval($_GET["id"]);
+                        $result = mysqli_query($conn,"SELECT * FROM boxes WHERE box_id='".$box_id."' LIMIT 1");
+                        if (mysqli_num_rows($result)==1)
+                        {
+                            $data = mysqli_fetch_array($result);
+                            $packages = $data["packages"];
+                            $weight = $data["weight"];
+                            $status = $data["status"];
+                            $agent = $data["agent"];
+                            
+                            // Only allow deletion of empty boxes (packages=0 or weight=0) and status='new'
+                            if (($packages == 0 || $weight == 0) && $status == 'new' && $agent == $g_agent_logged_id)
+                            {
+                                // Delete boxes_packages first (should be empty but just in case)
+                                mysqli_query($conn,"DELETE FROM boxes_packages WHERE box_id='".$box_id."'");
+                                // Delete the box
+                                mysqli_query($conn,"DELETE FROM boxes WHERE box_id='".$box_id."'");
+                                header("Location:?action=active&message=deleted");
+                                exit;
+                            }
+                            else
+                            {
+                                header("Location:?action=active&message=delete_error");
+                                exit;
+                            }
+                        }
+                        else
+                        {
+                            header("Location:?action=active&message=box_not_found");
+                            exit;
+                        }
+                    }
+                    else
+                    {
+                        header("Location:?action=active&message=error");
+                        exit;
+                    }
+                }
+
                 if ($action=="detail")
                 {
                     if (isset($_GET["id"])) 
@@ -249,6 +326,36 @@
                             $box_weight= $row_box["weight"];
                             $box_created= $row_box["created_date"];
                             $box_status= $row_box["status"];
+
+                            // Display success message if item was removed
+                            if (isset($_GET["message"]) && $_GET["message"] == "removed_success") {
+                                echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>";
+                                echo "<strong>Амжилттай!</strong> BOX-аас ачаа амжилттай гаргалаа.";
+                                echo "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>";
+                                echo "<span aria-hidden='true'>&times;</span>";
+                                echo "</button>";
+                                echo "</div>";
+                            }
+                            
+                            // Display error message if any
+                            if (isset($_GET["message"]) && $_GET["message"] == "error") {
+                                echo "<div class='alert alert-danger alert-dismissible fade show' role='alert'>";
+                                echo "<strong>Алдаа!</strong> Ачаа олдсонгүй эсвэл алдаа гарлаа.";
+                                echo "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>";
+                                echo "<span aria-hidden='true'>&times;</span>";
+                                echo "</button>";
+                                echo "</div>";
+                            }
+                            
+                            // Display message if box is not in 'new' status
+                            if (isset($_GET["message"]) && $_GET["message"] == "box_not_new") {
+                                echo "<div class='alert alert-warning alert-dismissible fade show' role='alert'>";
+                                echo "<strong>Анхааруулга!</strong> Зөвхөн нисэхэд бэлэн (NEW) төлөвтэй хайрцагнаас ачаа гаргах боломжтой.";
+                                echo "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>";
+                                echo "<span aria-hidden='true'>&times;</span>";
+                                echo "</button>";
+                                echo "</div>";
+                            }
 
                             echo "<b>".$box_name."</b><br>";
                             echo "Үүсгэсэн огноо:".$box_created."<br>";
@@ -319,7 +426,7 @@
                                         echo "<td>".customer($receiver,"tel")."</td>";
                                         echo "<td>".$weight."</td>";
                                         $total_weight+=$weight;
-                                        echo "<td><a href='?action=removing&barcode=$barcode' class='btn btn-danger btn-xs'>гаргах</a></td>";
+                                        echo "<td><a href='?action=removing&barcode=$barcode&id=$box_id' class='btn btn-danger btn-xs'>гаргах</a></td>";
                                         echo "</tr>";
                                     }
                             echo "</table>";
@@ -333,16 +440,17 @@
 
                 if ($action=="removing")
                 {
+                    // Get box_id from URL if available
+                    $box_id_from_url = isset($_GET["id"]) ? intval($_GET["id"]) : 0;
+                    
                     if (isset($_GET["barcode"])) 
                     {
                         $barcode =$_GET["barcode"];
-                        //if ($this->uri->segment(4)) $barcode=$this->uri->segment(4);
-                        //echo "box:".$box_id;
-                        //echo "barcode:".$barcode;
-                        //echo "===============";
-    
+                        $barcode = mysqli_real_escape_string($conn, $barcode);
                         $weight=0;
-                        if (substr($barcode,0,4)=="GO20" || substr($barcode,0,4)=="GO21" || substr($barcode,0,4)=="GO22" || substr($barcode,0,4)=="GO23" || substr($barcode,0,4)=="GO24") // SINGLE BARCODE
+                        $success = false;
+                        // Check for single barcode: GO2* (but not GO5* which is combine)
+                        if ((substr($barcode,0,3)=="GO2" && substr($barcode,0,4)!="GO5")) // SINGLE BARCODE
                             {
                             $result = mysqli_query($conn,"SELECT * FROM orders WHERE barcode='".$barcode."' LIMIT 1");
                             // echo "SELECT * FROM orders WHERE barcode='".$barcode."' LIMIT 1";
@@ -360,15 +468,83 @@
                                         {
                                             $data2= mysqli_fetch_array($result2);
                                             $box_id = $data2["box_id"];
-                                            // echo $box_id;
-                                            mysqli_query($conn,"DELETE FROM boxes_packages WHERE order_id='".$order_id."'");
-                                            mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
-                                            mysqli_query($conn,"UPDATE orders SET boxed=0 WHERE barcode='".$barcode."'");
-                                            header("Location:?action=detail&id=".$box_id);
+                                            
+                                            // Check box status - only allow removal from boxes with status='new'
+                                            $box_check = mysqli_query($conn,"SELECT status FROM boxes WHERE box_id='".$box_id."' LIMIT 1");
+                                            if (mysqli_num_rows($box_check)==1)
+                                            {
+                                                $box_data = mysqli_fetch_array($box_check);
+                                                $box_status = $box_data["status"];
+                                                
+                                                if ($box_status == 'new')
+                                                {
+                                                    mysqli_query($conn,"DELETE FROM boxes_packages WHERE order_id='".$order_id."'");
+                                                    mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
+                                                    mysqli_query($conn,"UPDATE orders SET boxed=0 WHERE barcode='".$barcode."'");
+                                                    header("Location:?action=detail&id=".$box_id."&message=removed_success");
+                                                    exit;
+                                                }
+                                                else
+                                                {
+                                                    header("Location:?action=detail&id=".$box_id."&message=box_not_new");
+                                                    exit;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                header("Location:?action=detail&id=".$box_id."&message=box_not_found");
+                                                exit;
+                                            }
                                         }	
                                     else echo "single not found in boxes_packages";	
                                 }
-                                else echo "single not found";	
+                                else 
+                                {
+                                    // If not found in barcode field, check third_party field (track number)
+                                    $result = mysqli_query($conn,"SELECT * FROM orders WHERE third_party='".mysqli_real_escape_string($conn, $barcode)."' LIMIT 1");
+                                    if (mysqli_num_rows($result)==1)
+                                        {
+                                            $data = mysqli_fetch_array($result);
+                                            $order_id = $data["order_id"];
+                                            $actual_barcode = $data["barcode"];
+                                            $weight= $data["weight"];
+                                            if(substr($weight,-2)=="kg" || substr($weight,-2)=="Kg") $weight = substr($weight,0,strlen($weight)-2);
+                                            
+                                            $result2 = mysqli_query($conn,"SELECT * FROM boxes_packages WHERE order_id='".$order_id."' LIMIT 1");
+                                            if (mysqli_num_rows($result2)==1)
+                                                {
+                                                    $data2= mysqli_fetch_array($result2);
+                                                    $box_id = $data2["box_id"];
+                                                    
+                                                    // Check box status - only allow removal from boxes with status='new'
+                                                    $box_check = mysqli_query($conn,"SELECT status FROM boxes WHERE box_id='".$box_id."' LIMIT 1");
+                                                    if (mysqli_num_rows($box_check)==1)
+                                                    {
+                                                        $box_data = mysqli_fetch_array($box_check);
+                                                        $box_status = $box_data["status"];
+                                                        
+                                                        if ($box_status == 'new')
+                                                        {
+                                                            mysqli_query($conn,"DELETE FROM boxes_packages WHERE order_id='".$order_id."'");
+                                                            mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
+                                                            mysqli_query($conn,"UPDATE orders SET boxed=0 WHERE barcode='".$actual_barcode."'");
+                                                            header("Location:?action=detail&id=".$box_id."&message=removed_success");
+                                                            exit;
+                                                        }
+                                                        else
+                                                        {
+                                                            header("Location:?action=detail&id=".$box_id."&message=box_not_new");
+                                                            exit;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        header("Location:?action=detail&id=".$box_id."&message=box_not_found");
+                                                        exit;
+                                                    }
+                                                }
+                                        }
+                                }
                             }
                             
                         if (substr($barcode,0,3)=="GO5") // COMBINE BARCODE	
@@ -384,18 +560,50 @@
         
                                     $query2 = mysqli_query($conn,"SELECT * FROM boxes_packages WHERE barcode='".$barcode."' LIMIT 1");
                                     if (mysqli_num_rows($query2)==1)
+                                        {
                                             $row2= mysqli_fetch_array($query2);
                                             $box_id = $row2["box_id"];
-                                            mysqli_query($conn,"DELETE FROM boxes_packages WHERE barcode='".$barcode."'");
-                                            mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
-                                            mysqli_query($conn,"UPDATE box_combine SET boxed=0 WHERE barcode='".$barcode."'");
-                                            header("Location:?action&id=".$box_id);
-        
+                                            
+                                            // Check box status - only allow removal from boxes with status='new'
+                                            $box_check = mysqli_query($conn,"SELECT status FROM boxes WHERE box_id='".$box_id."' LIMIT 1");
+                                            if (mysqli_num_rows($box_check)==1)
+                                            {
+                                                $box_data = mysqli_fetch_array($box_check);
+                                                $box_status = $box_data["status"];
+                                                
+                                                if ($box_status == 'new')
+                                                {
+                                                    mysqli_query($conn,"DELETE FROM boxes_packages WHERE barcode='".$barcode."'");
+                                                    mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
+                                                    mysqli_query($conn,"UPDATE box_combine SET boxed=0 WHERE barcode='".$barcode."'");
+                                                    header("Location:?action=detail&id=".$box_id."&message=removed_success");
+                                                    exit;
+                                                }
+                                                else
+                                                {
+                                                    header("Location:?action=detail&id=".$box_id."&message=box_not_new");
+                                                    exit;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                header("Location:?action=detail&id=".$box_id."&message=box_not_found");
+                                                exit;
+                                            }
+                                        }
                                     }
                             }
                     }
                     else 
-                    header("location:?action=detail&id=".$box_id."&message=error");
+                    {
+                        // If barcode not provided, redirect with error
+                        if (isset($_GET["id"])) {
+                            header("Location:?action=detail&id=".$_GET["id"]."&message=error");
+                        } else {
+                            header("Location:?action=list&message=error");
+                        }
+                        exit;
+                    }
                 }
 
                 if ($action=="create")
@@ -446,13 +654,30 @@
                         <form action="?action=filling" method="POST">
                             <input type="hidden" name="box_id" value="<?=$box_id;?>">                            
                             <h4 class="legend">Track or Barcode</h4>
-                            <input type="text" name="barcode" value="" class="form-control" placeholder="GO15101588MN">
+                            <?php 
+                            $barcode_value = "";
+                            if (isset($_GET["message"]) && $_GET["message"]=="barcode_not_found" && isset($_POST["barcode"])) {
+                                $barcode_value = htmlspecialchars($_POST["barcode"]);
+                            }
+                            ?>
+                            <input type="text" name="barcode" value="<?=$barcode_value;?>" class="form-control" placeholder="GO15101588MN" autofocus>
                             
                     <?php                    
                             if (isset($_GET["message"]))            
                             {
+                                $message = $_GET["message"];
+                                $message_text = $message;
+                                // Translate common error messages
+                                if ($message == "barcode_not_found") $message_text = "Barcode олдсонгүй";
+                                elseif ($message == "ok") $message_text = "Амжилттай нэмэгдлээ";
+                                elseif ($message == "already") $message_text = "Энэ barcode аль хэдийн хайрцагт байна";
+                                elseif ($message == "already_in_box") $message_text = "Энэ barcode аль хэдийн хайрцагт байна";
+                                elseif ($message == "box_not_found") $message_text = "Хайрцаг олдсонгүй";
+                                elseif ($message == "onair") $message_text = "Хайрцаг аль хэдийн нислэгт явсан";
+                                elseif ($message == "no_inputs") $message_text = "Barcode эсвэл хайрцаг оруулаагүй байна";
+                                elseif ($message == "db_error") $message_text = "Өгөгдлийн сангийн алдаа";
                                 ?>
-                                <div class="alert <?=($_GET["message"]=="ok")?'alert-success':'alert-danger';?>"><?=$_GET["message"];?></div>
+                                <div class="alert <?=($message=="ok")?'alert-success':'alert-danger';?>"><?=$message_text;?></div>
                     <?php                    
                             }                 
                             ?>
@@ -482,7 +707,8 @@
                     $receiver = 0;
                         if ($box_id!="" && $barcode!="")
                         {
-                            $result = mysqli_query($conn,"SELECT * FROM orders WHERE barcode='".$barcode."' LIMIT 1");
+                            // First check barcode field
+                            $result = mysqli_query($conn,"SELECT * FROM orders WHERE barcode='".mysqli_real_escape_string($conn, $barcode)."' LIMIT 1");
                             if (mysqli_num_rows($result)==1)
                             {
                                 $data = mysqli_fetch_array($result);
@@ -494,7 +720,7 @@
                                 if ($data["boxed"]==1) 
                                     {
                                         $error=1;
-                                        $sql_already = "SELECT name FROM boxes_packages LEFT JOIN boxes ON boxes_packages.box_id = boxes.box_id WHERE  barcode='$barcode' LIMIT 1";
+                                        $sql_already = "SELECT name FROM boxes_packages LEFT JOIN boxes ON boxes_packages.box_id = boxes.box_id WHERE  barcode='".mysqli_real_escape_string($conn, $barcode)."' LIMIT 1";
                                         $result_already=mysqli_query($conn,$sql_already);
                                         if (mysqli_num_rows($result_already)==1)
                                         $data_already = mysqli_fetch_array($result_already);                                
@@ -504,8 +730,35 @@
                                     header("Location:?action=fill&id=".$box_id."&message=already_in_box");
 
                             }
+                            else
+                            {
+                                // If not found in barcode field, check third_party field (track number)
+                                $result = mysqli_query($conn,"SELECT * FROM orders WHERE third_party='".mysqli_real_escape_string($conn, $barcode)."' LIMIT 1");
+                                if (mysqli_num_rows($result)==1)
+                                {
+                                    $data = mysqli_fetch_array($result);
+                                    $order_id = $data["order_id"];
+                                    $error=0;
+                                    $weight=$data["weight"];
+                                    $receiver=$data["receiver"];
+                                    $combined=0;
+                                    // Use the actual barcode from database, not the track number
+                                    $barcode = $data["barcode"];
+                                    if ($data["boxed"]==1) 
+                                        {
+                                            $error=1;
+                                            $sql_already = "SELECT name FROM boxes_packages LEFT JOIN boxes ON boxes_packages.box_id = boxes.box_id WHERE  order_id='".$order_id."' LIMIT 1";
+                                            $result_already=mysqli_query($conn,$sql_already);
+                                            if (mysqli_num_rows($result_already)==1)
+                                            $data_already = mysqli_fetch_array($result_already);                                
+                                            header("Location:?action=fill&id=".$box_id."&message=".$data_already["name"]);
+                                            exit;
+                                        }
+                                    // If boxed==0, continue with normal flow (don't redirect, let it be added to box)
+                                }
+                            }
 
-                            $result_combine = mysqli_query($conn,"SELECT * FROM box_combine WHERE barcode='".$barcode."' LIMIT 1");
+                            $result_combine = mysqli_query($conn,"SELECT * FROM box_combine WHERE barcode='".mysqli_real_escape_string($conn, $barcode)."' LIMIT 1");
                             if (mysqli_num_rows($result_combine)==1)
                             {
                                 $data_combine = mysqli_fetch_array($result_combine);
@@ -517,11 +770,12 @@
                                 if ($data_combine["boxed"]==1) 
                                     {
                                         $error=1;
-                                        $sql_already = "SELECT name FROM boxes_packages LEFT JOIN boxes ON boxes_packages.box_id = boxes.box_id WHERE  barcode='$barcode' LIMIT 1";
+                                        $sql_already = "SELECT name FROM boxes_packages LEFT JOIN boxes ON boxes_packages.box_id = boxes.box_id WHERE  barcode='".mysqli_real_escape_string($conn, $barcode)."' LIMIT 1";
                                         $result_already=mysqli_query($conn,$sql_already);
                                         if (mysqli_num_rows($result_already)==1)
                                             $data_already = mysqli_fetch_array($result_already);                            
                                             header("Location:?action=fill&id=".$box_id."&message=already in ".$data_already["name"]);
+                                            exit;
                                     }
                             }
                             
@@ -537,14 +791,19 @@
                                     
                                         if ($box_status!="onair"&&$box_status!="delivered" && $box_status!="warehouse")
                                         {
-                                            $sql = "SELECT * FROM boxes_packages WHERE box_id='$box_id' AND barcode='$barcode' LIMIT 1";
-                                            $result=mysqli_query($conn,$sql);
+                                            // Check if already in box - use order_id for single orders, barcode for combined
+                                            if ($combined==1)
+                                                $check_sql = "SELECT * FROM boxes_packages WHERE box_id='$box_id' AND barcode='".mysqli_real_escape_string($conn, $barcode)."' LIMIT 1";
+                                            else
+                                                $check_sql = "SELECT * FROM boxes_packages WHERE box_id='$box_id' AND order_id='$order_id' LIMIT 1";
+                                            
+                                            $result=mysqli_query($conn,$check_sql);
                                             if (mysqli_num_rows($result)==0)
                                                 {
                                                     if ($combined==1)
-                                                        $sql = "INSERT INTO boxes_packages (box_id,barcode,barcodes,order_id,combined,weight,receiver) VALUES ('$box_id','$barcode','$barcodes',0,,1,'$weight','$receiver')";
+                                                        $sql = "INSERT INTO boxes_packages (box_id,barcode,barcodes,order_id,combined,weight,receiver) VALUES ('$box_id','".mysqli_real_escape_string($conn, $barcode)."','".mysqli_real_escape_string($conn, $barcodes)."',0,1,'$weight','$receiver')";
                                                         if ($combined==0)
-                                                        $sql = "INSERT INTO boxes_packages (box_id,barcode,barcodes,order_id,combined,weight,receiver) VALUES ('$box_id','$barcode','','$order_id',0,'$weight','$receiver')";
+                                                        $sql = "INSERT INTO boxes_packages (box_id,barcode,barcodes,order_id,combined,weight,receiver) VALUES ('$box_id','".mysqli_real_escape_string($conn, $barcode)."','','$order_id',0,'$weight','$receiver')";
 
                                                         if (mysqli_query($conn,$sql)) 
                                                         {
@@ -556,12 +815,12 @@
                                                                     foreach(explode(',',$barcodes) as $each_barcode)
                                                                         {
                                                                             if ($each_barcode!="")
-                                                                            mysqli_query($conn,"UPDATE orders SET boxed=1 WHERE barcode='$each_barcode'");	
+                                                                            mysqli_query($conn,"UPDATE orders SET boxed=1, third_party='' WHERE barcode='$each_barcode'");	
                                                                         }
                                                                     mysqli_query($conn,"UPDATE box_combine SET boxed=1 WHERE barcode='$barcode'");
                                                                 }
                                                             if ($combined==0)
-                                                            mysqli_query($conn,"UPDATE orders SET boxed=1 WHERE barcode='$barcode'");
+                                                            mysqli_query($conn,"UPDATE orders SET boxed=1, third_party='' WHERE barcode='$barcode'");
                                                             header("Location:?action=fill&id=".$box_id."&message=ok");
                                                         }
                                                         else //echo '<div class="alert alert-danger" role="alert">Error:'.$this->db->error().'</div>';
@@ -590,10 +849,9 @@
                     if (isset($_GET["barcode"]))
                     {
                         $barcode = $_GET["barcode"];
-                        echo $barcode;
-
                         $weight=0;
-                        if (substr($barcode,0,4)=="GO20" || substr($barcode,0,4)=="GO21" || substr($barcode,0,4)=="GO22" || substr($barcode,0,4)=="GO23" || substr($barcode,0,4)=="GO24") // SINGLE BARCODE
+                        // Check for single barcode: GO2* (but not GO5* which is combine)
+                        if ((substr($barcode,0,3)=="GO2" && substr($barcode,0,4)!="GO5")) // SINGLE BARCODE
                             {
                                 $result = mysqli_query($conn,"SELECT * FROM orders WHERE barcode='".$barcode."' LIMIT 1");
                                 if (mysqli_num_rows($result)==1)
@@ -608,15 +866,62 @@
                                         if (mysqli_num_rows($result2)==1)
                                             {
                                                 $data2= mysqli_fetch_array($result2);
-                                                $box_id = $data["box_id"];
+                                                $box_id = $data2["box_id"];
                                                 mysqli_query($conn,"DELETE FROM boxes_packages WHERE order_id='".$order_id."'");
                                                 mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
                                                 mysqli_query($conn,"UPDATE orders SET boxed=0 WHERE barcode='".$barcode."'");
-                                                header("Location:?action=detail&id=".$box_id);
+                                                header("Location:?action=detail&id=".$box_id."&message=removed_success");
+                                                exit;
                                             }	
                                             // else single not found in boxes_packages	
                                     }
-                                    // else single not found	
+                                    else 
+                                    {
+                                        // If not found in barcode field, check third_party field (track number)
+                                        $result = mysqli_query($conn,"SELECT * FROM orders WHERE third_party='".mysqli_real_escape_string($conn, $barcode)."' LIMIT 1");
+                                        if (mysqli_num_rows($result)==1)
+                                            {
+                                                $data = mysqli_fetch_array($result);
+                                                $order_id = $data["order_id"];
+                                                $actual_barcode = $data["barcode"];
+                                                $weight= $data["weight"];
+                                                if(substr($weight,-2)=="kg" || substr($weight,-2)=="Kg") $weight = substr($weight,0,strlen($weight)-2);
+                                                
+                                                $result2 = mysqli_query($conn,"SELECT * FROM boxes_packages WHERE order_id='".$order_id."' LIMIT 1");
+                                                if (mysqli_num_rows($result2)==1)
+                                                    {
+                                                        $data2= mysqli_fetch_array($result2);
+                                                        $box_id = $data2["box_id"];
+                                                        
+                                                        // Check box status - only allow removal from boxes with status='new'
+                                                        $box_check = mysqli_query($conn,"SELECT status FROM boxes WHERE box_id='".$box_id."' LIMIT 1");
+                                                        if (mysqli_num_rows($box_check)==1)
+                                                        {
+                                                            $box_data = mysqli_fetch_array($box_check);
+                                                            $box_status = $box_data["status"];
+                                                            
+                                                            if ($box_status == 'new')
+                                                            {
+                                                                mysqli_query($conn,"DELETE FROM boxes_packages WHERE order_id='".$order_id."'");
+                                                                mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
+                                                                mysqli_query($conn,"UPDATE orders SET boxed=0 WHERE barcode='".$actual_barcode."'");
+                                                                header("Location:?action=detail&id=".$box_id."&message=removed_success");
+                                                                exit;
+                                                            }
+                                                            else
+                                                            {
+                                                                header("Location:?action=detail&id=".$box_id."&message=box_not_new");
+                                                                exit;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            header("Location:?action=detail&id=".$box_id."&message=box_not_found");
+                                                            exit;
+                                                        }
+                                                    }
+                                            }
+                                    }
                             }
                             
                         if (substr($barcode,0,3)=="GO5") // COMBINE BARCODE	
@@ -627,22 +932,52 @@
                                     $data_combine= mysqli_fetch_array($result_combine);
                                     $barcodes = $data_combine["barcodes"];
                                     $weight = $data_combine["weight"];
-                                    $combine_id = $row_combine->combine_id;
+                                    $combine_id = $data_combine["combine_id"];
                                     if(substr($weight,-2)=="kg" || substr($weight,-2)=="Kg") $weight = substr($weight,0,strlen($weight)-2);
         
                                     $result2 = mysqli_query($conn,"SELECT * FROM boxes_packages WHERE barcode='".$barcode."' LIMIT 1");
                                     if (mysqli_num_rows($result2)==1)
+                                        {
                                             $data2= mysqli_fetch_array($result2);
                                             $box_id = $data2["box_id"];
-                                            mysqli_query($conn,"DELETE FROM boxes_packages WHERE barcode='".$barcode."'");
-                                            mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
-                                            mysqli_query($conn,"UPDATE box_combine SET boxed=0 WHERE barcode='".$barcode."'");
-                                            header("Location:?action=detail&id=".$box_id);
-        
+                                            
+                                            // Check box status - only allow removal from boxes with status='new'
+                                            $box_check = mysqli_query($conn,"SELECT status FROM boxes WHERE box_id='".$box_id."' LIMIT 1");
+                                            if (mysqli_num_rows($box_check)==1)
+                                            {
+                                                $box_data = mysqli_fetch_array($box_check);
+                                                $box_status = $box_data["status"];
+                                                
+                                                if ($box_status == 'new')
+                                                {
+                                                    mysqli_query($conn,"DELETE FROM boxes_packages WHERE barcode='".$barcode."'");
+                                                    mysqli_query($conn,"UPDATE boxes SET weight=weight-$weight,packages=packages-1 WHERE box_id='".$box_id."'");
+                                                    mysqli_query($conn,"UPDATE box_combine SET boxed=0 WHERE barcode='".$barcode."'");
+                                                    header("Location:?action=detail&id=".$box_id."&message=removed_success");
+                                                    exit;
+                                                }
+                                                else
+                                                {
+                                                    header("Location:?action=detail&id=".$box_id."&message=box_not_new");
+                                                    exit;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                header("Location:?action=detail&id=".$box_id."&message=box_not_found");
+                                                exit;
+                                            }
+                                        }
                                     }
                             }
                             
-                        header("Location:?action=detail&id=".$box_id."&message=error");
+                        // If we get here, barcode was not found or didn't match any pattern
+                        // Try to get box_id from URL parameter or redirect to boxes list
+                        if (isset($_GET["id"])) {
+                            header("Location:?action=detail&id=".$_GET["id"]."&message=error");
+                        } else {
+                            header("Location:?action=list&message=error");
+                        }
                     }
                     else
                     echo "Ачааны мэдээлэл өгөөгүй байна.";
@@ -1450,15 +1785,18 @@
     <script type="application/javascript">
         $(document).ready(function() {
             $('input[name="select_all"]').click(function(event) {
-                if(this.checked) { 
-                    $('input[type="checkbox"]').each(function() {
-                        this.checked = true;            
-                    });
-                }else{
-                    $('input[type="checkbox"]').each(function() {
-                        this.checked = false; 
-                    });        
-                }
+                var isChecked = this.checked;
+                // Select/deselect all checkboxes with name="boxes[]" but not the select_all checkbox itself
+                $('input[name="boxes[]"]').each(function() {
+                    this.checked = isChecked;
+                });
+            });
+            
+            // Update select_all checkbox when individual checkboxes are clicked
+            $('input[name="boxes[]"]').click(function() {
+                var totalCheckboxes = $('input[name="boxes[]"]').length;
+                var checkedCheckboxes = $('input[name="boxes[]"]:checked').length;
+                $('input[name="select_all"]').prop('checked', totalCheckboxes === checkedCheckboxes);
             });
         })            
     </script>
