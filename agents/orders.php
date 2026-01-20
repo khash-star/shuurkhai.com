@@ -295,10 +295,47 @@
                         echo "<td>";
                         echo 'Үлдэгдэл төлбөртэй: <div class="input-group">';
                         echo '<span class="input-group-addon" id="basic-addon1">Төлбөр</span>';
-                        echo '<span class="input-group-addon"><input type="checkbox" name="Package_advance" value="1" checked></span>';
+                        echo '<span class="input-group-addon"><input type="checkbox" name="Package_advance" id="Package_advance_checkbox" value="1" checked onchange="toggleAdvanceValue()"></span>';
                         echo "<input type='text' name='Package_advance_value' class='form-control' id='Package_advance_value' pattern='[0-9]+(\.[0-9]{1,2})?' title='Зөвхөн тоо эсвэл бутархай тоо оруулна уу (жишээ: 5.4, 10.25)' oninput=\"this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\\..*)\\./g, '$1');\">" ;
                         echo "</td>";
                         echo "</tr>";
+                        echo "<script>";
+                        echo "function toggleAdvanceValue() {";
+                        echo "  var checkbox = document.getElementById('Package_advance_checkbox');";
+                        echo "  var input = document.getElementById('Package_advance_value');";
+                        echo "  if (!checkbox.checked) {";
+                        echo "    input.value = '';";
+                        echo "    input.disabled = true;";
+                        echo "  } else {";
+                        echo "    input.disabled = false;";
+                        echo "    // Checkbox checked болж байгаа бол жин оруулсан байвал автоматаар үнэ тооцоолох";
+                        echo "    var weightInput = document.getElementById('weight');";
+                        echo "    if (weightInput && weightInput.value) {";
+                        echo "      weightInput.dispatchEvent(new Event('change'));";
+                        echo "    }";
+                        echo "  }";
+                        echo "}";
+                        echo "// Ensure checkbox value is sent even when checked";
+                        echo "document.addEventListener('DOMContentLoaded', function() {";
+                        echo "  var form = document.querySelector('form[action*=\"creating\"]');";
+                        echo "  if (form) {";
+                        echo "    form.addEventListener('submit', function(e) {";
+                        echo "      var checkbox = document.getElementById('Package_advance_checkbox');";
+                        echo "      if (checkbox.checked && !checkbox.value) {";
+                        echo "        checkbox.value = '1';";
+                        echo "      }";
+                        echo "      // Ensure hidden input if checkbox is checked";
+                        echo "      if (checkbox.checked) {";
+                        echo "        var hidden = document.createElement('input');";
+                        echo "        hidden.type = 'hidden';";
+                        echo "        hidden.name = 'Package_advance';";
+                        echo "        hidden.value = '1';";
+                        echo "        form.appendChild(hidden);";
+                        echo "      }";
+                        echo "    });";
+                        echo "  }";
+                        echo "});";
+                        echo "</script>";
 
                         /*echo "<div class='more'>";
                         echo "<div class='box'>";
@@ -488,9 +525,26 @@
                     //$Package_return_way = $_POST["Package_return_way"];
 
                     /* ADVANCE */
-                    if(isset($_POST["Package_advance"])) $Package_advance = 1; else $Package_advance = 0;
-                    if ($Package_advance) $Package_advance_value = round($_POST["Package_advance_value"],2);
-                    else $Package_advance_value="";
+                    // Checkbox checked байвал эсвэл POST-оос ирсэн байвал төлбөртэй илгээмж
+                    if(isset($_POST["Package_advance"]) && $_POST["Package_advance"] == "1") 
+                    {
+                      $Package_advance = 1;
+                      // Төлбөрийн дүнг зөв унших
+                      if(isset($_POST["Package_advance_value"]) && $_POST["Package_advance_value"] != "")
+                      {
+                        $Package_advance_value = floatval($_POST["Package_advance_value"]);
+                        $Package_advance_value = round($Package_advance_value, 2);
+                      }
+                      else
+                      {
+                        $Package_advance_value = 0;
+                      }
+                    }
+                    else 
+                    {
+                      $Package_advance = 0;
+                      $Package_advance_value = "";
+                    }
 
                     $barcode='GO'.date("ymd").sprintf("%03d",rand(000,999)).'MN';
                     do {
@@ -848,22 +902,49 @@
                 }
             });
                 
-        $("#weight").on('change',function(){
+        $("#weight").on('change input',function(){
             var str = $(this).val();
             var payment_rate = <?=settings("paymentrate_selfdrop");?>;
-            var str = str.replace(",", "."); 
-            var str = str.replace("Kg", ""); 
-            var str = str.replace("kg", ""); 
-            var str = str.replace("KG", ""); 
-            var str = str.replace("Кг", ""); 
-            var str = str.replace("кг", ""); 
-            var str = str.replace("КГ", ""); 
+            var originalValue = str;
+            
+            // Тэмдэгтүүдийг цэвэрлэх
+            str = str.replace(",", "."); 
+            str = str.replace("Kg", ""); 
+            str = str.replace("kg", ""); 
+            str = str.replace("KG", ""); 
+            str = str.replace("Кг", ""); 
+            str = str.replace("кг", ""); 
+            str = str.replace("КГ", ""); 
+            
+            // Зөвхөн тоо болон цэгийг хадгалах
+            str = str.replace(/[^0-9.]/g, '');
+            // Олон цэгийг нэг цэг болгох
+            var parts = str.split('.');
+            if (parts.length > 2) {
+                str = parts[0] + '.' + parts.slice(1).join('');
+            }
+            
+            // Цэгтэй утгыг хадгалах (бутархай тоо оруулах боломжтой болгох)
+            if (str !== '' && str !== originalValue) {
+                $(this).val(str);
+            }
+            
             var weight = parseFloat(str);
-            $(this).val(weight);
-            // if (weight<=0.5)  $('#Package_advance_value').val(10);
-            if (weight<=1) $('#Package_advance_value').val(payment_rate);
-            if (weight>1) {var total = $(this).val()*payment_rate; $('#Package_advance_value').val(total.toFixed(2));}
-            });
+            
+            // Checkbox checked байхад л үнэ тооцоолох
+            var checkbox = $('#Package_advance_checkbox');
+            if (checkbox.length && checkbox.is(':checked')) {
+                if (!isNaN(weight) && weight > 0) {
+                    // if (weight<=0.5)  $('#Package_advance_value').val(10);
+                    if (weight<=1) {
+                        $('#Package_advance_value').val(payment_rate);
+                    } else {
+                        var total = weight * payment_rate;
+                        $('#Package_advance_value').val(total.toFixed(2));
+                    }
+                }
+            }
+        });
         $("div.more").hide();
 
         $( "span#more_toggle" ).click(function() {

@@ -659,6 +659,8 @@
                             <div class="form-group">
                               <label for="recipient-name" class="control-label">Тооцоо /Төг/ </label>
                               <input type="text" class="form-control" id="grand_total_inmodal_tug" readonly="readonly"  value="<?php echo ($grand_total+$total_admin_value)*cfg_rate();?>">
+                              <!-- Hidden input to send tugrik amount to form -->
+                              <input type="hidden" name="grand_total_tug" id="grand_total_tug_hidden" value="<?php echo ($grand_total+$total_admin_value)*cfg_rate();?>">
                             </div>
                             
                             <div class="form-group">
@@ -832,6 +834,8 @@
                       if(isset($_POST['orders'])) 
                       {
                         $orders=$_POST['orders'];$N = count($orders);
+                        $total_advance_for_bill = 0; // Төлбөртэй илгээмжүүдийн дүнг цуглуулах
+                        
                           for($i=0; $i < $N; $i++)
                           {
                             $order_id=$orders[$i];
@@ -843,7 +847,16 @@
                                 $proxy_id = $data["proxy_id"];
                                 $proxy_type = $data["proxy_type"];
                                 $status = $data["status"];
+                                $is_online = $data["is_online"];
+                                $advance = $data["advance"];
+                                $advance_value = floatval($data["advance_value"]);
                                 array_push($barcodes,$data["barcode"]);
+                                
+                                // Төлбөртэй илгээмж байвал дүнг цуглуулах (update хийхээс өмнө)
+                                if ($is_online==0 && $advance==1 && $advance_value > 0)
+                                {
+                                  $total_advance_for_bill += $advance_value;
+                                }
 
                                 if ($status=="custom")
                                 $sql = "UPDATE orders SET delivered_date='".date("Y-m-d H:i:s")."' ,method='".$method."',deliver='$deliver_id' WHERE order_id=$order_id LIMIT 1";
@@ -855,6 +868,65 @@
                               }
                           }
                           // var_dump($barcodes);
+                      }
+                      
+                      // Төлбөртэй илгээмжийг Хашбал тайланд оруулах
+                      if($error&&isset($_POST['orders'])&& $deliver_id>0) 
+                      {
+                        // Төлбөртэй илгээмжүүдийг олох
+                        $payment_orders = array();
+                        $payment_barcodes = array();
+                        $total_payment_amount = 0;
+                        
+                        foreach($orders as $order_id)
+                        {
+                          $sql_payment = "SELECT * FROM orders WHERE order_id='$order_id' AND advance=1 AND advance_value > 0 LIMIT 1";
+                          $result_payment = mysqli_query($conn,$sql_payment);
+                          if (mysqli_num_rows($result_payment)==1)
+                          {
+                            $data_payment = mysqli_fetch_array($result_payment);
+                            $payment_orders[] = $order_id;
+                            $payment_barcodes[] = $data_payment["barcode"];
+                            $total_payment_amount += floatval($data_payment["advance_value"]);
+                          }
+                        }
+                        
+                        // Төлбөртэй илгээмж байвал Хашбал тайланд нэмэх
+                        if (count($payment_orders) > 0 && $total_payment_amount > 0)
+                        {
+                          // Хүлээн авагчийн үлдэгдлийг олох
+                          $query_receiver = mysqli_query($conn,"SELECT receiver FROM orders WHERE order_id IN (".implode(",",$payment_orders).") GROUP BY receiver");
+                          while ($data_receiver = mysqli_fetch_array($query_receiver))
+                          {
+                            $receiver_id = $data_receiver["receiver"];
+                            
+                            // Эхний үлдэгдлийг олох
+                            $init_balance = 0;
+                            $query_records = mysqli_query($conn,"SELECT * FROM later_payment WHERE d_customer='".$receiver_id."' ORDER BY id DESC LIMIT 1");
+                            if (mysqli_num_rows($query_records) == 1)
+                            {
+                              $data_records = mysqli_fetch_array($query_records);
+                              $init_balance = floatval($data_records["final_balance"]);
+                            }
+                            
+                            // Төлбөрийн дүнг тооцоолох
+                            $receiver_payment = 0;
+                            $receiver_barcodes = array();
+                            $query_orders = mysqli_query($conn,"SELECT * FROM orders WHERE order_id IN (".implode(",",$payment_orders).") AND receiver='$receiver_id'");
+                            while ($data_orders = mysqli_fetch_array($query_orders))
+                            {
+                              $receiver_payment += floatval($data_orders["advance_value"]);
+                              $receiver_barcodes[] = $data_orders["barcode"];
+                            }
+                            
+                            $final_balance = $init_balance + $receiver_payment;
+                            
+                            // Хашбал тайланд нэмэх
+                            $sql_hashbal = "INSERT INTO later_payment (`date`,d_customer,dept,init_balance,final_balance,description) VALUES(
+                              '".date("Y-m-d")."',$receiver_id,$receiver_payment,$init_balance,$final_balance,'Төлбөртэй илгээмж: ".implode(",",$receiver_barcodes)."')";
+                            mysqli_query($conn,$sql_hashbal);
+                          }
+                        }
                       }
                     }
                     
@@ -920,10 +992,6 @@
 
                         $total_admin_value+=$admin_value;
 
-                        if ($is_online==0 && $Package_advance==1)
-                        $total_advance+=$Package_advance_value;
-                                
-
                         $price=cfg_price($weight);
                         if($status=="warehouse"&&$extra!="") 
                         $temp_status=$status." ".$extra."-р тавиур";else $temp_status=$status;
@@ -945,17 +1013,22 @@
                         echo "</tr>";
                           //$total_weight+=$weight;
                         $total_price+=$price;
-                        $total_advance+=floatval($advance_value);
+                        
+                        // Төлбөртэй илгээмж байвал advance талбарт оруулах (тайланд харагдахын тулд)
+                        // Зөвхөн нэг удаа тооцоолох
+                        if ($is_online==0 && $Package_advance==1 && $Package_advance_value > 0)
+                        {
+                          $total_advance += floatval($Package_advance_value);
+                        }
 
                         if ($is_online==1) $total_weight+=$weight;
                     
                           $total_admin_value+=$admin_value;
-                    
-                          if ($is_online==0&&$advance==1)
-                          $total_advance+=$advance_value;
                         }
                       }
-                      echo "<tr class='total'><td colspan='8'>Нийт</td><td id='total_weight'>$total_weight</td><td id='total_price'>$total_price</td><td>$total_advance</td><td></td><td></td></tr>";
+                      echo "<tr class='total'><td colspan='8'>Нийт</td><td id='total_weight'>$total_weight</td><td id='total_price'>$total_price</td><td id='total_advance_display'>$total_advance</td><td></td><td></td></tr>";
+                      // Debug: Төлбөртэй илгээмж байгаа эсэхийг шалгах
+                      // echo "<!-- Debug: total_advance = $total_advance -->";
                     echo "</table>";
                     }
                     //if ($total_advance==0) $grand_total = cfg_price($total_weight);
@@ -972,7 +1045,10 @@
                     // // else $grand_total =$total_advance;
 
                     // if ($grand_total_tug == 0)
-                    $grand_total_tug = $_POST["grand_total_tug"];
+                    $grand_total_tug_input = isset($_POST["grand_total_tug"]) ? $_POST["grand_total_tug"] : '0';
+                    // Төгрөгийн дүнг тооцоолох (₮ тэмдэгт болон бусад тэмдэгтүүдээс цэвэрлэх)
+                    $grand_total_tug_clean = str_replace(array('₮', '₮', ' ', ',', chr(194), chr(160)), '', $grand_total_tug_input);
+                    $grand_total_tug = floatval($grand_total_tug_clean);
 
                     if ($method=='cash') {$cash = $grand_total_tug;$pos=0;$account=0;}
                     if ($method=='pos') {$pos = $grand_total_tug;$cash=0;$account=0;}
@@ -980,13 +1056,52 @@
                     if ($method=='mix') {$account = $_POST["account_value"];$pos = $_POST["pos_value"];$cash=$_POST["cash_value"];}
                     $later = 0;
                     if ($method=='later') {$account = 0;$pos = 0;$cash=0; $later = $grand_total_tug;}
+                    
+                    // "Тооцоо бодох" дээр орж ирсэн төгрөгийн дүнг advance талбарт хадгалах
+                    // Тайланд "ИЛГЭЭМЖ ТООЦОО" баганад төгрөгийн дүн харагдахын тулд
+                    // Зөвхөн тооцоотой (is_online=1) илгээмжүүд байвал тайланд оруулах
+                    // Монголд тооцоогүй (is_online=0) илгээмжүүдийг тайланд оруулахгүй
+                    $bills_advance = 0;
+                    $has_online_orders = false;
+                    
+                    // Гардуулж байгаа илгээмжүүдэд тооцоотой илгээмж байгаа эсэхийг шалгах
+                    if(isset($_POST['orders'])) 
+                    {
+                        $orders_check = $_POST['orders'];
+                        foreach($orders_check as $order_id_check)
+                        {
+                            $sql_check = "SELECT is_online FROM orders WHERE order_id='$order_id_check' LIMIT 1";
+                            $result_check = mysqli_query($conn,$sql_check);
+                            if (mysqli_num_rows($result_check)==1)
+                            {
+                                $data_check = mysqli_fetch_array($result_check);
+                                if ($data_check["is_online"] == 1)
+                                {
+                                    $has_online_orders = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Зөвхөн тооцоотой илгээмж байвал тайланд оруулах
+                    if ($has_online_orders)
+                    {
+                        $bills_advance = $grand_total_tug;
+                    }
+                    
+                    // Debug: Төлбөртэй илгээмж байгаа эсэхийг шалгах
+                    // echo "<!-- Debug: total_advance_for_bill = ".($total_advance_for_bill ?? 0).", total_advance = ".($total_advance ?? 0).", bills_advance = $bills_advance -->";
+                    
                     $sql = "SELECT * FROM bills WHERE deliver='$deliver_id' AND barcode='".implode(',',$barcodes)."'";
 
                     $result_delivered = mysqli_query($conn,$sql);
 
                       if(mysqli_num_rows($result_delivered)==0)
                       {
-                        $sql = "INSERT INTO bills (`timestamp`,deliver,barcode,weight,type,count,cash,account,pos,later,total,advance) VALUES('".date("Y-m-d H:i:s")."',$deliver_id,'".implode(',',$barcodes)."',$total_weight,'$method',$N,'$cash','$account','$pos','$later','$grand_total_tug','$total_advance')";
+                        // Төлбөртэй илгээмж байвал advance талбарт төлбөрийн дүнг бичих
+                        // Тайланд "ИЛГЭЭМЖ ТООЦОО" баганад харагдахын тулд
+                        $sql = "INSERT INTO bills (`timestamp`,deliver,barcode,weight,type,count,cash,account,pos,later,total,advance) VALUES('".date("Y-m-d H:i:s")."',$deliver_id,'".implode(',',$barcodes)."',$total_weight,'$method',$N,'$cash','$account','$pos','$later','$grand_total_tug','$bills_advance')";
                         mysqli_query($conn,$sql);
                         $bill_id = mysqli_insert_id($conn);
 
@@ -1763,6 +1878,10 @@
             $('#total_admin_inmodal').val(total_advance_from_table.toFixed(2));
             
             $('#grand_total_inmodal_tug').val(grand_total_tug.toFixed(2));
+            // Hidden input-д төгрөгийн дүнг оруулах
+            $('#grand_total_tug_hidden').val(grand_total_tug.toFixed(2));
+            // Form-ийн grand_total_tug field-д ч оруулах
+            $('#grand_total_tug').val(grand_total_tug.toFixed(2));
         })
         
         // Модал цонх нээгдэхэд хүснэгтийн талбаруудын утгыг модал цонхны талбарт оруулах
@@ -1774,12 +1893,24 @@
             
             if (total_advance_from_table > 0 || total_admin_from_table > 0 || total_weight_from_table > 0) {
                 var rate = <?php echo cfg_rate(); ?>;
+                var grand_total_tug_value = (grand_total_from_table * rate).toFixed(2);
                 
                 $('#total_weight_inmodal').val(total_weight_from_table.toFixed(2));
                 $('#total_admin_inmodal').val(total_advance_from_table.toFixed(2));
                 $('#grand_total_inmodal').val(grand_total_from_table.toFixed(2));
-                $('#grand_total_inmodal_tug').val((grand_total_from_table * rate).toFixed(2) + '₮');
+                $('#grand_total_inmodal_tug').val(grand_total_tug_value + '₮');
+                // Hidden input-д төгрөгийн дүнг оруулах
+                $('#grand_total_tug_hidden').val(grand_total_tug_value);
+                // Form-ийн grand_total_tug field-д ч оруулах
+                $('#grand_total_tug').val(grand_total_tug_value);
             }
+        });
+        
+        // Modal-ийн төгрөгийн дүн өөрчлөгдөхөд hidden input болон form field-д оруулах
+        $(document).on('input change', '#grand_total_inmodal_tug', function() {
+            var tugValue = $(this).val().toString().replace(/[₮\s,]/g, '');
+            $('#grand_total_tug_hidden').val(tugValue);
+            $('#grand_total_tug').val(tugValue);
         });
 
       $('input[type="radio"]').change(function(){
