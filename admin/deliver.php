@@ -835,6 +835,7 @@
                       {
                         $orders=$_POST['orders'];$N = count($orders);
                         $total_advance_for_bill = 0; // Төлбөртэй илгээмжүүдийн дүнг цуглуулах
+                        $old_statuses = array(); // Хуучин статусуудыг хадгалах массив (barcode => old_status)
                         
                           for($i=0; $i < $N; $i++)
                           {
@@ -850,7 +851,11 @@
                                 $is_online = $data["is_online"];
                                 $advance = $data["advance"];
                                 $advance_value = floatval($data["advance_value"]);
-                                array_push($barcodes,$data["barcode"]);
+                                $barcode = $data["barcode"];
+                                array_push($barcodes,$barcode);
+                                
+                                // Хуучин статусыг хадгалах (reverse хийхэд ашиглах)
+                                $old_statuses[$barcode] = $status;
                                 
                                 // Төлбөртэй илгээмж байвал дүнг цуглуулах (update хийхээс өмнө)
                                 if ($is_online==0 && $advance==1 && $advance_value > 0)
@@ -1065,17 +1070,18 @@
                     $has_online_orders = false;
                     
                     // Гардуулж байгаа илгээмжүүдэд тооцоотой илгээмж байгаа эсэхийг шалгах
-                    if(isset($_POST['orders'])) 
+                    if(isset($_POST['orders']) && is_array($_POST['orders'])) 
                     {
                         $orders_check = $_POST['orders'];
                         foreach($orders_check as $order_id_check)
                         {
+                            $order_id_check = intval($order_id_check);
                             $sql_check = "SELECT is_online FROM orders WHERE order_id='$order_id_check' LIMIT 1";
                             $result_check = mysqli_query($conn,$sql_check);
                             if (mysqli_num_rows($result_check)==1)
                             {
                                 $data_check = mysqli_fetch_array($result_check);
-                                if ($data_check["is_online"] == 1)
+                                if (isset($data_check["is_online"]) && $data_check["is_online"] == 1)
                                 {
                                     $has_online_orders = true;
                                     break;
@@ -1085,9 +1091,14 @@
                     }
                     
                     // Зөвхөн тооцоотой илгээмж байвал тайланд оруулах
-                    if ($has_online_orders)
+                    // Монголд тооцоогүй илгээмжүүдийг тайланд оруулахгүй
+                    if ($has_online_orders && $grand_total_tug > 0)
                     {
                         $bills_advance = $grand_total_tug;
+                    }
+                    else
+                    {
+                        $bills_advance = 0;
                     }
                     
                     // Debug: Төлбөртэй илгээмж байгаа эсэхийг шалгах
@@ -1101,9 +1112,26 @@
                       {
                         // Төлбөртэй илгээмж байвал advance талбарт төлбөрийн дүнг бичих
                         // Тайланд "ИЛГЭЭМЖ ТООЦОО" баганад харагдахын тулд
+                        // Хуучин статусыг JSON хэлбэрээр хадгалах (reverse хийхэд ашиглах)
+                        $old_status_json = isset($old_statuses) ? json_encode($old_statuses) : '';
+                        // old_status талбар байхгүй бол JSON-ийг barcode талбарт хадгалах эсвэл шинэ талбар нэмэх
+                        // Эхлээд old_status талбар байгаа эсэхийг шалгахгүйгээр INSERT хийх
                         $sql = "INSERT INTO bills (`timestamp`,deliver,barcode,weight,type,count,cash,account,pos,later,total,advance) VALUES('".date("Y-m-d H:i:s")."',$deliver_id,'".implode(',',$barcodes)."',$total_weight,'$method',$N,'$cash','$account','$pos','$later','$grand_total_tug','$bills_advance')";
                         mysqli_query($conn,$sql);
                         $bill_id = mysqli_insert_id($conn);
+                        
+                        // Хуучин статусыг хадгалах (old_status талбар байгаа эсэхийг шалгахгүйгээр UPDATE хийх)
+                        // Хэрэв талбар байхгүй бол автоматаар нэмэх эсвэл алдааг үл тоомсорлох
+                        if (!empty($old_status_json)) {
+                          // old_status талбар байгаа эсэхийг шалгах
+                          $check_column = mysqli_query($conn, "SHOW COLUMNS FROM bills LIKE 'old_status'");
+                          if (mysqli_num_rows($check_column) == 0) {
+                            // Талбар байхгүй бол нэмэх
+                            mysqli_query($conn, "ALTER TABLE bills ADD COLUMN old_status TEXT NULL");
+                          }
+                          // Хуучин статусыг хадгалах
+                          mysqli_query($conn,"UPDATE bills SET old_status='".mysqli_real_escape_string($conn,$old_status_json)."' WHERE id='$bill_id'");
+                        }
 
 
                         foreach ($barcodes as $i => $value)
@@ -1247,6 +1275,16 @@
                 $deliver_id = $data["deliver"];
                 $barcodes = $data["barcode"];
                 $barcode_array = explode(",",$barcodes);
+                
+                // Хуучин статусыг унших (old_status талбар байгаа эсэхийг шалгах)
+                $old_statuses = array();
+                if (isset($data["old_status"]) && !empty($data["old_status"])) {
+                  $old_statuses = json_decode($data["old_status"], true);
+                  if (!is_array($old_statuses)) {
+                    $old_statuses = array();
+                  }
+                }
+                
                 //if ($timestamp >= date('Y-m-d 00:00:00') && $timestamp <= date('Y-m-d 23:59:59') )
                 if (1==1 )
                 {
@@ -1256,9 +1294,13 @@
                   
                   foreach($barcode_array as $barcode_single)
                   {
+                    // Хуучин статусыг олох
+                    $old_status = isset($old_statuses[$barcode_single]) ? $old_statuses[$barcode_single] : 'warehouse';
                     
-                    mysqli_query($conn,"UPDATE orders SET status='warehouse' WHERE barcode='".$barcode_single."'");				
-                    echo $barcode_single.'<br>';
+                    // Илгээмжийн статусыг хуучин статус руу буцаах, deliver болон delivered_date талбаруудыг цэвэрлэх
+                    // Ингэснээр илгээмж эргэж хуучин төлөвт нь буцана
+                    mysqli_query($conn,"UPDATE orders SET status='".mysqli_real_escape_string($conn,$old_status)."', deliver=NULL, delivered_date=NULL, method=NULL WHERE barcode='".$barcode_single."'");				
+                    echo $barcode_single.' (хуучин статус: '.$old_status.')<br>';
                   }	
                   echo "Амжилттай буцлаа".'<br>';
 
@@ -1272,7 +1314,7 @@
 
             else 
               echo "Баримтын дугаар олдсонгүй";		
-          
+
           }
 
 

@@ -557,8 +557,8 @@
                     if ($receiver_id!=1&&$sender_id!=1&$weight !="")
                     {
                 
-                        $sql = "INSERT INTO orders (created_date,barcode,package,price,weight,third_party,sender,receiver,advance,advance_value,transport,status,agents) 
-                        VALUES ('$created_date','$barcode','$package','$package_price','$weight','','$sender_id','$receiver_id','$Package_advance','$Package_advance_value','$transport','$status','$agent_id')";
+                        $sql = "INSERT INTO orders (created_date,barcode,package,price,weight,third_party,sender,receiver,advance,advance_value,transport,status,agents,is_online) 
+                        VALUES ('$created_date','$barcode','$package','$package_price','$weight','','$sender_id','$receiver_id','$Package_advance','$Package_advance_value','$transport','$status','$agent_id','0')";
                         if (mysqli_query($conn,$sql)) 
                         {
                             $order_id = mysqli_insert_id ($conn);
