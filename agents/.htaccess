@@ -37,3 +37,4 @@ RewriteRule ^customers_check2?$ views/customers_check2.php
 RewriteRule ^containers?$ containers.php
 RewriteRule ^boxes?$ boxes.php
 RewriteRule ^barcode?$ barcode.php
+RewriteRule ^feedback?$ feedback.php [L]

@@ -1,4 +1,56 @@
 <?php ob_start();?>
+<?php
+// Get feedback count for notifications
+$feedback_count = 0;
+$recent_feedbacks = array();
+
+if (isset($conn) && $conn) {
+    // Check if role column exists
+    $check_role_sql = "SHOW COLUMNS FROM feedback LIKE 'role'";
+    $role_exists = false;
+    $check_result = mysqli_query($conn, $check_role_sql);
+    if ($check_result && mysqli_num_rows($check_result) > 0) {
+        $role_exists = true;
+    }
+    
+    // Count active user messages (not admin, not agent)
+    if ($role_exists) {
+        $count_sql = "SELECT COUNT(*) as count FROM feedback WHERE archive=0 AND (role='user' OR role IS NULL OR role='')";
+    } else {
+        $count_sql = "SELECT COUNT(*) as count FROM feedback WHERE archive=0";
+    }
+    
+    $count_result = mysqli_query($conn, $count_sql);
+    if ($count_result) {
+        $count_row = mysqli_fetch_array($count_result);
+        if ($count_row && isset($count_row["count"])) {
+            $feedback_count = intval($count_row["count"]);
+        }
+    }
+    
+    // Get recent feedbacks for notification
+    if ($feedback_count > 0) {
+        if ($role_exists) {
+            $recent_sql = "SELECT id, title, content, name, contact, email, timestamp, `read` AS read_status, COALESCE(role, 'user') AS role 
+                          FROM feedback 
+                          WHERE archive=0 AND (role='user' OR role IS NULL OR role='') 
+                          ORDER BY timestamp DESC LIMIT 8";
+        } else {
+            $recent_sql = "SELECT id, title, content, name, contact, email, timestamp, `read` AS read_status 
+                          FROM feedback 
+                          WHERE archive=0 
+                          ORDER BY timestamp DESC LIMIT 8";
+        }
+        
+        $recent_result = mysqli_query($conn, $recent_sql);
+        if ($recent_result) {
+            while ($recent_data = mysqli_fetch_array($recent_result)) {
+                $recent_feedbacks[] = $recent_data;
+            }
+        }
+    }
+}
+?>
 <nav class="layout-navbar navbar navbar-expand-xl align-items-center bg-navbar-theme" id="layout-navbar">
           <div class="container-xxl">
             <div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-4">
@@ -161,251 +213,131 @@
                 <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
                   <a
                     class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
-                    href="javascript:void(0);"
+                    href="feedback"
                     data-bs-toggle="dropdown"
                     data-bs-auto-close="outside"
                     aria-expanded="false">
                     <span class="position-relative">
                       <i class="ti ti-bell ti-md"></i>
-                      <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
+                      <?php if ($feedback_count > 0): ?>
+                      <span class="badge rounded-pill bg-danger badge-notifications position-absolute top-0 start-100 translate-middle" style="font-size: 10px; min-width: 18px; height: 18px; padding: 0 5px; display: flex; align-items: center; justify-content: center;">
+                        <?php echo $feedback_count > 99 ? '99+' : $feedback_count; ?>
+                      </span>
+                      <?php endif; ?>
                     </span>
                   </a>
-                  <ul class="dropdown-menu dropdown-menu-end p-0">
+                  <ul class="dropdown-menu dropdown-menu-end p-0" style="width: 380px;">
                     <li class="dropdown-menu-header border-bottom">
                       <div class="dropdown-header d-flex align-items-center py-3">
                         <h6 class="mb-0 me-auto">Notification</h6>
                         <div class="d-flex align-items-center h6 mb-0">
-                          <span class="badge bg-label-primary me-2">8 New</span>
-                          <a
-                            href="javascript:void(0)"
-                            class="btn btn-text-secondary rounded-pill btn-icon dropdown-notifications-all"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Mark all as read"
-                            ><i class="ti ti-mail-opened text-heading"></i
-                          ></a>
+                          <?php if ($feedback_count > 0): ?>
+                          <span class="badge bg-label-primary me-2"><?php echo $feedback_count; ?> New</span>
+                          <?php endif; ?>
                         </div>
                       </div>
                     </li>
-                    <li class="dropdown-notifications-list scrollable-container">
+                    <li class="dropdown-notifications-list scrollable-container" style="max-height: 400px; overflow-y: auto;">
+                      <?php if ($feedback_count > 0 && count($recent_feedbacks) > 0): ?>
                       <ul class="list-group list-group-flush">
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <img src="assets/img/avatars/1.png" alt class="rounded-circle" />
+                        <?php foreach ($recent_feedbacks as $recent_feedback): ?>
+                          <?php
+                          $feedback_id = isset($recent_feedback["id"]) ? intval($recent_feedback["id"]) : 0;
+                          $feedback_title = isset($recent_feedback["title"]) ? htmlspecialchars($recent_feedback["title"]) : '';
+                          $feedback_content = isset($recent_feedback["content"]) ? htmlspecialchars($recent_feedback["content"]) : '';
+                          $feedback_name = isset($recent_feedback["name"]) ? htmlspecialchars($recent_feedback["name"]) : '';
+                          $feedback_contact = isset($recent_feedback["contact"]) ? htmlspecialchars($recent_feedback["contact"]) : '';
+                          $feedback_email = isset($recent_feedback["email"]) ? htmlspecialchars($recent_feedback["email"]) : '';
+                          $feedback_read = isset($recent_feedback["read_status"]) ? intval($recent_feedback["read_status"]) : (isset($recent_feedback["read"]) ? intval($recent_feedback["read"]) : 0);
+                          $feedback_timestamp = isset($recent_feedback["timestamp"]) ? htmlspecialchars($recent_feedback["timestamp"]) : '';
+                          $feedback_role = isset($recent_feedback["role"]) && !empty($recent_feedback["role"]) ? htmlspecialchars($recent_feedback["role"]) : "user";
+                          
+                          // Хугацааны тооцоо
+                          $time_ago = '';
+                          if ($feedback_timestamp) {
+                            $timestamp = strtotime($feedback_timestamp);
+                            $diff = time() - $timestamp;
+                            if ($diff < 60) {
+                              $time_ago = $diff . ' sec ago';
+                            } elseif ($diff < 3600) {
+                              $time_ago = floor($diff / 60) . ' min ago';
+                            } elseif ($diff < 86400) {
+                              $time_ago = floor($diff / 3600) . 'h ago';
+                            } elseif ($diff < 604800) {
+                              $days = floor($diff / 86400);
+                              $time_ago = $days . ($days == 1 ? ' day ago' : ' days ago');
+                            } else {
+                              $time_ago = date('M d', $timestamp);
+                            }
+                          }
+                          
+                          // Нэрний эхний үсэг
+                          $initials = mb_substr($feedback_name, 0, 1, 'UTF-8');
+                          if (empty($initials) && !empty($feedback_email)) {
+                            $initials = mb_substr($feedback_email, 0, 1, 'UTF-8');
+                          }
+                          if (empty($initials)) {
+                            $initials = '?';
+                          }
+                          $initials = mb_strtoupper($initials, 'UTF-8');
+                          
+                          // Агуулгын богино хувилбар
+                          $short_content = mb_substr($feedback_content, 0, 50, 'UTF-8');
+                          if (mb_strlen($feedback_content, 'UTF-8') > 50) {
+                            $short_content .= '...';
+                          }
+                          ?>
+                          <li class="list-group-item list-group-item-action dropdown-notifications-item" style="padding: 0;">
+                            <a href="feedback" class="d-flex align-items-start" style="padding: 12px 16px; text-decoration: none; color: inherit; border-bottom: 1px solid #f0f0f0;">
+                              <div class="flex-shrink-0 me-3">
+                                <div class="avatar" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+                                  <span style="color: white; font-weight: bold; font-size: 16px;"><?php echo $initials; ?></span>
+                                </div>
                               </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="small mb-1">Congratulation Lettie 🎉</h6>
-                              <small class="mb-1 d-block text-body">Won the monthly best seller gold badge</small>
-                              <small class="text-muted">1h ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <span class="avatar-initial rounded-circle bg-label-danger">CF</span>
+                              <div class="flex-grow-1" style="min-width: 0;">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                  <div style="flex-grow: 1;">
+                                    <h6 class="mb-1 small" style="font-size: 14px; font-weight: 500; color: #333; line-height: 1.4; margin: 0;">
+                                      <?php echo $feedback_title; ?>
+                                    </h6>
+                                    <span class="badge badge-primary" style="font-size: 10px; margin-top: 4px;">
+                                      <?php echo $feedback_contact ? $feedback_contact : 'USER'; ?>
+                                    </span>
+                                  </div>
+                                  <?php if ($feedback_read == 0): ?>
+                                  <span class="badge badge-primary" style="width: 8px; height: 8px; border-radius: 50%; background: #5e72e4; flex-shrink: 0; margin-left: 8px; margin-top: 4px;"></span>
+                                  <?php endif; ?>
+                                </div>
+                                <?php if (!empty($short_content)): ?>
+                                <small class="mb-1 d-block text-body" style="font-size: 13px; color: #666; line-height: 1.4;">
+                                  <?php echo $short_content; ?>
+                                </small>
+                                <?php endif; ?>
+                                <small class="text-muted" style="font-size: 12px; color: #999;">
+                                  <?php echo $feedback_name; ?> · <?php echo $time_ago; ?>
+                                </small>
                               </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 small">Charles Franklin</h6>
-                              <small class="mb-1 d-block text-body">Accepted your connection</small>
-                              <small class="text-muted">12hr ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item marked-as-read">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <img src="assets/img/avatars/2.png" alt class="rounded-circle" />
-                              </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 small">New Message ✉️</h6>
-                              <small class="mb-1 d-block text-body">You have new message from Natalie</small>
-                              <small class="text-muted">1h ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <span class="avatar-initial rounded-circle bg-label-success"
-                                  ><i class="ti ti-shopping-cart"></i
-                                ></span>
-                              </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 small">Whoo! You have new order 🛒</h6>
-                              <small class="mb-1 d-block text-body">ACME Inc. made new order $1,154</small>
-                              <small class="text-muted">1 day ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item marked-as-read">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <img src="assets/img/avatars/9.png" alt class="rounded-circle" />
-                              </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 small">Application has been approved 🚀</h6>
-                              <small class="mb-1 d-block text-body"
-                                >Your ABC project application has been approved.</small
-                              >
-                              <small class="text-muted">2 days ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item marked-as-read">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <span class="avatar-initial rounded-circle bg-label-success"
-                                  ><i class="ti ti-chart-pie"></i
-                                ></span>
-                              </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 small">Monthly report is generated</h6>
-                              <small class="mb-1 d-block text-body">July monthly financial report is generated </small>
-                              <small class="text-muted">3 days ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item marked-as-read">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <img src="assets/img/avatars/5.png" alt class="rounded-circle" />
-                              </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 small">Send connection request</h6>
-                              <small class="mb-1 d-block text-body">Peter sent you connection request</small>
-                              <small class="text-muted">4 days ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <img src="assets/img/avatars/6.png" alt class="rounded-circle" />
-                              </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 small">New message from Jane</h6>
-                              <small class="mb-1 d-block text-body">Your have new message from Jane</small>
-                              <small class="text-muted">5 days ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
-                        <li class="list-group-item list-group-item-action dropdown-notifications-item marked-as-read">
-                          <div class="d-flex">
-                            <div class="flex-shrink-0 me-3">
-                              <div class="avatar">
-                                <span class="avatar-initial rounded-circle bg-label-warning"
-                                  ><i class="ti ti-alert-triangle"></i
-                                ></span>
-                              </div>
-                            </div>
-                            <div class="flex-grow-1">
-                              <h6 class="mb-1 small">CPU is running high</h6>
-                              <small class="mb-1 d-block text-body"
-                                >CPU Utilization Percent is currently at 88.63%,</small
-                              >
-                              <small class="text-muted">5 days ago</small>
-                            </div>
-                            <div class="flex-shrink-0 dropdown-notifications-actions">
-                              <a href="javascript:void(0)" class="dropdown-notifications-read"
-                                ><span class="badge badge-dot"></span
-                              ></a>
-                              <a href="javascript:void(0)" class="dropdown-notifications-archive"
-                                ><span class="ti ti-x"></span
-                              ></a>
-                            </div>
-                          </div>
-                        </li>
+                            </a>
+                          </li>
+                        <?php endforeach; ?>
                       </ul>
+                      <?php else: ?>
+                      <div class="text-center" style="padding: 40px 20px;">
+                        <i class="ti ti-check-circle" style="width: 48px; height: 48px; color: #ccc; margin-bottom: 12px; font-size: 48px;"></i>
+                        <p class="mb-0" style="color: #999; font-size: 14px;">Шинэ зурвас байхгүй</p>
+                        <p class="mb-0 mt-1" style="color: #ccc; font-size: 12px;">Бүх зурвас шийдвэрлэгдсэн</p>
+                      </div>
+                      <?php endif; ?>
                     </li>
+                    <?php if ($feedback_count > 0): ?>
                     <li class="border-top">
                       <div class="d-grid p-4">
-                        <a class="btn btn-primary btn-sm d-flex" href="javascript:void(0);">
+                        <a class="btn btn-primary btn-sm d-flex" href="feedback">
                           <small class="align-middle">View all notifications</small>
                         </a>
                       </div>
                     </li>
+                    <?php endif; ?>
                   </ul>
                 </li>
                 <!--/ Notification -->

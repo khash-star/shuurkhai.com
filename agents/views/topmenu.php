@@ -184,6 +184,13 @@
                     </li>
 
                     <li class="menu-item">
+                        <a href="feedback" class="menu-link">
+                        <i class="menu-icon tf-icons ti ti-message-circle"></i>
+                        <div data-i18n="Messages">Messages</div>
+                        </a>
+                    </li>
+
+                    <li class="menu-item">
                         <a href="javascript:void(0)" class="menu-link menu-toggle">
                         <i class="menu-icon tf-icons ti ti-settings"></i>
                         <div data-i18n="Settings">Settings</div>
