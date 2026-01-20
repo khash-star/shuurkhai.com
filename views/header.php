@@ -50,8 +50,11 @@
             </div>
             <!--Side Menu Button-->
             <div class="col-3 d-flex justify-content-end align-items-center">
-
                 <ul class="shop-details fixed-nav-items">
+                    <li>
+                        <!-- Google Translate -->
+                        <div id="google_translate_element" style="display: inline-block; vertical-align: middle; margin-right: 10px; min-width: 120px;"></div>
+                    </li>
                     <li>
                             <a href="user/" title="Нэвтрэх"><i class="la la-user"></i></a>
                     </li>

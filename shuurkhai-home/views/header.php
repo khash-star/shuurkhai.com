@@ -56,6 +56,52 @@
         .animate-scroll-indicator {
             animation: scroll-indicator 2s ease-in-out infinite;
         }
+        
+        /* Google Translate Banner Removal - CSS Support */
+        /* Hide banner iframe completely */
+        iframe.goog-te-banner-frame,
+        .goog-te-banner-frame.skiptranslate {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+            border: none !important;
+            position: absolute !important;
+            left: -9999px !important;
+        }
+
+        /* Lock html/body styles - prevent Google Translate from altering layout */
+        html {
+            top: 0 !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            position: static !important;
+        }
+
+        body {
+            top: 0 !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            position: static !important;
+        }
+
+        /* Hide tooltips and balloons */
+        .goog-te-balloon-frame,
+        #goog-gt-tt,
+        .goog-tooltip,
+        .goog-text-highlight {
+            display: none !important;
+        }
+
+        /* Ensure navbar stays at top */
+        .navbar-translate {
+            top: 0 !important;
+        }
+
+        /* Navbar fixed - add padding to body to prevent content overlap */
+        body {
+            padding-top: 70px; /* Adjust based on navbar height (reduced from 80px) */
+        }
     </style>
 </head>
 <body class="min-h-screen bg-white">

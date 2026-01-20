@@ -11,6 +11,10 @@
  ?>
  <!--  BEGIN NAVBAR  -->
  <div class="header-container fixed-top">
+        <!-- Google Translate - Top Bar -->
+        <div style="background: #fff; padding: 5px 15px; display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px solid #e0e0e0;">
+            <div id="google_translate_element" style="display: inline-block; vertical-align: middle; min-width: 100px;"></div>
+        </div>
         <header class="header navbar navbar-expand-sm">
             <ul class="navbar-item flex-row">
                 <li class="nav-item align-self-center page-heading">

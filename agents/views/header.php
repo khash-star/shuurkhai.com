@@ -56,7 +56,7 @@ if (isset($conn) && $conn) {
             <div class="navbar-brand app-brand demo d-none d-xl-flex py-0 me-4">
               <a href="index" class="app-brand-link">
                 <img src="assets/img/logo-sm.png" title="шуурхай">
-                <span class="app-brand-text demo menu-text fw-bold">Шуурхай.ком</span>
+                <span class="app-brand-text demo menu-text fw-bold">www.SHUURKHAI.com</span>
               </a>
 
               <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-xl-none">

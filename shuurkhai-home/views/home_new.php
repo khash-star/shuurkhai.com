@@ -1,10 +1,25 @@
     
     <!-- Navbar -->
-    <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent">
+    <nav id="navbar" class="fixed left-0 right-0 z-50 transition-all duration-300 bg-transparent navbar-translate" style="top: 0;">
         <div class="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
+            <div class="flex items-center justify-between" style="height: 70px; padding-top: 25px;">
+                <!-- Google Translate Button - Left side -->
+                <div class="flex items-center" style="margin-top: 12px;">
+                    <button id="google_translate_btn" onclick="triggerGoogleTranslate(); return false;" class="px-3 py-2 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors border border-slate-200 flex items-center gap-1.5" style="height: 32px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 8l6 6"></path>
+                            <path d="M4 14l6-6 2-3"></path>
+                            <path d="M2 5h12"></path>
+                            <path d="M7 2h1"></path>
+                            <path d="M22 22l-5-10-5 10"></path>
+                            <path d="M14 18h6"></path>
+                        </svg>
+                        <span>Google Translate</span>
+                    </button>
+                    <div id="google_translate_element" style="display: none; position: absolute; left: -9999px;"></div>
+                </div>
                 <!-- Logo -->
-                <a href="/shuurkhai/" class="flex items-center gap-3 hover:scale-105 transition-transform">
+                <a href="/shuurkhai/" class="flex items-center gap-3 hover:scale-105 transition-transform" style="margin-top: 12px;">
                     <div class="w-11 h-11 rounded-xl bg-slate-900 flex items-center justify-center shadow-sm">
                         <div class="flex">
                             <i data-lucide="plane" class="w-4 h-4 text-white -rotate-45"></i>
@@ -15,7 +30,7 @@
                 </a>
 
                 <!-- Desktop Navigation -->
-                <div class="hidden lg:flex items-center gap-8">
+                <div class="hidden lg:flex items-center gap-8" style="margin-top: 12px;">
                     <a href="/shuurkhai/" class="flex items-center gap-1 font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">Нүүр</a>
                     <div class="relative group">
                         <a href="javascript:void(0);" class="flex items-center gap-1 font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">
@@ -67,7 +82,7 @@
                 </div>
 
                 <!-- CTA Buttons -->
-                <div class="hidden lg:flex items-center gap-4">
+                <div class="hidden lg:flex items-center gap-4" style="margin-top: 12px;">
                     <a href="/shuurkhai/user/" class="px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2" title="Нэвтрэх">
                         <i data-lucide="user" class="w-4 h-4"></i>
                         Нэвтрэх
@@ -96,7 +111,7 @@
     </nav>
 
     <!-- Mobile Menu -->
-    <div id="mobileMenu" class="fixed inset-x-0 top-20 z-40 lg:hidden hidden">
+    <div id="mobileMenu" class="fixed inset-x-0 z-40 lg:hidden hidden" style="top: 70px;">
         <div class="bg-white/95 backdrop-blur-xl border-t border-slate-100 shadow-xl">
             <div class="max-w-7xl mx-auto px-4 py-6">
                 <div class="space-y-2">
@@ -125,6 +140,9 @@
                     <a href="/shuurkhai/contact.php" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">Холбоо барих</a>
                 </div>
                 <div class="mt-6 pt-6 border-t border-slate-100 space-y-3">
+                    <!-- Google Translate -->
+                    <div id="google_translate_element_mobile" style="display: block; width: 100%; margin-bottom: 12px;"></div>
+                    
                     <a href="/shuurkhai/user/" class="block w-full text-center px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" title="Нэвтрэх">
                         <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
                         Нэвтрэх
@@ -846,4 +864,225 @@
             </div>
         </div>
     </div>
+
+    <!-- Google Translate Scripts -->
+    <script type="text/javascript">
+    // Function to trigger Google Translate dropdown
+    function triggerGoogleTranslate() {
+      var translateElement = document.getElementById('google_translate_element');
+      if (!translateElement) {
+        console.log('Translate element not found');
+        return false;
+      }
+      
+      // Make element visible temporarily to interact with it
+      translateElement.style.display = 'block';
+      translateElement.style.position = 'fixed';
+      translateElement.style.left = '50%';
+      translateElement.style.top = '50%';
+      translateElement.style.transform = 'translate(-50%, -50%)';
+      translateElement.style.zIndex = '9999';
+      translateElement.style.opacity = '1';
+      translateElement.style.pointerEvents = 'auto';
+      
+      // Find the select dropdown or the clickable element
+      setTimeout(function() {
+        var select = translateElement.querySelector('select');
+        var googTeGadget = translateElement.querySelector('.goog-te-gadget-simple');
+        
+        if (select) {
+          // Try multiple methods to open dropdown
+          select.focus();
+          select.style.display = 'block';
+          select.style.visibility = 'visible';
+          
+          // Create click event
+          var clickEvent = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+          });
+          select.dispatchEvent(clickEvent);
+          
+          // Also try mousedown
+          var mouseDownEvent = new MouseEvent('mousedown', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+          });
+          select.dispatchEvent(mouseDownEvent);
+          
+          // Also try to change size to trigger dropdown
+          select.size = select.options.length;
+          setTimeout(function() {
+            select.size = 1;
+          }, 100);
+        } else if (googTeGadget) {
+          // Click on the gadget itself
+          googTeGadget.click();
+        }
+        
+        // Hide element again after interaction
+        setTimeout(function() {
+          translateElement.style.display = 'none';
+          translateElement.style.position = 'absolute';
+          translateElement.style.left = '-9999px';
+          translateElement.style.opacity = '0';
+          translateElement.style.pointerEvents = 'none';
+        }, 2000);
+      }, 100);
+      
+      return false;
+    }
+    
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'mn',
+        includedLanguages: 'en,zh-CN,zh-TW,ru,ko,ja',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element');
+      
+      // Also initialize for mobile menu
+      new google.translate.TranslateElement({
+        pageLanguage: 'mn',
+        includedLanguages: 'en,zh-CN,zh-TW,ru,ko,ja',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        autoDisplay: false
+      }, 'google_translate_element_mobile');
+      
+      // Make sure translate element is accessible for button click
+      setTimeout(function() {
+        var translateElement = document.getElementById('google_translate_element');
+        if (translateElement) {
+          // Keep it hidden but accessible
+          translateElement.style.display = 'none';
+          translateElement.style.position = 'absolute';
+          translateElement.style.left = '-9999px';
+          translateElement.style.opacity = '0';
+          translateElement.style.pointerEvents = 'none';
+        }
+      }, 1000);
+      
+      // Adjust navbar position when banner appears
+      function adjustNavbarForBanner() {
+        var banner = document.querySelector('.goog-te-banner-frame');
+        var navbar = document.getElementById('navbar');
+        var mobileMenu = document.getElementById('mobileMenu');
+        
+        if (banner && !banner.classList.contains('skiptranslate')) {
+          // Banner is visible
+          if (navbar) navbar.style.top = '42px';
+          if (mobileMenu) mobileMenu.style.top = '122px';
+        } else {
+          // Banner is hidden
+          if (navbar) navbar.style.top = '0px';
+          if (mobileMenu) mobileMenu.style.top = '70px';
+        }
+      }
+      
+      // Check periodically for banner
+      setInterval(adjustNavbarForBanner, 100);
+      
+      // Also check when DOM changes
+      var observer = new MutationObserver(adjustNavbarForBanner);
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <style>
+    /* Google Translate Widget Styling */
+    #google_translate_element,
+    #google_translate_element_mobile {
+      display: inline-block !important;
+      vertical-align: middle;
+      visibility: visible !important;
+      opacity: 1 !important;
+      position: relative;
+      z-index: 1000;
+      width: 45px !important;
+      max-width: 45px !important;
+      min-width: 45px !important;
+    }
+    #google_translate_element .goog-te-gadget,
+    #google_translate_element_mobile .goog-te-gadget {
+      font-family: inherit !important;
+    }
+    #google_translate_element .goog-te-gadget-simple,
+    #google_translate_element_mobile .goog-te-gadget-simple {
+      background-color: transparent !important;
+      border: 1px solid rgba(0,0,0,0.1) !important;
+      border-radius: 4px !important;
+      padding: 6px 2px !important;
+      font-size: 8px !important;
+      cursor: pointer;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 1.0 !important;
+      min-height: 24px !important;
+      height: 24px !important;
+      width: 45px !important;
+      max-width: 45px !important;
+      min-width: 45px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    #google_translate_element .goog-te-gadget-simple .goog-te-menu-value,
+    #google_translate_element_mobile .goog-te-gadget-simple .goog-te-menu-value {
+      color: inherit !important;
+    }
+    #google_translate_element .goog-te-gadget-icon,
+    #google_translate_element_mobile .goog-te-gadget-icon {
+      display: inline-block !important;
+      margin-right: 3px;
+      width: 12px !important;
+      height: 12px !important;
+    }
+    /* Hide Google Branding */
+    .goog-te-banner-frame.skiptranslate {
+      display: none !important;
+    }
+    body {
+      top: 0px !important;
+    }
+    /* Adjust navbar position when Google Translate banner is visible */
+    .navbar-translate {
+      top: 0px !important;
+      transition: top 0.3s ease !important;
+    }
+    /* When Google Translate banner is visible (body has skiptranslate class) */
+    body.skiptranslate .navbar-translate {
+      top: 42px !important;
+    }
+    /* Also check for goog-te-banner-frame */
+    .goog-te-banner-frame ~ .navbar-translate,
+    body:has(.goog-te-banner-frame:not(.skiptranslate)) .navbar-translate {
+      top: 42px !important;
+    }
+    /* Adjust mobile menu position when banner is visible */
+    body.skiptranslate #mobileMenu,
+    body:has(.goog-te-banner-frame:not(.skiptranslate)) #mobileMenu {
+      top: 112px !important; /* navbar (70px) + banner (42px) */
+    }
+    /* Style for dropdown */
+    #google_translate_element select,
+    #google_translate_element_mobile select {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 2px 1px;
+      background: white;
+      font-size: 8px;
+      height: 22px !important;
+      max-width: 40px !important;
+      width: 40px !important;
+      min-width: 40px !important;
+    }
+    </style>
 
