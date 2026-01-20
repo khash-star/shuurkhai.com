@@ -53,12 +53,7 @@ export default function Navbar() {
               className="flex items-center gap-3"
               whileHover={{ scale: 1.02 }}
             >
-              <div className="w-11 h-11 rounded-xl bg-slate-900 flex items-center justify-center shadow-sm">
-                <div className="flex">
-                  <Plane className="w-4 h-4 text-white -rotate-45" />
-                  <Ship className="w-4 h-4 text-emerald-400 -ml-0.5" />
-                </div>
-              </div>
+              <img src="/images/logo.png" alt="Shuurkhai Logo" className="h-11 w-auto object-contain" />
               <span className="text-xl font-bold text-slate-900">
                 Shuurkhai
               </span>

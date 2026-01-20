@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Plane, Ship, Facebook, Instagram, Youtube, Twitter, MapPin, Phone, Mail, ArrowUpRight } from 'lucide-react';
+import { Facebook, Instagram, Youtube, Twitter, MapPin, Phone, Mail, ArrowUpRight } from 'lucide-react';
 
 const footerLinks = {
   services: {
@@ -57,13 +57,8 @@ export default function Footer() {
             >
               {/* Logo */}
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                  <div className="flex">
-                    <Plane className="w-5 h-5 text-white -rotate-45" />
-                    <Ship className="w-5 h-5 text-emerald-400 -ml-1" />
-                  </div>
-                </div>
-                <span className="text-2xl font-bold">Shuurkhai</span>
+                <img src="/images/logo.png" alt="Shuurkhai Logo" className="h-12 w-auto object-contain" />
+                <span className="text-2xl font-bold">www.SHUURKHAI.com</span>
               </div>
 
               <p className="text-slate-400 mb-6 leading-relaxed">
@@ -140,9 +135,9 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="mailto:info@shuurkhai.mn" className="flex items-center gap-3 text-slate-400 hover:text-white transition-colors">
+                <a href="mailto:info@shuurkhai.com" className="flex items-center gap-3 text-slate-400 hover:text-white transition-colors">
                   <Mail className="w-5 h-5 text-emerald-400" />
-                  info@shuurkhai.mn
+                  info@shuurkhai.com
                 </a>
               </li>
             </ul>
@@ -153,7 +148,7 @@ export default function Footer() {
         <div className="py-6 border-t border-white/10">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-slate-500">
-              © {new Date().getFullYear()} Shuurkhai. Бүх эрх хуулиар хамгаалагдсан.
+              © {new Date().getFullYear()} www.SHUURKHAI.com. Бүх эрх хуулиар хамгаалагдсан.
             </p>
             <div className="flex items-center gap-6">
               <a href="#" className="text-sm text-slate-500 hover:text-white transition-colors">

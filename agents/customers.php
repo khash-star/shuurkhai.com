@@ -30,6 +30,7 @@
                                 <input type="text" class="form-control" id="search" autocomplete="off" placeholder="Утас, нэр, нэвтрэх нэр, ииэйл, регистрийн дугаараар хайх" value="<?=$search;?>" name="search" minlength="3"> 
                             </div>
                             <button type="submit" class="btn btn-primary mr-2">Хайх</button>
+                            <a href="?action=register" class="btn btn-success mr-2">Шинэ хэрэглэгч бүртгэх</a>
                             </form>
                         </div>
                         </div>
@@ -415,6 +416,292 @@
                     <?php 
                     }
                     else header("location:customer");
+                }
+                ?>
+
+
+                <?php 
+                if ($action =="register")
+                {
+                    ?>
+                    
+                    <form action="customers?action=registering" method="post" enctype="multipart/form-data">
+                      <div class="row">
+                        <div class="col-lg-6">
+                          <div class="card">
+                            <div class="card-body">
+                              <div class="media-list ">
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-4">
+                                    <label for="surname">Овог (*)</label>
+                                    <input type="text" name="surname" id="surname" value="" class="form-control" required="required">
+                                  </div>
+                                </div>
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-4">
+                                    <label for="name">Нэр (*)</label>
+                                    <input type="text" name="name" id="name" value="" class="form-control" required="required">
+                                  </div>
+                                </div>
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-4">
+                                    <label for="tel">Утасны дугаар (*)</label>
+                                    <input type="text" name="tel" id="tel" value="" class="form-control" required="required">
+                                  </div>
+                                </div>
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-4">
+                                    <label for="rd">РД</label>
+                                    <input type="text" name="rd" id="rd" value="" class="form-control">
+                                  </div>
+                                </div>
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-4">
+                                    <label for="email">И-мэйл</label>
+                                    <input type="text" name="email" id="email" value="" class="form-control">
+                                  </div>
+                                </div>
+
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-4">
+                                    <div class="form-check form-check-flat form-check-primary">
+                                      <label class="form-check-label">
+                                      <input type="checkbox" name="no_proxy" checked id="no_proxy" class="form-check-input">
+                                        Proxy авах эсэх
+                                      </label>
+                                    </div>
+                                  </div>
+                                </div>
+                                
+                              </div>
+
+                            </div>
+                          </div>
+                          <div class="card mt-3 mb-3">
+                            <div class="card-body">
+                              <div class="media-list">
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-4">
+                                    <label for="address">Хаяг</label>
+                                    <input type="text" name="address" id="address" value="" class="form-control">
+                                  </div>
+                                </div>
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-4">
+                                    <label for="address_extra">Нэмэлт мэдээлэл</label>
+                                    <input type="text" name="address_extra" id="address_extra" value="" class="form-control">
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="media">
+                                <div class="media-body mg-l-15 mg-t-4">
+                                  <label for="city">Хот, аймаг</label>
+                                  <select name="city" class="form-control" id="city">
+                                    <?php
+                                    $sql_city =  "SELECT * FROM city";
+                                    $result_city = mysqli_query($conn,$sql_city);
+                                    while ($data_city = mysqli_fetch_array($result_city))
+                                    {
+                                      ?>
+                                      <option value="<?php echo $data_city["id"];?>"><?php echo $data_city["name"];?></option>
+                                      <?php
+                                    }
+                                    ?>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div class="media">
+                                <div class="media-body mg-l-15 mg-t-4">
+                                  <label for="district">Дүүрэг, сум</label>
+                                  <select name="district" class="form-control" id="district">
+                                    <?php
+                                    $sql_district =  "SELECT * FROM district";
+                                    $result_district = mysqli_query($conn,$sql_district);
+                                    while ($data_district = mysqli_fetch_array($result_district))
+                                    {
+                                      ?>
+                                      <option value="<?php echo $data_district["id"];?>" data-chained="<?php echo $data_district["city_id"];?>"><?php echo $data_district["name"];?></option>
+                                      <?php
+                                    }
+                                    ?>
+                                  </select>
+                                </div>
+                              </div>
+
+                              <div class="media">
+                                <div class="media-body mg-l-15 mg-t-4">
+                                  <label for="khoroo">Баг, хороо</label>
+                                  <input type="text" name="khoroo" id="khoroo" value="" class="form-control">
+                                </div>
+                              </div>
+
+                              <div class="media">
+                                <div class="media-body mg-l-15 mg-t-4">
+                                  <label for="build">Байр, гудамж</label>
+                                  <input type="text" name="build" id="build" value="" class="form-control">
+                                </div>
+                              </div>
+                            
+                            </div>
+                            
+                          </div>
+                          <input type="submit" class="btn btn-success btn-lg" value="Бүртгэх">
+                        </div>
+                        <div class="col-lg-6">
+                          <div class="card">
+                            <div class="card-body">
+                              <div class="media-list">
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-2">
+                                    <label for="image">Цээж зураг</label>
+                                    <input type="file" id="image" name="image" class="form-control">
+                                  </div>
+                                </div>
+                                
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-2">
+                                    <label for="username">Нэвтрэх нэр (*)</label>
+                                    <input type="text" name="username"  id="username" value="" class="form-control" required="required">
+                                  </div>
+                                </div>
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-2">
+                                    <label for="password">Нууц үг (*)</label>
+                                    <input type="password" name="password" id="password" value="" class="form-control" required="required">
+                                  </div>
+                                </div>
+
+                                <div class="media">
+                                  <div class="media-body mg-l-15 mg-t-2">
+                                    <label for="category">Ангилал</label>
+                                    <select class="form-control" name="category" id="category">
+                                      <option value="0">Ангилалгүй</option>
+                                      <?php
+                                      $sql_cat = "SELECT * FROM customer_category ORDER BY dd";
+                                      $result_cat= mysqli_query($conn,$sql_cat);
+                                      while ($data_cat = mysqli_fetch_array($result_cat))
+                                      {
+                                        ?>
+                                        <option value="<?php echo $data_cat["id"];?>"><?php echo $data_cat["name"];?></option>
+                                        <?php
+                                      }
+                                      ?>
+                                    </select>
+                                    
+                                  </div>
+                                </div>
+                              </div>
+                              
+                            </div>
+                          </div>
+                        </div> 
+                      </div>
+                    </form>
+                    <?php
+                }
+                ?>
+
+
+                <?php
+                if ($action =="registering")
+                {
+                    ?>
+                    <div class="row row-xs mg-t-10">
+                      <div class="col-lg-12 order-lg-2">
+                          <div class="card">
+                            <div class="card-header">
+                              <h6 class="slim-card-title">Бүртгэл</h6>
+                            </div>
+                            <div class="card-body">
+                                <?php
+                                  $error = 0;
+                                  $error_msg = "";
+                                  $rd = protect($_POST["rd"]);
+                                  $surname = protect($_POST["surname"]);
+                                  $name = protect($_POST["name"]);
+                                  $tel = protect($_POST["tel"]);
+                                  $email = protect($_POST["email"]);
+                                  $username = protect($_POST["username"]);
+                                  $password = protect($_POST["password"]);
+                                  $category = intval($_POST["category"]);
+
+                                  $address = protect($_POST["address"]);
+                                  $address_extra = protect($_POST["address_extra"]);
+                                  $city = intval($_POST["city"]);
+                                  $district = intval($_POST["district"]);
+                                  $khoroo = protect($_POST["khoroo"]);
+                                  $build = protect($_POST["build"]);
+                                  if (!isset($_POST["no_proxy"])) $no_proxy=1; else $no_proxy=0;
+                                  
+          
+                                  $image =""; $thumb="";
+                                  if(isset($_FILES['image']) && $_FILES['image']['name']!="")
+                                  {
+                                      if ($_FILES['image']['name']!="")
+                                          {                        
+                                              @$folder = date("Ym");
+                                              if(!file_exists('../uploads/'.$folder))
+                                              mkdir ( '../uploads/'.$folder);
+                                              $target_dir = '../uploads/'.$folder;
+                                              $target_file = $target_dir."/".@date("his").rand(0,1000). basename($_FILES["image"]["name"]);
+                                              if (move_uploaded_file($_FILES['image']['tmp_name'], $target_file))
+                                              $image=$target_file;
+                                              $thumb_image_content = resize_image($image,300,200);
+                                              $thumb = substr($image,0,-4)."_thumb".substr($image,-4,4);
+                                              imagejpeg($thumb_image_content,$thumb,75);
+                                              $image = substr($image,3);
+                                              $thumb = substr($thumb,3);
+                                          }
+                                  }
+
+                                  $sql = "INSERT INTO customer (rd,name,surname,tel,avatar,thumb,username,password,email,category,address,address_extra,address_city,address_district,address_khoroo,address_build,no_proxy) 
+                                  VALUES ('$rd','$name','$surname','$tel','$image', '$thumb','$username','$password','$email','$category','$address','$address_extra','$city','$district','$khoroo','$build','$no_proxy')";                   
+                                  if (mysqli_query($conn,$sql))
+                                    {
+                                      $customer_id = mysqli_insert_id($conn);
+                                      if ($category > 0) {
+                                          mysqli_query ($conn,"UPDATE customer_category SET count=count+1 WHERE id='".$category."' LIMIT 1");
+                                      }
+                                      ?>
+                                      <div class="alert alert-success mg-b-10" role="alert">
+                                        Амжилттай бүртгэлээ.
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                        </button>
+                                      </div>
+                                      <div class="btn-group">
+                                        <a href="customers?action=detail&id=<?php echo $customer_id;?>" class="btn btn-success"><i data-feather="edit"></i> Дэлгэрэнгүй</a>
+                                        <a href="customers?action=search" class="btn btn-primary"><i class="icon ion-ios-list"></i> Хэрэглэгч хайх</a>
+                                      </div>
+                                      <?php
+                                    }
+                                    else 
+                                    {
+                                      ?>
+                                      <div class="alert alert-danger mg-b-10" role="alert">
+                                       алдаа гарлаа. <?php echo mysqli_error($conn);?>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                          <span aria-hidden="true">&times;</span>
+                                        </button>
+                                      </div>
+                                      <div class="btn-group">
+                                        <a href="customers?action=register" class="btn btn-success"><i data-feather="edit"></i> Ахин оролдох</a>
+                                      </div>
+                                      <?php
+                                    }
+
+
+                                  ?>                            
+                                  
+                                  
+
+                            </div>
+                          </div>
+                      </div>
+                    </div>
+                    <?php
                 }
                 ?>
 

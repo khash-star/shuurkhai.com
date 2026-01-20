@@ -146,7 +146,7 @@ if (! function_exists ('customer'))
 				{
 				switch ($parameter)
 					{
-						case "name":return "Shuurkhai.com"; break;
+						case "name":return "www.SHUURKHAI.com"; break;
 						case "surname": return ""; break;
 						case "rd": return ""; break;
 						case "address": return "4712 OAKTON STREET, 60076, Chicago IL"; break;
@@ -154,7 +154,7 @@ if (! function_exists ('customer'))
 						case "tel": return  "773-621-6807"; break;
 						case "last_log": return ""; break;
 						case "email": return ""; break;
-						case "full_name": return "Shuurkhai.com";break;
+						case "full_name": return "www.SHUURKHAI.com";break;
 						case "cent": return 0;break;
 					}
 				}

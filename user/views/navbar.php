@@ -10,7 +10,7 @@
 
  ?>
  <!--  BEGIN NAVBAR  -->
- <div class="header-container fixed-top">
+ <div class="header-container fixed-top" style="z-index: 1030;">
         <!-- Google Translate - Top Bar -->
         <div style="background: #fff; padding: 5px 15px; display: flex; justify-content: flex-end; align-items: center; border-bottom: 1px solid #e0e0e0;">
             <div id="google_translate_element" style="display: inline-block; vertical-align: middle; min-width: 100px;"></div>
@@ -154,18 +154,18 @@
                         }
                     }
                     
-                    // Count unread admin replies for this user (match by contact/phone number)
+                    // Count unread admin/agent replies for this user (match by contact/phone number)
                     $admin_replies_count = 0;
                     if (!empty($user_tel)) {
                         $user_tel_escaped = mysqli_real_escape_string($conn, trim($user_tel));
                         
-                        // Always try to get recent admin replies first (to populate dropdown)
+                        // Always try to get recent admin/agent replies first (to populate dropdown)
                         if ($role_exists) {
-                            // Get recent admin replies by contact and role='admin'
-                            $recent_sql = "SELECT id, title, content, name, timestamp, `read` FROM feedback WHERE contact='".$user_tel_escaped."' AND role='admin' AND archive=0 ORDER BY timestamp DESC LIMIT 5";
+                            // Get recent admin and agent replies by contact (role='admin' OR role='agent')
+                            $recent_sql = "SELECT id, title, content, name, timestamp, `read` FROM feedback WHERE contact='".$user_tel_escaped."' AND (role='admin' OR role='agent') AND archive=0 ORDER BY timestamp DESC LIMIT 5";
                         } else {
                             // Fallback: check by admin name patterns or title patterns
-                            $recent_sql = "SELECT id, title, content, name, timestamp, `read` FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 AND (name LIKE '%admin%' OR name LIKE '%Admin%' OR title LIKE '%Admin Reply%' OR title LIKE '%Re:%') ORDER BY timestamp DESC LIMIT 5";
+                            $recent_sql = "SELECT id, title, content, name, timestamp, `read` FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 AND (name LIKE '%admin%' OR name LIKE '%Admin%' OR title LIKE '%Admin Reply%' OR title LIKE '%Re:%' OR title LIKE '%Agent Reply%') ORDER BY timestamp DESC LIMIT 5";
                         }
                         
                         $recent_result = @mysqli_query($conn, $recent_sql);
@@ -179,11 +179,11 @@
                             }
                         }
                         
-                        // Also get count of unread admin replies
+                        // Also get count of unread admin/agent replies
                         if ($role_exists) {
-                            $feedback_sql = "SELECT COUNT(*) as count FROM feedback WHERE contact='".$user_tel_escaped."' AND role='admin' AND archive=0 AND `read`=0";
+                            $feedback_sql = "SELECT COUNT(*) as count FROM feedback WHERE contact='".$user_tel_escaped."' AND (role='admin' OR role='agent') AND archive=0 AND `read`=0";
                         } else {
-                            $feedback_sql = "SELECT COUNT(*) as count FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 AND `read`=0 AND (name LIKE '%admin%' OR name LIKE '%Admin%' OR title LIKE '%Admin Reply%' OR title LIKE '%Re:%')";
+                            $feedback_sql = "SELECT COUNT(*) as count FROM feedback WHERE contact='".$user_tel_escaped."' AND archive=0 AND `read`=0 AND (name LIKE '%admin%' OR name LIKE '%Admin%' OR title LIKE '%Admin Reply%' OR title LIKE '%Re:%' OR title LIKE '%Agent Reply%')";
                         }
                         
                         $feedback_result = @mysqli_query($conn, $feedback_sql);
@@ -195,28 +195,26 @@
                             }
                         }
                         
-                        // Update has_alert with admin replies count
-                        if ($admin_replies_count > 0 || count($recent_feedbacks) > 0) {
-                            // Only add if not already counted
-                            if ($admin_replies_count > 0) {
-                                $has_alert += $admin_replies_count;
-                            } else if (count($recent_feedbacks) > 0) {
-                                // If we have messages but count is 0, add at least 1
-                                $has_alert += 1;
-                            }
-                        }
+                        // Update has_alert with admin/agent replies count (only unread messages)
+                        // Use the database count directly, not the array count
+                        $has_alert = $admin_replies_count;
                     }
                 }
                 ?>
                 <li class="nav-item dropdown notification-dropdown">
-                    <a href="javascript:void(0);" class="nav-link dropdown-toggle" id="notificationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg><?php echo ($has_alert > 0)?'<span class="badge badge-success"></span>':'';?>
+                    <a href="javascript:void(0);" class="nav-link dropdown-toggle position-relative" id="notificationDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <?php if ($has_alert > 0): ?>
+                        <span class="badge badge-danger position-absolute top-0 start-100 translate-middle" style="font-size: 10px; min-width: 18px; height: 18px; padding: 0 5px; display: flex; align-items: center; justify-content: center; border-radius: 9px; background-color: #dc3545; color: white; font-weight: bold;">
+                            <?php echo $has_alert > 99 ? '99+' : $has_alert; ?>
+                        </span>
+                        <?php endif; ?>
                     </a>
                     <?php
                     if ($has_alert > 0)
                     {
                         ?>
-                        <div class="dropdown-menu dropdown-menu-right animated fadeInUp" aria-labelledby="notificationDropdown" style="width: 350px; max-width: 90vw;">
+                        <div class="dropdown-menu dropdown-menu-right animated fadeInUp" aria-labelledby="notificationDropdown" style="width: 350px; max-width: 90vw; z-index: 1050;">
                             <div class="dropdown-header" style="padding: 12px 16px; border-bottom: 1px solid #eee; background: #f8f9fa;">
                                 <div class="d-flex align-items-center justify-content-between">
                                     <h6 class="mb-0" style="font-weight: 600; font-size: 14px;">Мэдэгдэл</h6>
@@ -348,7 +346,7 @@
                     <a href="javascript:void(0);" class="nav-link dropdown-toggle user" id="userProfileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     </a>
-                    <div class="dropdown-menu position-absolute animated fadeInUp" aria-labelledby="userProfileDropdown">
+                    <div class="dropdown-menu position-absolute animated fadeInUp" aria-labelledby="userProfileDropdown" style="z-index: 1050;">
                         <div class="user-profile-section">
                             <div class="media mx-auto">
                                 <img src="<?php echo htmlspecialchars($user_avatar);?>" class="img-fluid mr-2" alt="avatar">

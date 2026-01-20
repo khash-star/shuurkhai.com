@@ -91,7 +91,29 @@
 
                     //echo $sql;
                     echo '<div class="panel panel-primary">';
-                    echo '<div class="panel-heading">New-'.$count_total.' ('.number_format($sum_total,2).'Kg) &nbsp;&nbsp;&nbsp;   Монголд төлөх-'.$count_total2.' ('.number_format($sum_total2,2).'Kg) &nbsp;&nbsp;&nbsp; US Paid-'.$TOTAL_DIFF.' ('.number_format($SUM_DIFF,2).'Kg)</div>';
+                    echo '<div class="panel-heading" style="padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">';
+                    echo '<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center;">';
+                    
+                    // New - Blue gradient with icon
+                    echo '<div style="display: inline-flex; align-items: center; padding: 12px 20px; margin-right: 12px; border-radius: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 6px 20px rgba(102, 126, 234, 0.6)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 15px rgba(102, 126, 234, 0.4)\';">';
+                    echo '<span style="font-size: 18px; margin-right: 8px;">🆕</span>';
+                    echo '<span>New-'.$count_total.' <span style="opacity: 0.9;">('.number_format($sum_total,2).'Kg)</span></span>';
+                    echo '</div>';
+                    
+                    // Монголд төлөх - Orange/Amber gradient with icon
+                    echo '<div style="display: inline-flex; align-items: center; padding: 12px 20px; margin-right: 12px; border-radius: 10px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; font-weight: 600; box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 6px 20px rgba(245, 87, 108, 0.6)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 15px rgba(245, 87, 108, 0.4)\';">';
+                    echo '<span style="font-size: 18px; margin-right: 8px;">🇲🇳</span>';
+                    echo '<span>Монголд төлөх-'.$count_total2.' <span style="opacity: 0.9;">('.number_format($sum_total2,2).'Kg)</span></span>';
+                    echo '</div>';
+                    
+                    // US Paid - Green gradient with icon
+                    echo '<div style="display: inline-flex; align-items: center; padding: 12px 20px; margin-right: 12px; border-radius: 10px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; font-weight: 600; box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4); transition: all 0.3s ease; cursor: pointer;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 6px 20px rgba(79, 172, 254, 0.6)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 15px rgba(79, 172, 254, 0.4)\';">';
+                    echo '<span style="font-size: 18px; margin-right: 8px;">✅</span>';
+                    echo '<span>US Paid-'.$TOTAL_DIFF.' <span style="opacity: 0.9;">('.number_format($SUM_DIFF,2).'Kg)</span></span>';
+                    echo '</div>';
+                    
+                    echo '</div>';
+                    echo '</div>';
                     echo '<div class="panel-body">';
 
                     $result = mysqli_query($conn,$sql);
@@ -621,8 +643,7 @@
                                                     <li class="list-group-item"><a href="?action=all">All orders</a></li>
                                                     <li class="list-group-item"><a href="?action=insert">Place order</a></li>                                                    
                                                     <li class="list-group-item"><a href="cp72?id=<?=$order_id;?>" target="new">Print CP72</a></li>                                                    
-                                                    <li class="list-group-item"><a href="order_cp72?id=<?=$order_id;?>" target="new">Receipt with CP72</a></li>                                                    
-                                                    <li class="list-group-item"><a href="?action=delete&id=<?=$order_id;?>">Delete</a></li>
+                                                    <li class="list-group-item"><a href="order_cp72?id=<?=$order_id;?>" target="new">Receipt with CP72</a></li>
 
                                                 </ul>
                                             </div>

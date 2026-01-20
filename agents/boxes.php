@@ -83,6 +83,7 @@
                                                 echo "<td>".$weight."</td>"; 
                                                 echo "<td>";
                                                 echo "<a href='?action=detail&id=$box_id'><i class='ti ti-edit'></i></a>";
+                                                echo " <a href='boxes_preview?id=$box_id' class='btn btn-warning btn-sm' target='new' style='margin-left: 5px; padding: 2px 8px; font-size: 11px;'>Box badge</a>";
                                                 // Show delete button only for empty boxes (packages=0 or weight=0)
                                                 if ($packages == 0 || $weight == 0) {
                                                     echo " <a href='?action=delete_box&id=$box_id' onclick=\"return confirm('Энэ хайрцгийг устгахдаа итгэлтэй байна уу?');\" title='Устгах'><i class='ti ti-trash text-danger'></i></a>";
@@ -336,7 +337,7 @@
                             else $delete_status="Should be only new box";
                                 echo "<tr>";
                                 echo "<td>".$count."</td>";
-                                echo "<td>".anchor('admin/boxes_detail/'.$data["box_id"],$name)."</td>"; 
+                                echo "<td><a href='?action=detail&id=".$data["box_id"]."'>".$name."</a></td>"; 
                                 echo "<td>".$packages."</td>"; 
                                 echo "<td>".substr($created_date,0,10)."</td>"; 
                                 echo "<td>".$delete_status."</td>"; 
@@ -453,7 +454,6 @@
                     <?php                    
                             }
                             ?>
-                            <a href="boxes_preview?id=<?=$box_id;?>" class="btn btn-warning btn-sm" target="new">Box badge</a>
                     <?php                    
                         }
                         if (mysqli_num_rows($query) > 0)
@@ -1741,7 +1741,7 @@
                             echo "<td>".$days."</td>"; 
                             echo "<td>".$temp_status."</td>";
                             echo "<td>".$weight."</td>"; 
-                            echo "<td>".$weight*cfg_paymentrate()."</td>"; 
+                            echo "<td>".(floatval($weight)*floatval(cfg_paymentrate()))."</td>"; 
                             echo "<td>".$Package_advance_value."</td>"; 
                             echo "<td><a href='orders?action=detail&id=".$order_id."'><i class='ti ti-edit'></i></a></td>";
                             echo "</tr>";

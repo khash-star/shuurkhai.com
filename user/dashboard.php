@@ -39,6 +39,29 @@
                             $video_name = '';
                             $video_url = '';
                             $video_description = '';
+                            $video_id = '';
+                            
+                            // Function to extract YouTube video ID from various URL formats
+                            function extractYouTubeId($url) {
+                                if (empty($url)) return '';
+                                
+                                // Pattern for youtube.com/watch?v=VIDEO_ID
+                                if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $url, $matches)) {
+                                    return $matches[1];
+                                }
+                                
+                                // If already an embed URL, extract ID
+                                if (preg_match('/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/', $url, $matches)) {
+                                    return $matches[1];
+                                }
+                                
+                                // If it's already just an ID (11 characters)
+                                if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $url)) {
+                                    return $url;
+                                }
+                                
+                                return '';
+                            }
                             
                             $sql = "SELECT * FROM videos ORDER BY rand() LIMIT 1";
                             $result = mysqli_query($conn,$sql);
@@ -47,17 +70,21 @@
                                 $data  = mysqli_fetch_array($result);
                                 
                                 $video_name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
-                                $video_url = isset($data["url"]) ? htmlspecialchars($data["url"]) : '';
+                                $video_url = isset($data["url"]) ? trim($data["url"]) : '';
                                 $video_description = isset($data["description"]) ? htmlspecialchars($data["description"]) : '';
+                                
+                                // Extract video ID from URL
+                                $video_id = extractYouTubeId($video_url);
                             }
                             
-                            if (!empty($video_url)) {
+                            // Show video only if we have a valid video ID
+                            if (!empty($video_id)) {
                                 ?>
                                 <div class="col-8 col-xl-8 col-lg-8 col-md-8 col-sm-6">
 
                                     <div class="card component-card_2">
                                         <div class="embed-responsive embed-responsive-16by9">
-                                            <iframe src="https://www.youtube.com/embed/<?php echo htmlspecialchars(substr($video_url,32,11));?>" allowfullscreen></iframe>
+                                            <iframe src="https://www.youtube.com/embed/<?php echo htmlspecialchars($video_id);?>" allowfullscreen></iframe>
                                         </div>
                                         <div class="card-body">
                                             <h5 class="card-title"><?php echo $video_name;?></h5>

@@ -82,13 +82,6 @@ export default function HowItWorks() {
               className="relative group"
             >
               <div className={`relative bg-gradient-to-br ${step.bgGradient} rounded-2xl p-5 border border-white/60 shadow-sm hover:shadow-xl transition-all duration-300 h-full`}>
-                {/* Number Badge */}
-                <div className="absolute -top-3 -left-3 z-20">
-                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${step.gradient} shadow-lg flex items-center justify-center`}>
-                    <span className="text-white font-bold text-base">{step.number}</span>
-                  </div>
-                </div>
-
                 {/* Icon */}
                 <motion.div
                   whileHover={{ scale: 1.05, rotate: 5 }}
@@ -132,13 +125,8 @@ export default function HowItWorks() {
             >
               <div className={`relative bg-gradient-to-br ${step.bgGradient} rounded-2xl p-4 border border-white/60 shadow-sm`}>
                 <div className="flex items-start gap-3">
-                  {/* Number + Icon */}
+                  {/* Icon */}
                   <div className="relative flex-shrink-0">
-                    <div className="absolute -top-2 -left-2 z-10">
-                      <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${step.gradient} shadow-md flex items-center justify-center`}>
-                        <span className="text-white font-bold text-sm">{step.number}</span>
-                      </div>
-                    </div>
                     <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${step.gradient} flex items-center justify-center shadow-md`}>
                       <step.icon className="w-6 h-6 text-white" />
                     </div>

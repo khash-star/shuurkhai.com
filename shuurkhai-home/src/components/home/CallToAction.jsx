@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles, Phone, Mail } from 'lucide-react';
+import { ArrowRight, Sparkles, Phone, Mail, MessageCircle } from 'lucide-react';
 
 export default function CallToAction() {
   return (
@@ -67,23 +67,33 @@ export default function CallToAction() {
 
             {/* Contact Info */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6 text-slate-700">
-              <a href="tel:+97677001234" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <a href="tel:72026471" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div className="w-11 h-11 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center border border-white/80 shadow-sm">
                   <Phone className="w-5 h-5 text-slate-700" />
                 </div>
                 <div className="text-left">
                   <p className="text-xs text-slate-500">Утас</p>
-                  <p className="font-bold text-sm">+976 7700 1234</p>
+                  <p className="font-bold text-sm">72026471</p>
                 </div>
               </a>
               
-              <a href="mailto:info@shuurkhai.mn" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+              <a href="viber://chat?number=99086471" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div className="w-11 h-11 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center border border-white/80 shadow-sm">
+                  <MessageCircle className="w-5 h-5 text-slate-700" />
+                </div>
+                <div className="text-left">
+                  <p className="text-xs text-slate-500">Viber</p>
+                  <p className="font-bold text-sm">99086471</p>
+                </div>
+              </a>
+              
+              <a href="mailto:info@shuurkhai.com" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div className="w-11 h-11 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center border border-white/80 shadow-sm">
                   <Mail className="w-5 h-5 text-slate-700" />
                 </div>
                 <div className="text-left">
                   <p className="text-xs text-slate-500">Имэйл</p>
-                  <p className="font-bold text-sm">info@shuurkhai.mn</p>
+                  <p className="font-bold text-sm">info@shuurkhai.com</p>
                 </div>
               </a>
             </div>

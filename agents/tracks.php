@@ -17,36 +17,85 @@
                 <?php
                 if ($action=="all")
                 {          
-                    
+                    // Initialize variables with default values
+                    $search = "";
+                    $search_term = "";
+                    $search_status = "all";
+                    $status_type = "all";
                     
                     if(isset($_POST["search"])) 
                     {
-                    $search_term=str_replace(" ","%",$_POST["search"]);
-                    if ($search_term!="") echo "Xайлт:".$search_term."<br>";
+                        $search = protect($_POST["search"]);
+                        $search_term=str_replace(" ","%",$search);
+                        if ($search_term!="") echo "Хайлт: ".$search."<br>";
                     }
                     else $search_term="";
-                    if (isset($_POST["status"])) $search_status=$_POST["status"]; else $search_status='all';
-                    if (isset($_POST["status_type"])) $statuts_type=$_POST["status_type"]; else $statuts_type='all';
+                    
+                    if (isset($_POST["status"])) $search_status=protect($_POST["status"]); else $search_status='all';
+                    if (isset($_POST["status_type"])) $status_type=protect($_POST["status_type"]); else $status_type='all';
                 
                     
                     $start_date = date('Y-m-d', strtotime(date('Y-m-d') . ' -1 month'))." 00:00:00";
 
                     $finish_date = date("Y-m-d")." 23:59:00";
 
+                    // Display filter form
+                    ?>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <form action="?action=all" method="post">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" name="search" placeholder="Хайх..." value="<?php echo htmlspecialchars($search);?>">
+                                            
+                                            <select name="status" class="form-control">
+                                                <option value="all" <?php echo ($search_status=="all")?'SELECTED':'';?>>Бүx идэвхитэй</option>
+                                                <option value="new" <?php echo ($search_status=="new")?'SELECTED':'';?>>Нисэхэд бэлэн</option>
+                                                <option value="weight_missing" <?php echo ($search_status=="weight_missing")?'SELECTED':'';?>>Жин нь бөглөгдөөгүй</option>
+                                                <option value="onair" <?php echo ($search_status=="onair")?'SELECTED':'';?>>Онгоцоор ирж байгаа</option>
+                                                <option value="warehouse" <?php echo ($search_status=="warehouse")?'SELECTED':'';?>>Агуулахад байгаа</option>
+                                                <option value="delivered" <?php echo ($search_status=="delivered")?'SELECTED':'';?>>Хүргэгдсэн</option>
+                                                <option value="custom" <?php echo ($search_status=="custom")?'SELECTED':'';?>>Гаальд саатсан</option>
+                                                <option value="received" <?php echo ($search_status=="received")?'SELECTED':'';?>>Delaware-д бүртгэгдсэн</option>
+                                            </select>
+
+                                            <select name="status_type" class="form-control">
+                                                <option value="advance" <?php echo ($status_type=="advance")?'SELECTED':'';?>>Төлбөртэйг</option>
+                                                <option value="all" <?php echo ($status_type=="all")?'SELECTED':'';?>>Бүгдийг</option>
+                                            </select>
+                                            
+                                            <button type="submit" class="btn btn-primary mr-2">Хайх</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-lg-12">
+                    <?php
+
                     $sql="SELECT * FROM orders";
 
                     $sql.=" WHERE created_date>'$start_date'";
 
                     if ($search_status=="all") 
-                    $sql.=" AND orders.status NOT IN('completed','delivered','warehouse','custom','onair')";
+                    $sql.=" AND orders.status NOT IN('completed','delivered','warehouse','custom')";
                     if ($search_status=='db')
                     $sql.=" AND orders.status IN ('completed','delivered','warehouse','custom','onair','new','order','weight_missing','item_missing','filled')";
 
-                    if ($search_status!="all" && $search_status!='db')
-                    $sql.=" AND orders.status ='$search_status'";
+                    if ($search_status!="all" && $search_status!='db' && $search_status!='transport')
+                    {
+                        $search_status_escaped = mysqli_real_escape_string($conn, $search_status);
+                        $sql.=" AND orders.status ='$search_status_escaped'";
+                    }
 
-                    if ($statuts_type=="advance")
+                    if ($status_type=="advance")
                     $sql.=" AND orders.advance=1";
+                    
+                    if ($search_status=="transport")
+                    $sql.=" AND orders.transport=1";
 
                     if(isset($_POST["search"])) 
                     $sql.=" AND LOWER(CONVERT(CONCAT_WS(barcode,package,third_party,created_date)USING utf8)) LIKE '%".$search_term."%'";
@@ -167,26 +216,21 @@
                         echo "<tr><td colspan='8'>Нийт</td><td>$total_weight</td><td>".cfg_price($total_weight)."</td><td></td></tr>";
 
                         echo "</table>";
-                        
-                        /*$options = array(
-                                    //''  => 'Шинэ төлөвийн сонго',
-                                    //'delivered'  => 'Хүргэж өгөх',
-                                    'onair'    => 'Онгоцоор ирж байгаа',
-                                    // 'warehouse'   => 'Агуулахад орсон',
-                                    //'custom' => 'Гааль',
-                                    // 'delete' => 'Barcode устгах',
-                                    );
-
-
-                        echo form_dropdown('options', $options, '');
-                        echo "<div id='more'></div>";
-                        echo form_submit("submit","өөрчил");
-                        echo form_close();*/
-                        
-                        echo "</table>";
+                        echo "</div>";
+                        echo "</div>";
+                        echo "</div>";
+                        echo "</div>";
+                        echo "</div>";
 
                     }
-                    else echo "Илгээмж олдсонгүй<br>";
+                    else {
+                        echo "<div class='card'>";
+                        echo "<div class='card-body'>";
+                        echo "Илгээмж олдсонгүй<br>";
+                        echo "</div>";
+                        echo "</div>";
+                        echo "</div>";
+                    }
                 }               
 
                 if ($action=="detail")

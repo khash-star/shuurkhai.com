@@ -54,7 +54,7 @@ export default function Benefits() {
             Яагаад биднийг сонгох вэ?
           </span>
           <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
-            Shuurkhai-н давуу талууд
+            www.SHUURKHAI.com-н давуу талууд
           </h2>
           <p className="text-base text-slate-600 max-w-2xl mx-auto">
             Таны хамгийн найдвартай карго түнш

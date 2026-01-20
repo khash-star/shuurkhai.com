@@ -33,6 +33,49 @@
                 <?php
                 if ($action=="contact")
                 {
+                    // Mark all admin replies as read when user opens the contact page
+                    if (isset($conn) && $conn) {
+                        $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
+                        $user_tel = isset($_SESSION["c_tel"]) ? trim($_SESSION["c_tel"]) : '';
+                        
+                        if (empty($user_tel) && $user_id > 0) {
+                            $user_id_escaped = mysqli_real_escape_string($conn, $user_id);
+                            $tel_sql = "SELECT tel FROM customer WHERE customer_id='".$user_id_escaped."' LIMIT 1";
+                            $tel_result = mysqli_query($conn, $tel_sql);
+                            if ($tel_result !== false && $tel_data = mysqli_fetch_array($tel_result)) {
+                                $user_tel = isset($tel_data["tel"]) && !empty($tel_data["tel"]) ? trim($tel_data["tel"]) : '';
+                            }
+                        }
+                        
+                        if (!empty($user_tel)) {
+                            $user_tel_escaped = mysqli_real_escape_string($conn, $user_tel);
+                            
+                            // Check if role column exists
+                            $check_role_sql = "SHOW COLUMNS FROM feedback LIKE 'role'";
+                            $role_exists = false;
+                            $check_result = mysqli_query($conn, $check_role_sql);
+                            if ($check_result && mysqli_num_rows($check_result) > 0) {
+                                $role_exists = true;
+                            }
+                            
+                            // Mark all admin/agent replies as read
+                            if ($role_exists) {
+                                $mark_read_sql = "UPDATE feedback SET `read`=1 WHERE contact='".$user_tel_escaped."' AND (role='admin' OR role='agent') AND archive=0 AND `read`=0";
+                            } else {
+                                $mark_read_sql = "UPDATE feedback SET `read`=1 WHERE contact='".$user_tel_escaped."' AND archive=0 AND `read`=0 AND (name LIKE '%admin%' OR name LIKE '%Admin%' OR title LIKE '%Admin Reply%' OR title LIKE '%Re:%' OR title LIKE '%Agent Reply%')";
+                            }
+                            
+                            $update_result = @mysqli_query($conn, $mark_read_sql);
+                            
+                            // If update was successful and we're not in a POST request and not already redirected, refresh the page to update navbar counter
+                            if ($update_result && !isset($_POST["content"]) && !isset($_GET["read"])) {
+                                // Redirect to same page with read=1 parameter to prevent infinite loop
+                                header("Location: extra?action=contact&read=1");
+                                exit;
+                            }
+                        }
+                    }
+                    
                     // Show success message if redirected after successful submission
                     if (isset($_SESSION['feedback_success']) && $_SESSION['feedback_success']) {
                         unset($_SESSION['feedback_success']);
@@ -231,22 +274,25 @@
                                                     $msg_contact = isset($msg_data["contact"]) ? htmlspecialchars($msg_data["contact"]) : '';
                                                     $msg_timestamp = isset($msg_data["timestamp"]) ? htmlspecialchars($msg_data["timestamp"]) : '';
                                                     
-                                                    // Determine if this is an admin reply
+                                                    // Determine if this is an admin/agent reply
                                                     $msg_role = "user";
                                                     if ($role_exists && isset($msg_data["role"]) && !empty($msg_data["role"])) {
                                                         $msg_role = htmlspecialchars($msg_data["role"]);
                                                     }
                                                     
-                                                    $is_admin_msg = ($msg_role == "admin");
+                                                    $is_admin_msg = ($msg_role == "admin" || $msg_role == "agent");
                                                     
                                                     // Fallback: if role column doesn't exist, check by name or title patterns
                                                     if (!$is_admin_msg && (!$role_exists || empty($msg_data["role"]))) {
-                                                        // Check if name contains "admin" or title is "Re: Admin Reply"
+                                                        // Check if name contains "admin" or title is "Re: Admin Reply" or "Re: Agent Reply"
                                                         $name_lower = strtolower($msg_name);
                                                         $title_lower = strtolower($msg_title);
                                                         if (strpos($name_lower, 'admin') !== false || 
+                                                            strpos($name_lower, 'agent') !== false ||
                                                             $title_lower == 're: admin reply' || 
-                                                            strpos($title_lower, 'admin reply') !== false) {
+                                                            $title_lower == 're: agent reply' ||
+                                                            strpos($title_lower, 'admin reply') !== false ||
+                                                            strpos($title_lower, 'agent reply') !== false) {
                                                             $is_admin_msg = true;
                                                         }
                                                     }

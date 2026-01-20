@@ -14,9 +14,7 @@
             <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
-                <a href="feedback?action=not_list" class="btn btn-danger btn-sm pull-right mg-b-10">Боломжгүй хүсэлтүүд</a>
-                <a href="feedback?action=done_list" class="btn btn-success btn-sm pull-right mg-b-10">Шийдвэрлэсэн хүсэлтүүд</a>
-                <a href="feedback" class="btn btn-primary btn-sm pull-right mg-b-10">Идэвхитэй санал хүсэлт</a>
+                <button onclick="toggleMessages()" class="btn btn-secondary btn-sm pull-right mg-b-10">МЕССЕЖИЙГ ХААХ</button>
 
             <?php  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
             
@@ -153,9 +151,9 @@
             </div>
             
             <!-- Chat Container -->
-            <div class="row">
+            <div class="row" id="messagesContainer">
               <div class="col-12">
-                <div class="card" style="min-height: 500px;">
+                <div class="card" id="messagesCard" style="min-height: 500px;">
                   <div class="card-body">
                     <div class="chat-messages" id="chatMessagesContainer" style="max-height: 600px; overflow-y: auto; padding: 20px; background: #fafafa; border-radius: 8px;">
                       <?php
@@ -231,6 +229,13 @@
                                 </button>
                                 <a href="feedback?action=done&id=<?php echo $id; ?>" class="btn btn-sm btn-primary">
                                   <i class="icon ion-checkmark"></i> Done
+                                </a>
+                              </div>
+                              <?php endif; ?>
+                              <?php if ($is_agent && $is_my_message): ?>
+                              <div class="message-actions mt-2" style="text-align: right;">
+                                <a href="feedback?action=delete&id=<?php echo $id; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Та энэ зурвасыг устгахдаа итгэлтэй байна уу?');" title="Зурвас устгах">
+                                  <i class="icon ion-close"></i> Хаах
                                 </a>
                               </div>
                               <?php endif; ?>
@@ -349,6 +354,26 @@
               });
               
               observer.observe(chatContainer, { childList: true, subtree: true });
+            }
+            // Toggle messages visibility
+            function toggleMessages() {
+              const messagesContainer = document.getElementById('messagesContainer');
+              const filtersRow = document.querySelector('.row.mb-4');
+              const toggleBtn = document.querySelector('button[onclick="toggleMessages()"]');
+              
+              if (messagesContainer) {
+                if (messagesContainer.style.display === 'none') {
+                  // Show messages
+                  messagesContainer.style.display = 'block';
+                  if (filtersRow) filtersRow.style.display = 'flex';
+                  if (toggleBtn) toggleBtn.textContent = 'МЕССЕЖИЙГ ХААХ';
+                } else {
+                  // Hide messages
+                  messagesContainer.style.display = 'none';
+                  if (filtersRow) filtersRow.style.display = 'none';
+                  if (toggleBtn) toggleBtn.textContent = 'МЕССЕЖИЙГ НЭЭХ';
+                }
+              }
             }
             </script>
             

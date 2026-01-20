@@ -20,12 +20,7 @@
                 </div>
                 <!-- Logo -->
                 <a href="/shuurkhai/" class="flex items-center gap-3 hover:scale-105 transition-transform" style="margin-top: 12px;">
-                    <div class="w-11 h-11 rounded-xl bg-slate-900 flex items-center justify-center shadow-sm">
-                        <div class="flex">
-                            <i data-lucide="plane" class="w-4 h-4 text-white -rotate-45"></i>
-                            <i data-lucide="ship" class="w-4 h-4 text-emerald-400 -ml-0.5"></i>
-                        </div>
-                    </div>
+                    <img src="/shuurkhai/images/logo.png" alt="Shuurkhai Logo" class="h-11 w-auto object-contain">
                     <span class="text-xl font-bold text-slate-900">www.SHUURKHAI.com</span>
                 </a>
 
@@ -37,7 +32,7 @@
                             Үйлчилгээ
                             <i data-lucide="chevron-down" class="w-4 h-4"></i>
                         </a>
-                        <div class="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                        <div class="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                             <div class="bg-white rounded-2xl shadow-xl border border-slate-100 p-2 min-w-[220px]">
                                 <?php
                                 // Check if user is logged in as admin
@@ -465,11 +460,6 @@
                 foreach ($steps as $index => $step): ?>
                 <div class="relative group">
                     <div class="relative bg-gradient-to-br <?= $step['bgGradient'] ?> rounded-2xl p-5 border border-white/60 shadow-sm hover:shadow-xl transition-all duration-300 h-full">
-                        <div class="absolute -top-3 -left-3 z-20">
-                            <div class="w-9 h-9 rounded-xl bg-gradient-to-br <?= $step['gradient'] ?> shadow-lg flex items-center justify-center">
-                                <span class="text-white font-bold text-base"><?= $step['number'] ?></span>
-                            </div>
-                        </div>
                         <div class="w-14 h-14 rounded-xl bg-gradient-to-br <?= $step['gradient'] ?> flex items-center justify-center mb-4 mx-auto mt-2 shadow-md hover:scale-105 hover:rotate-3 transition-transform">
                             <i data-lucide="<?= $step['icon'] ?>" class="w-7 h-7 text-white"></i>
                         </div>
@@ -493,11 +483,6 @@
                     <div class="relative bg-gradient-to-br <?= $step['bgGradient'] ?> rounded-2xl p-4 border border-white/60 shadow-sm">
                         <div class="flex items-start gap-3">
                             <div class="relative flex-shrink-0">
-                                <div class="absolute -top-2 -left-2 z-10">
-                                    <div class="w-7 h-7 rounded-lg bg-gradient-to-br <?= $step['gradient'] ?> shadow-md flex items-center justify-center">
-                                        <span class="text-white font-bold text-sm"><?= $step['number'] ?></span>
-                                    </div>
-                                </div>
                                 <div class="w-12 h-12 rounded-xl bg-gradient-to-br <?= $step['gradient'] ?> flex items-center justify-center shadow-md">
                                     <i data-lucide="<?= $step['icon'] ?>" class="w-6 h-6 text-white"></i>
                                 </div>
@@ -525,7 +510,7 @@
                     Яагаад биднийг сонгох вэ?
                 </span>
                 <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-3">
-                    Shuurkhai-н давуу талууд
+                    www.SHUURKHAI.com-н давуу талууд
                 </h2>
                 <p class="text-base text-slate-600 max-w-2xl mx-auto">
                     Таны хамгийн найдвартай карго түнш
@@ -628,23 +613,33 @@
 
                     <!-- Contact Info -->
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-6 text-slate-700">
-                        <a href="tel:+97677001234" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                        <a href="tel:72026471" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
                             <div class="w-11 h-11 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center border border-white/80 shadow-sm">
                                 <i data-lucide="phone" class="w-5 h-5 text-slate-700"></i>
                             </div>
                             <div class="text-left">
                                 <p class="text-xs text-slate-500">Утас</p>
-                                <p class="font-bold text-sm">+976 7700 1234</p>
+                                <p class="font-bold text-sm">72026471</p>
                             </div>
                         </a>
                         
-                        <a href="mailto:info@shuurkhai.mn" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                        <a href="viber://chat?number=99086471" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                            <div class="w-11 h-11 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center border border-white/80 shadow-sm">
+                                <i data-lucide="message-circle" class="w-5 h-5 text-slate-700"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-xs text-slate-500">Viber</p>
+                                <p class="font-bold text-sm">99086471</p>
+                            </div>
+                        </a>
+                        
+                        <a href="mailto:info@shuurkhai.com" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
                             <div class="w-11 h-11 rounded-xl bg-white/60 backdrop-blur-sm flex items-center justify-center border border-white/80 shadow-sm">
                                 <i data-lucide="mail" class="w-5 h-5 text-slate-700"></i>
                             </div>
                             <div class="text-left">
                                 <p class="text-xs text-slate-500">Имэйл</p>
-                                <p class="font-bold text-sm">info@shuurkhai.mn</p>
+                                <p class="font-bold text-sm">info@shuurkhai.com</p>
                             </div>
                         </a>
                     </div>
@@ -663,12 +658,7 @@
                 <!-- Brand Column -->
                 <div class="col-span-2 md:col-span-4 lg:col-span-1">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                            <div class="flex">
-                                <i data-lucide="plane" class="w-5 h-5 text-white -rotate-45"></i>
-                                <i data-lucide="ship" class="w-5 h-5 text-emerald-400 -ml-1"></i>
-                            </div>
-                        </div>
+                        <img src="/shuurkhai/images/logo.png" alt="Shuurkhai Logo" class="h-12 w-auto object-contain">
                         <span class="text-2xl font-bold">www.SHUURKHAI.com</span>
                     </div>
 
@@ -787,9 +777,16 @@
                             </a>
                         </li>
                         <li>
-                            <a href="mailto:<?= htmlspecialchars(settings("email") ?? '') ?>" class="flex items-center gap-3 text-slate-400 hover:text-white transition-colors">
+                            <?php 
+                            $footer_email = settings("email") ?? '';
+                            // Replace usa_mng@yahoo.com with info@shuurkhai.com
+                            if ($footer_email === 'usa_mng@yahoo.com' || empty($footer_email)) {
+                                $footer_email = 'info@shuurkhai.com';
+                            }
+                            ?>
+                            <a href="mailto:<?= htmlspecialchars($footer_email) ?>" class="flex items-center gap-3 text-slate-400 hover:text-white transition-colors">
                                 <i data-lucide="mail" class="w-5 h-5 text-emerald-400"></i>
-                                <?= htmlspecialchars(settings("email") ?? '') ?>
+                                <?= htmlspecialchars($footer_email) ?>
                             </a>
                         </li>
                         <?php else: ?>
@@ -804,9 +801,9 @@
                             </a>
                         </li>
                         <li>
-                            <a href="mailto:info@shuurkhai.mn" class="flex items-center gap-3 text-slate-400 hover:text-white transition-colors">
+                            <a href="mailto:info@shuurkhai.com" class="flex items-center gap-3 text-slate-400 hover:text-white transition-colors">
                                 <i data-lucide="mail" class="w-5 h-5 text-emerald-400"></i>
-                                info@shuurkhai.mn
+                                info@shuurkhai.com
                             </a>
                         </li>
                         <?php endif; ?>
@@ -818,7 +815,7 @@
             <div class="py-6 border-t border-white/10">
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                     <p class="text-sm text-slate-500">
-                        © <?= date('Y') ?> Shuurkhai. Бүх эрх хуулиар хамгаалагдсан.
+                        © <?= date('Y') ?> www.SHUURKHAI.com. Бүх эрх хуулиар хамгаалагдсан.
                     </p>
                     <div class="flex items-center gap-6">
                         <?php if (function_exists('settings')): ?>
