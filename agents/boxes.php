@@ -176,6 +176,9 @@
                                     $inside_item =mysqli_num_rows($packages_query);
                                     $inside_count =0;
                                 
+                                    // Use same onair_date for all orders in this box
+                                    $onair_datetime = date("Y-m-d H:i:s");
+                                    
                                     while($package_data=mysqli_fetch_array($packages_query))
                                     {
                                     $barcode=$package_data["barcode"];
@@ -185,12 +188,13 @@
                                     $order_id=$package_data["order_id"];
                                     if ($combined!=1) //SINGLE
                                         {
-                                        $order_query= mysqli_query($conn,"SELECT * FROM orders WHERE barcode='$barcode'");
+                                        $order_query= mysqli_query($conn,"SELECT * FROM orders WHERE barcode='".mysqli_real_escape_string($conn, $barcode)."'");
                                         if (mysqli_num_rows($order_query)==1)
                                             {
                                                 $row_orders = mysqli_fetch_array($order_query);
-                                                if(!($row_orders["status"]=="delivered" || $row_orders["status"]=="warehouse" || $row_orders["status"]=="custom")) 
-                                                mysqli_query($conn,"UPDATE orders SET status='onair',onair_date='".date("Y-m-d H:i:s")."' WHERE order_id=$order_id");
+                                                if(!($row_orders["status"]=="delivered" || $row_orders["status"]=="warehouse" || $row_orders["status"]=="custom")) {
+                                                    mysqli_query($conn,"UPDATE orders SET status='onair',onair_date='".mysqli_real_escape_string($conn, $onair_datetime)."' WHERE order_id=".intval($order_id));
+                                                }
                                                 $inside_count++;
                                             }
                                         } //SINGLE ENDING
@@ -198,21 +202,103 @@
                                         {
                                             foreach(explode(",",$barcodes) as $barcode_each)
                                             {
-                                            $order_query= mysqli_query($conn,"SELECT * FROM orders WHERE barcode='$barcode_each'");
+                                            $order_query= mysqli_query($conn,"SELECT * FROM orders WHERE barcode='".mysqli_real_escape_string($conn, $barcode_each)."'");
                                             if (mysqli_num_rows($order_query)==1)
                                                 {
                                                 $row_orders = mysqli_fetch_array($order_query);
-                                                if(!($row_orders["status"]=="delivered" || $row_orders["status"]=="warehouse" || $row_orders["status"]=="custom")) 
-                                                mysqli_query($conn,"UPDATE orders SET status='onair',onair_date='".date("Y-m-d H:i:s")."' WHERE barcode='$barcode_each'");
+                                                if(!($row_orders["status"]=="delivered" || $row_orders["status"]=="warehouse" || $row_orders["status"]=="custom")) {
+                                                    mysqli_query($conn,"UPDATE orders SET status='onair',onair_date='".mysqli_real_escape_string($conn, $onair_datetime)."' WHERE barcode='".mysqli_real_escape_string($conn, $barcode_each)."'");
+                                                }
                                                 }
                                             }
-                                            mysqli_query($conn,"UPDATE box_combine SET status='onair',onair_date='".date("Y-m-d H:i:s")."' WHERE barcode='$barcode'");
+                                            mysqli_query($conn,"UPDATE box_combine SET status='onair',onair_date='".mysqli_real_escape_string($conn, $onair_datetime)."' WHERE barcode='".mysqli_real_escape_string($conn, $barcode)."'");
                                             $inside_count++;
                                         } //COMBINED ENDING
                                 
                                     }
                                     if ($inside_item==$inside_count)
-                                        mysqli_query($conn,"UPDATE boxes SET status='onair' WHERE box_id='$boxes_id' LIMIT 1");
+                                    {
+                                        mysqli_query($conn,"UPDATE boxes SET status='onair' WHERE box_id=".intval($boxes_id)." LIMIT 1");
+                                        
+                                        // Create or update report entry when all orders in box are moved to onair
+                                        // Get all orders with same onair_date (same second) to create one report per onair_date
+                                        $report_check_sql = "SELECT 
+                                            DATE_FORMAT(onair_date, '%Y-%m-%d %H:%i:%s') as onair_date_group,
+                                            COUNT(order_id) as Count, 
+                                            SUM(weight) as total,
+                                            SUM(CASE WHEN (advance=1 OR advance_value > 0) THEN weight ELSE 0 END) as paid_weight,
+                                            SUM(CASE WHEN (advance=0 OR advance_value = 0 OR advance_value IS NULL) THEN weight ELSE 0 END) as collect_weight
+                                        FROM orders  
+                                        WHERE status='onair' 
+                                        AND onair_date >= DATE_SUB('".mysqli_real_escape_string($conn, $onair_datetime)."', INTERVAL 1 SECOND)
+                                        AND onair_date <= DATE_ADD('".mysqli_real_escape_string($conn, $onair_datetime)."', INTERVAL 1 SECOND)
+                                        AND onair_date!='0000-00-00 00:00:00' 
+                                        AND onair_date IS NOT NULL
+                                        GROUP BY DATE_FORMAT(onair_date, '%Y-%m-%d %H:%i:%s')";
+                                        
+                                        $report_check_result = mysqli_query($conn, $report_check_sql);
+                                        if (mysqli_num_rows($report_check_result) > 0) {
+                                            while ($report_data = mysqli_fetch_array($report_check_result)) {
+                                                $report_onair_date = $report_data["onair_date_group"];
+                                                
+                                                // Check if report already exists for this onair_date
+                                                $check_report_sql = "SELECT * FROM reports WHERE onair_date='".mysqli_real_escape_string($conn, $report_onair_date)."' LIMIT 1";
+                                                $check_report_result = mysqli_query($conn, $check_report_sql);
+                                                
+                                                if (mysqli_num_rows($check_report_result) == 0) {
+                                                    // Create new report entry
+                                                    $report_weight = floatval($report_data["total"]);
+                                                    $report_count = intval($report_data["Count"]);
+                                                    $report_paid_weight = floatval($report_data["paid_weight"] ?? 0);
+                                                    $report_collect_weight = floatval($report_data["collect_weight"] ?? 0);
+                                                    
+                                                    // Calculate PAID and COLLECT
+                                                    $report_paid = 0;
+                                                    if ($report_paid_weight > 0) {
+                                                        $selfdrop_rate = floatval(settings("paymentrate_selfdrop") ?? 0);
+                                                        $report_paid = $report_paid_weight * $selfdrop_rate;
+                                                    }
+                                                    
+                                                    $report_collect = 0;
+                                                    if ($report_collect_weight > 0) {
+                                                        if ($report_collect_weight < 0.5) {
+                                                            $report_collect = 10;
+                                                        } else {
+                                                            $report_collect = cfg_price($report_collect_weight);
+                                                        }
+                                                    }
+                                                    
+                                                    // Insert report - create table if not exists
+                                                    $create_table_sql = "CREATE TABLE IF NOT EXISTS reports (
+                                                        id INT AUTO_INCREMENT PRIMARY KEY,
+                                                        onair_date DATETIME NOT NULL,
+                                                        count_orders INT DEFAULT 0,
+                                                        total_weight DECIMAL(10,2) DEFAULT 0,
+                                                        paid_weight DECIMAL(10,2) DEFAULT 0,
+                                                        collect_weight DECIMAL(10,2) DEFAULT 0,
+                                                        paid_amount DECIMAL(10,2) DEFAULT 0,
+                                                        collect_amount DECIMAL(10,2) DEFAULT 0,
+                                                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                                        UNIQUE KEY unique_onair_date (onair_date)
+                                                    )";
+                                                    mysqli_query($conn, $create_table_sql);
+                                                    
+                                                    $insert_report_sql = "INSERT INTO reports (onair_date, count_orders, total_weight, paid_weight, collect_weight, paid_amount, collect_amount, created_at) 
+                                                        VALUES (
+                                                            '".mysqli_real_escape_string($conn, $report_onair_date)."',
+                                                            ".intval($report_count).",
+                                                            ".floatval($report_weight).",
+                                                            ".floatval($report_paid_weight).",
+                                                            ".floatval($report_collect_weight).",
+                                                            ".floatval($report_paid).",
+                                                            ".floatval($report_collect).",
+                                                            NOW()
+                                                        )";
+                                                    mysqli_query($conn, $insert_report_sql);
+                                                }
+                                            }
+                                        }
+                                    }
                                     echo "<tr>";
                                     echo "<td>".$count."</td>";
                                     echo "<td><a href='?action=detail&id=".$data["box_id"]."'>$name</a></td>"; 

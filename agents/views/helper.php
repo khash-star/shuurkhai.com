@@ -746,21 +746,23 @@ if (! function_exists ('tracksearch'))
 	{
 		global $conn;
 
-		$filter_date = date('Y-m-d', strtotime(date('Y-m-d') . ' -2 month'));
-
-		$track = str_replace(" ", "", $track);
+		// Remove date filter to search from entire database
+		$track = mysqli_real_escape_string($conn, str_replace(" ", "", $track));
 
 		if (substr($track,0,2)=='22' || substr($track,0,2)=='23' || substr($track,0,2)=='ES')
-			$query=mysqli_query($conn,"SELECT * FROM orders WHERE (third_party = '$track' OR extratracks LIKE '%$track%') AND created_date>='$filter_date 00:00:00' LIMIT 1");
-		if (substr($track,0,2)!='22' && substr($track,0,2)!='23' && substr($track,0,2)!='ES')
-			{
-				$track_eliminated = substr($track,-8,8);
-				$query=mysqli_query($conn,"SELECT * FROM orders WHERE (SUBSTRING(third_party,-8,8) = '$track_eliminated' OR extratracks LIKE '%$track%') AND created_date>='$filter_date 00:00:00' LIMIT 1");
-			}
+		{
+			$query=mysqli_query($conn,"SELECT * FROM orders WHERE (third_party = '$track' OR extratracks LIKE '%$track%') LIMIT 1");
+		}
+		else
+		{
+			$track_eliminated = mysqli_real_escape_string($conn, substr($track,-8,8));
+			$query=mysqli_query($conn,"SELECT * FROM orders WHERE (SUBSTRING(third_party,-8,8) = '$track_eliminated' OR extratracks LIKE '%$track%') LIMIT 1");
+		}
+		
 		if (mysqli_num_rows($query)==1)
 		{
-		$data=mysqli_fetch_array($query);
-		return $data["order_id"];
+			$data=mysqli_fetch_array($query);
+			return $data["order_id"];
 		}
 		else return "";
 	}

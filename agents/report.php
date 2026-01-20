@@ -22,30 +22,79 @@
                                 <th>Onair</th>
                                 <th>Тоо ширхэг</th>
                                 <th>Жин</th>
-                                <th>Төлбөр</th>
+                                <th>PAID</th>
+                                <th>COLLECT</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
                             $grand_total = 0;
-                            $sql = "SELECT orders.* ,count(order_id) as Count, sum(weight) as total FROM orders  WHERE status not IN('new','order','weight_missing') AND onair_date!='0000-00-00 00:00:00' GROUP BY onair_date ORDER BY onair_date DESC";
-                            $result =mysqli_query($conn,$sql);
+                            $grand_weight = 0;
+                            $grand_paid = 0;
+                            $grand_collect = 0;
+                            // Calculate paid weight and collect weight separately for each onair_date
+                            // PAID = orders with advance=1 or advance_value > 0 (Америкт төлсөн)
+                            // COLLECT = orders with advance=0 or advance_value = 0 (Монголд төлөх)
+                            $sql = "SELECT 
+                                onair_date,
+                                COUNT(order_id) as Count, 
+                                SUM(weight) as total,
+                                SUM(CASE WHEN (advance=1 OR advance_value > 0) THEN weight ELSE 0 END) as paid_weight,
+                                SUM(CASE WHEN (advance=0 OR advance_value = 0 OR advance_value IS NULL) THEN weight ELSE 0 END) as collect_weight
+                            FROM orders  
+                            WHERE status not IN('new','order','weight_missing') 
+                            AND onair_date!='0000-00-00 00:00:00' 
+                            AND onair_date IS NOT NULL
+                            GROUP BY onair_date 
+                            ORDER BY onair_date DESC";
+                            $result = mysqli_query($conn,$sql);
                             if (mysqli_num_rows($result) > 0)
                                     {
                                 
                                     $count=1;
                                     while ($data = mysqli_fetch_array($result))
                                         {  
-                                            $weight = $data["total"];
+                                            $weight = floatval($data["total"]);
                                             $onair_date = $data["onair_date"];
                                             $count_order = $data["Count"];
+                                            $paid_weight = floatval($data["paid_weight"] ?? 0);
+                                            $collect_weight = floatval($data["collect_weight"] ?? 0);
+                                            
+                                            // Verify: paid_weight + collect_weight should equal total weight
+                                            // If not, adjust collect_weight to match
+                                            if (abs(($paid_weight + $collect_weight) - $weight) > 0.01) {
+                                                $collect_weight = $weight - $paid_weight;
+                                            }
+                                            
+                                            // PAID = paid_weight * paymentrate_selfdrop (Америкт төлсөн)
+                                            $paid = 0;
+                                            if ($paid_weight > 0) {
+                                                $selfdrop_rate = floatval(settings("paymentrate_selfdrop") ?? 0);
+                                                $paid = $paid_weight * $selfdrop_rate;
+                                            }
+                                            
+                                            // COLLECT = collect_weight * cfg_price_rate (Монголд төлөх)
+                                            // 0.5кг-аас доош бол 10$, түүнээс дээш бол cfg_price
+                                            $collect = 0;
+                                            if ($collect_weight > 0) {
+                                                if ($collect_weight < 0.5) {
+                                                    $collect = 10; // 0.5кг-аас доош бол 10$
+                                                } else {
+                                                    $collect = cfg_price($collect_weight); // 0.5кг-аас дээш бол cfg_price
+                                                }
+                                            }
+                                            
+                                            $grand_weight += $weight;
+                                            $grand_paid += $paid;
+                                            $grand_collect += $collect;
                                             ?>
                                             <tr>
                                             <td><?php echo $count++;?></td>
                                             <td><?php echo htmlspecialchars($onair_date ?? '');?></td>
                                             <td><?php echo htmlspecialchars($count_order ?? '');?></td>
                                             <td><?php echo number_format($weight ?? 0, 2);?></td>
-                                            <td><?php echo htmlspecialchars(cfg_price($weight) ?? '');?>$</td>
+                                            <td><?php echo number_format($paid, 2, '.', ',');?>$</td>
+                                            <td><?php echo number_format($collect, 2, '.', ',');?>$</td>
                                             </tr>
                                             <?php
                                         } 
@@ -53,6 +102,14 @@
                                     } 
                                 ?>
                         </tbody>
+                        <tfoot>
+                            <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                <td colspan="3" style="text-align: right;">Нийт:</td>
+                                <td><?php echo number_format($grand_weight, 2, '.', ',');?></td>
+                                <td><?php echo number_format($grand_paid, 2, '.', ',');?>$</td>
+                                <td><?php echo number_format($grand_collect, 2, '.', ',');?>$</td>
+                            </tr>
+                        </tfoot>
                     </table>
                   </div>
                   

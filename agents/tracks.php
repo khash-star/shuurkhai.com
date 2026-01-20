@@ -344,13 +344,14 @@
 
                 if ($action=="searching")
                 {
-                        $track= $_POST["search"];
+                        $track= mysqli_real_escape_string($conn, $_POST["search"]);
 
                         $order_id = tracksearch($track);
 
                         if ($order_id!="")
                         {
-                            $sql = "SELECT * FROM orders WHERE order_id = '".intval($order_id)."' AND agents='$g_agent_logged_id' AND is_online='0'";
+                            // Search from entire database without agent or is_online filters
+                            $sql = "SELECT * FROM orders WHERE order_id = ".intval($order_id);
                             $result = mysqli_query($conn,$sql);
 
                             if (mysqli_num_rows($result) > 0)
@@ -490,10 +491,10 @@
                             $track = strtolower($track);
                             $track = mysqli_real_escape_string($conn, $track);
 
-                            $sql="SELECT orders.*,customer.name,customer.tel FROM orders, customer WHERE orders.receiver=customer.customer_id AND ";
+                            $sql="SELECT orders.*,customer.name,customer.tel FROM orders LEFT JOIN customer ON orders.receiver=customer.customer_id WHERE ";
 
-                            // Search all orders regardless of status or boxed status
-                            $sql.=" LOWER(CONVERT(CONCAT_WS(barcode,package,customer.name,customer.tel,third_party)USING utf8)) LIKE '%".$track."%' AND orders.agents='$g_agent_logged_id' AND orders.is_online='0' ORDER BY created_date DESC"; 
+                            // Search all orders from entire database regardless of agent, status, or boxed status
+                            $sql.=" LOWER(CONVERT(CONCAT_WS(orders.barcode,orders.package,customer.name,customer.tel,orders.third_party)USING utf8)) LIKE '%".$track."%' ORDER BY orders.created_date DESC"; 
                            
                             $result = mysqli_query($conn,$sql);
                             //$result = $this->db->like("barcode","CP87");
