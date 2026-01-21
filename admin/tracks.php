@@ -339,14 +339,17 @@
                 <div class="card">
                     <div class="card-body">
                       <div class="table-responsive">
-                        <table id="tracks_table" class="table">
+                        <table id="tracks_table_active" class="table">
                           <thead>
                             <tr>
                                 <th>№</th>
                                 <th>Үүсгэсэн</th>
-                                <th>Хүлээн авагч</th>
+                                <th>Овог</th>
+                                <th>Нэр</th>
                                 <th>Утас</th>
-                                <th width="80">Barcode / Track</th>
+                                <th width="80">Barcode</th>
+                                <th width="80">Track</th>
+                                <th width="50">DE</th>
                                 <th>Хоног</th>
                                 <th>Төлөв</th>
                                 <th>Жин</th>
@@ -416,8 +419,15 @@
                               echo "</td>"; 
                                    if ($proxy && proxy2($proxy,$proxy_type,"name")<>"") 
                                        {
+                                           $proxy_name = proxy2($proxy,$proxy_type,"name");
+                                           $name_parts = explode(" ", $proxy_name);
+                                           $proxy_surname = isset($name_parts[0]) ? $name_parts[0] : "";
+                                           $proxy_firstname = isset($name_parts[1]) ? $name_parts[1] : (count($name_parts) > 1 ? implode(" ", array_slice($name_parts, 1)) : $proxy_name);
                                            echo "<td>";
-                                           echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'" class="text-danger">'.htmlspecialchars(proxy2($proxy,$proxy_type,"name")).'</a>';
+                                           echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'" class="text-danger">'.htmlspecialchars($proxy_surname).'</a>';
+                                           echo "</td>";
+                                           echo "<td>";
+                                           echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'" class="text-danger">'.htmlspecialchars($proxy_firstname).'</a>';
                                            echo "</td>";
                                            echo "<td>";
                                            echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'" class="text-danger">'.htmlspecialchars(proxy2($proxy,$proxy_type,"tel")).'</a>';                                           
@@ -426,7 +436,10 @@
                                        else
                                        {
                                        echo "<td>";
-                                       echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars(substr($receiver_surname,0,2)).".".htmlspecialchars($receiver).'</a>';
+                                       echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars($receiver_surname).'</a>';
+                                       echo "</td>";
+                                       echo "<td>";
+                                       echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars($receiver).'</a>';
                                        echo "</td>";
                                         echo "<td>".htmlspecialchars($receiver_tel)."</td>"; 
                                        }
@@ -436,11 +449,17 @@
                                
                        
                              
-                              echo "<td class='track_td'>".barcode_comfort($barcode)."<br>"; 
-                              if ($third_party!="")
-                              echo "<a href='".htmlspecialchars(track($third_party))."' target='new' title='Хаана явна'>".htmlspecialchars($third_party)."<span class='glyphicon glyphicon-globe'></span></a>";
+                                echo "<td class='track_td'>".barcode_comfort($barcode);
+                                if ($owner==2) echo "SH";
+                                echo "</td>";
+                              echo "<td class='track_td'>";
+                              if ($third_party!="") {
+                                  echo htmlspecialchars($third_party);
+                                  echo " <a href='".htmlspecialchars(track($third_party))."' target='new' title='Хаана явна' style='display:none;'>".htmlspecialchars($third_party)."<span class='glyphicon glyphicon-globe'></span></a>";
+                              }
+                              echo "</td>";
+                              echo "<td>";
                               if ($is_branch) echo '<span class="badge badge-success">DE</span>';
-                              if ($owner==2) echo "SH";
                               echo "</td>"; 
                               echo "<td>".htmlspecialchars($days)."</td>"; 
                               echo "<td>".htmlspecialchars($temp_status)."</td>";
@@ -454,7 +473,7 @@
                           
                           </tbody>
                           <tfoot>
-                            <tr><td colspan='6'>Нийт</td><td><?php echo $total_weight;?></td><td><?php echo $total_weight*cfg_paymentrate();?></td><td><?php echo $total_price;?></td><td></td></tr>
+                            <tr><td colspan='9'>Нийт</td><td></td><td><?php echo $total_weight;?></td><td><?php echo $total_price;?></td><td></td></tr>
                           </tfoot>
                         </table>
                       </div>
@@ -524,9 +543,12 @@
                               <tr>
                                   <th>№</th>
                                   <th>Үүсгэсэн</th>
-                                  <th>Хүлээн авагч</th>
+                                  <th>Овог</th>
+                                  <th>Нэр</th>
                                   <th>Утас</th>
-                                  <th width="80">Barcode / Track</th>
+                                  <th width="80">Barcode</th>
+                                  <th width="80">Track</th>
+                                  <th width="50">DE</th>
                                   <th>Хоног</th>
                                   <th>Төлөв</th>
                                   <th>Жин</th>
@@ -596,8 +618,15 @@
                                 echo "</td>"; 
                                     if ($proxy && proxy2($proxy,$proxy_type,"name")<>"") 
                                         {
+                                            $proxy_name = proxy2($proxy,$proxy_type,"name");
+                                            $name_parts = explode(" ", $proxy_name);
+                                            $proxy_surname = isset($name_parts[0]) ? $name_parts[0] : "";
+                                            $proxy_firstname = isset($name_parts[1]) ? $name_parts[1] : (count($name_parts) > 1 ? implode(" ", array_slice($name_parts, 1)) : $proxy_name);
                                             echo "<td>";
-                                            echo '<a href="customers?action=proxy&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars(proxy2($proxy,$proxy_type,"name")).'</a>';
+                                            echo '<a href="customers?action=proxy&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars($proxy_surname).'</a>';
+                                            echo "</td>";
+                                            echo "<td>";
+                                            echo '<a href="customers?action=proxy&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars($proxy_firstname).'</a>';
                                             echo "</td>";
                                             echo "<td>";
                                             echo '<a href="customers?action=proxy&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars(proxy2($proxy,$proxy_type,"tel")).'</a>';                                           
@@ -606,7 +635,10 @@
                                         else
                                         {
                                         echo "<td>";
-                                        echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars(substr($receiver_surname,0,2)).".".htmlspecialchars($receiver).'</a>';
+                                        echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars($receiver_surname).'</a>';
+                                        echo "</td>";
+                                        echo "<td>";
+                                        echo '<a href="customers?action=detail&id='.htmlspecialchars($receiver_id).'">'.htmlspecialchars($receiver).'</a>';
                                         echo "</td>";
                                           echo "<td>".htmlspecialchars($receiver_tel)."</td>"; 
                                         }
@@ -616,11 +648,17 @@
                                 
                         
                               
-                                echo "<td class='track_td'>".barcode_comfort($barcode)."<br>"; 
-                                if ($third_party!="")
-                                echo "<a href='".htmlspecialchars(track($third_party))."' target='new' title='Хаана явна'>".htmlspecialchars($third_party)."<span class='glyphicon glyphicon-globe'></span></a>";
-                                if ($is_branch) echo '<span class="badge badge-success">DE</span>';
+                                echo "<td class='track_td'>".barcode_comfort($barcode);
                                 if ($owner==2) echo "SH";
+                                echo "</td>";
+                                echo "<td class='track_td'>";
+                                if ($third_party!="") {
+                                    echo htmlspecialchars($third_party);
+                                    echo " <a href='".htmlspecialchars(track($third_party))."' target='new' title='Хаана явна' style='display:none;'>".htmlspecialchars($third_party)."<span class='glyphicon glyphicon-globe'></span></a>";
+                                }
+                                echo "</td>";
+                                echo "<td>";
+                                if ($is_branch) echo '<span class="badge badge-success">DE</span>';
                                 echo "</td>"; 
                                 echo "<td>".htmlspecialchars($days)."</td>"; 
                                 echo "<td>".htmlspecialchars($temp_status)."</td>";
@@ -633,7 +671,7 @@
                             
                             </tbody>
                             <tfoot>
-                              <tr><td colspan='6'>Нийт</td><td><?php echo $total_weight;?></td><td><?php echo $total_weight*cfg_paymentrate();?></td><td><?php echo $total_price;?></td><td></td></tr>
+                              <tr><td colspan='9'>Нийт</td><td></td><td><?php echo $total_weight;?></td><td><?php echo $total_price;?></td><td></td></tr>
                             </tfoot>
                           </table>
                         </div>
@@ -874,9 +912,6 @@
   <script src="assets/vendors/apexcharts/apexcharts.min.js"></script>
 
   <script src="assets/vendors/chartjs/Chart.min.js"></script>
-  <script src="assets/vendors/datatables.net/jquery.dataTables.js"></script>
-  <script src="assets/vendors/datatables.net-bs4/dataTables.bootstrap4.js"></script>
-  <script src="assets/js/data-table.js"></script>
   <script src="assets/js/jquery.chained.min.js"></script>
 
   <link href="https://cdn.datatables.net/2.1.6/css/dataTables.dataTables.css" rel="stylesheet">
@@ -891,15 +926,42 @@
   <script src="https://cdn.datatables.net/buttons/3.1.2/js/buttons.print.min.js"></script>
 
   <script>
-      $('#tracks_table').DataTable({
-        pageLength: 100,
-        lengthMenu: [100, 250, 500, { label: 'Бүгд', value: -1 }],
-        layout: {
-           topStart: {
-                buttons: ['copy', 'csv', 'excel', 'pdf', 'print','pageLength'],                
-            }         
-        }
-    });
+      try {
+          if ($('#tracks_table_active').length) {
+              console.log('Initializing tracks_table_active');
+              $('#tracks_table_active').DataTable({
+                  pageLength: 100,
+                  lengthMenu: [100, 250, 500, { label: 'Бүгд', value: -1 }],
+                  layout: {
+                     topStart: {
+                          buttons: ['copy', 'csv', 'excel', 'pdf', 'print','pageLength'],                
+                      }         
+                  }
+              });
+              console.log('tracks_table_active initialized');
+          } else {
+              console.log('tracks_table_active not found');
+          }
+          
+          if ($('#tracks_table_dashboard').length) {
+              console.log('Initializing tracks_table_dashboard');
+              $('#tracks_table_dashboard').DataTable({
+                  pageLength: 100,
+                  lengthMenu: [100, 250, 500, { label: 'Бүгд', value: -1 }],
+                  layout: {
+                     topStart: {
+                          buttons: ['copy', 'csv', 'excel', 'pdf', 'print','pageLength'],                
+                      }         
+                  }
+              });
+              console.log('tracks_table_dashboard initialized');
+          } else {
+              console.log('tracks_table_dashboard not found');
+          }
+      } catch (e) {
+          console.error('DataTable error:', e);
+          alert('DataTable алдаа: ' + e.message);
+      }
   </script>
 
 	<!-- endinject -->
