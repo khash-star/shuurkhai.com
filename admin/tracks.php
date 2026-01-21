@@ -455,7 +455,7 @@
                               echo "<td class='track_td'>";
                               if ($third_party!="") {
                                   echo htmlspecialchars($third_party);
-                                  echo " <a href='".htmlspecialchars(track($third_party))."' target='new' title='Хаана явна' style='display:none;'>".htmlspecialchars($third_party)."<span class='glyphicon glyphicon-globe'></span></a>";
+                                  echo '<a href="'.htmlspecialchars(track($third_party)).'" target="_blank" title="Хаана явна" style="display:none;"><span class="glyphicon glyphicon-globe"></span></a>';
                               }
                               echo "</td>";
                               echo "<td>";
@@ -654,7 +654,7 @@
                                 echo "<td class='track_td'>";
                                 if ($third_party!="") {
                                     echo htmlspecialchars($third_party);
-                                    echo " <a href='".htmlspecialchars(track($third_party))."' target='new' title='Хаана явна' style='display:none;'>".htmlspecialchars($third_party)."<span class='glyphicon glyphicon-globe'></span></a>";
+                                    echo '<a href="'.htmlspecialchars(track($third_party)).'" target="_blank" title="Хаана явна" style="display:none;"><span class="glyphicon glyphicon-globe"></span></a>';
                                 }
                                 echo "</td>";
                                 echo "<td>";
@@ -934,7 +934,17 @@
                   lengthMenu: [100, 250, 500, { label: 'Бүгд', value: -1 }],
                   layout: {
                      topStart: {
-                          buttons: ['copy', 'csv', 'excel', 'pdf', 'print','pageLength'],                
+                          buttons: [
+                              'copy',
+                              'csv',
+                              {
+                                  extend: 'excel',
+                                  filename: 'tracks'
+                              },
+                              'pdf',
+                              'print',
+                              'pageLength'
+                          ],                
                       }         
                   }
               });
@@ -950,7 +960,17 @@
                   lengthMenu: [100, 250, 500, { label: 'Бүгд', value: -1 }],
                   layout: {
                      topStart: {
-                          buttons: ['copy', 'csv', 'excel', 'pdf', 'print','pageLength'],                
+                          buttons: [
+                              'copy',
+                              'csv',
+                              {
+                                  extend: 'excel',
+                                  filename: 'tracks'
+                              },
+                              'pdf',
+                              'print',
+                              'pageLength'
+                          ],                
                       }         
                   }
               });
