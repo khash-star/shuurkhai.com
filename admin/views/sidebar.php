@@ -144,6 +144,26 @@
         </li>
 
 
+        <li class="nav-item nav-category">АГУУЛАХ</li>
+        <li class="nav-item">
+          <a href="warehouse?type=orders" class="nav-link">
+            <i class="link-icon" data-feather="package"></i>
+            <span class="link-title">Илгээмж</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="warehouse?type=tracks" class="nav-link">
+            <i class="link-icon" data-feather="truck"></i>
+            <span class="link-title">Track</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="warehouse?type=containers" class="nav-link">
+            <i class="link-icon" data-feather="box"></i>
+            <span class="link-title">Чингэлэг</span>
+          </a>
+        </li>
+
         <li class="nav-item nav-category">Газрын ачаа</li>
         <li class="nav-item">
           <a href="container" class="nav-link">
@@ -390,3 +410,99 @@
       </ul>
     </div>
   </nav>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Эхлээд бүх nav-item-уудыг нуух (category-ууд л харагдана)
+    var allNavItems = document.querySelectorAll('.nav-item:not(.nav-category)');
+    allNavItems.forEach(function(item) {
+      item.style.display = 'none';
+    });
+    
+    // Category-уудыг бэлтгэх
+    var categories = document.querySelectorAll('.nav-category');
+    categories.forEach(function(category) {
+      category.style.cursor = 'pointer';
+      category.style.userSelect = 'none';
+      category.style.position = 'relative';
+      
+      // Click event нэмэх
+      category.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var isExpanded = category.classList.contains('expanded');
+        var nextSibling = category.nextElementSibling;
+        
+        // Дараагийн category хүртэлх бүх nav-item-уудыг toggle хийх
+        while (nextSibling && !nextSibling.classList.contains('nav-category')) {
+          if (nextSibling.classList.contains('nav-item')) {
+            if (isExpanded) {
+              nextSibling.style.display = 'none';
+            } else {
+              nextSibling.style.display = 'list-item';
+            }
+          }
+          nextSibling = nextSibling.nextElementSibling;
+        }
+        
+        category.classList.toggle('expanded');
+      });
+    });
+  });
+  
+  // jQuery байвал түүнийг ашиглах (backup)
+  if (typeof jQuery !== 'undefined') {
+    jQuery(document).ready(function($) {
+      // Эхлээд бүх nav-item-уудыг нуух
+      $('.nav-item:not(.nav-category)').hide();
+      
+      // Category-д click event нэмэх
+      $('.nav-category').off('click').on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $category = $(this);
+        var $nextItems = $category.nextUntil('.nav-category');
+        
+        if ($nextItems.is(':visible')) {
+          $nextItems.slideUp(200);
+          $category.removeClass('expanded');
+        } else {
+          $nextItems.slideDown(200);
+          $category.addClass('expanded');
+        }
+      });
+    });
+  }
+  </script>
+
+  <style>
+  .nav-category {
+    cursor: pointer !important;
+    user-select: none !important;
+    position: relative;
+  }
+  
+  .nav-category:hover {
+    opacity: 0.8;
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+  
+  .nav-category.expanded::before {
+    content: "▼";
+    position: absolute;
+    right: 10px;
+    font-size: 10px;
+  }
+  
+  .nav-category:not(.expanded)::before {
+    content: "▶";
+    position: absolute;
+    right: 10px;
+    font-size: 10px;
+  }
+  
+  .sidebar .nav-link {
+    display: flex !important;
+  }
+  </style>

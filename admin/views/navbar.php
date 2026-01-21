@@ -107,14 +107,74 @@
 				vertical-align: middle;
 				margin-right: 8px;
 			}
+			.barcode-btn {
+				display: inline-block;
+				padding: 10px 24px;
+				background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+				color: white !important;
+				text-decoration: none;
+				border-radius: 8px;
+				font-weight: 700;
+				font-size: 14px;
+				box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
+				transition: all 0.3s ease;
+				text-transform: uppercase;
+				letter-spacing: 1.5px;
+				border: 2px solid transparent;
+				position: absolute;
+				left: 180px;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+			.barcode-btn:hover {
+				transform: translateY(-50%) translateY(-2px);
+				box-shadow: 0 6px 20px rgba(17, 153, 142, 0.5);
+				background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
+				border-color: rgba(255, 255, 255, 0.3);
+			}
+			.barcode-btn:active {
+				transform: translateY(-50%) translateY(0);
+				box-shadow: 0 3px 12px rgba(17, 153, 142, 0.3);
+			}
+			.barcode-btn i {
+				width: 16px;
+				height: 16px;
+				vertical-align: middle;
+				margin-right: 8px;
+			}
 			.navbar-content {
 				position: relative;
 			}
 		</style>
-		<a href="deliver?action=initiate" class="olglot-btn">
-			<i data-feather="package"></i>
-			ОЛГОЛТ
-		</a>
+		<?php 
+		// Determine mode based on current page
+		$nav_mode = "DEFAULT";
+		if ($current_page == "deliver") {
+			$nav_mode = "FULFILLMENT_MODE";
+		} elseif ($current_page == "barcodes") {
+			$nav_mode = "BARCODE_MODE";
+		}
+		
+		if ($nav_mode == "FULFILLMENT_MODE"): ?>
+			<div class="nav-group" data-mode="FULFILLMENT_MODE">
+				<?php require_once("views/deliver_nav.php");?>
+			</div>
+		<?php elseif ($nav_mode == "BARCODE_MODE"): ?>
+			<div class="nav-group" data-mode="BARCODE_MODE">
+				<?php require_once("views/barcodes_nav.php");?>
+			</div>
+		<?php else: ?>
+			<div class="nav-group" data-mode="DEFAULT">
+				<a href="deliver?action=initiate" class="olglot-btn">
+					<i data-feather="package"></i>
+					ОЛГОЛТ
+				</a>
+				<a href="barcodes?action=insert" class="barcode-btn">
+					<i data-feather="box"></i>
+					БАРКОД ОРУУЛАХ
+				</a>
+			</div>
+		<?php endif; ?>
 		<?php if ($current_page=="products") require_once("views/product_nav.php");?> 
 		<?php if (in_array($current_page, ["news","news_category"])) require_once("views/news_nav.php");?> 
 		<?php if ($current_page=="customers") require_once("views/customer_nav.php");?> 
@@ -127,7 +187,6 @@
 		<?php if ($current_page=="upost") require_once("views/upost_nav.php");?> 
 		<?php if ($current_page=="agents") require_once("views/agents_nav.php");?> 
 		<?php if ($current_page=="tracks") require_once("views/tracks_nav.php");?> 
-		<?php if ($current_page=="deliver") require_once("views/deliver_nav.php");?> 
 		<?php if ($current_page=="container") require_once("views/container_nav.php");?> 
 
 		
@@ -384,3 +443,75 @@
 		</ul>
 	</div>
 </nav>
+
+<!-- Баркод оруулах Modal -->
+<div class="modal fade" id="barcodeInputModal" tabindex="-1" role="dialog" aria-labelledby="barcodeInputModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="barcodeInputModalLabel">Баркод оруулах</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<form action="barcodes?action=inserting" method="POST" id="barcodeInputForm">
+				<div class="modal-body">
+					<div class="form-group">
+						<label for="barcodeInput">Баркод:</label>
+						<input type="text" class="form-control" id="barcodeInput" name="barcode" placeholder="Баркод оруулна уу..." autofocus required>
+						<small class="form-text text-muted">Баркод оруулаад Enter дараарай эсвэл Хадгалах товч дараарай</small>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Хаах</button>
+					<button type="submit" class="btn btn-primary">Хадгалах</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+	var barcodeInput = document.getElementById('barcodeInput');
+	var barcodeForm = document.getElementById('barcodeInputForm');
+	var modal = $('#barcodeInputModal');
+	
+	// Enter дарахад хадгалах
+	if (barcodeInput) {
+		barcodeInput.addEventListener('keypress', function(e) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				barcodeForm.submit();
+			}
+		});
+	}
+	
+	// Modal нээгдэхэд input-д focus
+	modal.on('shown.bs.modal', function () {
+		if (barcodeInput) {
+			barcodeInput.focus();
+		}
+	});
+	
+	// Modal хаагдах үед input цэвэрлэх
+	modal.on('hidden.bs.modal', function () {
+		if (barcodeInput) {
+			barcodeInput.value = '';
+		}
+	});
+	
+	// Mode detection and persistence (for future enhancements)
+	var currentMode = document.querySelector('.nav-group[data-mode]');
+	if (currentMode) {
+		var mode = currentMode.getAttribute('data-mode');
+		// Store in sessionStorage for persistence
+		sessionStorage.setItem('navbarMode', mode);
+	}
+	
+	// Feather icons
+	if (typeof feather !== 'undefined') {
+		feather.replace();
+	}
+});
+</script>

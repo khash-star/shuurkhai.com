@@ -59,3 +59,5 @@ RewriteRule ^appsettings?$ appsettings.php
 RewriteRule ^sms?$ sms.php
 RewriteRule ^gaali?$ gaali.php
 RewriteRule ^container?$ container.php
+RewriteRule ^warehouse?$ warehouse.php
+RewriteRule ^warehouse?$ warehouse.php

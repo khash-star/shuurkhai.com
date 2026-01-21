@@ -42,8 +42,18 @@
           ?>
           <nav class="page-breadcrumb">
             <ol class="breadcrumb">
-              <li class="breadcrumb-item"><a href="deliver">Гардуулалт</a></li>
-              <li class="breadcrumb-item active" aria-current="page"><?php echo $action_title;?></li>
+              <li class="breadcrumb-item"><a href="deliver">Олголт</a></li>
+              <li class="breadcrumb-item active" aria-current="page">
+                <?php 
+                if ($action == "initiate" || $action == "select" || $action == "delivering") {
+                  echo "Баркод оруулах";
+                } elseif ($action == "tel") {
+                  echo "Утсаар хайх";
+                } else {
+                  echo $action_title;
+                }
+                ?>
+              </li>
             </ol>
           </nav>
 
@@ -239,7 +249,8 @@
 
             if (isset($_POST["tel"]))
             {
-              $tel = $_POST["tel"];
+              $tel = protect($_POST["tel"]);
+              $tel = trim($tel);
             }
             ?>
 
@@ -511,9 +522,10 @@
                             echo "<input type='text' class='form-control' id='grand_total_tug' value='".($grand_total+$total_admin_value)*cfg_rate()."₮' readonly='readonly' name='grand_total_tug'></td></tr>";
                         }
 
-                        if (isset($tel))
+                        if (isset($tel) && $tel != "")
                         {
-                            $sql="SELECT orders.*,orders.status AS realstatus FROM orders LEFT JOIN customer ON orders.receiver=customer.customer_id WHERE customer.tel='$tel' AND orders.status NOT IN('delivered','weight_missing') ORDER BY status,extra";
+                            $tel_escaped = mysqli_real_escape_string($conn, $tel);
+                            $sql="SELECT orders.*,orders.status AS realstatus FROM orders LEFT JOIN customer ON orders.receiver=customer.customer_id WHERE customer.tel='$tel_escaped' AND orders.status NOT IN('delivered','weight_missing') ORDER BY status,extra";
                             // echo $sql;
                             $result = mysqli_query($conn,$sql);
                             
