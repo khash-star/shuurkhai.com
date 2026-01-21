@@ -1165,7 +1165,7 @@
                                     <td class="text-wrap"><?php echo $data_order["status"];?></td>
                                     <td>
                                       <div class="btn-group">
-                                        <a href="orders?action=detail&proxy=<?php echo $data_order["id"];?>" title="Засах" class="btn btn-success btn-icon btn-xs text-white"><i data-feather="more-vertical"></i></a>
+                                        <a href="orders?action=detail&id=<?php echo $data_order["order_id"];?>" title="Засах" class="btn btn-success btn-icon btn-xs text-white"><i data-feather="more-vertical"></i></a>
                                       </div>
                                         
                                     </td>

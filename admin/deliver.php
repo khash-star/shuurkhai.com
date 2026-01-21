@@ -319,7 +319,7 @@
                                           
                                           ?>
                                           
-                                          <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advancel?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                
+                                          <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advance;?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                
                                           <td><?php echo $count++;?></td>
                                           <td><a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
                                           <td><a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
@@ -430,7 +430,7 @@
                                             
                                             
                                                 ?>
-                                                <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advancel?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                
+                                                <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advance;?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                
                                                 <td><?php echo $count++;?></td>
                                                 <td><a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
                                                 <td><a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
@@ -473,7 +473,7 @@
                                                 $total_admin_value+=$admin_value;
                                           
                                                 if ($is_online==0&&$Package_advance==1)
-                                                $total_advance+=$Package_advance_value;
+                                                $total_advance+=floatval($Package_advance_value);
                                           
                                                 //if ($is_online==1) $grand_total+=cfg_price($weight); else $grand_total+=$Package_advance_value;
                                           
@@ -535,22 +535,24 @@
                                   //$price=$weight*cfg_paymentrate();
                                   $is_online=$data["is_online"];
                                   $is_branch=$data["is_branch"];
-                                  $Package_advance = $data["advance"];
-                                  $Package_advance_value =$data["advance_value"];
-                                  $admin_value = $data["admin_value"];
+                                  $Package_advance = intval($data["advance"]); // Төлбөртэй эсэхийг тодорхойлох
+                                  $Package_advance_value = floatval($data["advance_value"]); // Төлбөрийн дүн
+                                  $admin_value = floatval($data["admin_value"]);
                                   $tr=0;
                                   if($status=="warehouse"&&$extra!="") 
                                   $temp_status=$status." ".$extra."-р тавиур";else $temp_status=$status;
-                                  if ($Package_advance==1&&$is_online==0&&$tr==0)
+                                  // Төлбөртэй илгээмжийг ягаан өнгөөр харуулах
+                                  if ($Package_advance==1 && $is_online==0 && $tr==0)
                                   {echo "<tr class='red' title='Үлдэгдэлтэй илгээмж:".$Package_advance_value."$'>"; $tr=1;}
                             
-                                  if ($Package_advance==0&&$is_online==0&&$tr==0)
+                                  // Төлбөргүй илгээмжийг ногоон өнгөөр харуулах
+                                  if ($Package_advance==0 && $is_online==0 && $tr==0)
                                   {echo "<tr class='green' title='Илгээмжийг шууд олго төлбөргүй'>"; $tr=1;}
                                   if (!$tr) echo "<tr>";else $tr=0;
                             
                                   
                                     ?>
-                                    <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advancel?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                                                    
+                                    <td><input type="checkbox" name="orders[]" checked="checked" weight="<?php echo $weight;?>" package_advance="<?php echo $Package_advance;?>"  advance="<?php echo $advance_value;?>" admin_value="<?php echo $admin_value;?>" value="<?php echo $order_id;?>" <?php echo ($is_branch==1)?'is_branch="D"':'is_branch=""';?> <?php echo ($is_online==1)?'is_online="1"':'is_online="0"';?>></td>                                                                                    
                                     <td><?php echo $count++;?></td>
                                     <td><a href="customers?action=detail&id=<?php echo $sender;?>"><?php echo substr(customer($sender,"surname"),0,2).".".customer($sender,"name");?></a></td>
                                     <td><a href="customers?action=detail&id=<?php echo $receiver;?>"><?php echo substr(customer($receiver,"surname"),0,2).".".customer($receiver,"name");?></a><br>
@@ -598,7 +600,7 @@
                                 }
 
                                 if ($is_online==0&&$Package_advance==1)
-                                $total_advance+=$Package_advance_value;
+                                $total_advance+=floatval($Package_advance_value);
                                 $total_admin_value+=$admin_value;
                                 //if ($is_online==1) $grand_total+=cfg_price($weight); else $grand_total+=$Package_advance_value;
                               }
@@ -836,6 +838,7 @@
                         $orders=$_POST['orders'];$N = count($orders);
                         $total_advance_for_bill = 0; // Төлбөртэй илгээмжүүдийн дүнг цуглуулах
                         $old_statuses = array(); // Хуучин статусуудыг хадгалах массив (barcode => old_status)
+                        $old_locations = array(); // Хуучин байршил/модулийг хадгалах массив (barcode => location/module)
                         
                           for($i=0; $i < $N; $i++)
                           {
@@ -856,6 +859,23 @@
                                 
                                 // Хуучин статусыг хадгалах (reverse хийхэд ашиглах)
                                 $old_statuses[$barcode] = $status;
+                                
+                                // Хуучин байршил/модулийг тодорхойлох (статусаар нь ямар модуль/дараалалд байгааг тодорхойлох)
+                                // Status нь аль модуль/дараалалд байгааг илэрхийлнэ
+                                $location = $status; // Статусыг байршил гэж ашиглах (эсвэл илүү тодорхой модулийн нэр)
+                                // Статусаар модулийг тодорхойлох
+                                $location_map = array(
+                                  'new' => 'shipment_list',
+                                  'order' => 'tracking_queue',
+                                  'onair' => 'tracking_queue',
+                                  'warehouse' => 'warehouse_list',
+                                  'filled' => 'tracking_queue',
+                                  'weight_missing' => 'tracking_queue',
+                                  'item_missing' => 'tracking_queue',
+                                  'custom' => 'custom_list'
+                                );
+                                // Хэрэв статус мап-д байгаа бол түүнийг ашиглах, эсвэл статусыг шууд ашиглах
+                                $old_locations[$barcode] = isset($location_map[$status]) ? $location_map[$status] : $status;
                                 
                                 // Төлбөртэй илгээмж байвал дүнг цуглуулах (update хийхээс өмнө)
                                 if ($is_online==0 && $advance==1 && $advance_value > 0)
@@ -1036,12 +1056,9 @@
                       // echo "<!-- Debug: total_advance = $total_advance -->";
                     echo "</table>";
                     }
-                    //if ($total_advance==0) $grand_total = cfg_price($total_weight);
-                    //	else $grand_total =$total_advance;
-                    // $grand_total = cfg_price($total_weight);
-                    if ($total_advance==0) 
-                    $grand_total = cfg_price($total_weight) + cfg_price_branch($total_weight_branch);
-                    else $grand_total =$total_advance;
+                    // Нийт дүнг тооцоолох: жингийн тооцоо + төлбөртэй илгээмжүүдийн дүн
+                    // $grand_total нь бүх илгээмжүүдийн дүн байх ёстой
+                    $grand_total = cfg_price($total_weight) + cfg_price_branch($total_weight_branch) + $total_advance + $total_admin_value;
 
                     // //echo $grand_total;
                     // $grand_total_tug = ($grand_total+$total_admin_value)*cfg_rate();
@@ -1114,6 +1131,8 @@
                         // Тайланд "ИЛГЭЭМЖ ТООЦОО" баганад харагдахын тулд
                         // Хуучин статусыг JSON хэлбэрээр хадгалах (reverse хийхэд ашиглах)
                         $old_status_json = isset($old_statuses) ? json_encode($old_statuses) : '';
+                        // Хуучин байршил/модулийг JSON хэлбэрээр хадгалах (reverse хийхэд ашиглах)
+                        $old_location_json = isset($old_locations) ? json_encode($old_locations) : '';
                         // old_status талбар байхгүй бол JSON-ийг barcode талбарт хадгалах эсвэл шинэ талбар нэмэх
                         // Эхлээд old_status талбар байгаа эсэхийг шалгахгүйгээр INSERT хийх
                         $sql = "INSERT INTO bills (`timestamp`,deliver,barcode,weight,type,count,cash,account,pos,later,total,advance) VALUES('".date("Y-m-d H:i:s")."',$deliver_id,'".implode(',',$barcodes)."',$total_weight,'$method',$N,'$cash','$account','$pos','$later','$grand_total_tug','$bills_advance')";
@@ -1131,6 +1150,18 @@
                           }
                           // Хуучин статусыг хадгалах
                           mysqli_query($conn,"UPDATE bills SET old_status='".mysqli_real_escape_string($conn,$old_status_json)."' WHERE id='$bill_id'");
+                        }
+                        
+                        // Хуучин байршил/модулийг хадгалах (previous_location талбар байгаа эсэхийг шалгахгүйгээр UPDATE хийх)
+                        if (!empty($old_location_json)) {
+                          // previous_location талбар байгаа эсэхийг шалгах
+                          $check_column_location = mysqli_query($conn, "SHOW COLUMNS FROM bills LIKE 'previous_location'");
+                          if (mysqli_num_rows($check_column_location) == 0) {
+                            // Талбар байхгүй бол нэмэх
+                            mysqli_query($conn, "ALTER TABLE bills ADD COLUMN previous_location TEXT NULL");
+                          }
+                          // Хуучин байршил/модулийг хадгалах
+                          mysqli_query($conn,"UPDATE bills SET previous_location='".mysqli_real_escape_string($conn,$old_location_json)."' WHERE id='$bill_id'");
                         }
 
 
@@ -1285,6 +1316,15 @@
                   }
                 }
                 
+                // Хуучин байршил/модулийг унших (previous_location талбар байгаа эсэхийг шалгах)
+                $old_locations = array();
+                if (isset($data["previous_location"]) && !empty($data["previous_location"])) {
+                  $old_locations = json_decode($data["previous_location"], true);
+                  if (!is_array($old_locations)) {
+                    $old_locations = array();
+                  }
+                }
+                
                 //if ($timestamp >= date('Y-m-d 00:00:00') && $timestamp <= date('Y-m-d 23:59:59') )
                 if (1==1 )
                 {
@@ -1294,13 +1334,19 @@
                   
                   foreach($barcode_array as $barcode_single)
                   {
-                    // Хуучин статусыг олох
+                    // Хуучин статусыг олох - хуучин статус байхгүй бол 'warehouse' (default)
                     $old_status = isset($old_statuses[$barcode_single]) ? $old_statuses[$barcode_single] : 'warehouse';
                     
+                    // Хуучин байршил/модулийг олох
+                    $old_location = isset($old_locations[$barcode_single]) ? $old_locations[$barcode_single] : null;
+                    
                     // Илгээмжийн статусыг хуучин статус руу буцаах, deliver болон delivered_date талбаруудыг цэвэрлэх
-                    // Ингэснээр илгээмж эргэж хуучин төлөвт нь буцана
-                    mysqli_query($conn,"UPDATE orders SET status='".mysqli_real_escape_string($conn,$old_status)."', deliver=NULL, delivered_date=NULL, method=NULL WHERE barcode='".$barcode_single."'");				
-                    echo $barcode_single.' (хуучин статус: '.$old_status.')<br>';
+                    // Хуучин статусыг өөрчлөхгүй, яг хуучин статус руу буцаана
+                    // Ингэснээр илгээмж эргэж хуучин төлөвт нь буцана болон хуучин модуль/дараалалд ороно
+                    mysqli_query($conn,"UPDATE orders SET status='".mysqli_real_escape_string($conn,$old_status)."', deliver=NULL, delivered_date=NULL, method=NULL WHERE barcode='".mysqli_real_escape_string($conn,$barcode_single)."'");
+                    
+                    // Зөвхөн баркод-ийг харуулах (тайлбаргүй)
+                    echo $barcode_single.'<br>';
                   }	
                   echo "Амжилттай буцлаа".'<br>';
 
@@ -1814,15 +1860,11 @@
         $(".alert").hide();
 
         $('input[name="select_all"]').click(function(event) {
-            if(this.checked) { 
-                $('input[type="checkbox"]').each(function() {
-                    this.checked = true;            
-                });
-            }else{
-                $('input[type="checkbox"]').each(function() {
-                    this.checked = false; 
-                });        
-            }
+            var isChecked = $(this).prop('checked');
+            // Зөвхөн orders[] чекбоксуудыг сонгох (select_all-ийг оролцуулахгүй)
+            $('input[type="checkbox"][name="orders[]"]').prop('checked', isChecked);
+            // Change event-ийг trigger хийх тооцоолол хийхийн тулд
+            $('input[type="checkbox"][name="orders[]"]').trigger('change');
         });
 
         $('body').on('keydown', 'input, select', function(e) {
@@ -1849,65 +1891,115 @@
 
 
 
-          $('input[type="checkbox"]').click(function(event) {
+          // Тооцоолол хийх функц (checkbox-уудын төлөв өөрчлөгдөх эсвэл хуудас ачаалагдсан үед)
+          function calculateTotals() {
             var weight=0;
             var sum=0;
             var count=0;
             var total_price = 0;
             var total_price_branch = 0;
-            var sum_weight=0;
-            var sum_weight_branch=0;
-            var total_weight = 0;
+            var sum_weight=0; // Онлайн төлбөртэй илгээмжүүдийн жин (тооцоо бодох)
+            var sum_weight_branch=0; // DE онлайн төлбөртэй илгээмжүүдийн жин (тооцоо бодох)
+            var paid_weight=0; // Төлбөртэй илгээмжүүдийн жин (зөвхөн төлбөртэй, DE биш)
+            var total_weight_all=0; // Бүх checked илгээмжүүдийн нийт жин (харагдах зориулалттай)
             var total_advance=0;
             var grand_total=0;
             var total_admin_value=0;
             var is_branch = "";
             var package_advance = 0;
-            $('input[type="checkbox"]').each(function() 
+            // Зөвхөн orders[] checkbox-уудыг тооцоололд оруулах
+            $('input[type="checkbox"][name="orders[]"]').each(function() 
               {
                 if (this.checked == true) 
                 { 
-                  weight = parseFloat($(this).attr('weight'));
+                  weight = parseFloat($(this).attr('weight')) || 0;
                   is_branch =$(this).attr('is_branch');
                   is_online =$(this).attr('is_online');
                   package_advance =$(this).attr('package_advance');
-                  advance = parseFloat($(this).attr('advance'));
-                  admin_value =parseFloat($(this).attr('admin_value'));
+                  advance = parseFloat($(this).attr('advance')) || 0;
+                  admin_value =parseFloat($(this).attr('admin_value')) || 0;
                   total_admin_value +=parseFloat(admin_value);
 
-                  if (is_online==1)
+                  // Бүх checked илгээмжүүдийн жингийг нийт жинд нэмэх (харагдах зориулалттай)
+                  total_weight_all += parseFloat(weight);
+
+                  // is_online==1 үед тооцоо бодох жинд нэмэх
+                  if (is_online=="1")
                   {
+                    // Онлайн төлбөртэй илгээмж - жингийн тооцоо бодох
                     if (is_branch=="D")
                     sum_weight_branch+=parseFloat(weight);
                     else 
                     sum_weight+=parseFloat(weight);
                   }
 
-                    if (is_online==1 && package_advance==1)
+                    // Төлбөртэй илгээмж: is_online==0 && package_advance==1
+                  // package_advance нь string байж магадгүй тул харьцуулахад ==="1" эсвэл parseInt() ашиглах
+                  if (is_online=="0" && (package_advance=="1" || parseInt(package_advance)==1))
                   {
-                    $total_advance+=parseFloat($advance);
-
+                    // Төлбөртэй илгээмжүүдийн advance дүнг хадгалах (зөвхөн харагдах зориулалттай)
+                    total_advance+=parseFloat(advance) || 0;
+                    // Төлбөртэй илгээмжүүдийн жинг бас тооцоололд нэмэх (тариф ижил тул жинг нэмээд тариф-аар үржүүлнэ)
+                    // DE биш бол sum_weight болон paid_weight-д нэмэх (is_branch нь "D" биш бол, эсвэл хоосон "")
+                    if (is_branch!="D") {
+                      sum_weight+=parseFloat(weight);
+                      paid_weight+=parseFloat(weight); // Төлбөртэй илгээмжүүдийн жингийг тусад нь тоолох
+                    }
                   }
                 }
             
               }
             );
-            var gt_weight = sum_weight+sum_weight_branch;
+            var gt_weight = total_weight_all; // Бүх checked илгээмжүүдийн нийт жин
 
-            total_price = sum_weight * <?php echo cfg_paymentrate();?>;
-            total_price_branch = sum_weight_branch * <?php echo cfg_paymentrate_branch();?>;
-            // total_price_branch = 17*sum_weight_branch;
-            // if (total_price_branch>0 && total_price_branch<17) total_price_branch =17;
+            // cfg_price() логик: чагталсан илгээмжүүдийн жинг нэмээд нийлбэр > 1 кг бол жингийн тариф, <= 1 кг бол 1 кг-ын тариф
+            var paymentrate = <?php echo cfg_paymentrate();?>;
+            // sum_weight нь NON-DE илгээмжүүдийн нийлбэр жин (is_online==1 && is_branch!="D" ба төлбөртэй илгээмжүүд)
+            if (sum_weight > 1) {
+              // Нийлбэр > 1 кг бол жингийн тариф
+              total_price = sum_weight * paymentrate;
+            } else if (sum_weight > 0 && sum_weight <= 1) {
+              // Нийлбэр <= 1 кг бол 1 кг-ын тариф
+              total_price = paymentrate;
+            } else {
+              // Жин байхгүй бол 0
+              total_price = 0;
+            }
+
+            // cfg_price_branch() логик: жин >= 1 үед жин * тариф, жин < 1 үед зөвхөн тариф
+            var paymentrate_branch = <?php echo cfg_paymentrate_branch();?>;
+            if (sum_weight_branch >= 1) {
+              total_price_branch = sum_weight_branch * paymentrate_branch;
+            } else if (sum_weight_branch > 0) {
+              total_price_branch = paymentrate_branch;
+            } else {
+              total_price_branch = 0;
+            }
+            
             total_weight = sum_weight+sum_weight_branch;
-            var grand_total = total_price+total_price_branch+total_advance;
+            // Төлбөртэй илгээмжүүдийн жинг тариф-аар тооцсон бол total_advance-ийг нэмэх хэрэггүй
+            // Учир нь жингийн тариф-аар тооцоолсон байна
+            var grand_total = total_price+total_price_branch;
             var grand_total_tug = grand_total*<?php echo cfg_rate();?>;
 
             
             $('#total_weight').val(gt_weight.toFixed(2));
             $('#total_weight_branch').val(sum_weight_branch.toFixed(2));
             
-            $('#total_advance').val(total_advance.toFixed(2));
+            // "Төлбөртэй илгээмж ($)" талбарт жингийн тариф-аар тооцоолсон дүнг харуулах
+            // Төлбөртэй илгээмжүүдийн жингийн нийлбэрийг тариф-аар үржүүлнэ (1кг зарчмыг хангаж)
+            // paid_weight нь зөвхөн төлбөртэй илгээмжүүдийн жин (is_online==0 && package_advance==1 && is_branch!="D")
+            // Төлбөртэй илгээмжүүдийн тооцоолол: paid_weight > 1 бол paid_weight * paymentrate, эсвэл paymentrate
+            var paid_shipment_price = 0;
+            if (paid_weight > 1) {
+              paid_shipment_price = paid_weight * paymentrate;
+            } else if (paid_weight > 0) {
+              paid_shipment_price = paymentrate;
+            }
+            // "Төлбөртэй илгээмж ($)" талбарт жингийн тариф-аар тооцоолсон дүнг харуулах
+            $('#total_advance').val(paid_shipment_price.toFixed(2));
             $('#total_admin').val(total_admin_value.toFixed(2));
+            // grand_total нь total_price + total_price_branch (total_advance-гүй, учир нь жингийн тариф-аар тооцоолсон)
             $('#grand_total').val(grand_total.toFixed(2));
             $('#grand_total_tug').val(grand_total_tug.toFixed(2));
             //$('#grand_total').hide(100);
@@ -1924,7 +2016,15 @@
             $('#grand_total_tug_hidden').val(grand_total_tug.toFixed(2));
             // Form-ийн grand_total_tug field-д ч оруулах
             $('#grand_total_tug').val(grand_total_tug.toFixed(2));
-        })
+          }
+          
+          // Checkbox change event - бүх checkbox-уудын төлөв өөрчлөгдөхөд тооцоолол хийх
+          $(document).on('change', 'input[type="checkbox"]', function(event) {
+            calculateTotals();
+          });
+          
+          // Хуудас ачаалагдсан үед checked checkbox-уудын тооцоолол хийх
+          calculateTotals();
         
         // Модал цонх нээгдэхэд хүснэгтийн талбаруудын утгыг модал цонхны талбарт оруулах
         $(document).on('shown.bs.modal', '#exampleModal', function (event) {

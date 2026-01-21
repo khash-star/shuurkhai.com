@@ -182,9 +182,10 @@
             if (isset($_POST["status"])) $search_status =$_POST["status"]; else $search_status="all";
             if (isset($_POST["status_type"])) $status_type =$_POST["status_type"]; else $status_type="all";
             if (isset($_POST["search_date"])) $search_date =$_POST["search_date"]; else $search_date="created";
+            // Dashboard-д огноо шүүлт хэрэггүй - бүх илгээмжүүдийг харуулах
             if (isset($_POST["start_date"])) $start_date =$_POST["start_date"]; 
-            else $start_date= date('Y-m-d', strtotime(date('Y-m-d') . ' -1 month'));
-            if (isset($_POST["finish_date"])) $finish_date =$_POST["finish_date"]; else $finish_date=date("Y-m-d");
+            else $start_date= ""; // Огноо шүүлт хэрэггүй бол хоосон үлдээх
+            if (isset($_POST["finish_date"])) $finish_date =$_POST["finish_date"]; else $finish_date="";
 
   
 
@@ -192,7 +193,12 @@
             
             $sql="SELECT orders.*, receiver_customer.name AS r_name,receiver_customer.surname AS r_surname,receiver_customer.tel AS r_tel,receiver_customer.address AS r_address,sender_customer.name AS s_name,sender_customer.surname AS s_surname,sender_customer.tel AS s_tel,sender_customer.address AS s_address FROM orders LEFT JOIN customer AS receiver_customer ON orders.receiver=receiver_customer.customer_id 
             LEFT JOIN customer AS sender_customer ON orders.sender=sender_customer.customer_id";
-            $sql.=" WHERE CONCAT_WS(receiver_customer.name,receiver_customer.tel,sender_customer.name,orders.barcode,orders.third_party) LIKE '%".$search_term."%'";
+            $sql.=" WHERE 1=1";
+            
+            if ($search_term != "")
+            {
+              $sql.=" AND CONCAT_WS(receiver_customer.name,receiver_customer.tel,sender_customer.name,orders.barcode,orders.third_party) LIKE '%".mysqli_real_escape_string($conn,$search_term)."%'";
+            }
   
             if ($search_status=="all") 
             $sql.=" AND orders.status NOT IN('completed','delivered','warehouse','custom')";
@@ -208,7 +214,7 @@
             if ($search_status=="transport")
             $sql.=" AND orders.transport=1";
   
-            $sql.=" AND is_online='0'";
+            $sql.=" AND (is_online='0' OR is_online IS NULL)";
   
             $date_column = "created_date"; // default
             switch($search_date)
@@ -219,14 +225,28 @@
               case "delivered": $date_column = "delivered_date";break;
               
             }
-            if ($start_date!="")  $sql.=" AND ".$date_column.">'".$start_date."'";
-            if ($finish_date!="")  $sql.=" AND ".$date_column."<'".$finish_date."'";
+            if ($start_date!="")  $sql.=" AND ".$date_column.">='".$start_date."'";
+            if ($finish_date!="")  $sql.=" AND ".$date_column."<='".$finish_date."'";
   
-  
+
   
             $sql.=" ORDER BY order_id DESC";
 
+            // Debug: SQL query-г хэвлэх (засвар хийхэд ашиглах)
+            echo "<!-- Debug SQL: ".htmlspecialchars($sql)." -->";
+            
             $result = mysqli_query($conn,$sql);
+            if (!$result) {
+              echo '<div class="alert alert-danger">SQL Алдаа: '.mysqli_error($conn).'</div>';
+              echo '<div class="alert alert-info">SQL Query: '.htmlspecialchars($sql).'</div>';
+            }
+            else {
+              $num_rows = mysqli_num_rows($result);
+              echo "<!-- Debug: Found $num_rows rows -->";
+              if ($num_rows == 0) {
+                echo '<div class="alert alert-warning">Анхаар: Илгээмж олдсонгүй. SQL query-г шалгана уу (HTML source-д харагдана).</div>';
+              }
+            }
             $count=1;$total_weight=0;$total_price=0;
             ?>
 
@@ -406,7 +426,12 @@
             
             $sql="SELECT orders.*, receiver_customer.name AS r_name,receiver_customer.surname AS r_surname,receiver_customer.tel AS r_tel,receiver_customer.address AS r_address,sender_customer.name AS s_name,sender_customer.surname AS s_surname,sender_customer.tel AS s_tel,sender_customer.address AS s_address FROM orders LEFT JOIN customer AS receiver_customer ON orders.receiver=receiver_customer.customer_id 
             LEFT JOIN customer AS sender_customer ON orders.sender=sender_customer.customer_id";
-            $sql.=" WHERE CONCAT_WS(receiver_customer.name,receiver_customer.tel,sender_customer.name,orders.barcode,orders.third_party) LIKE '%".$search_term."%'";
+            $sql.=" WHERE 1=1";
+            
+            if ($search_term != "")
+            {
+              $sql.=" AND CONCAT_WS(receiver_customer.name,receiver_customer.tel,sender_customer.name,orders.barcode,orders.third_party) LIKE '%".mysqli_real_escape_string($conn,$search_term)."%'";
+            }
   
             if ($search_status=="all") 
             $sql.=" AND orders.status NOT IN('completed','delivered','warehouse','custom')";
@@ -422,7 +447,7 @@
             if ($search_status=="transport")
             $sql.=" AND orders.transport=1";
   
-            $sql.=" AND is_online='0'";
+            $sql.=" AND (is_online='0' OR is_online IS NULL)";
   
             $date_column = "created_date"; // default
             switch($search_date)
@@ -433,8 +458,8 @@
               case "delivered": $date_column = "delivered_date";break;
               
             }
-            if ($start_date!="")  $sql.=" AND ".$date_column.">'".$start_date."'";
-            if ($finish_date!="")  $sql.=" AND ".$date_column."<'".$finish_date."'";
+            if ($start_date!="")  $sql.=" AND ".$date_column.">='".$start_date."'";
+            if ($finish_date!="")  $sql.=" AND ".$date_column."<='".$finish_date."'";
   
   
   
@@ -608,7 +633,7 @@
             
               if (isset($_GET["id"])) $order_id = intval($_GET["id"]); else $order_id=0;
 
-              $sql = "SELECT * FROM orders WHERE order_id=".$order_id." AND is_online='0'";
+              $sql = "SELECT * FROM orders WHERE order_id=".$order_id." AND (is_online='0' OR is_online IS NULL)";
               $result = mysqli_query($conn,$sql);              
               if (mysqli_num_rows($result) == 1)
               {
@@ -801,7 +826,7 @@
             
               if (isset($_GET["id"])) $order_id = intval($_GET["id"]); else $order_id=0;
 
-              $sql = "SELECT * FROM orders WHERE order_id=".$order_id." AND is_online='0'";
+              $sql = "SELECT * FROM orders WHERE order_id=".$order_id." AND (is_online='0' OR is_online IS NULL)";
               $result = mysqli_query($conn,$sql);              
               if (mysqli_num_rows($result) == 1)
               {

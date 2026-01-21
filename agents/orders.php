@@ -553,22 +553,44 @@
                     } while (mysqli_num_rows($query) == 1); 
                     $status="new";
                     if(isset($_POST["transport"])) $transport = 1; else $transport=0;
-                    $agent_id=$g_agent_logged_id;
-                    if ($receiver_id!=1&&$sender_id!=1&$weight !="")
+                    $agent_id = isset($g_agent_logged_id) ? intval($g_agent_logged_id) : 0;
+                    if ($receiver_id!=1&&$sender_id!=1&&$weight !="")
                     {
+                        // Бүх утгуудыг цэвэрлэх
+                        $created_date = mysqli_real_escape_string($conn, $created_date);
+                        $barcode = mysqli_real_escape_string($conn, $barcode);
+                        $package = mysqli_real_escape_string($conn, $package);
+                        $package_price = floatval($package_price);
+                        $weight = floatval($weight);
+                        $sender_id = intval($sender_id);
+                        $receiver_id = intval($receiver_id);
+                        $Package_advance = intval($Package_advance);
+                        $Package_advance_value = floatval($Package_advance_value);
+                        $transport = intval($transport);
+                        $status = mysqli_real_escape_string($conn, $status);
+                        $agent_id = intval($agent_id);
                 
                         $sql = "INSERT INTO orders (created_date,barcode,package,price,weight,third_party,sender,receiver,advance,advance_value,transport,status,agents,is_online) 
                         VALUES ('$created_date','$barcode','$package','$package_price','$weight','','$sender_id','$receiver_id','$Package_advance','$Package_advance_value','$transport','$status','$agent_id','0')";
+                        
                         if (mysqli_query($conn,$sql)) 
                         {
                             $order_id = mysqli_insert_id ($conn);
 
-                            echo '<div class="alert alert-success" role="alert">Илгээмжийг орууллаа</div>';
+                            echo '<div class="alert alert-success" role="alert">Илгээмжийг орууллаа. Order ID: '.$order_id.'</div>';
                             echo "<a href='order_cp72?id=".$order_id."' target='new' class='btn btn-warning'>Илгээмж CP72 хэвлэх</a>";
                         // log_write("Order create id =$order_id ".json_encode($data),"order create");
 
                         }
-                            else echo '<div class="alert alert-danger" role="alert">Error:'.mysqli_error($conn).'</span>';
+                        else 
+                        {
+                            echo '<div class="alert alert-danger" role="alert">Алдаа: '.mysqli_error($conn).'</div>';
+                            echo '<div class="alert alert-info" role="alert">SQL: '.htmlspecialchars($sql).'</div>';
+                        }
+                    }
+                    else
+                    {
+                        echo '<div class="alert alert-warning" role="alert">Алдаа: Хүлээн авагч, илгээгч эсвэл жин оруулаагүй байна. Receiver ID: '.$receiver_id.', Sender ID: '.$sender_id.', Weight: '.$weight.'</div>';
                     }
                 }
 
