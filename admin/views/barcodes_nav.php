@@ -11,13 +11,13 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 11px 24px;
+	padding: 6px 16px;
 	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 	color: #ffffff !important;
 	text-decoration: none;
 	border-radius: 6px;
 	font-weight: 500;
-	font-size: 13px;
+	font-size: 12px;
 	letter-spacing: 0.3px;
 	border: none;
 	box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
@@ -57,6 +57,22 @@
 	background: linear-gradient(135deg, #db2777 0%, #be185d 100%);
 	box-shadow: 0 4px 8px rgba(236, 72, 153, 0.3);
 }
+.barcode-nav-btn.warehouse-btn {
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+	box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+}
+.barcode-nav-btn.warehouse-btn:hover {
+	background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+	box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3) !important;
+}
+.barcode-nav-btn.warehouse-btn.active {
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+	box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2) !important;
+}
+.barcode-nav-btn.warehouse-btn.active:hover {
+	background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+	box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3) !important;
+}
 .barcode-nav-right-buttons {
 	display: inline-flex;
 	gap: 12px;
@@ -69,7 +85,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 11px 24px;
+	padding: 8px 20px;
 	background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
 	color: #ffffff !important;
 	text-decoration: none;
@@ -112,13 +128,13 @@
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
-	padding: 11px 24px;
+	padding: 6px 16px;
 	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 	color: #ffffff !important;
 	text-decoration: none;
 	border-radius: 6px;
 	font-weight: 500;
-	font-size: 13px;
+	font-size: 12px;
 	letter-spacing: 0.3px;
 	border: none;
 	box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
@@ -224,7 +240,7 @@
 }
 </style>
 <div class="barcode-nav-buttons" data-mode="BARCODE_MODE">
-	<a href="barcodes" class="barcode-nav-btn <?php echo (!isset($_GET['action']) || $_GET['action']=='select') ? 'active' : ''; ?>">АГУУЛАХ</a>
+	<a href="barcodes" class="barcode-nav-btn warehouse-btn <?php echo (!isset($_GET['action']) || $_GET['action']=='select') ? 'active' : ''; ?>">АГУУЛАХАД ОРУУЛАХ</a>
 	<a href="barcodes?action=insert" class="barcode-nav-btn <?php echo (isset($_GET['action']) && $_GET['action']=='insert') ? 'active' : ''; ?>">БАРКОД ОРУУЛАХ</a>
 </div>
 <div class="barcode-nav-right-buttons">

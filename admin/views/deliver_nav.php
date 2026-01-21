@@ -11,13 +11,13 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 11px 24px;
+	padding: 6px 16px;
 	background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
 	color: #ffffff !important;
 	text-decoration: none;
 	border-radius: 6px;
 	font-weight: 500;
-	font-size: 13px;
+	font-size: 12px;
 	letter-spacing: 0.3px;
 	border: none;
 	box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
@@ -61,7 +61,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	padding: 11px 24px;
+	padding: 8px 20px;
 	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
 	color: #ffffff !important;
 	text-decoration: none;
@@ -90,7 +90,6 @@
 }
 </style>
 <div class="deliver-nav-buttons" data-mode="FULFILLMENT_MODE">
-	<a href="?action=initiate" class="deliver-nav-btn <?php echo (isset($_GET['action']) && ($_GET['action']=='initiate' || $_GET['action']=='' || $_GET['action']=='select')) ? 'active' : ''; ?>">ОЛГОЛТ</a>
 	<a href="?action=initiate" class="deliver-nav-btn" onclick="if(document.querySelector('textarea[name=\"deliver\"]')) { document.querySelector('textarea[name=\"deliver\"]').focus(); } return true;" title="Гардуулалтын баркод оруулах">БАРКОД ОРУУЛАХ</a>
 	<a href="?action=tel" class="deliver-nav-btn <?php echo (isset($_GET['action']) && $_GET['action']=='tel') ? 'active' : ''; ?>">УТСААР ХАЙХ</a>
 	<a href="?action=delivered" class="deliver-nav-btn <?php echo (isset($_GET['action']) && $_GET['action']=='delivered') ? 'active' : ''; ?>">ГАРДУУЛСАН ИЛГЭЭМЖ</a>

@@ -27,10 +27,26 @@ require_once("views/init.php");
 				
 			}
 			?>
+			<style>
+				.page-breadcrumb {
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					width: 100%;
+				}
+				.page-breadcrumb .breadcrumb {
+					display: inline-flex;
+					margin: 0;
+				}
+				.page-breadcrumb .breadcrumb-item.active {
+					color: #2563eb !important;
+					font-weight: bold !important;
+					font-size: 16px;
+				}
+			</style>
 			<nav class="page-breadcrumb">
 				<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="barcodes">Түр хадгалах barcode</a></li>
-				<li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($action_title);?></li>
+				<li class="breadcrumb-item active" aria-current="page">БАРКОД ОРУУЛАХ</li>
 				</ol>
 			</nav>
 
