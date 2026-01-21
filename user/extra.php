@@ -167,31 +167,12 @@
                         }
                     }
                     ?>
-                    <div class="contact-us">
-                        <div class="cu-contact-section">                           
-                            <div class="contact-form">
-                                <form action="extra?action=contact" method="post">
-                                    <h4>Send us a Message</h4>
-                                    <div class="row">
-                                        <div class="col">
-                                            <div class="form-group input-fields">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mail"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                                <textarea class="form-control" id="exampleFormControlTextarea1" rows="6" placeholder="Зурвас" name="content" required></textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col text-sm-left text-center">
-                                            <input type="submit" class="btn btn-primary btn-block text-center" value="Илгээх">
-                                        </div>
-                                    </div>
-                                </form>
-                                
-                            </div>
+                    <!-- Chat Container - Centered Card Design -->
+                    <div class="chat-container">
+                        <div class="chat-header" style="padding: 20px; background: linear-gradient(135deg, #6e8efb, #a777e3); color: white; border-radius: 20px 20px 0 0;">
+                            <h5 class="mb-0" style="color: white; font-weight: 600; font-size: 18px;">Бүх мессежүүд</h5>
                         </div>
-                    </div>
-                    
-                    <!-- Messages History (All Messages) -->
+                        <div class="chat-messages">
                     <?php
                     // Get user phone number for matching messages
                     $user_id = isset($_SESSION["c_user_id"]) ? intval($_SESSION["c_user_id"]) : 0;
@@ -228,14 +209,7 @@
                         
                         $messages_result = mysqli_query($conn, $messages_sql);
                         ?>
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0">Бүх мессежүүд</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chat-messages" style="max-height: 600px; overflow-y: auto; padding: 20px; background: #fafafa; border-radius: 8px;">
+                        <div class="chat-messages">
                                             <?php
                                             $displayed_ids = array(); // Track displayed message IDs to prevent duplicates
                                             $displayed_signatures = array(); // Track by content+timestamp to catch exact duplicates
@@ -297,33 +271,26 @@
                                                         }
                                                     }
                                                     
-                                                    // Styling based on role
-                                                    if ($is_admin_msg) {
-                                                        $bg_style = "background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left: 4px solid #2196F3; margin-left: 20%; box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);";
-                                                    } else {
-                                                        $bg_style = "background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%); border-left: 4px solid #4CAF50; margin-right: 20%; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);";
-                                                    }
-                                                    
                                                     // Unread indicator
-                                                    $unread_style = ($msg_read == 0 && $is_admin_msg) ? "border-top: 3px solid #ff9800;" : "";
+                                                    $unread_style = ($msg_read == 0 && $is_admin_msg) ? "border-top: 2px solid #ff9800;" : "";
+                                                    $msg_class = $is_admin_msg ? "admin-msg" : "user-msg";
                                                     ?>
-                                                    <div class="message-item mb-3" style="<?php echo $bg_style; ?> <?php echo $unread_style; ?> padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-                                                        <div style="<?php echo $is_admin_msg ? 'text-right' : 'text-left'; ?>">
-                                                            <span class="badge <?php echo $is_admin_msg ? 'badge-danger' : 'badge-primary'; ?> mb-2">
+                                                    <div class="message-bubble <?php echo $msg_class; ?>" style="<?php echo $unread_style; ?>">
+                                                        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px; <?php echo $is_admin_msg ? 'justify-content: flex-end;' : 'justify-content: flex-start;'; ?>">
+                                                            <span class="badge <?php echo $is_admin_msg ? 'badge-light' : 'badge-secondary'; ?>" style="font-size: 10px; padding: 2px 6px;">
                                                                 <?php echo $is_admin_msg ? 'АДМИН' : ($msg_contact ? $msg_contact : 'ХЭРЭГЛЭГЧ'); ?>
                                                             </span>
-                                                            <div style="margin-bottom: 8px;">
-                                                                <strong><?php echo $is_admin_msg ? 'Админ' : ($msg_contact ? $msg_contact : $msg_name); ?></strong>
-                                                                <small class="text-muted ml-2"><?php echo date("Y-m-d H:i", strtotime($msg_timestamp)); ?></small>
-                                                            </div>
-                                                            <?php if (!empty($msg_title) && $msg_title != "Re: Admin Reply"): ?>
-                                                            <div style="font-weight: 600; margin-bottom: 5px; color: #333;">
-                                                                <?php echo $msg_title; ?>
-                                                            </div>
-                                                            <?php endif; ?>
-                                                            <div style="color: #555; line-height: 1.5;">
-                                                                <?php echo nl2br($msg_content); ?>
-                                                            </div>
+                                                            <small style="font-size: 11px; opacity: 0.8;">
+                                                                <?php echo date("m/d H:i", strtotime($msg_timestamp)); ?>
+                                                            </small>
+                                                        </div>
+                                                        <?php if (!empty($msg_title) && $msg_title != "Re: Admin Reply"): ?>
+                                                        <div style="font-weight: 600; margin-bottom: 4px; font-size: 12px; opacity: 0.9;">
+                                                            <?php echo $msg_title; ?>
+                                                        </div>
+                                                        <?php endif; ?>
+                                                        <div style="line-height: 1.4;">
+                                                            <?php echo nl2br($msg_content); ?>
                                                         </div>
                                                     </div>
                                                     <?php
@@ -336,12 +303,19 @@
                                                 <?php
                                             }
                                             ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                        <script>
+                        <div class="message-input-area">
+                            <form action="extra?action=contact" method="post">
+                                <div class="form-group mb-2">
+                                    <textarea class="form-control" rows="3" placeholder="Зурвас бичих..." name="content" required style="border-radius: 20px; resize: none;"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block send-btn" style="color: white;">
+                                    Илгээх
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <script>
                         // Auto-scroll to bottom on load
                         document.addEventListener('DOMContentLoaded', function() {
                             const chatContainer = document.querySelector('.chat-messages');
@@ -638,6 +612,131 @@
             });
         });
     </script>
+    <style>
+        /* Fix contact form position to be below navbar */
+        .contact-us {
+            position: relative;
+            z-index: 1;
+            margin-top: 0;
+        }
+        .cu-contact-section {
+            position: relative;
+        }
+        .cu-contact-section .contact-form {
+            position: relative !important;
+            top: auto !important;
+            left: 58px;
+            margin-top: 20px !important;
+            z-index: 1 !important;
+        }
+        @media (max-width: 991px) {
+            .cu-contact-section .contact-form {
+                left: 0 !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+            .message-item {
+                max-width: 70% !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                font-size: 12px !important;
+            }
+        }
+        /* Мессежний хөөс */
+        .message-bubble {
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            max-width: 70%;
+            font-size: 14px;
+            line-height: 1.4;
+            transition: all 0.2s ease;
+        }
+        .message-bubble:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        /* Хэрэглэгчийн мессеж (зүүн талд) */
+        .user-msg {
+            background-color: #f1f0f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            color: #333;
+        }
+
+        /* Админы хариулт (баруун талд) */
+        .admin-msg {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        .admin-msg .badge {
+            background-color: rgba(255, 255, 255, 0.3) !important;
+            color: white !important;
+        }
+
+        /* Илгээх товчлуур */
+        .send-btn {
+            border-radius: 50px;
+            padding: 8px 25px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            border: none;
+            transition: 0.3s;
+        }
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(110, 142, 251, 0.4);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Chat Container - Centered Card Design */
+        .chat-container {
+            max-width: 550px;
+            width: 100%;
+            height: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .message-input-area {
+            padding: 15px;
+            background: #fff;
+            border-top: 1px solid #eee;
+            flex-shrink: 0;
+        }
+
+        .chat-header {
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 991px) {
+            .chat-container {
+                max-width: 95%;
+                height: 500px;
+                margin: 20px auto;
+                border-radius: 15px;
+            }
+            .message-bubble {
+                max-width: 85% !important;
+            }
+        }
+    </style>
     <script src="plugins/highlight/highlight.pack.js"></script>
     <script src="assets/js/custom.js"></script>
     <!-- END GLOBAL MANDATORY SCRIPTS -->
