@@ -88,10 +88,62 @@
 	transform: translateY(-50%);
 	box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 }
+.track-nav-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 6px 16px;
+	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+	color: #ffffff !important;
+	text-decoration: none;
+	border-radius: 6px;
+	font-weight: 500;
+	font-size: 12px;
+	letter-spacing: 0.3px;
+	border: none;
+	box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	text-transform: none;
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+}
+.track-nav-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+	transition: left 0.5s;
+}
+.track-nav-btn:hover::before {
+	left: 100%;
+}
+.track-nav-btn:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+	background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+.track-nav-btn:active {
+	transform: translateY(0);
+	box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+.track-nav-btn i {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+}
 </style>
 <div class="deliver-nav-buttons" data-mode="FULFILLMENT_MODE">
 	<a href="?action=initiate" class="deliver-nav-btn" onclick="if(document.querySelector('textarea[name=\"deliver\"]')) { document.querySelector('textarea[name=\"deliver\"]').focus(); } return true;" title="Гардуулалтын баркод оруулах">БАРКОД ОРУУЛАХ</a>
 	<a href="?action=tel" class="deliver-nav-btn <?php echo (isset($_GET['action']) && $_GET['action']=='tel') ? 'active' : ''; ?>">УТСААР ХАЙХ</a>
 	<a href="?action=delivered" class="deliver-nav-btn <?php echo (isset($_GET['action']) && $_GET['action']=='delivered') ? 'active' : ''; ?>">ГАРДУУЛСАН ИЛГЭЭМЖ</a>
+	<a href="tracks?action=active" class="track-nav-btn">
+		<i data-feather="map-pin"></i>
+		ТРАК
+	</a>
 </div>
 <a href="barcodes" class="barcode-switch-btn">БАРКОД</a>

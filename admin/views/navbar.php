@@ -29,10 +29,11 @@
 				}
 				
 				// Build query - backward compatible: if role column doesn't exist, don't select it
+				// Sort: user role first, then by read status (unread first), then by timestamp (newest first)
 				if ($role_exists) {
-					$recent_feedback_sql = "SELECT id, title, content, name, contact, email, timestamp, `read` AS read_status, COALESCE(role, 'user') AS role FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 8";
+					$recent_feedback_sql = "SELECT id, title, content, name, contact, email, timestamp, `read` AS read_status, COALESCE(role, 'user') AS role FROM feedback WHERE archive=0 ORDER BY CASE WHEN COALESCE(role, 'user') = 'user' THEN 0 ELSE 1 END, `read` ASC, timestamp DESC LIMIT 8";
 				} else {
-					$recent_feedback_sql = "SELECT id, title, content, name, contact, email, timestamp, `read` AS read_status FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 8";
+					$recent_feedback_sql = "SELECT id, title, content, name, contact, email, timestamp, `read` AS read_status FROM feedback WHERE archive=0 ORDER BY `read` ASC, timestamp DESC LIMIT 8";
 				}
 				$recent_feedback_result = mysqli_query($conn, $recent_feedback_sql);
 				if ($recent_feedback_result) {
@@ -287,6 +288,57 @@
 				height: 16px;
 				flex-shrink: 0;
 			}
+			.track-btn {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				padding: 6px 16px;
+				background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+				color: #ffffff !important;
+				text-decoration: none;
+				border-radius: 6px;
+				font-weight: 500;
+				font-size: 12px;
+				letter-spacing: 0.3px;
+				border: none;
+				box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+				text-transform: none;
+				cursor: pointer;
+				position: relative;
+				vertical-align: middle;
+				margin-left: 8px;
+				overflow: hidden;
+				white-space: nowrap;
+			}
+			.track-btn::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: -100%;
+				width: 100%;
+				height: 100%;
+				background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+				transition: left 0.5s;
+			}
+			.track-btn:hover::before {
+				left: 100%;
+			}
+			.track-btn:hover {
+				transform: translateY(-1px);
+				box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+				background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+			}
+			.track-btn:active {
+				transform: translateY(0);
+				box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+			}
+			.track-btn i {
+				width: 16px;
+				height: 16px;
+				flex-shrink: 0;
+			}
 			.navbar {
 				display: flex !important;
 				align-items: center !important;
@@ -377,6 +429,10 @@
 				<a href="barcodes?action=insert" class="barcode-btn">
 					<i data-feather="box"></i>
 					БАРКОД ОРУУЛАХ
+				</a>
+				<a href="tracks?action=active" class="track-btn">
+					<i data-feather="map-pin"></i>
+					ТРАК
 				</a>
 			</div>
 		<?php endif; ?>
@@ -605,5 +661,102 @@ document.addEventListener('DOMContentLoaded', function() {
 	if (typeof feather !== 'undefined') {
 		feather.replace();
 	}
+	
+	// Auto-open notification dropdown after page reload (if new notifications arrived)
+	if (typeof Storage !== 'undefined') {
+		var autoOpen = localStorage.getItem('autoOpenNotifications');
+		if (autoOpen === 'true') {
+			localStorage.removeItem('autoOpenNotifications');
+			
+			// Wait a bit for page to fully load, then open dropdown
+			setTimeout(function() {
+				var notificationDropdown = document.getElementById('notificationDropdown');
+				if (notificationDropdown && typeof $ !== 'undefined') {
+					$(notificationDropdown).dropdown('show');
+					
+					// Play notification sound if available
+					try {
+						var audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OSdTgwOUKbl8LhjHAY4kdfyzHksBSR3x/DdkEAKFF606euoVRQKRp/g8r5sIQUrgc7y2Yk2CBtpvfDknU4MDlCm5fC4YxwGOJHX8sx5LAUkd8fw3ZBAC');
+						audio.volume = 0.3;
+						audio.play().catch(function() {});
+					} catch(e) {}
+				}
+			}, 500);
+		}
+	}
+	
+	// Auto-open notification dropdown when new notifications arrive
+	var lastNotificationCount = <?php echo $feedback_count; ?>;
+	var notificationDropdown = document.getElementById('notificationDropdown');
+	var isDropdownManuallyClosed = false;
+	var autoOpenEnabled = true;
+	
+	// Save initial count to localStorage
+	if (typeof Storage !== 'undefined') {
+		localStorage.setItem('lastNotificationCount', lastNotificationCount);
+	}
+	
+	// Track manual close - don't auto-open if user just closed it
+	if (notificationDropdown && typeof $ !== 'undefined') {
+		$(notificationDropdown).on('hidden.bs.dropdown', function() {
+			isDropdownManuallyClosed = true;
+			setTimeout(function() {
+				isDropdownManuallyClosed = false;
+			}, 3000); // Don't auto-open for 3 seconds after manual close
+		});
+	}
+	
+	// Check for new notifications every 3 seconds
+	setInterval(function() {
+		if (!autoOpenEnabled || isDropdownManuallyClosed) return;
+		
+		// Fetch notification count via AJAX
+		if (typeof $ !== 'undefined') {
+			$.ajax({
+				url: 'feedback',
+				method: 'GET',
+				cache: false,
+				success: function(data) {
+					// Extract count from response
+					var parser = new DOMParser();
+					var doc = parser.parseFromString(data, 'text/html');
+					var badgeElements = doc.querySelectorAll('.badge-primary');
+					var newCount = 0;
+					
+					// Try to find count in badge
+					for (var i = 0; i < badgeElements.length; i++) {
+						var text = badgeElements[i].textContent.trim();
+						var match = text.match(/(\d+)\s*New/);
+						if (match) {
+							newCount = parseInt(match[1]);
+							break;
+						}
+					}
+					
+					// If new notifications arrived, reload page to refresh notifications
+					if (newCount > lastNotificationCount) {
+						lastNotificationCount = newCount;
+						
+						// Update localStorage with flag to auto-open dropdown after reload
+						if (typeof Storage !== 'undefined') {
+							localStorage.setItem('lastNotificationCount', newCount);
+							localStorage.setItem('autoOpenNotifications', 'true');
+						}
+						
+						// Reload page to show fresh notifications
+						location.reload();
+					} else if (newCount !== lastNotificationCount) {
+						lastNotificationCount = newCount;
+						if (typeof Storage !== 'undefined') {
+							localStorage.setItem('lastNotificationCount', newCount);
+						}
+					}
+				},
+				error: function() {
+					// Silently fail
+				}
+			});
+		}
+	}, 3000);
 });
 </script>

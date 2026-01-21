@@ -76,8 +76,26 @@
             exit;
           }
           
+          // Cleanup old feedback - keep only latest 5, delete all others (one-time cleanup)
           if ($action=="display" || $action=="chat")
           {
+            // One-time cleanup: keep latest 5 messages, delete all others
+            $cleanup_sql = "SELECT id FROM feedback WHERE archive=0 ORDER BY timestamp DESC LIMIT 5";
+            $cleanup_result = mysqli_query($conn, $cleanup_sql);
+            $keep_ids = array();
+            
+            if ($cleanup_result && mysqli_num_rows($cleanup_result) > 0) {
+              while ($row = mysqli_fetch_array($cleanup_result)) {
+                $keep_ids[] = intval($row["id"]);
+              }
+            }
+            
+            if (count($keep_ids) > 0) {
+              $keep_ids_str = implode(',', array_map('intval', $keep_ids));
+              $delete_old_sql = "DELETE FROM feedback WHERE archive=0 AND id NOT IN ($keep_ids_str)";
+              mysqli_query($conn, $delete_old_sql);
+            }
+            
             // Get filter (all, user, admin)
             $role_filter = isset($_GET["role"]) ? protect($_GET["role"]) : "all";
             if (!in_array($role_filter, ["all", "user", "admin"])) {
@@ -109,7 +127,7 @@
             }
             
             // Default: order by timestamp ASC (oldest first, like a chat)
-            $sql = "SELECT * FROM feedback WHERE $where_clause ORDER BY timestamp ASC";
+            $sql = "SELECT * FROM feedback WHERE $where_clause ORDER BY timestamp DESC";
             $result = mysqli_query($conn,$sql);
             ?>
             
@@ -129,7 +147,7 @@
               <div class="col-12">
                 <div class="card" style="min-height: 500px;">
                   <div class="card-body">
-                    <div class="chat-messages" id="chatMessagesContainer" style="max-height: 600px; overflow-y: auto; padding: 20px; background: #fafafa; border-radius: 8px;">
+                    <div class="chat-messages" id="chatMessagesContainer" style="padding: 20px; background: #fafafa; border-radius: 8px;">
                       <?php
                       if ($result && mysqli_num_rows($result) > 0)
                       {
@@ -252,9 +270,9 @@
             // Enhanced chat interface
             const chatContainer = document.getElementById('chatMessagesContainer');
             if (chatContainer) {
-              // Auto-scroll to bottom on load
+              // Auto-scroll to top on load (newest messages at top)
               setTimeout(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
+                chatContainer.scrollTop = 0;
               }, 100);
               
               // Add hover effects to messages
@@ -295,25 +313,8 @@
                 });
               }
               
-              // Smooth scroll to bottom when new messages arrive
-              const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                  if (mutation.addedNodes.length) {
-                    // Check if user is near bottom
-                    const scrollFromBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
-                    if (scrollFromBottom < 300) {
-                      setTimeout(() => {
-                        chatContainer.scrollTo({
-                          top: chatContainer.scrollHeight,
-                          behavior: 'smooth'
-                        });
-                      }, 100);
-                    }
-                  }
-                });
-              });
-              
-              observer.observe(chatContainer, { childList: true, subtree: true });
+              // Keep scroll at top when new messages arrive (newest at top, no need to scroll)
+              // MutationObserver removed - new messages appear at top, so no auto-scroll needed
             }
             </script>
             
@@ -639,8 +640,34 @@
   <script src="assets/js/dashboard.js"></script>
   <script src="assets/js/apexcharts.js"></script>
 
-
-
+  <script>
+  // Scroll to top when page loads
+  (function() {
+    function scrollToTop() {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+    
+    // Scroll on load
+    window.addEventListener('load', function() {
+      scrollToTop();
+    });
+    
+    // Scroll on DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(scrollToTop, 100);
+      });
+    } else {
+      setTimeout(scrollToTop, 100);
+    }
+    
+    // Scroll after delays to ensure page is fully rendered
+    setTimeout(scrollToTop, 300);
+    setTimeout(scrollToTop, 500);
+  })();
+  </script>
 
 	<!-- endinject -->
 

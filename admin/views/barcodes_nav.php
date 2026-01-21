@@ -238,10 +238,62 @@
 	background-color: #e0f2fe;
 	color: #075985;
 }
+.track-nav-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 6px 16px;
+	background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+	color: #ffffff !important;
+	text-decoration: none;
+	border-radius: 6px;
+	font-weight: 500;
+	font-size: 12px;
+	letter-spacing: 0.3px;
+	border: none;
+	box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	text-transform: none;
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+}
+.track-nav-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 100%;
+	height: 100%;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+	transition: left 0.5s;
+}
+.track-nav-btn:hover::before {
+	left: 100%;
+}
+.track-nav-btn:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+	background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+.track-nav-btn:active {
+	transform: translateY(0);
+	box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+}
+.track-nav-btn i {
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+}
 </style>
 <div class="barcode-nav-buttons" data-mode="BARCODE_MODE">
 	<a href="barcodes" class="barcode-nav-btn warehouse-btn <?php echo (!isset($_GET['action']) || $_GET['action']=='select') ? 'active' : ''; ?>">АГУУЛАХАД ОРУУЛАХ</a>
 	<a href="barcodes?action=insert" class="barcode-nav-btn <?php echo (isset($_GET['action']) && $_GET['action']=='insert') ? 'active' : ''; ?>">БАРКОД ОРУУЛАХ</a>
+	<a href="tracks?action=active" class="track-nav-btn">
+		<i data-feather="map-pin"></i>
+		ТРАК
+	</a>
 </div>
 <div class="barcode-nav-right-buttons">
 	<div class="barcode-dropdown">
