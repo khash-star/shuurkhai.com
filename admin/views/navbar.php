@@ -66,10 +66,124 @@
 			}
 		}
 ?>
-<nav class="navbar">
+<nav class="navbar" style="display: flex; align-items: center; flex-wrap: nowrap;">
 	<a href="#" class="sidebar-toggler">
 		<i data-feather="menu"></i>
 	</a>
+	<!-- Bell Icon - Logo хажууд -->
+	<div class="nav-item dropdown nav-notifications" style="display: inline-flex; align-items: center; margin-left: 12px; position: relative; flex-shrink: 0;">
+		<a class="nav-link dropdown-toggle" href="feedback" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="position: relative; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 8px; transition: all 0.2s; color: white !important; padding: 0;">
+			<i data-feather="bell" style="width: 20px; height: 20px;"></i>
+			<?php if ($feedback_count > 0): ?>
+			<div class="indicator" style="position: absolute; top: 6px; right: 6px;">
+				<div class="circle" style="width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; border: 2px solid #1e293b;"></div>
+			</div>
+			<?php endif; ?>
+		</a>
+		<div class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 380px;">
+			<div class="dropdown-header d-flex align-items-center justify-content-between">
+				<div class="d-flex align-items-center">
+					<i data-feather="bell" class="me-2"></i>
+					<p class="mb-0 font-weight-medium">Notification</p>
+				</div>
+				<?php if ($feedback_count > 0): ?>
+				<span class="badge badge-primary"><?php echo $feedback_count; ?> New</span>
+				<?php endif; ?>
+			</div>
+			<div class="dropdown-body" style="max-height: 400px; overflow-y: auto;">
+				<?php if ($feedback_count > 0 && count($recent_feedbacks) > 0): ?>
+					<?php foreach ($recent_feedbacks as $recent_feedback): ?>
+						<?php
+						$feedback_id = isset($recent_feedback["id"]) ? intval($recent_feedback["id"]) : 0;
+						$feedback_title = isset($recent_feedback["title"]) ? htmlspecialchars($recent_feedback["title"]) : '';
+						$feedback_content = isset($recent_feedback["content"]) ? htmlspecialchars($recent_feedback["content"]) : '';
+						$feedback_name = isset($recent_feedback["name"]) ? htmlspecialchars($recent_feedback["name"]) : '';
+						$feedback_contact = isset($recent_feedback["contact"]) ? htmlspecialchars($recent_feedback["contact"]) : '';
+						$feedback_email = isset($recent_feedback["email"]) ? htmlspecialchars($recent_feedback["email"]) : '';
+						$feedback_read = isset($recent_feedback["read"]) ? intval($recent_feedback["read"]) : 0;
+						$feedback_timestamp = isset($recent_feedback["timestamp"]) ? htmlspecialchars($recent_feedback["timestamp"]) : '';
+						$feedback_role = isset($recent_feedback["role"]) && !empty($recent_feedback["role"]) ? htmlspecialchars($recent_feedback["role"]) : "user";
+						$is_admin_notif = ($feedback_role == "admin");
+						
+						// Хугацааны тооцоо
+						$time_ago = '';
+						if ($feedback_timestamp) {
+							$timestamp = strtotime($feedback_timestamp);
+							$diff = time() - $timestamp;
+							if ($diff < 60) {
+								$time_ago = $diff . ' sec ago';
+							} elseif ($diff < 3600) {
+								$time_ago = floor($diff / 60) . ' min ago';
+							} elseif ($diff < 86400) {
+								$time_ago = floor($diff / 3600) . 'h ago';
+							} elseif ($diff < 604800) {
+								$days = floor($diff / 86400);
+								$time_ago = $days . ($days == 1 ? ' day ago' : ' days ago');
+							} else {
+								$time_ago = date('M d', $timestamp);
+							}
+						}
+						
+						// Нэрний эхний үсэг
+						$initials = mb_substr($feedback_name, 0, 1, 'UTF-8');
+						if (empty($initials) && !empty($feedback_email)) {
+							$initials = mb_substr($feedback_email, 0, 1, 'UTF-8');
+						}
+						if (empty($initials)) {
+							$initials = '?';
+						}
+						$initials = mb_strtoupper($initials, 'UTF-8');
+						
+						// Агуулгын богино хувилбар
+						$short_content = mb_substr($feedback_content, 0, 50, 'UTF-8');
+						if (mb_strlen($feedback_content, 'UTF-8') > 50) {
+							$short_content .= '...';
+						}
+						?>
+						<a href="feedback" class="dropdown-item d-flex align-items-start" style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">
+							<div class="figure me-3" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+								<span style="color: white; font-weight: bold; font-size: 16px;"><?php echo $initials; ?></span>
+							</div>
+							<div class="content flex-grow-1" style="min-width: 0;">
+								<div class="d-flex justify-content-between align-items-start mb-1">
+									<div style="flex-grow: 1;">
+										<p class="mb-0" style="font-size: 14px; font-weight: 500; color: #333; line-height: 1.4;">
+											<?php echo $feedback_title; ?>
+										</p>
+										<span class="badge badge-<?php echo $is_admin_notif ? 'danger' : 'primary'; ?>" style="font-size: 10px; margin-top: 4px;">
+											<?php echo $is_admin_notif ? 'ADMIN' : ($feedback_contact ? $feedback_contact : 'USER'); ?>
+										</span>
+									</div>
+									<?php if ($feedback_read == 0): ?>
+									<span class="badge badge-primary" style="width: 8px; height: 8px; border-radius: 50%; background: #5e72e4; flex-shrink: 0; margin-left: 8px; margin-top: 4px;"></span>
+									<?php endif; ?>
+								</div>
+								<?php if (!empty($short_content)): ?>
+								<p class="mb-1" style="font-size: 13px; color: #666; line-height: 1.4;">
+									<?php echo $short_content; ?>
+								</p>
+								<?php endif; ?>
+								<p class="mb-0" style="font-size: 12px; color: #999;">
+									<?php echo $feedback_name; ?> · <?php echo $time_ago; ?>
+								</p>
+							</div>
+						</a>
+					<?php endforeach; ?>
+				<?php else: ?>
+					<div class="dropdown-item text-center" style="padding: 40px 20px;">
+						<i data-feather="check-circle" style="width: 48px; height: 48px; color: #ccc; margin-bottom: 12px;"></i>
+						<p class="mb-0" style="color: #999; font-size: 14px;">Шинэ зурвас байхгүй</p>
+						<p class="mb-0 mt-1" style="color: #ccc; font-size: 12px;">Бүх зурвас шийдвэрлэгдсэн</p>
+					</div>
+				<?php endif; ?>
+			</div>
+			<?php if ($feedback_count > 0): ?>
+			<div class="dropdown-footer d-flex align-items-center justify-content-center" style="padding: 12px; border-top: 1px solid #f0f0f0;">
+				<a href="feedback" style="color: #5e72e4; text-decoration: none; font-weight: 500; font-size: 14px;">View all notifications</a>
+			</div>
+			<?php endif; ?>
+		</div>
+	</div>
 	<div class="navbar-content">
 		<style>
 			.olglot-btn {
@@ -90,11 +204,10 @@
 				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 				text-transform: none;
 				cursor: pointer;
-				position: absolute;
-				left: 20px;
-				top: 50%;
-				transform: translateY(-50%);
+				position: relative;
+				vertical-align: middle;
 				overflow: hidden;
+				white-space: nowrap;
 			}
 			.olglot-btn::before {
 				content: '';
@@ -110,12 +223,12 @@
 				left: 100%;
 			}
 			.olglot-btn:hover {
-				transform: translateY(-50%) translateY(-1px);
+				transform: translateY(-1px);
 				box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
 				background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
 			}
 			.olglot-btn:active {
-				transform: translateY(-50%);
+				transform: translateY(0);
 				box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
 			}
 			.olglot-btn i {
@@ -174,8 +287,68 @@
 				height: 16px;
 				flex-shrink: 0;
 			}
+			.navbar {
+				display: flex !important;
+				align-items: center !important;
+				flex-wrap: nowrap !important;
+			}
 			.navbar-content {
 				position: relative;
+				display: flex;
+				align-items: center;
+				flex-wrap: nowrap;
+				flex: 1;
+				margin-left: 12px;
+			}
+			.nav-group {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				flex-wrap: nowrap;
+			}
+			.navbar-nav {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+				margin-left: auto;
+			}
+			.nav-notifications {
+				display: inline-flex !important;
+				align-items: center;
+				margin-left: 12px;
+				position: relative;
+				z-index: 10;
+			}
+			.nav-notifications .nav-link {
+				position: relative;
+				display: flex !important;
+				align-items: center;
+				justify-content: center;
+				width: 40px;
+				height: 40px;
+				border-radius: 8px;
+				transition: all 0.2s;
+				color: white !important;
+				padding: 0 !important;
+			}
+			.nav-notifications .nav-link:hover {
+				background-color: rgba(255, 255, 255, 0.1);
+			}
+			.nav-notifications .nav-link i {
+				width: 20px !important;
+				height: 20px !important;
+			}
+			.nav-notifications .indicator {
+				position: absolute;
+				top: 6px;
+				right: 6px;
+			}
+			.nav-notifications .indicator .circle {
+				width: 8px;
+				height: 8px;
+				background-color: #ef4444;
+				border-radius: 50%;
+				border: 2px solid #1e293b;
 			}
 		</style>
 		<?php 
@@ -320,119 +493,6 @@
 					<div class="dropdown-footer d-flex align-items-center justify-content-center">
 						<a href="javascript:;">View all</a>
 					</div>
-				</div>
-			</li>
-			<li class="nav-item dropdown nav-notifications">
-				<a class="nav-link dropdown-toggle" href="feedback" id="notificationDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-					<i data-feather="bell"></i>
-					<?php if ($feedback_count > 0): ?>
-					<div class="indicator">
-						<div class="circle"></div>
-					</div>
-					<?php endif; ?>
-				</a>
-				<div class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 380px;">
-					<div class="dropdown-header d-flex align-items-center justify-content-between">
-						<div class="d-flex align-items-center">
-							<i data-feather="bell" class="me-2"></i>
-							<p class="mb-0 font-weight-medium">Notification</p>
-						</div>
-						<?php if ($feedback_count > 0): ?>
-						<span class="badge badge-primary"><?php echo $feedback_count; ?> New</span>
-						<?php endif; ?>
-					</div>
-					<div class="dropdown-body" style="max-height: 400px; overflow-y: auto;">
-						<?php if ($feedback_count > 0 && count($recent_feedbacks) > 0): ?>
-							<?php foreach ($recent_feedbacks as $recent_feedback): ?>
-								<?php
-								$feedback_id = isset($recent_feedback["id"]) ? intval($recent_feedback["id"]) : 0;
-								$feedback_title = isset($recent_feedback["title"]) ? htmlspecialchars($recent_feedback["title"]) : '';
-								$feedback_content = isset($recent_feedback["content"]) ? htmlspecialchars($recent_feedback["content"]) : '';
-								$feedback_name = isset($recent_feedback["name"]) ? htmlspecialchars($recent_feedback["name"]) : '';
-								$feedback_contact = isset($recent_feedback["contact"]) ? htmlspecialchars($recent_feedback["contact"]) : '';
-								$feedback_email = isset($recent_feedback["email"]) ? htmlspecialchars($recent_feedback["email"]) : '';
-								$feedback_read = isset($recent_feedback["read"]) ? intval($recent_feedback["read"]) : 0;
-								$feedback_timestamp = isset($recent_feedback["timestamp"]) ? htmlspecialchars($recent_feedback["timestamp"]) : '';
-								$feedback_role = isset($recent_feedback["role"]) && !empty($recent_feedback["role"]) ? htmlspecialchars($recent_feedback["role"]) : "user";
-								$is_admin_notif = ($feedback_role == "admin");
-								
-								// Хугацааны тооцоо
-								$time_ago = '';
-								if ($feedback_timestamp) {
-									$timestamp = strtotime($feedback_timestamp);
-									$diff = time() - $timestamp;
-									if ($diff < 60) {
-										$time_ago = $diff . ' sec ago';
-									} elseif ($diff < 3600) {
-										$time_ago = floor($diff / 60) . ' min ago';
-									} elseif ($diff < 86400) {
-										$time_ago = floor($diff / 3600) . 'h ago';
-									} elseif ($diff < 604800) {
-										$days = floor($diff / 86400);
-										$time_ago = $days . ($days == 1 ? ' day ago' : ' days ago');
-									} else {
-										$time_ago = date('M d', $timestamp);
-									}
-								}
-								
-								// Нэрний эхний үсэг
-								$initials = mb_substr($feedback_name, 0, 1, 'UTF-8');
-								if (empty($initials) && !empty($feedback_email)) {
-									$initials = mb_substr($feedback_email, 0, 1, 'UTF-8');
-								}
-								if (empty($initials)) {
-									$initials = '?';
-								}
-								$initials = mb_strtoupper($initials, 'UTF-8');
-								
-								// Агуулгын богино хувилбар
-								$short_content = mb_substr($feedback_content, 0, 50, 'UTF-8');
-								if (mb_strlen($feedback_content, 'UTF-8') > 50) {
-									$short_content .= '...';
-								}
-								?>
-								<a href="feedback" class="dropdown-item d-flex align-items-start" style="padding: 12px 16px; border-bottom: 1px solid #f0f0f0;">
-									<div class="figure me-3" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-										<span style="color: white; font-weight: bold; font-size: 16px;"><?php echo $initials; ?></span>
-									</div>
-									<div class="content flex-grow-1" style="min-width: 0;">
-										<div class="d-flex justify-content-between align-items-start mb-1">
-											<div style="flex-grow: 1;">
-												<p class="mb-0" style="font-size: 14px; font-weight: 500; color: #333; line-height: 1.4;">
-													<?php echo $feedback_title; ?>
-												</p>
-												<span class="badge badge-<?php echo $is_admin_notif ? 'danger' : 'primary'; ?>" style="font-size: 10px; margin-top: 4px;">
-													<?php echo $is_admin_notif ? 'ADMIN' : ($feedback_contact ? $feedback_contact : 'USER'); ?>
-												</span>
-											</div>
-											<?php if ($feedback_read == 0): ?>
-											<span class="badge badge-primary" style="width: 8px; height: 8px; border-radius: 50%; background: #5e72e4; flex-shrink: 0; margin-left: 8px; margin-top: 4px;"></span>
-											<?php endif; ?>
-										</div>
-										<?php if (!empty($short_content)): ?>
-										<p class="mb-1" style="font-size: 13px; color: #666; line-height: 1.4;">
-											<?php echo $short_content; ?>
-										</p>
-										<?php endif; ?>
-										<p class="mb-0" style="font-size: 12px; color: #999;">
-											<?php echo $feedback_name; ?> · <?php echo $time_ago; ?>
-										</p>
-									</div>
-								</a>
-							<?php endforeach; ?>
-						<?php else: ?>
-							<div class="dropdown-item text-center" style="padding: 40px 20px;">
-								<i data-feather="check-circle" style="width: 48px; height: 48px; color: #ccc; margin-bottom: 12px;"></i>
-								<p class="mb-0" style="color: #999; font-size: 14px;">Шинэ зурвас байхгүй</p>
-								<p class="mb-0 mt-1" style="color: #ccc; font-size: 12px;">Бүх зурвас шийдвэрлэгдсэн</p>
-							</div>
-						<?php endif; ?>
-					</div>
-					<?php if ($feedback_count > 0): ?>
-					<div class="dropdown-footer d-flex align-items-center justify-content-center" style="padding: 12px; border-top: 1px solid #f0f0f0;">
-						<a href="feedback" style="color: #5e72e4; text-decoration: none; font-weight: 500; font-size: 14px;">View all notifications</a>
-					</div>
-					<?php endif; ?>
 				</div>
 			</li>
 			<li class="nav-item dropdown nav-profile">

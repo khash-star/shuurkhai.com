@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
-import { Plane, Ship, Menu, X, ChevronDown, Package, Calculator, Phone } from 'lucide-react';
+import { Plane, Ship, Menu, X, ChevronDown, Package, Calculator, Phone, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -42,15 +42,15 @@ export default function Navbar() {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled 
             ? 'bg-white/80 backdrop-blur-xl shadow-lg shadow-slate-200/50' 
-            : 'bg-transparent'
+            : 'bg-white/95 backdrop-blur-sm'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between h-20 gap-4">
             {/* Logo */}
             <motion.a 
               href="#" 
-              className="flex items-center gap-3"
+              className="flex items-center gap-3 flex-shrink-0"
               whileHover={{ scale: 1.02 }}
             >
               <img src="/images/logo.png" alt="Shuurkhai Logo" className="h-11 w-auto object-contain" />
@@ -60,7 +60,7 @@ export default function Navbar() {
             </motion.a>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-8">
+            <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
               {navLinks.map((link) => (
                 <div
                   key={link.name}
@@ -70,7 +70,7 @@ export default function Navbar() {
                 >
                   <a
                     href={link.href}
-                    className={`flex items-center gap-1 font-medium transition-colors ${
+                    className={`flex items-center gap-1 font-medium transition-colors whitespace-nowrap ${
                       isScrolled ? 'text-slate-700 hover:text-[#1e3a5f]' : 'text-slate-700 hover:text-[#1e3a5f]'
                     }`}
                   >
@@ -122,18 +122,28 @@ export default function Navbar() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="hidden lg:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-2 flex-shrink-0">
+              {/* Bell Icon */}
+              <button
+                className="relative p-2.5 rounded-xl hover:bg-slate-100 transition-colors text-slate-700 flex items-center justify-center"
+                aria-label="Мэдэгдэл"
+              >
+                <Bell className="w-5 h-5" />
+                {/* Notification badge */}
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+              </button>
+              
               <Link to={createPageUrl('Calculator')}>
                 <Button 
                   variant="ghost"
-                  className="text-slate-700 hover:bg-slate-50"
+                  className="text-slate-700 hover:bg-slate-50 whitespace-nowrap px-3"
                 >
                   <Calculator className="w-4 h-4 mr-2" />
                   Үнэ тооцоолох
                 </Button>
               </Link>
               <Button 
-                className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl shadow-sm"
+                className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl shadow-sm whitespace-nowrap px-4"
               >
                 Захиалах
               </Button>
