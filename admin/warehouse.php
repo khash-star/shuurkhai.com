@@ -186,7 +186,7 @@
                     // Search - төрөл хамаарахгүй бүх хэлбэрээр хайх
                     if ($search_term != "") {
                       $sql_containers .= " AND CONCAT_WS(' ', 
-                                container.barcode, container.name, container.description) LIKE '%".mysqli_real_escape_string($conn, $search_term)."%'";
+                                container.name, container.description) LIKE '%".mysqli_real_escape_string($conn, $search_term)."%'";
                     }
                     
                     // Date filter

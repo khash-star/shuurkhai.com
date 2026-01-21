@@ -2,6 +2,212 @@
     require_once("config.php");
     require_once("views/helper.php");
     require_once("views/login_check.php");
+    
+    // Check for Excel export action BEFORE any HTML output
+    if (isset($_GET["action"]) && $_GET["action"] == "excel") {
+        // Start output buffering at the very beginning
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        ob_start();
+        
+        // Suppress any output from required files
+        @require_once("config.php");
+        @require_once("views/helper.php");
+        @require_once("views/login_check.php");
+        require_once('assets/vendors/PHP_XLSXWriter/xlsxwriter.class.php');
+
+        // Get selected box IDs from POST or GET
+        $selected_boxes = array();
+        if (isset($_POST['boxes']) && is_array($_POST['boxes'])) {
+            $selected_boxes = array_map('intval', $_POST['boxes']);
+        } elseif (isset($_GET['boxes']) && !empty($_GET['boxes'])) {
+            $selected_boxes = array_map('intval', explode(',', $_GET['boxes']));
+        }
+        
+        // Build SQL query based on selected boxes
+        if (!empty($selected_boxes)) {
+            $box_ids = implode(',', $selected_boxes);
+            $sql = "SELECT * FROM boxes WHERE box_id IN ($box_ids) ORDER BY created_date DESC";
+        } else {
+            // If no boxes selected, export all active boxes
+            $sql = "SELECT * FROM boxes WHERE status NOT IN ('warehouse','delivered') ORDER BY created_date DESC";
+        }
+        
+        $result = mysqli_query($conn,$sql);
+
+        $cumulative_weight=0;
+        $cumulative_packages = 0;
+
+        if (mysqli_num_rows($result) > 0) {
+            $data_excel = array(array('№','Box нэр','Тоо','Овог','Нэр','Хаяг','Утас','Үүсгэсэн','Branch','Овог','Нэр','Хаяг','Утас','Төлөв','Жин','Нэгтгэсэн','Дэлгэрэнгүй','Баталгаажсан','Үнэлгээ'));
+
+            $count_box=1;
+            while ($data = mysqli_fetch_array($result)) {
+                $box_id= $data["box_id"];
+                $name= $data["name"];
+                $created_date =$data["created_date"];
+                $status= $data["status"];
+                $weight=$data["weight"];
+                $packages=$data["packages"];
+
+                $cumulative_packages+=$packages;
+                $cumulative_weight+=$weight;
+                
+                array_push($data_excel,array($count_box,$name,$packages,"","","","",$created_date,"","","","","",$status,$weight,"","","",""));
+                $count_box ++;
+                
+                // Get packages inside box
+                $result_packages = mysqli_query($conn,"SELECT * FROM boxes_packages WHERE box_id=".$box_id);
+                $total_weight=0;
+                if (mysqli_num_rows($result_packages) > 0) {
+                    $count=1;
+                    while ($data_packages = mysqli_fetch_array($result_packages)) { 
+                        $barcode=$data_packages["barcode"];
+                        $weight_sigle=$data_packages["weight"];
+                        $combine=$data_packages["combined"];
+                        $order_id=$data_packages["order_id"];
+                        if ($order_id!=0) {
+                            $result_order = mysqli_query($conn,"SELECT * FROM orders WHERE order_id=".$order_id);
+                            if (mysqli_num_rows($result_order)==1) {
+                                $data_order=mysqli_fetch_array($result_order);
+                                $status=$data_order["status"];
+                                $receiver = $data_order["receiver"];
+                                $proxy= $data_order["proxy_id"];
+                                $proxy_type= $data_order["proxy_type"];
+                                $status_single=$data_order["status"];
+                                $packages=$data_order["package"];
+                                $sender = $data_order["sender"];
+                                $date =substr($data_order["created_date"],0,10);
+                                if ($data_order["is_branch"]) $is_branch="DE"; else $is_branch="";
+                            }
+                        } else {
+                            $result_combine = mysqli_query($conn,"SELECT * FROM box_combine WHERE barcode='".$barcode."'");
+                            $combine_data=mysqli_fetch_array($result_combine);
+                            $status=$combine_data["status"];
+                            $receiver = $combine_data["receiver"];
+                            $proxy= $combine_data["proxy_id"];
+                            $status_single=$combine_data["status"];
+                            $packages=$combine_data["package"];
+                            $sender = $combine_data["sender"];
+                            $date=substr($combine_data["created_date"],0,10);
+                        }
+                
+                        $r_name= customer($receiver,"name");
+                        $r_surname= customer($receiver,"surname");
+                        $r_tel= customer($receiver,"tel");
+                        $r_address= customer($receiver,"address");
+                
+                        $p_name= proxy2($proxy,$proxy_type,"name");
+                        $p_surname= proxy2($proxy,$proxy_type,"surname");
+                        $p_tel= proxy2($proxy,$proxy_type,"tel");
+                        $p_address= proxy2($proxy,$proxy_type,"address");
+                        
+                        $s_name= customer($sender,"name");
+                        $s_surname= customer($sender,"surname");
+                        $s_tel= customer($sender,"tel");
+                        $s_address= customer($sender,"address");
+                        
+                        $packages = str_replace("########","##",$packages);
+                        $packages = str_replace("######","##",$packages);
+                        $packages_array = explode("##",$packages);
+                        $total_price = 0; 
+                        
+                        $pack_names = "";
+                        $items = floor(count($packages_array)/3);
+                        for($i=0;$i<$items; $i++) {
+                            $pack_names.=$packages_array[$i*3].",";
+                            if(substr($packages_array[$i*3+2],-1)=='$') $total_price +=intval(substr($packages_array[$i*3+2],0,strlen($packages_array[$i*3+2])-1));
+                            else $total_price +=intval($packages_array[$i*3+2]);
+                        }
+                        
+                        $total_weight+=floatval($weight_sigle);
+                        if ($proxy!=0)
+                            $data_single = array ("","","",$s_surname,$s_name,$s_address,$s_tel,$date,$is_branch,$p_surname,$p_name,$p_address,$p_tel,$status_single,$weight_sigle,$combine,$pack_names,"",$total_price);
+                        else 
+                            $data_single = array ("","","",$s_surname,$s_name,$s_address,$s_tel,$date,$is_branch,$r_surname,$r_name,$r_address,$r_tel,$status_single,$weight_sigle,$combine,$pack_names,"",$total_price);
+                            
+                        array_push($data_excel,$data_single);
+                        $count++;
+                    }
+                }
+            }
+            array_push($data_excel,array("","",$cumulative_packages,"","","","","","","","","","","",$cumulative_weight,"","","",""));
+
+            // Clear ALL output buffers completely
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            
+            $writer = new XLSXWriter();
+            $writer->writeSheet($data_excel);
+            
+            // Try to write to files directory first (like original code)
+            $file_path = 'files/box_excel_detailed_' . time() . '.xlsx';
+            
+            // Ensure files directory exists
+            if (!is_dir('files')) {
+                @mkdir('files', 0755, true);
+            }
+            
+            // Write the file
+            try {
+                $writer->writeToFile($file_path);
+            } catch (Exception $e) {
+                http_response_code(500);
+                die('Error creating Excel file: ' . $e->getMessage());
+            }
+            
+            // Verify file was created and is readable
+            if (!file_exists($file_path)) {
+                http_response_code(500);
+                die('Error: Excel file was not created. Check file permissions.');
+            }
+            
+            if (!is_readable($file_path)) {
+                http_response_code(500);
+                die('Error: Excel file is not readable. Check file permissions.');
+            }
+            
+            // Get file size
+            $file_size = filesize($file_path);
+            if ($file_size === false || $file_size == 0) {
+                http_response_code(500);
+                die('Error: Excel file is empty or invalid');
+            }
+            
+            // Set headers for download - must be before any output
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="box_history.xlsx"');
+            header('Content-Length: ' . $file_size);
+            header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+            header('Pragma: public');
+            header('Expires: 0');
+            
+            // Disable output compression
+            if (function_exists('apache_setenv')) {
+                @apache_setenv('no-gzip', 1);
+            }
+            @ini_set('zlib.output_compression', 'Off');
+            
+            // Output the file
+            $handle = @fopen($file_path, 'rb');
+            if ($handle) {
+                while (!feof($handle)) {
+                    echo fread($handle, 8192);
+                    flush();
+                }
+                fclose($handle);
+            } else {
+                readfile($file_path);
+            }
+            
+            // Clean up temporary file after a delay (in case download is still in progress)
+            @unlink($file_path);
+            exit;
+        }
+    }
+    
     require_once("views/init.php");
 ?>
 
@@ -54,7 +260,6 @@
               </ol>
             </nav>
 
-            <a href="files/box_excel.xlsx" class="btn btn-warning mb-3">Excel татах</a>
           </div>
 
 
@@ -1099,9 +1304,20 @@
             if (isset($_POST["to_date"])) $to_date=$_POST["to_date"]; else $to_date= date('Y-m-d');
             
             ?>
-            <form action="?action=history" method="post">
-                <input type="date" name="from_date" class="form-control" value="<?php echo htmlspecialchars($from_date);?>">
-                <input type="date" name="to_date" class="form-control" value="<?php echo htmlspecialchars($to_date);?>">
+            <form action="?action=history" method="post" class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">Эхлэх огноо</label>
+                        <input type="date" name="from_date" class="form-control" value="<?php echo htmlspecialchars($from_date);?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Дуусах огноо</label>
+                        <input type="date" name="to_date" class="form-control" value="<?php echo htmlspecialchars($to_date);?>">
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">Хайх</button>
+                    </div>
+                </div>
             </form>
             <div class="panel panel-primary">
               <div class="panel-heading">Түүх</div>
@@ -1112,8 +1328,10 @@
                 $result = mysqli_query($conn,"SELECT * FROM boxes WHERE status IN ('warehouse','delivered') AND created_date >='$from_date_escaped' AND  created_date <='$to_date_escaped' ORDER BY box_id DESC");
                 if (mysqli_num_rows($result) > 0)
                     {
-                    echo "<table class='table table-hover'>";
+                    echo "<table class='table table-hover' id='history_table'>";
+                    echo "<thead>";
                     echo "<tr>";                    
+                    echo "<th><input type='checkbox' name='select_all_history' title='Select all boxes'></th>";
                     echo "<th>№</th>"; 
                     echo "<th>Нэр</th>"; 
                     echo "<th>Тоо</th>"; 
@@ -1122,6 +1340,8 @@
                     echo "<th>Жин /Кг/</th>"; 
                     echo "<th>Үйлдэл</th>"; 
                     echo "</tr>";
+                    echo "</thead>";
+                    echo "<tbody>";
                     $count=1;
                     $cumulative_weight=0;
                     $cumulative_packages = 0;
@@ -1135,6 +1355,7 @@
                     
                   
                     echo "<tr>";
+                    echo "<td><input type='checkbox' name='history_boxes[]' value='".$box_id."'></td>";
                     echo "<td>".$count++."</td>";
                     echo "<td>".$name."</td>"; 
                     echo "<td>".$packages."</td>"; 
@@ -1165,7 +1386,10 @@
                     //array_push($data,array($sender_surname,$sender,$sender_contact,$sender_address,$receiver_surname,$receiver,$receiver_contact,$receiver_address,$temp_status,$Package_advance_value,'',$weight,$price,$description,$barcode));
 
                     } 
+                    echo "</tbody>";
+                    echo "<tfoot>";
                     echo "<tr><td></td><td colspan='2'>Нийт</td><td>$cumulative_packages</td><td></td><td></td><td>$cumulative_weight</td><td></td></tr>";
+                    echo "</tfoot>";
                     echo "</table>";
                 }
                 else echo '<div class="alert alert-danger" role="alert">Хуучин хайрцаг олдсонгүй</div>';
@@ -1551,148 +1775,6 @@
           }
           ?>
 
-          <?php
-          if ($action == "excel")
-          {
-              require_once('assets/vendors/PHP_XLSXWriter/xlsxwriter.class.php');
-
-              $sql="SELECT * FROM boxes WHERE status NOT IN ('warehouse','delivered') ORDER BY created_date DESC";
-
-              $result = mysqli_query($conn,$sql);
-
-                $cumulative_weight=0;
-                $cumulative_packages = 0;
-
-              if (mysqli_num_rows($result) > 0)
-              {
-                $data_excel = array(array('№','Box нэр','Тоо','Овог','Нэр','Хаяг','Утас','Үүсгэсэн','Branch','Овог','Нэр','Хаяг','Утас','Төлөв','Жин','Нэгтгэсэн','Дэлгэрэнгүй','Баталгаажсан','Үнэлгээ'));
-
-
-                  $count_box=1;
-                  while ($data = mysqli_fetch_array($result))
-                  {
-
-                  $box_id= $data["box_id"];
-                  $name= $data["name"];
-                  // 		$surname= $data["surname"];
-                  $created_date =$data["created_date"];
-                  $status= $data["status"];
-                  $weight=$data["weight"];
-                    //$packages=box_inside($box_id,"packages");
-                  $packages=$data["packages"];
-
-                  //echo "box_id:".$box_id."<br>";
-                  
-                  $cumulative_packages+=$packages;
-                  $cumulative_weight+=$weight;
-                  
-                  array_push($data_excel,array($count_box,$name,$packages,"","","","",$created_date,"","","","",$status,$weight,"","","",""));
-                  $count_box ++;
-                  
-                    ///inside 
-                    
-                    $result_packages = mysqli_query($conn,"SELECT * FROM boxes_packages WHERE box_id=".$box_id);
-                    $total_weight=0;
-                    if (mysqli_num_rows($result_packages) > 0)
-                    {
-                      $count=1;
-                      while ($data_packages = mysqli_fetch_array($result_packages))
-                      { 
-                        $barcode=$data_packages["barcode"];
-                        $weight_sigle=$data_packages["weight"];
-                        $combine=$data_packages["combined"];
-                        $order_id=$data_packages["order_id"];
-                          if ($order_id!=0)
-                            {
-                            $result_order = mysqli_query($conn,"SELECT * FROM orders WHERE order_id=".$order_id);
-                            if (mysqli_num_rows($result_order)==1)
-                                {
-                                    //echo "single";
-                                $data_order=mysqli_fetch_array($result_order);
-                                $status=$data_order["status"];
-                                $receiver = $data_order["receiver"];
-                                $proxy= $data_order["proxy_id"];
-                                $proxy_type= $data_order["proxy_type"];
-                                $status_single=$data_order["status"];
-                                $packages=$data_order["package"];
-                                $sender = $data_order["sender"];
-                                $date =substr($data_order["created_date"],0,10);
-                                  if ($data_order["is_branch"]) $is_branch="DE"; else $is_branch="";
-                              }
-                              // else echo "deleted";
-                          }
-                            else 
-                              {
-                                //	echo "combine";
-                              $result_combine = mysqli_query($conn,"SELECT * FROM box_combine WHERE barcode='".$barcode."'");
-                              $combine_data=mysqli_fetch_array($result_combine);
-                              $status=$combine_data["status"];
-                              $receiver = $combine_data["receiver"];
-                              $proxy= $combine_data["proxy_id"];
-                              $status_single=$combine_data["status"];
-                              $packages=$combine_data["package"];
-                              $sender = $combine_data["sender"];
-                              $date=substr($combine_data["created_date"],0,10);
-                            }
-                    
-                          
-                          $r_name= customer($receiver,"name");
-                          $r_surname= customer($receiver,"surname");
-                          $r_tel= customer($receiver,"tel");
-                          $r_address= customer($receiver,"address");
-                    
-                          $p_name= proxy2($proxy,$proxy_type,"name");
-                          $p_surname= proxy2($proxy,$proxy_type,"surname");
-                          $p_tel= proxy2($proxy,$proxy_type,"tel");
-                          $p_address= proxy2($proxy,$proxy_type,"address");
-                          
-                          $s_name= customer($sender,"name");
-                          $s_surname= customer($sender,"surname");
-                          $s_tel= customer($sender,"tel");
-                          $s_address= customer($sender,"address");
-                          
-                          //$packages_array=explode("##",$packages);
-                            $packages = str_replace("########","##",$packages);
-                          $packages = str_replace("######","##",$packages);
-                          $packages_array = explode("##",$packages);
-                          $total_price = 0; 
-                          
-                          $pack_names = "";
-                          $items = floor(count($packages_array)/3);
-                          for($i=0;$i<$items; $i++)
-                          {
-                            $pack_names.=$packages_array[$i*3].",";
-                            if(substr($packages_array[$i*3+2],-1)=='$') $total_price +=intval(substr($packages_array[$i*3+2],0,strlen($packages_array[$i*3+2])-1));
-                            else $total_price +=intval($packages_array[$i*3+2]);
-                            
-                          }
-                          
-                          
-                          $total_weight+=floatval($weight_sigle);
-                          if ($proxy!=0)
-                            $data_single = array ("","","",$s_surname,$s_name,$s_address,$s_tel,$barcode,$is_branch,$p_surname,$p_name,$p_address,$p_tel,$status_single,$weight_sigle,$combine,$pack_names,$total_price,$date);
-                            else 
-                            $data_single = array ("","","",$s_surname,$s_name,$s_address,$s_tel,$barcode,$is_branch,$r_surname,$r_name,$r_address,$r_tel,$status_single,$weight_sigle,$combine,$pack_names,$total_price,$date);
-                            
-                          array_push($data_excel,$data_single);
-                          $count++;
-                      }
-                    }
-                    ///inside
-                }
-                array_push($data_excel,array("","",$cumulative_packages,"","","","","","","","","","","","",$cumulative_weight,"",""));
-
-              
-                $writer = new XLSXWriter();
-                $writer->writeSheet($data_excel);
-                $writer->writeToFile('files/box_excel.xlsx');
-                
-                // echo json_encode($data_excel);
-                    
-              }
-              echo "Excel шинэчиллээ";
-          }
-          ?>
 
         </div>
       <?php require_once("views/footer.php");?>
@@ -1732,7 +1814,47 @@
         lengthMenu: [100, 250, 500, { label: 'Бүгд', value: -1 }],
         layout: {
            topStart: {
-                buttons: ['copy', 'csv', 'excel', 'pdf', 'print','pageLength'],                
+                buttons: [
+                    'copy',
+                    'csv',
+                    {
+                        extend: 'excel',
+                        text: 'Excel',
+                        action: function (e, dt, button, config) {
+                            // Get selected box IDs from checkboxes
+                            var selectedBoxes = [];
+                            $('input[name="boxes[]"]:checked').each(function() {
+                                selectedBoxes.push($(this).val());
+                            });
+                            
+                            // If boxes are selected, export only those; otherwise export all
+                            if (selectedBoxes.length > 0) {
+                                // Create a form to submit selected box IDs
+                                var form = $('<form>', {
+                                    'method': 'POST',
+                                    'action': '?action=excel'
+                                });
+                                
+                                selectedBoxes.forEach(function(boxId) {
+                                    form.append($('<input>', {
+                                        'type': 'hidden',
+                                        'name': 'boxes[]',
+                                        'value': boxId
+                                    }));
+                                });
+                                
+                                $('body').append(form);
+                                form.submit();
+                            } else {
+                                // No boxes selected, export all
+                                window.location.href = '?action=excel';
+                            }
+                        }
+                    },
+                    'pdf',
+                    'print',
+                    'pageLength'
+                ],                
             }         
         }
     });
@@ -1740,15 +1862,97 @@
 
     <script>
     $(document).ready(function() {
+        // Select all checkbox functionality
         $('input[name="select_all"]').click(function(event) {
-            if(this.checked) { 
-                $('input[type="checkbox"]').each(function() {
-                    this.checked = true;            
-                });
-            }else{
-                $('input[type="checkbox"]').each(function() {
-                    this.checked = false; 
-                });        
+            var isChecked = this.checked;
+            $('input[name="boxes[]"]').each(function() {
+                this.checked = isChecked;
+            });
+        });
+        
+        // Individual checkbox functionality - update select_all when individual checkboxes change
+        $('input[name="boxes[]"]').click(function() {
+            var totalCheckboxes = $('input[name="boxes[]"]').length;
+            var checkedCheckboxes = $('input[name="boxes[]"]:checked').length;
+            
+            if (checkedCheckboxes === totalCheckboxes) {
+                $('input[name="select_all"]').prop('checked', true);
+            } else {
+                $('input[name="select_all"]').prop('checked', false);
+            }
+        });
+        
+        // Initialize DataTable for history table
+        if ($('#history_table').length) {
+            var historyTable = $('#history_table').DataTable({
+                pageLength: 100,
+                lengthMenu: [100, 250, 500, { label: 'Бүгд', value: -1 }],
+                layout: {
+                    topStart: {
+                        buttons: [
+                            'copy',
+                            'csv',
+                            {
+                                extend: 'excel',
+                                text: 'Excel',
+                                action: function (e, dt, button, config) {
+                                    // Get selected box IDs from checkboxes
+                                    var selectedBoxes = [];
+                                    $('input[name="history_boxes[]"]:checked').each(function() {
+                                        selectedBoxes.push($(this).val());
+                                    });
+                                    
+                                    // If boxes are selected, export only those; otherwise export all
+                                    if (selectedBoxes.length > 0) {
+                                        // Create a form to submit selected box IDs
+                                        var form = $('<form>', {
+                                            'method': 'POST',
+                                            'action': '?action=excel'
+                                        });
+                                        
+                                        selectedBoxes.forEach(function(boxId) {
+                                            form.append($('<input>', {
+                                                'type': 'hidden',
+                                                'name': 'boxes[]',
+                                                'value': boxId
+                                            }));
+                                        });
+                                        
+                                        $('body').append(form);
+                                        form.submit();
+                                    } else {
+                                        // No boxes selected, export all
+                                        window.location.href = '?action=excel';
+                                    }
+                                }
+                            },
+                            'pdf',
+                            'print',
+                            'pageLength'
+                        ],                
+                    }         
+                }
+            });
+            
+        }
+        
+        // Select all checkbox functionality for history
+        $('input[name="select_all_history"]').click(function(event) {
+            var isChecked = this.checked;
+            $('input[name="history_boxes[]"]').each(function() {
+                this.checked = isChecked;
+            });
+        });
+        
+        // Individual checkbox functionality - update select_all when individual checkboxes change
+        $('input[name="history_boxes[]"]').click(function() {
+            var totalCheckboxes = $('input[name="history_boxes[]"]').length;
+            var checkedCheckboxes = $('input[name="history_boxes[]"]:checked').length;
+            
+            if (checkedCheckboxes === totalCheckboxes) {
+                $('input[name="select_all_history"]').prop('checked', true);
+            } else {
+                $('input[name="select_all_history"]').prop('checked', false);
             }
         });
     })

@@ -896,6 +896,11 @@
               {
                 $data = mysqli_fetch_array($result);
                 ?>
+                <div class="mb-3">
+                  <button onclick="history.back()" class="btn btn-secondary">
+                    <i data-feather="arrow-left"></i> БУЦАХ
+                  </button>
+                </div>
                 <div class="row">
                   <div class="col-lg-6">
                     <div class="card">
