@@ -73,74 +73,106 @@
 	<div class="navbar-content">
 		<style>
 			.olglot-btn {
-				display: inline-block;
-				padding: 10px 24px;
-				background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-				color: white !important;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				padding: 11px 24px;
+				background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+				color: #ffffff !important;
 				text-decoration: none;
-				border-radius: 8px;
-				font-weight: 700;
-				font-size: 14px;
-				box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-				transition: all 0.3s ease;
-				text-transform: uppercase;
-				letter-spacing: 1.5px;
-				border: 2px solid transparent;
+				border-radius: 6px;
+				font-weight: 500;
+				font-size: 13px;
+				letter-spacing: 0.3px;
+				border: none;
+				box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
+				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+				text-transform: none;
+				cursor: pointer;
 				position: absolute;
 				left: 20px;
 				top: 50%;
 				transform: translateY(-50%);
+				overflow: hidden;
+			}
+			.olglot-btn::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: -100%;
+				width: 100%;
+				height: 100%;
+				background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+				transition: left 0.5s;
+			}
+			.olglot-btn:hover::before {
+				left: 100%;
 			}
 			.olglot-btn:hover {
-				transform: translateY(-50%) translateY(-2px);
-				box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-				background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-				border-color: rgba(255, 255, 255, 0.3);
+				transform: translateY(-50%) translateY(-1px);
+				box-shadow: 0 4px 8px rgba(99, 102, 241, 0.3);
+				background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
 			}
 			.olglot-btn:active {
-				transform: translateY(-50%) translateY(0);
-				box-shadow: 0 3px 12px rgba(102, 126, 234, 0.3);
+				transform: translateY(-50%);
+				box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2);
 			}
 			.olglot-btn i {
 				width: 16px;
 				height: 16px;
-				vertical-align: middle;
-				margin-right: 8px;
+				flex-shrink: 0;
 			}
 			.barcode-btn {
-				display: inline-block;
-				padding: 10px 24px;
-				background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-				color: white !important;
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				gap: 8px;
+				padding: 11px 24px;
+				background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+				color: #ffffff !important;
 				text-decoration: none;
-				border-radius: 8px;
-				font-weight: 700;
-				font-size: 14px;
-				box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4);
-				transition: all 0.3s ease;
-				text-transform: uppercase;
-				letter-spacing: 1.5px;
-				border: 2px solid transparent;
+				border-radius: 6px;
+				font-weight: 500;
+				font-size: 13px;
+				letter-spacing: 0.3px;
+				border: none;
+				box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+				transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+				text-transform: none;
+				cursor: pointer;
 				position: absolute;
 				left: 180px;
 				top: 50%;
 				transform: translateY(-50%);
+				overflow: hidden;
+			}
+			.barcode-btn::before {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: -100%;
+				width: 100%;
+				height: 100%;
+				background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+				transition: left 0.5s;
+			}
+			.barcode-btn:hover::before {
+				left: 100%;
 			}
 			.barcode-btn:hover {
-				transform: translateY(-50%) translateY(-2px);
-				box-shadow: 0 6px 20px rgba(17, 153, 142, 0.5);
-				background: linear-gradient(135deg, #38ef7d 0%, #11998e 100%);
-				border-color: rgba(255, 255, 255, 0.3);
+				transform: translateY(-50%) translateY(-1px);
+				box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+				background: linear-gradient(135deg, #059669 0%, #047857 100%);
 			}
 			.barcode-btn:active {
-				transform: translateY(-50%) translateY(0);
-				box-shadow: 0 3px 12px rgba(17, 153, 142, 0.3);
+				transform: translateY(-50%);
+				box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
 			}
 			.barcode-btn i {
 				width: 16px;
 				height: 16px;
-				vertical-align: middle;
-				margin-right: 8px;
+				flex-shrink: 0;
 			}
 			.navbar-content {
 				position: relative;

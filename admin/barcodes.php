@@ -154,14 +154,7 @@ require_once("views/init.php");
 
                      
                         <select name="options" class="form-control">
-                            <option value="weight_missing">Жин ороогүй</option>
-                            <option value="new">Нисэхэд бэлэн</option>
-                            <option value="onair">Онгоцоор ирж байгаа</option>
-                            <option value="warehouse">Агуулахад орсон</option>
-                            <option value="hand">Хүргэлттэй</option>
-                            <option value="unhandover">Хүргэлт цуцлах</option>
-                            <option value="custom">Гааль</option>
-                            <option value="delete">Barcode устгах</option>
+                            <option value="warehouse" selected>Агуулахад орсон</option>
                         </select>
                         <div id="more"></div>
                         <button class="btn btn-success" type="submit">Өөрчилөх</button>
@@ -270,7 +263,7 @@ require_once("views/init.php");
 
             if ($action=="elimination")
             {
-                $options=$_POST["options"];
+                $options = isset($_POST["options"]) ? $_POST["options"] : "";
                 echo "<table class='table table-hover'>";
                 echo "<tr>";
                 echo "<th>Barcode оруулсан</th>"; 
@@ -284,7 +277,12 @@ require_once("views/init.php");
                 echo "<th>Шинэ төлөв</th>"; 
                 echo "<th></th>"; 
                 echo "</tr>";
-                $barcode_id=@$_POST['barcode_id'];
+                $barcode_id = isset($_POST['barcode_id']) ? $_POST['barcode_id'] : array();
+                if (empty($barcode_id) || !is_array($barcode_id)) {
+                    echo "<tr><td colspan='10' style='color:red;'>Алдаа: Баркод сонгоогүй байна!</td></tr>";
+                    echo "</table>";
+                    exit;
+                }
                 $N = count($barcode_id);
                 for($i=0; $i < $N; $i++)
                 {
@@ -342,7 +340,11 @@ require_once("views/init.php");
                          $days= (strtotime(date("Y-m-d")) - strtotime(date("Y-m-d",strtotime($created_date))))/3600/24;
 
                     
+                        // Initialize $new_status and $extra
+                        $new_status = "";
+                        $extra = "";
                         
+                        if (!empty($options)) {
                             switch ($options)
                             {
                                 //case "delivered": $new_status = "delivered";break;
@@ -366,7 +368,22 @@ require_once("views/init.php");
                                 case "unhandover":$new_status = "unhandover";break;
                                 case "custom":$new_status = "custom";$extra="";break;
                                 case "delete":$new_status = "delete";$extra="";break;
+                                default:
+                                    echo "<td colspan='10' style='color:red;'>Алдаа: Төлөв сонгоогүй байна!</td>";
+                                    continue 2; // Skip to next barcode
                             }
+                        } else {
+                            echo "<td colspan='10' style='color:red;'>Алдаа: Төлөв сонгоогүй байна!</td>";
+                            continue; // Skip to next barcode
+                        }
+                
+                    // Check if $new_status is set
+                    if (empty($new_status)) {
+                        echo "<tr>";
+                        echo "<td colspan='10' style='color:red;'>Алдаа: Төлөв тодорхойлогдоогүй байна!</td>";
+                        echo "</tr>";
+                        continue; // Skip to next barcode
+                    }
                 
                     echo "<tr>";
                     echo "<td>".$timestamp."</td>"; 
@@ -887,12 +904,19 @@ require_once("views/init.php");
                     }
             });
             
-            // Trigger change event on page load if warehouse is already selected
+            // Trigger change event on page load to show shelf selection
             setTimeout(function() {
                 if ($('select[name="options"]').length > 0 && $('select[name="options"]').val()=="warehouse") {
                     $('select[name="options"]').trigger('change');
                 }
             }, 100);
+            
+            // Automatically trigger change on page load since warehouse is now the only option
+            $(document).ready(function() {
+                setTimeout(function() {
+                    $('select[name="options"]').trigger('change');
+                }, 200);
+            });
             
             // Clear all barcodes button
             $('#clear_all_barcodes').click(function() {
