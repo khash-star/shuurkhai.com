@@ -3,7 +3,7 @@ ob_start();
 @date_default_timezone_set("Asia/Ulaanbaatar");
 
 
-$dbhost = 'localhost';
+$dbhost = 'localhost:3306';
 
 $dbuser = 'root';
 $dbpass = '';

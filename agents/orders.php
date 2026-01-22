@@ -134,6 +134,8 @@
                         echo "<th>Төлөв</th>"; 
                         echo "<th>Жин</th>"; 
                         echo "<th>Төлбөр</th>";
+                        echo "<th>OTP код</th>";
+                        echo "<th>DE</th>";
                         //echo "<th>Үлдэгдэл</th>";
                         echo "<th></th>"; 
                         echo "</tr>";
@@ -162,6 +164,8 @@
                             $Package_advance_value = $data["advance_value"];
                             $extra=$data["extra"];
                             $status=$data["status"];
+                            $otp_code = isset($data["otp_code"]) ? htmlspecialchars($data["otp_code"]) : '';
+                            $de_checkbox = isset($data["de_checkbox"]) ? intval($data["de_checkbox"]) : 0;
                             $total_weight+=intval($weight);
                             //$total_price+=$Package_advance_value;
                             $tr=0;
@@ -184,6 +188,8 @@
                         echo "<td>".$temp_status."</td>";
                         echo "<td>".$weight."</td>"; 
                         echo "<td>".$Package_advance_value."</td>"; 
+                        echo "<td><strong style='font-size: 16px; letter-spacing: 2px; color: #007bff;'>".(!empty($otp_code) ? $otp_code : '<span style="color: #999;">-</span>')."</strong></td>";
+                        echo "<td>".($de_checkbox == 1 ? '<span style="color: green; font-weight: bold;">✓</span>' : '<span style="color: #ccc;">-</span>')."</td>";
                         // echo "<td>".$Package_advance_value."</td>"; 
                             
                         echo "<td><a href='?action=detail&id=".$order_id."'><i class='ti ti-edit'></i></a></td>"; 
@@ -191,7 +197,7 @@
                         echo "</tr>";
 
                         } 
-                        echo "<tr><td colspan='8'>Нийт</td><td>$total_weight</td><td>".cfg_price($total_weight)."</td><td></td></tr>";
+                        echo "<tr><td colspan='10'>Нийт</td><td>$total_weight</td><td>".cfg_price($total_weight)."</td><td colspan='2'></td><td></td></tr>";
 
                         echo "</table>";
                         

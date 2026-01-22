@@ -1,0 +1,16 @@
+{
+    "name": "shuurkhai/core",
+    "description": "Shuurkhai Core Application",
+    "type": "project",
+    "require": {
+        "php": ">=8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Shuurkhai\\Core\\": "lib/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

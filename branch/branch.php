@@ -393,26 +393,49 @@
     <script src="assets/js/script.js"></script>
     <!-- login js-->
     <script>
-          // Custom confirm dialog for RECEIVED button
-          $(document).ready(function() {
-              var confirmUrl = '';
+          // Modern JavaScript (ES6+) - Replaces jQuery
+          (function() {
+              'use strict';
               
-              $('.received-btn').on('click', function(e) {
-                  e.preventDefault();
-                  var track = $(this).data('track');
-                  var otp = $(this).data('otp');
-                  var orderId = $(this).data('order-id');
-                  
-                  confirmUrl = '?action=received&track=' + encodeURIComponent(track) + '&otp=' + encodeURIComponent(otp) + '&order_id=' + orderId;
-                  
-                  $('#confirmModal').modal('show');
-              });
+              let confirmUrl = '';
               
-              $('#confirmYesBtn').on('click', function() {
-                  if (confirmUrl) {
-                      window.location.href = confirmUrl;
+              // DOM ready equivalent
+              if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', init);
+              } else {
+                  init();
+              }
+              
+              function init() {
+                  // RECEIVED button click handlers
+                  const receivedButtons = document.querySelectorAll('.received-btn');
+                  receivedButtons.forEach(btn => {
+                      btn.addEventListener('click', function(e) {
+                          e.preventDefault();
+                          const track = this.dataset.track;
+                          const otp = this.dataset.otp;
+                          const orderId = this.dataset.orderId;
+                          
+                          confirmUrl = `?action=received&track=${encodeURIComponent(track)}&otp=${encodeURIComponent(otp)}&order_id=${orderId}`;
+                          
+                          // Show Bootstrap modal
+                          const modal = document.getElementById('confirmModal');
+                          if (modal) {
+                              const bootstrapModal = new bootstrap.Modal(modal);
+                              bootstrapModal.show();
+                          }
+                      });
+                  });
+                  
+                  // Confirm button handler
+                  const confirmBtn = document.getElementById('confirmYesBtn');
+                  if (confirmBtn) {
+                      confirmBtn.addEventListener('click', function() {
+                          if (confirmUrl) {
+                              window.location.href = confirmUrl;
+                          }
+                      });
                   }
-              });
               
               // Auto refresh function - only between 9:00 AM - 17:00 PM (DE/USA timezone), every 30 minutes
               function shouldAutoRefresh() {
@@ -466,7 +489,19 @@
                   }
               }, 60000); // Check every minute
               
-              // Clear interval when page is hidden (tab switched)
+                  // Clear interval when page is hidden (tab switched)
+                  document.addEventListener('visibilitychange', () => {
+                      if (document.hidden) {
+                          if (window.autoRefreshInterval) {
+                              clearInterval(window.autoRefreshInterval);
+                              window.autoRefreshInterval = null;
+                          }
+                      } else if (shouldAutoRefresh()) {
+                          startAutoRefresh();
+                      }
+                  });
+              }
+          })();
               document.addEventListener('visibilitychange', function() {
                   if (document.hidden) {
                       if (window.autoRefreshInterval) {

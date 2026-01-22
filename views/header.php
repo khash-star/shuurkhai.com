@@ -34,7 +34,7 @@
                         <li class="nav-item"><a class="nav-link <?php echo ($current_page=="index" || $current_page=="index.php")?'active':'';?>" href="index.php"><i class="las la-home d-none d-md-inline"></i> Hүүр</a></li>
                         <li class="nav-item"><a class="nav-link <?php echo ($current_page=="about" || $current_page=="about.php")?'active':'';?>" href="about"><i class="las la-info-circle d-none d-md-inline"></i> Танилцуулга</a></li>
                         <li class="nav-item"><a class="nav-link <?php echo ($current_page=="shop" || $current_page=="shop.php")?'active':'';?>" href="shop"><i class="las la-store d-none d-md-inline"></i> Дэлгүүр</a></li>
-                        <li class="nav-item"><a class="nav-link <?php echo ($current_page=="news" || $current_page=="news.php")?'active':'';?>" href="news"><i class="las la-newspaper d-none d-md-inline"></i> Мэдээлэл</a></li>
+                        <li class="nav-item"><a class="nav-link <?php echo ($current_page=="news" || $current_page=="news.php")?'active':'';?>" href="news"><i class="las la-newspaper d-none d-md-inline"></i> ТУСЛАМЖ</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle <?php echo ($current_page=="faqs" || $current_page=="faqs.php")?'active':'';?>" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="las la-question-circle d-none d-md-inline"></i> Тусламж <i class="fas fa-angle-down"></i>
@@ -90,7 +90,7 @@
                         <li class="nav-item"><a class="nav-link " href="index.php">Hүүр</a></li>
                         <li class="nav-item"><a class="nav-link " href="about">Танилцуулга</a></li>
                         <li class="nav-item"><a class="nav-link " href="shop">Дэлгүүр</a></li>
-                        <li class="nav-item"><a class="nav-link " href="news">Мэдээлэл</a></li>
+                        <li class="nav-item"><a class="nav-link " href="news">ТУСЛАМЖ</a></li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Тусламж <i class="fas fa-angle-down"></i>
