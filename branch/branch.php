@@ -464,13 +464,17 @@
                   // Check if we should refresh now
                   if (shouldAutoRefresh()) {
                       // Refresh every 30 minutes (1800000 milliseconds)
-                      window.autoRefreshInterval = setInterval(function() {
+                      window.autoRefreshInterval = setInterval(() => {
+                          const modal = document.getElementById('confirmModal');
+                          const isModalOpen = modal && modal.classList.contains('show');
+                          
                           // Only refresh if modal is not open and time is still in range
-                          if (!$('#confirmModal').hasClass('show') && shouldAutoRefresh()) {
+                          if (!isModalOpen && shouldAutoRefresh()) {
                               location.reload();
                           } else if (!shouldAutoRefresh()) {
                               // Stop refreshing if outside time range
                               clearInterval(window.autoRefreshInterval);
+                              window.autoRefreshInterval = null;
                           }
                       }, 1800000); // 30 minutes
                   }
@@ -479,15 +483,15 @@
               // Start auto refresh on page load
               startAutoRefresh();
               
-              // Check every minute if we should start/stop auto refresh
-              setInterval(function() {
-                  if (shouldAutoRefresh() && !window.autoRefreshInterval) {
-                      startAutoRefresh();
-                  } else if (!shouldAutoRefresh() && window.autoRefreshInterval) {
-                      clearInterval(window.autoRefreshInterval);
-                      window.autoRefreshInterval = null;
-                  }
-              }, 60000); // Check every minute
+                  // Check every minute if we should start/stop auto refresh
+                  setInterval(() => {
+                      if (shouldAutoRefresh() && !window.autoRefreshInterval) {
+                          startAutoRefresh();
+                      } else if (!shouldAutoRefresh() && window.autoRefreshInterval) {
+                          clearInterval(window.autoRefreshInterval);
+                          window.autoRefreshInterval = null;
+                      }
+                  }, 60000); // Check every minute
               
                   // Clear interval when page is hidden (tab switched)
                   document.addEventListener('visibilitychange', () => {
