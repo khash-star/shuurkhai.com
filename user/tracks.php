@@ -40,6 +40,30 @@
                 <?php if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="active"; ?>
 
                 <?php
+                // Display success/error messages
+                if (isset($_SESSION['success_message']) && !empty($_SESSION['success_message'])) {
+                    ?>
+                    <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <?php echo htmlspecialchars($_SESSION['success_message']); ?>
+                    </div>
+                    <?php
+                    unset($_SESSION['success_message']);
+                }
+                if (isset($_SESSION['error_message']) && !empty($_SESSION['error_message'])) {
+                    ?>
+                    <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <?php echo htmlspecialchars($_SESSION['error_message']); ?>
+                    </div>
+                    <?php
+                    unset($_SESSION['error_message']);
+                }
+                ?>
+
+                <?php
                 if ($action=="active")
                 {
                 
@@ -689,7 +713,19 @@
                                             {
                                                 if (isset($_POST["order_id"]) && $_POST["order_id"]<>"")
                                                 {
-                                                    if (isset($_POST["proxy_trigger"]))
+                                                    // OTP код шалгах
+                                                    $otp_code = isset($_POST["otp_code"]) ? trim($_POST["otp_code"]) : '';
+                                                    if (empty($otp_code) || !preg_match('/^[0-9]{6}$/', $otp_code)) {
+                                                        ?>
+                                                        <div class="alert alert-arrow-left alert-icon-left alert-light-danger mb-4" role="alert">
+                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                                            Зөв OTP код оруулна уу (6 оронтой тоо)
+                                                        </div>
+                                                        <?php
+                                                    } else {
+                                                        // OTP код зөв байна, үргэлжлүүлнэ
+                                                        if (isset($_POST["proxy_trigger"]))
                                                     {
                                                         if (intval($_POST["proxies"])>0)
                                                         {
@@ -748,7 +784,11 @@
                                                     $package =implode("##",$package_array);
                                                     $package_price = floatval($package1_price) + floatval($package2_price) + floatval($package3_price) + floatval($package4_price);
                                                 
-                                                    $sql_update = "UPDATE orders SET price='$package_price',package='$package',proxy_id='$proxy_id',proxy_type='$proxy_type' WHERE order_id='$order_id'";
+                                                    // OTP код болон DE checkbox-ийг хадгалах
+                                                    $otp_code_escaped = mysqli_real_escape_string($conn, $otp_code);
+                                                    $de_checkbox = isset($_POST["de_checkbox"]) ? 1 : 0;
+                                                    
+                                                    $sql_update = "UPDATE orders SET price='$package_price',package='$package',proxy_id='$proxy_id',proxy_type='$proxy_type',otp_code='$otp_code_escaped',de_checkbox='$de_checkbox' WHERE order_id='$order_id'";
                                                     if (mysqli_query($conn,$sql_update)) 
                                                     {
                                                         if ($proxy_id_old<>$proxy_id)
@@ -756,13 +796,10 @@
                                                             proxy_available($proxy_id_old,$proxy_type,0);
                                                             proxy_available($proxy_id,$proxy_type,1);
                                                         }
-                                                        ?>
-                                                        <div class="alert alert-arrow-left alert-icon-left alert-light-success mb-4" role="alert">
-                                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" data-dismiss="alert" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x close"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                                            Захиалга амжилттай засагдлаа
-                                                        </div>
-                                                        <?php
+                                                        // Амжилттай хадгалалтын дараа session message set хийж, tracks хуудас руу redirect хийх
+                                                        $_SESSION['success_message'] = 'Захиалга амжилттай засагдлаа';
+                                                        header('Location: tracks');
+                                                        exit;
                                                     }
                                                     else 
                                                     {
@@ -780,6 +817,8 @@
                                                        
                                                     
                                                 }
+                                                
+                                                    } // OTP validation else block дуусгах
                                                 
                                                 // Show the form inside the query block
                                                 if (!$is_receiver) {
@@ -807,6 +846,26 @@
                                                         <label for="track">Трак</label>
                                                         <input type="text" class="form-control" value="<?php echo htmlspecialchars($third_party); ?>" readonly>
                                                     </div>
+                                                    
+                                                    <div class="form-group mt-3">
+                                                        <div class="row">
+                                                            <div class="col-md-8">
+                                                                <label for="otp_code"><b>OTP код</b> <span class="text-danger">*</span></label>
+                                                                <input type="text" name="otp_code" id="otp_code" class="form-control" placeholder="OTP код оруулах" maxlength="6" pattern="[0-9]{6}" required <?php echo $can_edit ? '' : 'disabled'; ?> style="font-size: 18px; letter-spacing: 8px; text-align: center; font-weight: bold;">
+                                                                <small class="form-text" style="color: red;">!!! Сайтаас код ирээгүй тохиолдолд дурын код оруулахыг хортглоно</small>
+                                                            </div>
+                                                            <div class="col-md-4">
+                                                                <label style="display: block; margin-bottom: 5px;"><b>DE-д хүргэгдэх бол чагтлана уу</b></label>
+                                                                <div class="form-check" style="margin-top: 30px;">
+                                                                    <input type="checkbox" name="de_checkbox" id="de_checkbox" class="form-check-input" value="1" <?php echo $can_edit ? '' : 'disabled'; ?>>
+                                                                    <label class="form-check-label" for="de_checkbox">
+                                                                        DE
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
                                                     <h5 class="card-title">Барааны тайлбар</h5>
                                                     <table class="table table-hover">
                                                         <tr>	
@@ -956,6 +1015,7 @@
                                         $status = isset($data_order["status"]) ? htmlspecialchars($data_order["status"]) : '';
                                         $proxy = isset($data_order["proxy_id"]) ? intval($data_order["proxy_id"]) : 0;
                                         $proxy_type = isset($data_order["proxy_type"]) ? htmlspecialchars($data_order["proxy_type"]) : '';
+                                        $otp_code = isset($data_order["otp_code"]) ? htmlspecialchars($data_order["otp_code"]) : '';
                                         if ($receiver==$user_id)
                                         {
                                             $weight=$data_order["weight"];
@@ -1015,25 +1075,26 @@
                                             </div>
                                             <table class="table table-hover">
                                                 <thead>
-                                                    <tr><th>Барааны тайлбар</th><th>тоо ширхэг</th><th>Үнэ</th></tr>
+                                                    <tr><th>Барааны тайлбар</th><th>тоо ширхэг</th><th>Үнэ</th><th>OTP код</th></tr>
                                                 </thead>
                                                 <tbody>
                                                 <?php
+                                                $otp_display = !empty($otp_code) ? '<span class="badge text-white" style="background-color: #22c55e; font-size: 14px; padding: 4px 10px; font-weight: normal;">' . $otp_code . '</span>' : '-';
                                                 if (isset($package1_name) && $package1_name!="")
                                                 {
-                                                    echo "<tr><td>".htmlspecialchars($package1_name)."</td><td>".htmlspecialchars($package1_num)."</td><td>".htmlspecialchars($package1_price)."$</td></tr>";
+                                                    echo "<tr><td>".htmlspecialchars($package1_name)."</td><td>".htmlspecialchars($package1_num)."</td><td>".htmlspecialchars($package1_price)."$</td><td>".$otp_display."</td></tr>";
                                                 }
                                                 if (isset($package2_name) && $package2_name!="")
                                                 {
-                                                    echo "<tr><td>".htmlspecialchars($package2_name)."</td><td>".htmlspecialchars($package2_num)."</td><td>".htmlspecialchars($package2_price)."$</td></tr>";
+                                                    echo "<tr><td>".htmlspecialchars($package2_name)."</td><td>".htmlspecialchars($package2_num)."</td><td>".htmlspecialchars($package2_price)."$</td><td>".$otp_display."</td></tr>";
                                                 }
                                                 if (isset($package3_name) && $package3_name!="")
                                                 {
-                                                    echo "<tr><td>".htmlspecialchars($package3_name)."</td><td>".htmlspecialchars($package3_num)."</td><td>".htmlspecialchars($package3_price)."$</td></tr>";
+                                                    echo "<tr><td>".htmlspecialchars($package3_name)."</td><td>".htmlspecialchars($package3_num)."</td><td>".htmlspecialchars($package3_price)."$</td><td>".$otp_display."</td></tr>";
                                                 }
                                                 if (isset($package4_name) && $package4_name!="")
                                                 {
-                                                    echo "<tr><td>".htmlspecialchars($package4_name)."</td><td>".htmlspecialchars($package4_num)."</td><td>".htmlspecialchars($package4_price)."$</td></tr>";
+                                                    echo "<tr><td>".htmlspecialchars($package4_name)."</td><td>".htmlspecialchars($package4_num)."</td><td>".htmlspecialchars($package4_price)."$</td><td>".$otp_display."</td></tr>";
                                                 }
                                                 ?>
                                                 </tbody>
