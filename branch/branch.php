@@ -397,6 +397,71 @@
                       window.location.href = confirmUrl;
                   }
               });
+              
+              // Auto refresh function - only between 9:00 AM - 17:00 PM (DE/USA timezone), every 30 minutes
+              function shouldAutoRefresh() {
+                  // Get current time in DE/USA timezone (UTC+1 for DE, UTC-5 to UTC-8 for USA)
+                  // Using UTC+1 (Central European Time) as default
+                  var now = new Date();
+                  var utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+                  var deTime = new Date(utcTime + (1 * 3600000)); // UTC+1 for DE
+                  
+                  var hours = deTime.getHours();
+                  var minutes = deTime.getMinutes();
+                  
+                  // Check if time is between 9:00 AM (9:00) and 17:00 PM (17:00)
+                  if (hours >= 9 && hours < 17) {
+                      return true;
+                  }
+                  return false;
+              }
+              
+              function startAutoRefresh() {
+                  // Clear any existing interval
+                  if (window.autoRefreshInterval) {
+                      clearInterval(window.autoRefreshInterval);
+                  }
+                  
+                  // Check if we should refresh now
+                  if (shouldAutoRefresh()) {
+                      // Refresh every 30 minutes (1800000 milliseconds)
+                      window.autoRefreshInterval = setInterval(function() {
+                          // Only refresh if modal is not open and time is still in range
+                          if (!$('#confirmModal').hasClass('show') && shouldAutoRefresh()) {
+                              location.reload();
+                          } else if (!shouldAutoRefresh()) {
+                              // Stop refreshing if outside time range
+                              clearInterval(window.autoRefreshInterval);
+                          }
+                      }, 1800000); // 30 minutes
+                  }
+              }
+              
+              // Start auto refresh on page load
+              startAutoRefresh();
+              
+              // Check every minute if we should start/stop auto refresh
+              setInterval(function() {
+                  if (shouldAutoRefresh() && !window.autoRefreshInterval) {
+                      startAutoRefresh();
+                  } else if (!shouldAutoRefresh() && window.autoRefreshInterval) {
+                      clearInterval(window.autoRefreshInterval);
+                      window.autoRefreshInterval = null;
+                  }
+              }, 60000); // Check every minute
+              
+              // Clear interval when page is hidden (tab switched)
+              document.addEventListener('visibilitychange', function() {
+                  if (document.hidden) {
+                      if (window.autoRefreshInterval) {
+                          clearInterval(window.autoRefreshInterval);
+                          window.autoRefreshInterval = null;
+                      }
+                  } else {
+                      // Restart interval when page becomes visible
+                      startAutoRefresh();
+                  }
+              });
           });
           
           $(function() {
