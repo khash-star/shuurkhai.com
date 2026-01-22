@@ -8,6 +8,7 @@
 namespace Shuurkhai\Core;
 
 use Shuurkhai\Core\Database;
+use Shuurkhai\Core\Cache;
 
 class Helpers
 {
@@ -133,12 +134,21 @@ class Helpers
     }
     
     /**
-     * Get setting value
+     * Get setting value (with caching)
      * @param int|string $idOrShortname Setting ID or shortname
      * @return string Setting value or empty string
      */
     public static function settings(int|string $idOrShortname): string
     {
+        $cacheKey = 'setting_' . (is_int($idOrShortname) ? 'id_' : 'name_') . $idOrShortname;
+        
+        // Try to get from cache first
+        $cached = Cache::get($cacheKey);
+        if ($cached !== null) {
+            return (string)$cached;
+        }
+        
+        // Fetch from database
         if (is_int($idOrShortname)) {
             $data = Database::fetchOne(
                 "SELECT * FROM settings WHERE id = ? LIMIT 1",
@@ -151,7 +161,12 @@ class Helpers
             );
         }
         
-        return $data ? (string)($data['value'] ?? '') : '';
+        $value = $data ? (string)($data['value'] ?? '') : '';
+        
+        // Cache for 1 hour
+        Cache::set($cacheKey, $value, 3600);
+        
+        return $value;
     }
     
     /**
