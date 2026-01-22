@@ -1,6 +1,7 @@
 <?php require_once("config.php");?>
 <?php require_once("views/helper.php");?>
 <?php require_once("views/init.php");?>
+<?php require_once("lib/csrf_helper.php"); // CSRF protection
     <link href="assets/css/authentication/form-1.css" rel="stylesheet" type="text/css" />
     <!-- END GLOBAL MANDATORY STYLES -->
     <link rel="stylesheet" type="text/css" href="assets/css/forms/theme-checkbox-radio.css">
@@ -18,6 +19,7 @@
                         <a href="https://shuurkhai.com"><img src="assets/images/logo.png" class="pb-3"></a>
                         <p class="signup-link">Шинэ бүртгэл <a href="register">энд дарж</a> үүсгэнэ</p>
                         <form class="text-left" method="post" action="views/logining">
+                            <?php echo csrf_field(); // CSRF token ?>
                             <div class="form">
                                 <?php
                                  if (isset($_GET["error"]))

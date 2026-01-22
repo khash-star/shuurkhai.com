@@ -25,18 +25,30 @@
             $comment_with_otp = '<span style="color: green; font-weight: bold;">' . htmlspecialchars($otp_code) . '</span>';
             $comment_escaped = mysqli_real_escape_string($conn, $comment_with_otp);
             
-            // Check if branch_inventory already exists for this track
-            $sql_check = "SELECT id FROM branch_inventories WHERE track='$track_escaped' AND branch='$g_logged_id_escaped' LIMIT 1";
-            $result_check = @mysqli_query($conn, $sql_check);
+            // Check if branch_inventory already exists for this track - Prepared Statements
+            $g_logged_id_int = intval($g_logged_id);
+            $stmt_check = mysqli_prepare($conn, "SELECT id FROM branch_inventories WHERE track = ? AND branch = ? LIMIT 1");
+            if ($stmt_check) {
+                mysqli_stmt_bind_param($stmt_check, "si", $track_escaped, $g_logged_id_int);
+                mysqli_stmt_execute($stmt_check);
+                $result_check = mysqli_stmt_get_result($stmt_check);
+                mysqli_stmt_close($stmt_check);
+            } else {
+                // Fallback
+                $result_check = @mysqli_query($conn, "SELECT id FROM branch_inventories WHERE track='$track_escaped' AND branch='$g_logged_id_escaped' LIMIT 1");
+            }
             
             if ($result_check && mysqli_num_rows($result_check) > 0) {
-                // Update existing record
-                $sql_update = "UPDATE branch_inventories 
-                             SET track='$track_escaped', 
-                                 comment='$comment_escaped', 
-                                 status='prepare' 
-                             WHERE track='$track_escaped' AND branch='$g_logged_id_escaped'";
-                $result_update = @mysqli_query($conn, $sql_update);
+                // Update existing record - Prepared Statements
+                $stmt_update = mysqli_prepare($conn, "UPDATE branch_inventories SET track = ?, comment = ?, status = 'prepare' WHERE track = ? AND branch = ?");
+                if ($stmt_update) {
+                    mysqli_stmt_bind_param($stmt_update, "sssi", $track_escaped, $comment_escaped, $track_escaped, $g_logged_id_int);
+                    $result_update = mysqli_stmt_execute($stmt_update);
+                    mysqli_stmt_close($stmt_update);
+                } else {
+                    // Fallback
+                    $result_update = @mysqli_query($conn, "UPDATE branch_inventories SET track='$track_escaped', comment='$comment_escaped', status='prepare' WHERE track='$track_escaped' AND branch='$g_logged_id_escaped'");
+                }
                 
                 if ($result_update) {
                     $_SESSION['success_message'] = 'Item successfully moved to Prepared.';
@@ -44,12 +56,16 @@
                     $_SESSION['error_message'] = 'Error: ' . mysqli_error($conn);
                 }
             } else {
-                // Insert new record
-                $sql_insert = "INSERT INTO branch_inventories 
-                              (track, comment, status, branch, created_date) 
-                              VALUES 
-                              ('$track_escaped', '$comment_escaped', 'prepare', '$g_logged_id_escaped', NOW())";
-                $result_insert = @mysqli_query($conn, $sql_insert);
+                // Insert new record - Prepared Statements
+                $stmt_insert = mysqli_prepare($conn, "INSERT INTO branch_inventories (track, comment, status, branch, created_date) VALUES (?, ?, 'prepare', ?, NOW())");
+                if ($stmt_insert) {
+                    mysqli_stmt_bind_param($stmt_insert, "ssi", $track_escaped, $comment_escaped, $g_logged_id_int);
+                    $result_insert = mysqli_stmt_execute($stmt_insert);
+                    mysqli_stmt_close($stmt_insert);
+                } else {
+                    // Fallback
+                    $result_insert = @mysqli_query($conn, "INSERT INTO branch_inventories (track, comment, status, branch, created_date) VALUES ('$track_escaped', '$comment_escaped', 'prepare', '$g_logged_id_escaped', NOW())");
+                }
                 
                 if ($result_insert) {
                     $_SESSION['success_message'] = 'Item successfully added to Prepared.';

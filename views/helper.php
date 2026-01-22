@@ -24,9 +24,21 @@ if (! function_exists ('customer'))
   		//if ($admin) return "Admin"; else return "Not Admin";
 		if (!$admin)
 			{
-			$sql_helper = "SELECT * FROM customer WHERE customer_id='$customer_id' LIMIT 1";
-			$result_helper = mysqli_query($conn,$sql_helper);
-			if (mysqli_num_rows($result_helper)==1)
+			// SQL Injection-ээс хамгаалах - Prepared Statements
+			$customer_id_int = intval($customer_id);
+			$stmt = mysqli_prepare($conn, "SELECT * FROM customer WHERE customer_id = ? LIMIT 1");
+			if ($stmt) {
+				mysqli_stmt_bind_param($stmt, "i", $customer_id_int);
+				mysqli_stmt_execute($stmt);
+				$result_helper = mysqli_stmt_get_result($stmt);
+				mysqli_stmt_close($stmt);
+			} else {
+				// Fallback
+				$customer_id_escaped = mysqli_real_escape_string($conn, $customer_id);
+				$sql_helper = "SELECT * FROM customer WHERE customer_id='$customer_id_escaped' LIMIT 1";
+				$result_helper = mysqli_query($conn,$sql_helper);
+			}
+			if ($result_helper && mysqli_num_rows($result_helper)==1)
 					{
 					$data_helper =mysqli_fetch_array($result_helper);
 					switch ($parameter)
@@ -76,18 +88,43 @@ if (! function_exists ('tracksearch'))
 
 		$track = str_replace(" ", "", $track);
 		global $conn;
+		
+		// SQL Injection-ээс хамгаалах - Prepared Statements ашиглах
+		$filter_date_escaped = mysqli_real_escape_string($conn, $filter_date);
+		
 		if (substr($track,0,2)=='22' || substr($track,0,2)=='ES')
-			$query=mysqli_query($conn,"SELECT * FROM orders WHERE third_party = '$track' AND created_date>='$filter_date 00:00:00' LIMIT 1");
-		if (substr($track,0,2)!='22' && substr($track,0,2)!='ES')
-			{
-				$track_eliminated = substr($track,-8,8);
-				$result = 
-				$query=mysqli_query($conn,"SELECT * FROM orders WHERE SUBSTRING(third_party,-8,8) = '$track_eliminated' AND created_date>='$filter_date 00:00:00' LIMIT 1");
-			}
-		if (mysqli_num_rows($query)==1)
 		{
-		$row=mysqli_fetch_array($query);
-		return $row["order_id"];
+			$track_escaped = mysqli_real_escape_string($conn, $track);
+			$stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE third_party = ? AND created_date >= ? LIMIT 1");
+			if ($stmt) {
+				mysqli_stmt_bind_param($stmt, "ss", $track_escaped, $filter_date_escaped);
+				mysqli_stmt_execute($stmt);
+				$query = mysqli_stmt_get_result($stmt);
+				mysqli_stmt_close($stmt);
+			} else {
+				// Fallback to escaped query if prepared statement fails
+				$query = mysqli_query($conn, "SELECT * FROM orders WHERE third_party = '$track_escaped' AND created_date>='$filter_date_escaped 00:00:00' LIMIT 1");
+			}
+		}
+		if (substr($track,0,2)!='22' && substr($track,0,2)!='ES')
+		{
+			$track_eliminated = substr($track,-8,8);
+			$track_eliminated_escaped = mysqli_real_escape_string($conn, $track_eliminated);
+			$stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE SUBSTRING(third_party,-8,8) = ? AND created_date >= ? LIMIT 1");
+			if ($stmt) {
+				mysqli_stmt_bind_param($stmt, "ss", $track_eliminated_escaped, $filter_date_escaped);
+				mysqli_stmt_execute($stmt);
+				$query = mysqli_stmt_get_result($stmt);
+				mysqli_stmt_close($stmt);
+			} else {
+				// Fallback to escaped query if prepared statement fails
+				$query = mysqli_query($conn, "SELECT * FROM orders WHERE SUBSTRING(third_party,-8,8) = '$track_eliminated_escaped' AND created_date>='$filter_date_escaped 00:00:00' LIMIT 1");
+			}
+		}
+		if ($query && mysqli_num_rows($query)==1)
+		{
+			$row=mysqli_fetch_array($query);
+			return $row["order_id"];
 		}
 		else return "";
 	}
@@ -100,17 +137,43 @@ if (! function_exists ('tracksearch_container'))
 		$filter_date = date('Y-m-d', strtotime(date('Y-m-d') . ' -6 month'));
 		global $conn;
 		$track = str_replace(" ", "", $track);
+		
+		// SQL Injection-ээс хамгаалах - Prepared Statements
+		$filter_date_escaped = mysqli_real_escape_string($conn, $filter_date);
+		
 		if (substr($track,0,2)=='22' || substr($track,0,2)=='ES')
-			$query=mysqli_query($conn,"SELECT * FROM container_item WHERE track = '$track' AND created_date>='$filter_date 00:00:00' LIMIT 1");
-		if (substr($track,0,2)!='22' && substr($track,0,2)!='ES')
-			{
-				$track_eliminated = substr($track,-8,8);
-				$query=mysqli_query($conn,"SELECT * FROM container_item WHERE SUBSTRING(track,-8,8) = '$track_eliminated' AND created_date>='$filter_date 00:00:00' LIMIT 1");
-			}
-		if (mysqli_num_rows($query)==1)
 		{
-		$row=mysqli_fetch_array($query);
-		return $row["id"];
+			$track_escaped = mysqli_real_escape_string($conn, $track);
+			$stmt = mysqli_prepare($conn, "SELECT * FROM container_item WHERE track = ? AND created_date >= ? LIMIT 1");
+			if ($stmt) {
+				mysqli_stmt_bind_param($stmt, "ss", $track_escaped, $filter_date_escaped);
+				mysqli_stmt_execute($stmt);
+				$query = mysqli_stmt_get_result($stmt);
+				mysqli_stmt_close($stmt);
+			} else {
+				// Fallback
+				$query = mysqli_query($conn, "SELECT * FROM container_item WHERE track = '$track_escaped' AND created_date>='$filter_date_escaped 00:00:00' LIMIT 1");
+			}
+		}
+		if (substr($track,0,2)!='22' && substr($track,0,2)!='ES')
+		{
+			$track_eliminated = substr($track,-8,8);
+			$track_eliminated_escaped = mysqli_real_escape_string($conn, $track_eliminated);
+			$stmt = mysqli_prepare($conn, "SELECT * FROM container_item WHERE SUBSTRING(track,-8,8) = ? AND created_date >= ? LIMIT 1");
+			if ($stmt) {
+				mysqli_stmt_bind_param($stmt, "ss", $track_eliminated_escaped, $filter_date_escaped);
+				mysqli_stmt_execute($stmt);
+				$query = mysqli_stmt_get_result($stmt);
+				mysqli_stmt_close($stmt);
+			} else {
+				// Fallback
+				$query = mysqli_query($conn, "SELECT * FROM container_item WHERE SUBSTRING(track,-8,8) = '$track_eliminated_escaped' AND created_date>='$filter_date_escaped 00:00:00' LIMIT 1");
+			}
+		}
+		if ($query && mysqli_num_rows($query)==1)
+		{
+			$row=mysqli_fetch_array($query);
+			return $row["id"];
 		}
 		else return "";
 	}
@@ -119,17 +182,33 @@ if (! function_exists ('tracksearch_container'))
 
 if (!function_exists("protect"))
 {
+	/**
+	 * Protect function - хуучин функц (backward compatibility)
+	 * Шинэ код дээр sanitize_input() ашиглах зөвлөмжлөгдөнө
+	 */
 	function protect($input)
 	{
-		$input = str_replace("<", "", $input);
-		$input = str_replace(">", "", $input);
-		$input = str_replace("*", "", $input);
-		$input = str_replace("script", "", $input);
-		$input = str_replace(" and ", "", $input);
-		$input = str_replace(" or ", "", $input);
+		// Хуучин функц хадгалж байна (backward compatibility)
+		// Гэхдээ илүү сайн sanitization хийх
+		if (is_array($input)) {
+			return array_map('protect', $input);
+		}
+		
+		// HTML tags устгах
+		$input = strip_tags($input);
+		
+		// SQL injection-ээс хамгаалах (гэхдээ prepared statements ашиглах нь илүү сайн)
 		$input = str_replace("'", "", $input);
 		$input = str_replace('"', '', $input);
-		return ($input);
+		$input = str_replace(";", "", $input);
+		$input = str_replace("--", "", $input);
+		
+		// XSS-ээс хамгаалах
+		$input = str_replace("<", "", $input);
+		$input = str_replace(">", "", $input);
+		$input = str_replace("script", "", $input);
+		
+		return trim($input);
 	}
 }
 
@@ -139,20 +218,47 @@ if (!function_exists("settings"))
 	function settings($id_or_shortname)
 	{
 		global $conn;
-		if (is_int($id_or_shortname))
-			$sql = "SELECT * FROM settings WHERE id='$id_or_shortname' LIMIT 1";
-		else 
-			$sql = "SELECT * FROM settings WHERE shortname='$id_or_shortname' LIMIT 1";
-
-		$result = mysqli_query($conn,$sql);
 		
-		if (mysqli_num_rows($result)==1)
-			{
-				$data = mysqli_fetch_array($result);
-				return $data["value"];
+		// SQL Injection-ээс хамгаалах - Prepared Statements
+		if (is_int($id_or_shortname))
+		{
+			$id_int = intval($id_or_shortname);
+			$stmt = mysqli_prepare($conn, "SELECT * FROM settings WHERE id = ? LIMIT 1");
+			if ($stmt) {
+				mysqli_stmt_bind_param($stmt, "i", $id_int);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+				mysqli_stmt_close($stmt);
+			} else {
+				// Fallback
+				$id_escaped = mysqli_real_escape_string($conn, $id_or_shortname);
+				$sql = "SELECT * FROM settings WHERE id='$id_escaped' LIMIT 1";
+				$result = mysqli_query($conn,$sql);
 			}
-			else
-				return "";
+		}
+		else 
+		{
+			$shortname_escaped = mysqli_real_escape_string($conn, $id_or_shortname);
+			$stmt = mysqli_prepare($conn, "SELECT * FROM settings WHERE shortname = ? LIMIT 1");
+			if ($stmt) {
+				mysqli_stmt_bind_param($stmt, "s", $shortname_escaped);
+				mysqli_stmt_execute($stmt);
+				$result = mysqli_stmt_get_result($stmt);
+				mysqli_stmt_close($stmt);
+			} else {
+				// Fallback
+				$sql = "SELECT * FROM settings WHERE shortname='$shortname_escaped' LIMIT 1";
+				$result = mysqli_query($conn,$sql);
+			}
+		}
+		
+		if ($result && mysqli_num_rows($result)==1)
+		{
+			$data = mysqli_fetch_array($result);
+			return $data["value"];
+		}
+		else
+			return "";
 	}
 }
 
@@ -161,8 +267,23 @@ if (!function_exists('mslog'))
 {
 	function mslog($name,$request,$response,$method)
 	{
-		global $conn;			
-		mysqli_query($conn,"INSERT INTO applogs (page,input,output,method) VALUES ('$name','$request','$response','$method')");		
+		global $conn;
+		
+		// SQL Injection-ээс хамгаалах - Prepared Statements
+		$name_escaped = mysqli_real_escape_string($conn, $name);
+		$request_escaped = mysqli_real_escape_string($conn, $request);
+		$response_escaped = mysqli_real_escape_string($conn, $response);
+		$method_escaped = mysqli_real_escape_string($conn, $method);
+		
+		$stmt = mysqli_prepare($conn, "INSERT INTO applogs (page,input,output,method) VALUES (?, ?, ?, ?)");
+		if ($stmt) {
+			mysqli_stmt_bind_param($stmt, "ssss", $name_escaped, $request_escaped, $response_escaped, $method_escaped);
+			mysqli_stmt_execute($stmt);
+			mysqli_stmt_close($stmt);
+		} else {
+			// Fallback
+			mysqli_query($conn, "INSERT INTO applogs (page,input,output,method) VALUES ('$name_escaped','$request_escaped','$response_escaped','$method_escaped')");
+		}
 	}
 }
 

@@ -2,6 +2,30 @@ DirectoryIndex shuurkhai-home/home-test.php index.php
 RewriteEngine On
 RewriteBase /shuurkhai/
 
+# ---- SECURITY: HTTPS Enforcement (Production дээр идэвхжүүлэх) ----
+# Production дээр HTTPS-ийг шаардах
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ---- SECURITY: Prevent access to sensitive files ----
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql|bak|backup)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ---- SECURITY: Prevent directory browsing ----
+Options -Indexes
+
+# ---- SECURITY: XSS Protection Headers ----
+<IfModule mod_headers.c>
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    # Content Security Policy (CSP) - сайжруулах шаардлагатай
+    # Header set Content-Security-Policy "default-src 'self'"
+</IfModule>
+
 # ---- ROUTES ----
 # Root (/) нь шинэ нүүр хуудсанд заах
 RewriteRule ^$ shuurkhai-home/home-test.php [L]
@@ -25,9 +49,6 @@ RewriteRule ^login/?$ admin/login.php
 RewriteRule ^views/logining/?$ admin/views/logining.php
 RewriteRule ^home-new/?$ shuurkhai-home/home-test.php [L]
 RewriteRule ^shuurkhai-home/home_new/?$ shuurkhai-home/home-test.php [L]
-
-# ---- Disable directory listing ----
-Options -Indexes
 
 # ---- 404 ----
 ErrorDocument 404 /shuurkhai/underconstruction

@@ -845,7 +845,19 @@
                     // echo "order id:".$order_id;
                     if ($order_id!="")
                     {
-                        $result = mysqli_query($conn,"SELECT * FROM orders WHERE order_id = '$order_id'");
+                        // SQL Injection-ээс хамгаалах - Prepared Statements
+                        $order_id_int = intval($order_id);
+                        $stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE order_id = ?");
+                        if ($stmt) {
+                            mysqli_stmt_bind_param($stmt, "i", $order_id_int);
+                            mysqli_stmt_execute($stmt);
+                            $result = mysqli_stmt_get_result($stmt);
+                            mysqli_stmt_close($stmt);
+                        } else {
+                            // Fallback
+                            $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                            $result = mysqli_query($conn, "SELECT * FROM orders WHERE order_id = '$order_id_escaped'");
+                        }
                     
                         //TRACK REGISTERED 
                         if (mysqli_num_rows($result) == 1)
@@ -954,8 +966,19 @@
                         $order_id = tracksearch($track);
 
                         $is_branch = 0;
-                        $result=mysqli_query($conn,"SELECT * FROM branch_inventories WHERE track = '$track'");
-                        if (mysqli_num_rows($result) >0) { $price=cfg_price_branch($weight) ; $is_branch =1; } else $price = cfg_price($weight);
+                        // SQL Injection-ээс хамгаалах - Prepared Statements
+                        $track_escaped = mysqli_real_escape_string($conn, $track);
+                        $stmt = mysqli_prepare($conn, "SELECT * FROM branch_inventories WHERE track = ?");
+                        if ($stmt) {
+                            mysqli_stmt_bind_param($stmt, "s", $track_escaped);
+                            mysqli_stmt_execute($stmt);
+                            $result = mysqli_stmt_get_result($stmt);
+                            mysqli_stmt_close($stmt);
+                        } else {
+                            // Fallback
+                            $result = mysqli_query($conn, "SELECT * FROM branch_inventories WHERE track = '$track_escaped'");
+                        }
+                        if ($result && mysqli_num_rows($result) >0) { $price=cfg_price_branch($weight) ; $is_branch =1; } else $price = cfg_price($weight);
             
                         if ($delaware==1) $is_branch =1;
                         //$result=mysqli_query($conn,"SELECT * FROM orders WHERE SUBSTRING(third_party,-8,8) = '$track_eliminated' LIMIT 1");
@@ -963,7 +986,19 @@
                         //if (mysqli_num_rows($result) == 1)  // тухай barcode-н жин дутуу хэсэг
                         if ($order_id!="")
                         {
-                            $result=mysqli_query($conn,"SELECT * FROM orders WHERE order_id = '$order_id'");
+                            // SQL Injection-ээс хамгаалах - Prepared Statements
+                            $order_id_int = intval($order_id);
+                            $stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE order_id = ?");
+                            if ($stmt) {
+                                mysqli_stmt_bind_param($stmt, "i", $order_id_int);
+                                mysqli_stmt_execute($stmt);
+                                $result = mysqli_stmt_get_result($stmt);
+                                mysqli_stmt_close($stmt);
+                            } else {
+                                // Fallback
+                                $order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+                                $result = mysqli_query($conn, "SELECT * FROM orders WHERE order_id = '$order_id_escaped'");
+                            }
                             $data=mysqli_fetch_array($result);
                             //$order_id=$data["order_id"];
                             //$barcode=$data["barcode"];// track № into barcode
@@ -1063,12 +1098,35 @@
                                       {
                                           if (substr($contact,0,1)=="К") $contact="K".substr($contact,1);
                                           $customer_id=6616;
-                                          $result = mysqli_query($conn,"SELECT * FROM proxies WHERE customer_id =6616 AND  code='$contact'");
-                                          $data=mysqli_fetch_array($result);
-                                          $proxy_id=$data["proxy_id"];
-                                          $new_status='item_missing';
-                                          $sql = "UPDATE orders SET receiver='$customer_id',proxy_id='$proxy_id',proxy_type=0,status='$new_status' WHERE order_id='$order_id'";
-                                          mysqli_query($conn,$sql);
+                                          // SQL Injection-ээс хамгаалах - Prepared Statements
+                                          $contact_escaped = mysqli_real_escape_string($conn, $contact);
+                                          $stmt = mysqli_prepare($conn, "SELECT * FROM proxies WHERE customer_id = 6616 AND code = ?");
+                                          if ($stmt) {
+                                              mysqli_stmt_bind_param($stmt, "s", $contact_escaped);
+                                              mysqli_stmt_execute($stmt);
+                                              $result = mysqli_stmt_get_result($stmt);
+                                              mysqli_stmt_close($stmt);
+                                          } else {
+                                              // Fallback
+                                              $result = mysqli_query($conn, "SELECT * FROM proxies WHERE customer_id = 6616 AND code='$contact_escaped'");
+                                          }
+                                          if ($result && mysqli_num_rows($result) > 0) {
+                                              $data=mysqli_fetch_array($result);
+                                              $proxy_id=$data["proxy_id"];
+                                              $new_status='item_missing';
+                                              $order_id_int = intval($order_id);
+                                              $proxy_id_int = intval($proxy_id);
+                                              $stmt_update = mysqli_prepare($conn, "UPDATE orders SET receiver=6616, proxy_id=?, proxy_type=0, status='item_missing' WHERE order_id=?");
+                                              if ($stmt_update) {
+                                                  mysqli_stmt_bind_param($stmt_update, "ii", $proxy_id_int, $order_id_int);
+                                                  mysqli_stmt_execute($stmt_update);
+                                                  mysqli_stmt_close($stmt_update);
+                                              } else {
+                                                  // Fallback
+                                                  $sql = "UPDATE orders SET receiver=6616,proxy_id='$proxy_id',proxy_type=0,status='item_missing' WHERE order_id='$order_id'";
+                                                  mysqli_query($conn,$sql);
+                                              }
+                                          }
                                           ?>
                                           <form action="?action=checking4" method="post">
                                             <input type="hidden" name="track" value="<?=$track;?>">
@@ -1316,7 +1374,19 @@
                         {
                             if ($current_proxy==0)
                                 {
-                                    $query_proxies = mysqli_query($conn,'SELECT * FROM proxies WHERE customer_id="'.$customer_id.'" AND status=0 ORDER BY proxy_id DESC LIMIT 1');
+                                    // SQL Injection-ээс хамгаалах - Prepared Statements
+                                    $customer_id_int = intval($customer_id);
+                                    $stmt = mysqli_prepare($conn, "SELECT * FROM proxies WHERE customer_id = ? AND status=0 ORDER BY proxy_id DESC LIMIT 1");
+                                    if ($stmt) {
+                                        mysqli_stmt_bind_param($stmt, "i", $customer_id_int);
+                                        mysqli_stmt_execute($stmt);
+                                        $query_proxies = mysqli_stmt_get_result($stmt);
+                                        mysqli_stmt_close($stmt);
+                                    } else {
+                                        // Fallback
+                                        $customer_id_escaped = mysqli_real_escape_string($conn, $customer_id);
+                                        $query_proxies = mysqli_query($conn, "SELECT * FROM proxies WHERE customer_id='$customer_id_escaped' AND status=0 ORDER BY proxy_id DESC LIMIT 1");
+                                    }
                                     if (mysqli_num_rows($query_proxies)>=1)
                                     {
                                         
@@ -1332,7 +1402,17 @@
                                     {
                                         if ($proxy=='yes' && $proxy_id==0)
                                         {						
-                                            $query_proxies = mysqli_query($conn,'SELECT * FROM proxies_public WHERE status=0 ORDER BY RAND()');
+                                            // SQL Injection-ээс хамгаалах - Prepared Statements
+                                            // Энэ query нь user input ашиглахгүй, гэхдээ prepared statement ашиглах нь зөв
+                                            $stmt = mysqli_prepare($conn, "SELECT * FROM proxies_public WHERE status=0 ORDER BY RAND()");
+                                            if ($stmt) {
+                                                mysqli_stmt_execute($stmt);
+                                                $query_proxies = mysqli_stmt_get_result($stmt);
+                                                mysqli_stmt_close($stmt);
+                                            } else {
+                                                // Fallback
+                                                $query_proxies = mysqli_query($conn, "SELECT * FROM proxies_public WHERE status=0 ORDER BY RAND()");
+                                            }
                                             if (mysqli_num_rows($query_proxies)>0)
                                                 {
                                                     while($data_proxies=mysqli_fetch_array($query_proxies))
@@ -1362,7 +1442,19 @@
                         }
                 
                         // TAKE OWN NAME
-                        $order_proxy = mysqli_query($conn,'SELECT * FROM orders WHERE receiver="'.$customer_id.'" AND proxy_id=0 AND status IN ("new")');
+                        // SQL Injection-ээс хамгаалах - Prepared Statements
+                        $customer_id_int = intval($customer_id);
+                        $stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE receiver = ? AND proxy_id=0 AND status IN ('new')");
+                        if ($stmt) {
+                            mysqli_stmt_bind_param($stmt, "i", $customer_id_int);
+                            mysqli_stmt_execute($stmt);
+                            $order_proxy = mysqli_stmt_get_result($stmt);
+                            mysqli_stmt_close($stmt);
+                        } else {
+                            // Fallback
+                            $customer_id_escaped = mysqli_real_escape_string($conn, $customer_id);
+                            $order_proxy = mysqli_query($conn, "SELECT * FROM orders WHERE receiver='$customer_id_escaped' AND proxy_id=0 AND status IN ('new')");
+                        }
                         if (mysqli_num_rows($order_proxy) < 2) 
                         {
                             $proxy_id =0;

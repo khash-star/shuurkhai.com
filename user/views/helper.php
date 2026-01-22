@@ -391,11 +391,36 @@ if (! function_exists ('proxy_available'))
 	{
 		global $conn;
 		
-	if ($proxy_type ==0)
-		mysqli_query($conn,"UPDATE proxies SET status=$status WHERE proxy_id=$proxy_id");
+		// SQL Injection-ээс хамгаалах - Prepared Statements
+		$proxy_id_int = intval($proxy_id);
+		$proxy_type_int = intval($proxy_type);
+		$status_int = intval($status);
+		
+	if ($proxy_type == 0)
+	{
+		$stmt = mysqli_prepare($conn, "UPDATE proxies SET status = ? WHERE proxy_id = ?");
+		if ($stmt) {
+			mysqli_stmt_bind_param($stmt, "ii", $status_int, $proxy_id_int);
+			mysqli_stmt_execute($stmt);
+			mysqli_stmt_close($stmt);
+		} else {
+			// Fallback
+			mysqli_query($conn, "UPDATE proxies SET status=$status_int WHERE proxy_id=$proxy_id_int");
+		}
+	}
 	
-	if ($proxy_type ==1)
-		mysqli_query($conn,"UPDATE proxies_public SET status=$status WHERE proxy_id=$proxy_id");
+	if ($proxy_type == 1)
+	{
+		$stmt = mysqli_prepare($conn, "UPDATE proxies_public SET status = ? WHERE proxy_id = ?");
+		if ($stmt) {
+			mysqli_stmt_bind_param($stmt, "ii", $status_int, $proxy_id_int);
+			mysqli_stmt_execute($stmt);
+			mysqli_stmt_close($stmt);
+		} else {
+			// Fallback
+			mysqli_query($conn, "UPDATE proxies_public SET status=$status_int WHERE proxy_id=$proxy_id_int");
+		}
+	}
 	}
 }
 
@@ -406,10 +431,23 @@ if (! function_exists ('order'))
 	{
 	global $conn;
 
-	$result_helper =mysqli_query($conn,"SELECT * FROM orders WHERE order_id='$order_id' LIMIT 1");
-	if (mysqli_num_rows($result_helper)==1)
+	// SQL Injection-ээс хамгаалах - Prepared Statements
+	$order_id_int = intval($order_id);
+	$stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE order_id = ? LIMIT 1");
+	if ($stmt) {
+		mysqli_stmt_bind_param($stmt, "i", $order_id_int);
+		mysqli_stmt_execute($stmt);
+		$result_helper = mysqli_stmt_get_result($stmt);
+		mysqli_stmt_close($stmt);
+	} else {
+		// Fallback
+		$order_id_escaped = mysqli_real_escape_string($conn, $order_id);
+		$result_helper = mysqli_query($conn, "SELECT * FROM orders WHERE order_id='$order_id_escaped' LIMIT 1");
+	}
+	
+	if ($result_helper && mysqli_num_rows($result_helper)==1)
 	{
-	$data_helper=mysqli_fetch_array($result_helper);
+		$data_helper=mysqli_fetch_array($result_helper);
 		switch ($parameter)
 		{
 			case "weight":return $data_helper["weight"]; break;
@@ -513,13 +551,27 @@ if (! function_exists ('proxy'))
 {
 	function proxy($proxy_id,$parameter)
 	{
-	global $conn;	
-	$sql_helper = "SELECT * FROM proxies WHERE proxy_id='$proxy_id' LIMIT 1";
-	$result_helper  = mysqli_query($conn,$sql_helper);
-	if (mysqli_num_rows($result_helper)>0)
+	global $conn;
+	
+	// SQL Injection-ээс хамгаалах - Prepared Statements
+	$proxy_id_int = intval($proxy_id);
+	$stmt = mysqli_prepare($conn, "SELECT * FROM proxies WHERE proxy_id = ? LIMIT 1");
+	if ($stmt) {
+		mysqli_stmt_bind_param($stmt, "i", $proxy_id_int);
+		mysqli_stmt_execute($stmt);
+		$result_helper = mysqli_stmt_get_result($stmt);
+		mysqli_stmt_close($stmt);
+	} else {
+		// Fallback
+		$proxy_id_escaped = mysqli_real_escape_string($conn, $proxy_id);
+		$sql_helper = "SELECT * FROM proxies WHERE proxy_id='$proxy_id_escaped' LIMIT 1";
+		$result_helper = mysqli_query($conn, $sql_helper);
+	}
+	
+	if ($result_helper && mysqli_num_rows($result_helper)>0)
 	{
-	$data_helper = mysqli_fetch_array($result_helper);
-	//$row=$query ->row();
+		$data_helper = mysqli_fetch_array($result_helper);
+		//$row=$query ->row();
 
 		switch ($parameter)
 		{
@@ -568,10 +620,26 @@ if (! function_exists ('cfg_paymentrate_branch'))
 {
 	function cfg_paymentrate_branch()
 	{
-	global $conn;	
-	$result=mysqli_query($conn,"SELECT * FROM settings WHERE shortname='paymentrate_branch' LIMIT 1");
-	$data=mysqli_fetch_array($result);
-	return $data["value"];	
+	global $conn;
+	
+	// SQL Injection-ээс хамгаалах - Prepared Statements
+	$shortname_escaped = mysqli_real_escape_string($conn, 'paymentrate_branch');
+	$stmt = mysqli_prepare($conn, "SELECT * FROM settings WHERE shortname = ? LIMIT 1");
+	if ($stmt) {
+		mysqli_stmt_bind_param($stmt, "s", $shortname_escaped);
+		mysqli_stmt_execute($stmt);
+		$result = mysqli_stmt_get_result($stmt);
+		mysqli_stmt_close($stmt);
+	} else {
+		// Fallback
+		$result = mysqli_query($conn, "SELECT * FROM settings WHERE shortname='$shortname_escaped' LIMIT 1");
+	}
+	
+	if ($result && mysqli_num_rows($result)==1) {
+		$data = mysqli_fetch_array($result);
+		return $data["value"];
+	}
+	return "";	
 	}
 }
 
