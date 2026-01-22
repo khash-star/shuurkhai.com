@@ -1,33 +1,47 @@
-<? require_once("views/login_check.php");?>
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/init.php");?>
 <body>
+    <?php
+    // Ensure g_logged_id is set
+    if (!isset($g_logged_id) || empty($g_logged_id)) {
+        $g_logged_id = isset($_SESSION['branch_logged_id']) ? $_SESSION['branch_logged_id'] : 0;
+    }
+    ?>
     <div class="page-wrapper compact-wrapper" id="pageWrapper">
-      <? require_once("views/header.php");?>
+      <?php require_once("views/header.php");?>
       <!-- Page Body Start-->
       <div class="page-body-wrapper sidebar-icon">
-        <? require_once("views/sidemenu.php");?>
+        <?php require_once("views/sidemenu.php");?>
         <div class="page-body dashboard-2-main">
           <!-- Container-fluid starts-->
           <div class="container-fluid">
            
-                    <?  
+                    <?php  
                     if (isset($_GET["action"])) $action =$_GET["action"]; else $action = "init";
 
           
                     if ($action=="init")
                     {
+                        // Initialize variables to avoid undefined warnings
+                        $avatar = '';
+                        $username = '';
+                        $name = '';
+                        $tel = '';
+                        $email = '';
 
-                        $sql = "SELECT *FROM branches WHERE id='$g_logged_id'";
+                        $g_logged_id_escaped = mysqli_real_escape_string($conn, $g_logged_id);
+                        $sql = "SELECT * FROM branches WHERE id='$g_logged_id_escaped'";
                         $result = mysqli_query($conn,$sql);
-                        $data = mysqli_fetch_array($result);
-                        $avatar = $data["avatar"];
-                        $username = $data["username"];
-                        $name = $data["name"];
-                        $tel = $data["tel"];
-                        $email = $data["email"];
-                        $avatar = $data["avatar"];
+                        if ($result && mysqli_num_rows($result) > 0) {
+                            $data = mysqli_fetch_array($result);
+                            $avatar = isset($data["avatar"]) ? $data["avatar"] : '';
+                            $username = isset($data["username"]) ? $data["username"] : '';
+                            $name = isset($data["name"]) ? $data["name"] : '';
+                            $tel = isset($data["tel"]) ? $data["tel"] : '';
+                            $email = isset($data["email"]) ? $data["email"] : '';
+                        }
 
                         ?>
                         
@@ -38,29 +52,33 @@
                                         <div class="card-body">
                                                 <legend>Profile info</legend>
 
-                                                <img class="img-90 rounded-circle" height="90" src="../<?=$avatar;?>" alt="">
+                                                <?php if (!empty($avatar)): ?>
+                                                <img class="img-90 rounded-circle" height="90" src="../<?php echo htmlspecialchars($avatar);?>" alt="">
+                                                <?php else: ?>
+                                                <img class="img-90 rounded-circle" height="90" src="../assets/images/user/1.jpg" alt="">
+                                                <?php endif; ?>
         
         
                                                 <div class="form-group required">
                                                     <label class="control-label">Name</label>
-                                                    <input type="text" class="form-control" id="input-name" placeholder="Name" value="<?=$name;?>" name="name" readonly>
+                                                    <input type="text" class="form-control" id="input-name" placeholder="Name" value="<?php echo htmlspecialchars($name);?>" name="name" readonly>
                                                 </div>
         
                                                 
                                                 <div class="form-group required">
                                                     <label for="input-tel" class="control-label">Tel</label>
-                                                    <input type="tel" class="form-control" id="input-tel" placeholder="Tel" value="<?=$tel;?>" name="tel" readonly>
+                                                    <input type="tel" class="form-control" id="input-tel" placeholder="Tel" value="<?php echo htmlspecialchars($tel);?>" name="tel" readonly>
                                                 </div>
                                                
         
                                                 <div class="form-group required">
                                                     <label for="input-email" class="control-label">Mail</label>
-                                                    <input type="email" class="form-control" id="input-email" placeholder="Mail" value="<?=$email;?>" name="email" readonly>
+                                                    <input type="email" class="form-control" id="input-email" placeholder="Mail" value="<?php echo htmlspecialchars($email);?>" name="email" readonly>
                                                 </div>
         
                                                 <div class="form-group required">
                                                     <label for="input-username" class="control-label">Username</label>
-                                                    <input type="text" class="form-control" id="input-username" placeholder="Username" value="<?=$username;?>" name="username" readonly>
+                                                    <input type="text" class="form-control" id="input-username" placeholder="Username" value="<?php echo htmlspecialchars($username);?>" name="username" readonly>
                                                 </div>
 
                                         </div>
@@ -68,21 +86,30 @@
                                 </div>
                             </div>    
                             
-                        </form>
                         <a href="profile?action=edit" class="btn btn-success">Change</a>
-                        <?
+                        <?php
                     }
 
                     if ($action=="edit")
                     {
-                        $sql = "SELECT *FROM branches WHERE id='$g_logged_id'";
+                        // Initialize variables to avoid undefined warnings
+                        $avatar = '';
+                        $username = '';
+                        $name = '';
+                        $tel = '';
+                        $email = '';
+
+                        $g_logged_id_escaped = mysqli_real_escape_string($conn, $g_logged_id);
+                        $sql = "SELECT * FROM branches WHERE id='$g_logged_id_escaped'";
                         $result = mysqli_query($conn,$sql);
-                        $data = mysqli_fetch_array($result);
-                        $avatar = $data["avatar"];
-                        $username = $data["username"];
-                        $name = $data["name"];
-                        $tel = $data["tel"];
-                        $email = $data["email"];
+                        if ($result && mysqli_num_rows($result) > 0) {
+                            $data = mysqli_fetch_array($result);
+                            $avatar = isset($data["avatar"]) ? $data["avatar"] : '';
+                            $username = isset($data["username"]) ? $data["username"] : '';
+                            $name = isset($data["name"]) ? $data["name"] : '';
+                            $tel = isset($data["tel"]) ? $data["tel"] : '';
+                            $email = isset($data["email"]) ? $data["email"] : '';
+                        }
 
                         ?>
                         <form action="profile?action=editing" method="POST" enctype="multipart/form-data">
@@ -92,7 +119,11 @@
                                         <div class="card-body">
                                             <legend>Profile</legend>
 
-                                            <img class="img-90 rounded-circle" height="90" src="../<?=$avatar;?>" alt="">
+                                            <?php if (!empty($avatar)): ?>
+                                            <img class="img-90 rounded-circle" height="90" src="../<?php echo htmlspecialchars($avatar);?>" alt="">
+                                            <?php else: ?>
+                                            <img class="img-90 rounded-circle" height="90" src="../assets/images/user/1.jpg" alt="">
+                                            <?php endif; ?>
                                                 
                                             <div class="form-group required">
                                                 <input type="file" name="avatar">
@@ -101,22 +132,22 @@
 
                                             <div class="form-group required">
                                                 <label class="control-label">Name</label>
-                                                <input type="text" class="form-control" id="input-name" placeholder="Name" value="<?=$name;?>" name="name" required>
+                                                <input type="text" class="form-control" id="input-name" placeholder="Name" value="<?php echo htmlspecialchars($name);?>" name="name" required>
                                             </div>
                                             
                                             <div class="form-group required">
                                                 <label for="input-tel" class="control-label">Tel</label>
-                                                <input type="tel" class="form-control" id="input-tel" placeholder="Tel" value="<?=$tel;?>" name="tel">
+                                                <input type="tel" class="form-control" id="input-tel" placeholder="Tel" value="<?php echo htmlspecialchars($tel);?>" name="tel">
                                             </div>
     
                                             <div class="form-group required">
                                                 <label for="input-email" class="control-label">Email</label>
-                                                <input type="email" class="form-control" id="input-email" placeholder="Email" value="<?=$email;?>" name="email">
+                                                <input type="email" class="form-control" id="input-email" placeholder="Email" value="<?php echo htmlspecialchars($email);?>" name="email">
                                             </div>
 
                                             <div class="form-group required">
                                                 <label for="input-username" class="control-label">Username</label>
-                                                <input type="text" class="form-control" id="input-username" placeholder="Username" value="<?=$username;?>" name="username">
+                                                <input type="text" class="form-control" id="input-username" placeholder="Username" value="<?php echo htmlspecialchars($username);?>" name="username">
                                             </div>
 
                                             <i class="text-danger">Required in case of change, otherwise leave it blank</i>
@@ -130,7 +161,7 @@
                                 </div>                              
                             </div>                           
                         </form>
-                        <?
+                        <?php
                     }
 
 
@@ -139,22 +170,22 @@
                         ?>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <?
-                                    $name = $_POST["name"];
-                                    $tel = $_POST["tel"];
-                                    $email = $_POST["email"];
+                                    <?php
+                                    $name = isset($_POST["name"]) ? mysqli_real_escape_string($conn, $_POST["name"]) : '';
+                                    $tel = isset($_POST["tel"]) ? mysqli_real_escape_string($conn, $_POST["tel"]) : '';
+                                    $email = isset($_POST["email"]) ? mysqli_real_escape_string($conn, $_POST["email"]) : '';
+                                    $username = isset($_POST["username"]) ? mysqli_real_escape_string($conn, $_POST["username"]) : '';
+                                    $password = isset($_POST["password"]) ? $_POST["password"] : '';
 
-                                    $username = $_POST["username"];
-                                    $password = $_POST["password"];
 
-
+                                    $g_logged_id_escaped = mysqli_real_escape_string($conn, $g_logged_id);
                                     $sql = "UPDATE branches
                                     SET 
                                     name='$name',
                                     tel='$tel',
                                     email='$email',
                                     username='$username'
-                                    WHERE id='$g_logged_id'";
+                                    WHERE id='$g_logged_id_escaped'";
                                     if (mysqli_query($conn,$sql))
                                     echo '<div class="alert alert-success">Successfully changed</div>';    
                                     else 
@@ -164,9 +195,10 @@
 
                                  
 
-                                    if ($password<>'')
+                                    if ($password != '')
                                     {
-                                        $sql = "UPDATE branches SET password='".sha1($password)."' WHERE id='$g_logged_id'";
+                                        $password_hashed = sha1($password);
+                                        $sql = "UPDATE branches SET password='$password_hashed' WHERE id='$g_logged_id_escaped'";
                                         if (mysqli_query($conn,$sql))
                                         echo '<div class="alert alert-success">Password changed</div>';    
                                     }     
@@ -186,7 +218,8 @@
                                     //   imagejpeg($thumb_image_content,$thumb,75);
                                         //$thumb = settings("base_url").$thumb;
                                         $target_file= substr($target_file,3);
-                                        $sql = "UPDATE branches SET avatar='$target_file' WHERE id='$g_logged_id'";
+                                        $target_file_escaped = mysqli_real_escape_string($conn, $target_file);
+                                        $sql = "UPDATE branches SET avatar='$target_file_escaped' WHERE id='$g_logged_id_escaped'";
                                         mysqli_query($conn,$sql);
                     
                                     }
@@ -197,7 +230,7 @@
                                     <a href="profile" class="btn btn-primary">Profile</a>
                                 </div>
                             </div>                    
-                        <?
+                        <?php
                     }
 
                     ?>
@@ -205,7 +238,7 @@
           </div>
           <!-- Container-fluid Ends-->
         </div>
-        <? require_once("views/footer.php");?>
+        <?php require_once("views/footer.php");?>
       </div>
     </div>
     <!-- latest jquery-->

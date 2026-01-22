@@ -1,7 +1,7 @@
-<? require_once("views/login_check.php");?>
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("views/login_check.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/init.php");?>
     <script src="assets/js/FileSaver.js"></script>
     <script src="assets/js/tableExport.min.js"></script>
 
@@ -17,14 +17,14 @@
     <!-- Loader ends-->
     <!-- page-wrapper Start-->
     <div class="page-wrapper compact-wrapper" id="pageWrapper">
-      <? require_once("views/header.php");?>
+      <?php require_once("views/header.php");?>
       <!-- Page Body Start-->
       <div class="page-body-wrapper sidebar-icon">
-        <? require_once("views/sidemenu.php");?>
+        <?php require_once("views/sidemenu.php");?>
         <div class="page-body dashboard-2-main">
           <!-- Container-fluid starts-->
           <div class="container-fluid">
-                <?  
+                <?php  
                 if (isset($_GET["action"])) $action =$_GET["action"]; else $action = "list";
 
             
@@ -46,46 +46,54 @@
                                                 <th>Created</th>
                                                 <th>Comment</th>                                                
                                                 <th>Status</th>
+                                                <th>DE</th>
                                                 <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?
-                                            $count=$sum_weight =0;
-                                            $sql= "SELECT branch_inventories.*
+                                            <?php
+                                            $count = 0;
+                                            $sum_weight = 0;
+                                            $sql= "SELECT branch_inventories.*, orders.de_checkbox
                                             FROM branch_inventories 
-                                            WHERE branch_inventories.branch='$g_logged_id' AND status='new' ORDER BY id DESC";
+                                            LEFT JOIN orders ON (branch_inventories.track = orders.third_party OR SUBSTRING(orders.third_party,-8,8) = SUBSTRING(branch_inventories.track,-8,8))
+                                            WHERE branch_inventories.branch='$g_logged_id' AND branch_inventories.status='new' ORDER BY branch_inventories.id DESC";
                                             $result = mysqli_query($conn,$sql);
                                             while ($inventory = mysqli_fetch_array($result))
                                             {
+                                                $de_checkbox = isset($inventory["de_checkbox"]) ? intval($inventory["de_checkbox"]) : 0;
                                                 ?>
                                                 <tr>
-                                                    <td><?=++$count;?></td>
+                                                    <td><?php echo ++$count;?></td>
                                                     <td width="100px">
-                                                        <?
+                                                        <?php
                                                         if (($inventory["image"]!="") && file_exists('../'.$inventory["image"])) echo '<a href="../'.$inventory["image"].'" target="new"><img src="../'.$inventory["image"].'" class="w-100"></a>';?>
                                                     </td>
-                                                    <td><?=$inventory["track"];?></td>
-                                                    <td><?=substr($inventory["created_date"],0,10);?></td>
-                                                    <td><?=$inventory["comment"];?></td>
-                                                    <td><?=$inventory["status"];?></td>
+                                                    <td><?php echo isset($inventory["track"]) ? $inventory["track"] : '';?></td>
+                                                    <td><?php echo isset($inventory["created_date"]) ? substr($inventory["created_date"],0,10) : '';?></td>
+                                                    <td><?php echo isset($inventory["comment"]) ? $inventory["comment"] : '';?></td>
+                                                    <td><?php echo isset($inventory["status"]) ? $inventory["status"] : '';?></td>
+                                                    <td><?php echo ($de_checkbox == 1 ? '<span style="color: green; font-weight: bold;">✓</span>' : '<span style="color: #ccc;">-</span>');?></td>
                                                     <td>
                                                         <div class="btn-group">
-                                                            <a href="?action=delete&id=<?=$inventory["id"];?>" class="btn btn-danger btn-sm">Delete</a>
-                                                            <a href="?action=prepare&id=<?=$inventory["id"];?>" class="btn btn-warning btn-sm">Prepare</a>
+                                                            <a href="?action=delete&id=<?php echo isset($inventory["id"]) ? $inventory["id"] : '';?>" class="btn btn-danger btn-sm">Delete</a>
+                                                            <a href="?action=prepare&id=<?php echo isset($inventory["id"]) ? $inventory["id"] : '';?>" class="btn btn-warning btn-sm">Prepare</a>
                                                         </div>
                                                     </td>
                                                     
                                                 </tr>
-                                                <?
-                                                $sum_weight+=$inventory["weight"];
+                                                <?php
+                                                if (isset($inventory["weight"])) {
+                                                    $sum_weight += $inventory["weight"];
+                                                }
                                             }
                                             ?>
                                         </tbody>
                                         <tfoot>
                                             <tr>
                                                 <th></th>
-                                                <th colspan="2">Total: <?=$count;?></th>
+                                                <th colspan="2">Total: <?php echo $count;?></th>
+                                                <th></th>
                                                 <th></th>
                                                 <th></th>
                                                 <th></th>   
@@ -97,7 +105,7 @@
                             </div>                                                    
                         </div>
                     </div>
-                    <?
+                    <?php
                     }
 
                 if ($action=="new")
@@ -138,7 +146,7 @@
                                     </div>                                    
                                 </div>
                             </div>
-                            <?
+                            <?php
                         
                     }
 
@@ -148,7 +156,7 @@
                         ?>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <?
+                                    <?php
                                     $track = trim($_POST["track"]);
                                     // $weight = floatval($_POST["weight"]);  
                                     $comment = mysqli_escape_string($conn,$_POST["comment"]);
@@ -167,7 +175,7 @@
                                             }
                                     }                                
 
-                                    $sql = "SELECT *FROM branch_inventories WHERE track='$track'";
+                                    $sql = "SELECT * FROM branch_inventories WHERE track='$track'";
                                     $result = mysqli_query($conn,$sql);
                                     if (mysqli_num_rows($result)==0)
                                     {
@@ -183,7 +191,7 @@
                                             <script>
                                                 window.location.replace("inventory?action=new");
                                             </script>
-                                            <?
+                                            <?php
 
                                         }
                                         else 
@@ -196,7 +204,7 @@
                                     <a href="?action=list" class="btn btn-primary">List</a>
                                 </div>
                             </div>                    
-                        <?
+                        <?php
                         
                         $order_id = tracksearch($track);
                         if ($order_id<>"")
@@ -217,7 +225,7 @@
                 if ($action=="detail")
                     {
                         if (isset($_GET["id"])) $inventory_id = $_GET["id"]; //else header("location:inventory");
-                        $sql = "SELECT *FROM branch_inventories WHERE id='$inventory_id' AND `branch`='$g_logged_id' LIMIT 1";
+                        $sql = "SELECT * FROM branch_inventories WHERE id='$inventory_id' AND `branch`='$g_logged_id' LIMIT 1";
                         // echo $sql;
                         $result = mysqli_query($conn,$sql);
                         if (mysqli_num_rows($result)==1)
@@ -235,29 +243,28 @@
                                                 <fieldset id="personal-details ">
                                                     <div class="form-group required">
                                                         <label class="control-label">Track</label>
-                                                        <input type="text" name="track" value="<?=$track;?>" class="form-control" readonly>                                            
+                                                        <input type="text" name="track" value="<?php echo $track;?>" class="form-control" readonly>                                            
                                                     </div>
 
                                                     <div class="form-group required">
                                                         <label class="control-label">Weight</label>
-                                                        <input type="text" name="weight" value="<?=$weight;?>" class="form-control" readonly>                                            
+                                                        <input type="text" name="weight" value="<?php echo $weight;?>" class="form-control" readonly>                                            
                                                     </div>
 
                                                     <div class="form-group required">
                                                         <label class="control-label">Comment</label>
-                                                        <textarea name="comment" class="form-control" readonly><?=$comment;?></textarea>                                                        
+                                                        <textarea name="comment" class="form-control" readonly><?php echo $comment;?></textarea>                                                        
                                                     </div>
 
                                                     <div class="form-group required">
                                                         <label class="control-label">Photo</label>
                                                     </div>         
                                                 </fieldset>
-                                            </form>
                                         </div>
                                     </div>                                    
                                 </div>
                                 <div class="col-lg-6">
-                                    <?
+                                    <?php
                                     if (($inventory["image"]!="") && file_exists('../'.$inventory["image"])) echo '<a href="../'.$inventory["image"].'" target="new"><img src="../'.$inventory["image"].'" class="w-100"></a>';
                                     ?>                                                
                                 </div>
@@ -265,9 +272,9 @@
 
                             <a class="btn btn-success btn-sm" href="?action=edit">Edit</a>
                             <a class="btn btn-primary btn-sm" href="?action=list">List</a>
-                            <a class="btn btn-danger btn-sm" href="?action=delete&id=<?=$inventory_id;?>">Delete</a>
+                            <a class="btn btn-danger btn-sm" href="?action=delete&id=<?php echo $inventory_id;?>">Delete</a>
 
-                            <?
+                            <?php
                         }
                         else header("location:inventory");
                     }
@@ -278,9 +285,9 @@
                         ?>
                         <div class="row">
                             <div class="col-lg-12">
-                                <?
+                                <?php
                                 if (isset($_GET["id"])) $inventory_id = $_GET["id"]; else header("location:inventory");
-                                    $sql = "SELECT *FROM branch_inventories WHERE id='$inventory_id' AND `branch`='$g_logged_id' LIMIT 1";
+                                    $sql = "SELECT * FROM branch_inventories WHERE id='$inventory_id' AND `branch`='$g_logged_id' LIMIT 1";
                                     $result = mysqli_query($conn,$sql);
                                     if (mysqli_num_rows($result)==1)
                                     {
@@ -302,7 +309,7 @@
                                 <a href="inventory" class="btn btn-primary">List</a>
                             </div>
                         </div>
-                        <?
+                        <?php
                     }
                 
                     
@@ -311,9 +318,9 @@
                         ?>
                         <div class="row">
                             <div class="col-lg-12">
-                                <?
+                                <?php
                                 if (isset($_GET["id"])) $inventory_id = $_GET["id"]; else header("location:inventory");
-                                    $sql = "SELECT *FROM branch_inventories WHERE id='$inventory_id' AND `branch`='$g_logged_id' LIMIT 1";
+                                    $sql = "SELECT * FROM branch_inventories WHERE id='$inventory_id' AND `branch`='$g_logged_id' LIMIT 1";
                                     $result = mysqli_query($conn,$sql);
                                     if (mysqli_num_rows($result)==1)
                                     {
@@ -333,7 +340,7 @@
                                 <a href="inventory" class="btn btn-primary">List</a>
                             </div>
                         </div>
-                        <?
+                        <?php
                     }
                 
 
@@ -342,10 +349,10 @@
                         ?>
                         <div class="row">
                             <div class="col-lg-12">
-                                <?
-                                    $sql = "UPDATE branch_inventories SET status ='prepare'  WHERE status='new'";
+                                <?php
+                                    $sql = "UPDATE branch_inventories SET status ='prepare'  WHERE branch_inventories.status='new'";
                                     $result = mysqli_query($conn,$sql);
-                                    if (mysqli_num_rows($result)==1)
+                                    if ($result && mysqli_affected_rows($conn) > 0)
                                     {
                                             echo '<div class="alert alert-success">Prepared</div>';    
                                     }
@@ -357,7 +364,7 @@
                                 <a href="?action=prepared" class="btn btn-primary">Prepared List</a>
                             </div>
                         </div>
-                        <?
+                        <?php
                     }
                 
                 if ($action=="prepared")
@@ -367,9 +374,11 @@
                             <div class="card-body">
                                 <div class="row">
                                         <div class="col-sm-12">
-                                            <?
+                                            <?php
                                                 if (mysqli_num_rows(mysqli_query($conn,"SELECT id FROM branch_inventories WHERE branch_inventories.branch='$g_logged_id' AND status='prepare'"))>=1)
-                                                { ?><a class="btn btn-pill btn-danger" data-bs-toggle="modal" data-bs-target="#tranport"><i data-feather="truck" height="14"></i> Tranport</a><? };
+                                                {
+                                                    ?><a class="btn btn-pill btn-danger" data-bs-toggle="modal" data-bs-target="#tranport"><i data-feather="truck" height="14"></i> Tranport</a><?php
+                                                }
                                             ?>
                                             
 
@@ -386,31 +395,32 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <?
-                                                $count=$sum_weight =0;
+                                                <?php
+                                                $count = 0;
+                                                $sum_weight = 0;
                                                 $sql= "SELECT branch_inventories.*
                                                 FROM branch_inventories 
-                                                WHERE branch_inventories.branch='$g_logged_id' AND status='prepare' ORDER BY id DESC";
+                                                WHERE branch_inventories.branch='$g_logged_id' AND branch_inventories.status='prepare' ORDER BY branch_inventories.id DESC";
                                                 $result = mysqli_query($conn,$sql);
                                                 while ($inventory = mysqli_fetch_array($result))
                                                 {
                                                     ?>
                                                     <tr>
-                                                        <td><?=++$count;?></td>
+                                                        <td><?php echo ++$count;?></td>
                                                         <td width="100px">
-                                                            <?
+                                                            <?php
                                                             if (($inventory["image"]!="") && file_exists('../'.$inventory["image"])) echo '<a href="../'.$inventory["image"].'" target="new"><img src="../'.$inventory["image"].'" class="w-100"></a>';?>
                                                         </td>
-                                                        <td><?=$inventory["track"];?></td>
-                                                        <td><?=$inventory["comment"];?></td>
-                                                        <td><?=$inventory["status"];?></td>
+                                                        <td><?php echo $inventory["track"];?></td>
+                                                        <td><?php echo $inventory["comment"];?></td>
+                                                        <td><?php echo $inventory["status"];?></td>
                                                         <td>
                                                             <div class="btn-group">
-                                                                <a href="?action=unprepare&id=<?=$inventory["id"];?>" class="btn btn-warning btn-sm">To Inventory</a>
+                                                                <a href="?action=unprepare&id=<?php echo $inventory["id"];?>" class="btn btn-warning btn-sm">To Inventory</a>
                                                             </div>
                                                         </td>
                                                     </tr>
-                                                    <?
+                                                    <?php
                                                     $sum_weight+=$inventory["weight"];
                                                 }
                                                 ?>
@@ -418,7 +428,7 @@
                                             <tfoot>
                                                 <tr>
                                                     <th></th>
-                                                    <th colspan="2">Total: <?=$count;?></th>
+                                                    <th colspan="2">Total: <?php echo $count;?></th>
                                                     <th></th>
                                                     <th></th>   
                                                     <th></th>
@@ -440,8 +450,8 @@
                                     </div>
                                     <div class="modal-body">
                                     
-                                            <input type="hidden" name="count" value="<?=$count;?>">
-                                            <input type="hidden" name="sum_weight" value="<?=$sum_weight;?>">
+                                            <input type="hidden" name="count" value="<?php echo $count;?>">
+                                            <input type="hidden" name="sum_weight" value="<?php echo $sum_weight;?>">
                                             <div class="row">
                                                 <div class="col-xl-12 col-md-3 col-sm-6 box-col-3 des-xl-25 rate-sec">
                                                     <div class="card income-card card-primary">                                 
@@ -449,7 +459,7 @@
                                                             <div class="round-box">
                                                             <i data-feather="archive"></i>
                                                             </div>
-                                                            <h5><?=$count;?></h5>
+                                                            <h5><?php echo $count;?></h5>
                                                             <p>Total items</a>                                          
                                                         </div>
                                                         </div>
@@ -479,7 +489,7 @@
                                 </div>
                             </form>
                         </div>
-                        <?
+                        <?php
                     }
                 
 
@@ -488,9 +498,9 @@
                         ?>
                         <div class="row">
                             <div class="col-lg-12">
-                                <?
+                                <?php
                                 if (isset($_GET["id"])) $inventory_id = $_GET["id"]; else header("location:inventory");
-                                    $sql = "SELECT *FROM branch_inventories WHERE id='$inventory_id' AND `branch`='$g_logged_id' LIMIT 1";
+                                    $sql = "SELECT * FROM branch_inventories WHERE id='$inventory_id' AND `branch`='$g_logged_id' LIMIT 1";
                                     $result = mysqli_query($conn,$sql);
                                     if (mysqli_num_rows($result)==1)
                                     {
@@ -511,14 +521,14 @@
                                     <a href="?action=prepared" class="btn btn-primary">Prepared list</a>
                             </div>
                         </div>
-                        <?
+                        <?php
                     } 
                 if ($action=="transport")
                     {
                         ?>
                             <div class="row">
                                 <div class="col-sm-12">
-                                    <?
+                                    <?php
                                     $driver = $_POST["driver"];
                                     $contact = floatval($_POST["contact"]);  
                                     $comment = mysqli_escape_string($conn,$_POST["comment"]);
@@ -533,11 +543,11 @@
                                         $transport = mysqli_insert_id($conn);
                                         
                                         $sql = "UPDATE branch_inventories
-                                        SET status='transport', transport='$transport' WHERE branch='$g_logged_id' AND status='prepare'";
+                                        SET status='transport', transport='$transport' WHERE branch='$g_logged_id' AND branch_inventories.status='prepare'";
                                         mysqli_query($conn,$sql);
                                         ?>
                                         <div class="alert alert-success">Transport sent</div>
-                                        <?
+                                        <?php
 
                                     }
                                     else 
@@ -548,7 +558,7 @@
                                     <a href="?action=prepared" class="btn btn-primary">Prepared list</a>
                                 </div>
                             </div>                    
-                        <?
+                        <?php
                     }
 
                     
@@ -557,7 +567,7 @@
           </div>
           <!-- Container-fluid Ends-->
         </div>
-        <? require_once("views/footer.php");?>
+        <?php require_once("views/footer.php");?>
       </div>
     </div>
     <!-- latest jquery-->

@@ -1,6 +1,6 @@
-<? require_once("config.php");?>
-<? require_once("views/helper.php");?>
-<? require_once("views/init.php");?>
+<?php require_once("config.php");?>
+<?php require_once("views/helper.php");?>
+<?php require_once("views/init.php");?>
 
   <body>
     <!-- Loader starts-->
@@ -76,7 +76,7 @@
                                       </span>                                        
                                   </div>
                               </div>                                
-                              <?
+                              <?php
 
                             }
                       
@@ -110,7 +110,7 @@
                     <div class="form-group">
                       <button class="btn btn-primary" type="submit">Sign in</button>
                     </div>
-                    <?
+                    <?php
                   }
                   ?>
                 <!-- <div class="login-social-title">                
@@ -141,6 +141,14 @@
     <!-- Theme js-->
     <script src="assets/js/script.js"></script>
     <!-- login js-->
+    <script>
+      // Ensure loader is hidden after page loads
+      $(document).ready(function() {
+        $('.loader-wrapper').fadeOut('slow', function() {
+          $(this).remove();
+        });
+      });
+    </script>
     <!-- Plugin used-->
   </body>
 </html>

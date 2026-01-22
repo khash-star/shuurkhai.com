@@ -1,15 +1,19 @@
-<?
+<?php
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$dbuser = 'shuurkhai';
-$dbpass = 'ppZl6H8{wGUA';
+$dbhost = 'localhost';
+$dbuser = 'root';
+$dbpass = '';
 $dbname = 'shuurkhai';
 
 
 $conn = mysqli_connect($dbhost, $dbuser, $dbpass);
+if (!$conn) {
+    die("Database connection failed: " . mysqli_connect_error());
+}
 mysqli_set_charset($conn,'utf8');
 mysqli_select_db($conn,$dbname);// (($dbname,$conn);
 

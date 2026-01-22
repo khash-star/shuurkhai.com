@@ -200,6 +200,9 @@ $("#left-arrow").click(function () {
         }
     });
 
-    $('.custom-scrollbar').animate({
-        scrollTop: $('a.nav-link.menu-title.active').offset().top - 500
-    }, 1000);
+    var activeMenu = $('a.nav-link.menu-title.active');
+    if (activeMenu.length > 0 && activeMenu.offset()) {
+        $('.custom-scrollbar').animate({
+            scrollTop: activeMenu.offset().top - 500
+        }, 1000);
+    }
