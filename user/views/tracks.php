@@ -8,7 +8,7 @@
                             <th class="no-content">№</th>
                             <th>Огноо</th>
                             <th>Төлөв</th>
-                            <th>Жин</th>
+                            <th>OTP</th>
                             <th>Трак/хүлээн авагч</th>
                             <th>Баркод</th>
                             <th>Тайлбар</th>
@@ -35,6 +35,7 @@
                                 $order_id = isset($data["order_id"]) ? intval($data["order_id"]) : 0;
                                 $weight = isset($data["weight"]) ? htmlspecialchars($data["weight"]) : '';
                                 $price = isset($data["price"]) ? htmlspecialchars($data["price"]) : '';
+                                $otp_code = isset($data["otp_code"]) ? htmlspecialchars($data["otp_code"]) : '';
                                 
                                 $created_date = isset($data["created_date"]) ? htmlspecialchars($data["created_date"]) : '';
                                 $onair_date = isset($data["onair_date"]) ? htmlspecialchars($data["onair_date"]) : '';
@@ -105,7 +106,15 @@
                                 <td><?php echo !empty($created_date) ? htmlspecialchars(short_date(substr($created_date, 0, 10))) : ''; ?>
                                 </td>
                                 <td><span class="badge badge-info badge-pills"><?php echo !empty($status) ? htmlspecialchars(status($status)) : ''; ?></span></td>
-                                <td><?php if (!empty($weight)) echo htmlspecialchars($weight) . "кг"; ?></td>
+                                <td>
+                                    <?php 
+                                    if (!empty($otp_code)) {
+                                        echo '<span class="badge text-white" style="background-color: #22c55e; font-size: 14px; padding: 4px 10px; font-weight: normal;">' . htmlspecialchars($otp_code) . '</span>';
+                                    } else {
+                                        echo '-';
+                                    }
+                                    ?>
+                                </td>
                                 <td><?php echo htmlspecialchars($third_party ?? ''); ?>
                                     <?php 
                                     if ($proxy != 0) {
@@ -181,7 +190,7 @@
                             <th><?php echo htmlspecialchars($count ?? 0); ?>ш</th>
                             <th></th>
                             <th></th>
-                            <th><?php echo (!empty($sum_weight)) ? htmlspecialchars($sum_weight) . 'кг' : ''; ?></th>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>

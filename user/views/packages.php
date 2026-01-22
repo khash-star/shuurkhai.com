@@ -176,6 +176,7 @@
                             <th></th>
                             <th></th>
                             <th></th>
+                            <th></th>
                             <th><?php echo (!empty($sum_weight)) ? htmlspecialchars($sum_weight) . 'кг' : ''; ?></th>
                             <th></th>
                             <th></th>

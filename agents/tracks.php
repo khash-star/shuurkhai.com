@@ -34,8 +34,14 @@
                     if (isset($_POST["status"])) $search_status=protect($_POST["status"]); else $search_status='all';
                     if (isset($_POST["status_type"])) $status_type=protect($_POST["status_type"]); else $status_type='all';
                 
-                    
-                    $start_date = date('Y-m-d', strtotime(date('Y-m-d') . ' -1 month'))." 00:00:00";
+                    // Dropdown цэснээс аль нэгийг сонгоход сүүлийн 14 хоногийн мэдээллийг л харуулах
+                    if ($search_status != 'all' || $status_type != 'all' || isset($_POST["search"])) {
+                        // Dropdown сонголт хийгдсэн үед 14 хоногийн өмнөх огноо
+                        $start_date = date('Y-m-d', strtotime(date('Y-m-d') . ' -14 days'))." 00:00:00";
+                    } else {
+                        // Анхны хуудас ачаалагдсан үед 1 сарын өмнөх огноо
+                        $start_date = date('Y-m-d', strtotime(date('Y-m-d') . ' -1 month'))." 00:00:00";
+                    }
 
                     $finish_date = date("Y-m-d")." 23:59:00";
 
@@ -102,7 +108,7 @@
                     $sql.=" AND is_online='1'";
                     $sql.=" AND (boxed=0 OR boxed IS NULL)";
 
-                    $sql.=" ORDER BY order_id DESC";
+                    $sql.=" ORDER BY (CASE WHEN otp_code IS NOT NULL AND otp_code != '' THEN 0 ELSE 1 END), order_id DESC";
 
 
                     // echo $sql;
@@ -124,6 +130,8 @@
                         echo "<th>Төлөв</th>"; 
                         echo "<th>Жин</th>"; 
                         echo "<th>Төлбөр</th>";
+                        echo "<th>OTP код</th>";
+                        echo "<th>DE</th>";
                         echo "<th>Үлдэгдэл</th>";                        
                         echo "</tr>";
                         $count=1;$total_weight=0;$total_price=0;
@@ -153,6 +161,8 @@
                             $print=$data["print"];
                             $status=$data["status"];
                             $is_branch = $data["is_branch"];
+                            $otp_code = isset($data["otp_code"]) ? htmlspecialchars($data["otp_code"]) : '';
+                            $de_checkbox = isset($data["de_checkbox"]) ? intval($data["de_checkbox"]) : 0;
                             $total_weight+=floatval($weight);
                             $total_price+=floatval($Package_advance_value);
                             $tr=0;
@@ -201,6 +211,8 @@
                             echo "<td  class='$class'>";
                             if ($is_branch)  echo number_format(cfg_price_branch($weight),2); else echo number_format(cfg_price($weight),2);
                             echo "$</td>"; 
+                            echo "<td  class='$class'><strong style='font-size: 16px; letter-spacing: 2px; color: #007bff;'>".(!empty($otp_code) ? $otp_code : '<span style="color: #999;">-</span>')."</strong></td>";
+                            echo "<td  class='$class'>".($de_checkbox == 1 ? '<span style="color: green; font-weight: bold;">✓</span>' : '<span style="color: #ccc;">-</span>')."</td>";
                             ?>
                             <td class="<?=$class;?>" >
                                 <div class="btn-group">
@@ -213,7 +225,7 @@
                         echo "</tr>";
 
                         } 
-                        echo "<tr><td colspan='8'>Нийт</td><td>$total_weight</td><td>".cfg_price($total_weight)."</td><td></td></tr>";
+                        echo "<tr><td colspan='8'>Нийт</td><td>$total_weight</td><td>".cfg_price($total_weight)."</td><td colspan='2'></td><td></td></tr>";
 
                         echo "</table>";
                         echo "</div>";

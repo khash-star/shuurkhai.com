@@ -14,7 +14,7 @@
             <?php require_once("views/topmenu.php");?>
 
             <div class="container-xxl flex-grow-1 container-p-y">
-                <button onclick="toggleMessages()" class="btn btn-secondary btn-sm pull-right mg-b-10">МЕССЕЖИЙГ ХААХ</button>
+                <a href="index" class="btn btn-secondary btn-sm pull-right mg-b-10">МЕССЕЖИЙГ ХААХ</a>
 
             <?php  if (isset($_GET["action"])) $action=protect($_GET["action"]); else $action="display";?>
             
