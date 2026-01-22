@@ -72,7 +72,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="/shuurkhai/shop" class="font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">Үнийн мэдээлэл</a>
+                    <a href="/shuurkhai/faqs" class="font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">ТУСЛАМЖ</a>
                     <a href="/shuurkhai/contact.php" class="font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">Холбоо барих</a>
                 </div>
 
@@ -131,7 +131,7 @@
                             Бүх дэлгүүр
                         </a>
                     </div>
-                    <a href="/shuurkhai/shop" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">Үнийн мэдээлэл</a>
+                    <a href="/shuurkhai/faqs" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">ТУСЛАМЖ</a>
                     <a href="/shuurkhai/contact.php" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">Холбоо барих</a>
                 </div>
                 <div class="mt-6 pt-6 border-t border-slate-100 space-y-3">
@@ -186,10 +186,10 @@
     }
     ?>
     <?php if (!empty($slider_images)): ?>
-    <section class="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-screen max-h-[100vh] overflow-x-hidden overflow-y-hidden mt-16">
-        <div id="heroSlider" class="relative w-full h-full overflow-hidden">
+    <section class="relative w-full h-[30vh] sm:h-[35vh] md:h-[40vh] lg:h-[50vh] max-h-[50vh] overflow-x-hidden overflow-y-hidden mt-16">
+        <div id="heroSlider" class="relative w-full h-full overflow-hidden flex items-center justify-center">
             <?php foreach ($slider_images as $index => $slide): ?>
-            <div class="hero-slide <?php echo $index === 0 ? 'active' : ''; ?>" style="display: <?php echo $index === 0 ? 'block' : 'none'; ?>; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden;">
+            <div class="hero-slide <?php echo $index === 0 ? 'active' : ''; ?>" style="display: <?php echo $index === 0 ? 'flex' : 'none'; ?>; position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; align-items: center; justify-content: center;">
                 <?php 
                 // Validate and format link - if it's just a single character or relative path, make it absolute or skip it
                 $slide_link = isset($slide['link']) ? trim($slide['link']) : '';
@@ -205,7 +205,7 @@
                     }
                 }
                 ?>
-                <img src="<?php echo htmlspecialchars($slide['image']); ?>" alt="<?php echo htmlspecialchars($slide['name'] ?: 'Slider ' . ($index + 1)); ?>" class="absolute inset-0 w-full h-full object-cover object-center z-0" style="width: 100%; height: 100%; object-fit: cover; object-position: center; min-width: 100%;">
+                <img src="<?php echo htmlspecialchars($slide['image']); ?>" alt="<?php echo htmlspecialchars($slide['name'] ?: 'Slider ' . ($index + 1)); ?>" class="max-w-[95%] max-h-full w-auto h-auto object-contain z-0" style="max-width: 95%; max-height: 100%; width: auto; height: auto; object-fit: contain;">
                 <?php if ($is_valid_link): ?>
                 <a href="<?php echo htmlspecialchars($slide_link); ?>" class="absolute inset-0 z-10"></a>
                 <?php endif; ?>
