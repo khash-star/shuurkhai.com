@@ -1,12 +1,28 @@
 <?php 
 // Root level index.php - displays new home page (home_new.php)
 // Use __DIR__ to prevent path issues
+
+// TEMPORARY: Enable error reporting for debugging (REMOVE IN PRODUCTION)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-require_once(__DIR__ . "/config.php");
-require_once(__DIR__ . "/views/helper.php");
+
+try {
+    require_once(__DIR__ . "/config.php");
+} catch (Exception $e) {
+    die("Config error: " . htmlspecialchars($e->getMessage()));
+}
+
+try {
+    require_once(__DIR__ . "/views/helper.php");
+} catch (Exception $e) {
+    die("Helper error: " . htmlspecialchars($e->getMessage()));
+}
 // Note: We don't include views/init.php here because this page uses Tailwind CSS
 // instead of the old site's CSS framework
 ?>
