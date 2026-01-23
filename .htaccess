@@ -1,54 +1,31 @@
-DirectoryIndex shuurkhai-home/home-test.php index.php
+DirectoryIndex index.php
 RewriteEngine On
-RewriteBase /shuurkhai/
+RewriteBase /shuurkhai_git/
 
-# ---- SECURITY: HTTPS Enforcement (Production дээр идэвхжүүлэх) ----
-# Production дээр HTTPS-ийг шаардах
-# RewriteCond %{HTTPS} off
-# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-
-# ---- SECURITY: Prevent access to sensitive files ----
-<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql|bak|backup)$">
-    Order Allow,Deny
-    Deny from all
-</FilesMatch>
-
-# ---- SECURITY: Prevent directory browsing ----
-Options -Indexes
-
-# ---- SECURITY: XSS Protection Headers ----
-<IfModule mod_headers.c>
-    Header set X-XSS-Protection "1; mode=block"
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
-    # Content Security Policy (CSP) - сайжруулах шаардлагатай
-    # Header set Content-Security-Policy "default-src 'self'"
-</IfModule>
-
-# ---- ROUTES ----
-# Root (/) нь шинэ нүүр хуудсанд заах
-RewriteRule ^$ shuurkhai-home/home-test.php [L]
-
-# ✅ Хэрвээ файл эсвэл folder байвал rewrite хийхгүй
+# --- STOP rewriting if real file or directory ---
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
-RewriteRule ^home/?$ index.php
-RewriteRule ^index/?$ index.php
-RewriteRule ^contact/?$ contact.php
-RewriteRule ^faqs/?$ faqs.php
-RewriteRule ^news/?$ news.php
-RewriteRule ^about/?$ about.php
-RewriteRule ^shop/?$ shop.php [QSA,L]
-RewriteRule ^calculator/?$ calculator.php
-RewriteRule ^qpay/?$ qpay.php
-RewriteRule ^privacy/?$ privacy.php
-RewriteRule ^agent/?$ admin/agents.php
-RewriteRule ^login/?$ admin/login.php
-RewriteRule ^views/logining/?$ admin/views/logining.php
-RewriteRule ^home-new/?$ shuurkhai-home/home-test.php [L]
-RewriteRule ^shuurkhai-home/home_new/?$ shuurkhai-home/home-test.php [L]
 
-# ---- 404 ----
-ErrorDocument 404 /shuurkhai/underconstruction
+# --- ROOT ---
+RewriteRule ^$ index.php [L]
+
+# --- PUBLIC PAGES ---
+RewriteRule ^index/?$ index.php [L]
+RewriteRule ^contact/?$ contact.php [L]
+RewriteRule ^faqs/?$ faqs.php [L]
+RewriteRule ^news/?$ news.php [L]
+RewriteRule ^about/?$ about.php [L]
+RewriteRule ^shop/?$ shop.php [QSA,L]
+RewriteRule ^calculator/?$ calculator.php [L]
+RewriteRule ^qpay/?$ qpay.php [L]
+RewriteRule ^privacy/?$ privacy.php [L]
+
+# --- LOGIN ---
+RewriteRule ^login/?$ admin/login.php [L]
+
+# --- AGENT / ADMIN ---
+RewriteRule ^agent/?$ admin/agents.php [L]
+
+# --- HOME NEW (optional direct access) ---
+RewriteRule ^home-new/?$ shuurkhai-home/home-test.php [L]
