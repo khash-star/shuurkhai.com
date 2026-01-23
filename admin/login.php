@@ -21,7 +21,7 @@
                                 <div class="col-md-8 pl-md-0">
                                     <div class="auth-form-wrapper px-4 py-5">
                                         <a href="index" class="noble-ui-logo d-block mb-2"><img src="/shuurkhai_git/admin/assets/images/logo.png"></a>
-                                        <form method="post" action="/shuurkhai_git/admin/views/logining">
+                                        <form method="post" action="/shuurkhai_git/admin/views/logining.php">
                                         <div class="form-group">
                                             <label for="exampleInputEmail1">Нэвтрэх нэр</label>
                                             <input type="text" class="form-control" placeholder="Нэвтрэх нэр" name="username" value="<?php echo (isset($_COOKIE["login_remember"]))?$_COOKIE["login_remember"]:'';?>">

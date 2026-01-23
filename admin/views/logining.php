@@ -1,59 +1,48 @@
 <?php
-   // Enable error reporting for debugging
-   error_reporting(E_ALL);
-   ini_set('display_errors', 1);
-   
-   ob_start();
-   session_start();
-   
-   // Check if config loads successfully
-   if (!@require_once("../config.php")) {
-       die("Error: Could not load config.php. Check database connection.");
-   }
-   
-   if (!@require_once("helper.php")) {
-       die("Error: Could not load helper.php");
-   }
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-   if(isset($_POST["login_remember"])) {
-      unset($_COOKIE['login_remember']);
-      //echo "setting cookie[";
-      setcookie ("login_remember",$_POST["username"],time()+ (10 * 365 * 24 * 60 * 60),'/');
-      //echo $_COOKIE['login_remember']."]";
-   } else {
-      unset($_COOKIE['login_remember']);
-   }
+ob_start();
+session_start();
 
+// ✅ 1) POST биш бол шууд буцаа (хамгийн дээр)
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: /shuurkhai_git/admin/login.php");
+    exit;
+}
 
-   if (isset($_POST["password"]) && isset($_POST["username"]))
-   {
-      $username = protect ($_POST["username"]);
-      $password = protect ($_POST["password"]);
+// ✅ config/helper шалгалт
+require_once __DIR__ . "/../config.php";
+require_once __DIR__ . "/helper.php";
 
-      
-      if ($username == settings(1) && $password == settings(2))
-      {
-         $_SESSION['name']="Админ";
-         $_SESSION['avatar']=settings(11);
-         $_SESSION['rights']="admin";
-         $_SESSION['timestamp']=date("Y-m-d H:i:s");
-         $_SESSION['logged']=TRUE;
-         //require_once("refresh.php");
-         
-         header('Location: ../dashboard');
+// remember me cookie
+if (isset($_POST["login_remember"])) {
+    setcookie("login_remember", $_POST["username"] ?? "", time() + (10 * 365 * 24 * 60 * 60), '/');
+} else {
+    setcookie("login_remember", "", time() - 3600, '/');
+}
 
-      }
-      else
-      header("location:../login?error=wrong") ;
-   }
-   else {
-       header("location:../login?error=empty");
-       exit;
-   }
-   
-   // If accessed directly without POST, redirect to login
-   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-       header("location:../login");
-       exit;
-   }
-?>
+// ✅ empty check
+if (!isset($_POST["username"], $_POST["password"])) {
+    header("Location: /shuurkhai_git/admin/login.php?error=empty");
+    exit;
+}
+
+$username = protect($_POST["username"]);
+$password = protect($_POST["password"]);
+
+if ($username == settings(1) && $password == settings(2)) {
+    $_SESSION['name'] = "Админ";
+    $_SESSION['avatar'] = settings(11);
+    $_SESSION['rights'] = "admin";
+    $_SESSION['timestamp'] = date("Y-m-d H:i:s");
+    $_SESSION['logged'] = true;
+
+    // ✅ амжилттай login → dashboard
+    header("Location: /shuurkhai_git/admin/dashboard.php");
+    exit;
+}
+
+// ❌ буруу нууц үг
+header("Location: /shuurkhai_git/admin/login.php?error=wrong");
+exit;
