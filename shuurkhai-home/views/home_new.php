@@ -57,7 +57,7 @@
                                     </div>
                                     <span class="font-medium text-slate-700">Далайн карго</span>
                                 </button>
-                                <a href="/shuurkhai_git/user/" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <a href="/shuurkhai_git/login" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors">
                                     <div class="w-10 h-10 rounded-lg bg-[#1e3a5f]/5 flex items-center justify-center">
                                         <i data-lucide="package" class="w-5 h-5 text-[#1e3a5f]"></i>
                                     </div>
@@ -78,7 +78,7 @@
 
                 <!-- CTA Buttons -->
                 <div class="hidden lg:flex items-center gap-4" style="margin-top: 12px;">
-                    <a href="/shuurkhai_git/user/" class="px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2" title="Нэвтрэх">
+                    <a href="/shuurkhai_git/login" class="px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2" title="Нэвтрэх">
                         <i data-lucide="user" class="w-4 h-4"></i>
                         Нэвтрэх
                     </a>
@@ -92,7 +92,7 @@
                                 (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == 0 || 
                                  (isset($_SESSION['name']) && !empty($_SESSION['name'])));
                     ?>
-                    <a href="<?= $is_admin ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/user/' ?>" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 rounded-xl shadow-sm transition-colors inline-block">
+                    <a href="<?= $is_admin ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/login' ?>" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 rounded-xl shadow-sm transition-colors inline-block">
                         Захиалах
                     </a>
                 </div>
@@ -138,7 +138,7 @@
                     <!-- Google Translate -->
                     <div id="google_translate_element_mobile" style="display: block; width: 100%; margin-bottom: 12px;"></div>
                     
-                    <a href="/shuurkhai_git/user/" class="block w-full text-center px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" title="Нэвтрэх">
+                    <a href="/shuurkhai_git/login" class="block w-full text-center px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" title="Нэвтрэх">
                         <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
                         Нэвтрэх
                     </a>
@@ -152,7 +152,7 @@
                                           (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == 0 || 
                                            (isset($_SESSION['name']) && !empty($_SESSION['name'])));
                     ?>
-                    <a href="<?= $is_admin_mobile_btn ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/user/' ?>" class="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white rounded-xl py-2 inline-block text-center">
+                    <a href="<?= $is_admin_mobile_btn ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/login' ?>" class="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white rounded-xl py-2 inline-block text-center">
                         Захиалах
                     </a>
                 </div>
@@ -602,7 +602,7 @@
                                                (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == 0 || 
                                                 (isset($_SESSION['name']) && !empty($_SESSION['name'])));
                         ?>
-                        <a href="<?= $is_admin_cta_section ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/user/' ?>" class="bg-gradient-to-r from-slate-900 to-slate-700 text-white hover:from-slate-800 hover:to-slate-600 px-8 py-6 text-base rounded-2xl shadow-lg group transition-all hover:scale-105 inline-block text-center">
+                        <a href="<?= $is_admin_cta_section ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/login' ?>" class="bg-gradient-to-r from-slate-900 to-slate-700 text-white hover:from-slate-800 hover:to-slate-600 px-8 py-6 text-base rounded-2xl shadow-lg group transition-all hover:scale-105 inline-block text-center">
                             Бараа захиалах
                             <i data-lucide="arrow-right" class="w-5 h-5 inline ml-2 group-hover:translate-x-1 transition-transform"></i>
                         </a>
