@@ -1,4 +1,4 @@
-﻿*.sql
+*.sql
 *.log
 error_log
 user/error_log
@@ -20,3 +20,6 @@ uploads/*
 # Temporary files
 tmp/
 temp/
+
+# Cache files (generated at runtime)
+cache/*.cache
