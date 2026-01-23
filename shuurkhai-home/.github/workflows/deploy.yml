@@ -19,8 +19,8 @@ jobs:
           server: ${{ secrets.CPANEL_FTP_HOST }}
           username: ${{ secrets.CPANEL_FTP_USER }}
           password: ${{ secrets.CPANEL_FTP_PASSWORD }}
-          # shuurkhai_new хавтас руу хуулна
-          server-dir: public_html/shuurkhai_new/
+          # Үндсэн public_html root руу хуулна (shuurkhai.com)
+          server-dir: public_html/
           local-dir: ./
           dangerous-clean-slate: false
           exclude: |
