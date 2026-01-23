@@ -5,22 +5,19 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Try to include config.php if it exists (may be in parent directory for production)
-$configPath = __DIR__ . "/../config.php";
-if (file_exists($configPath)) {
-    require_once($configPath);
+// Include config.php (same as home-test.php structure)
+// Production server has config.php in parent directory
+if (file_exists(__DIR__ . "/../config.php")) {
+    require_once(__DIR__ . "/../config.php");
+} elseif (file_exists(__DIR__ . "/config.php")) {
+    require_once(__DIR__ . "/config.php");
 }
 
-// Try to include helper.php if it exists
-$helperPath = __DIR__ . "/views/helper.php";
-if (file_exists($helperPath)) {
-    require_once($helperPath);
-} else {
-    // Try parent directory structure
-    $helperPath = __DIR__ . "/../views/helper.php";
-    if (file_exists($helperPath)) {
-        require_once($helperPath);
-    }
+// Include helper.php (same as home-test.php structure)
+if (file_exists(__DIR__ . "/../views/helper.php")) {
+    require_once(__DIR__ . "/../views/helper.php");
+} elseif (file_exists(__DIR__ . "/views/helper.php")) {
+    require_once(__DIR__ . "/views/helper.php");
 }
 
 // Note: We don't include views/init.php here because this page uses Tailwind CSS
@@ -146,7 +143,16 @@ if (file_exists($helperPath)) {
     </style>
 </head>
 <body class="min-h-screen bg-white">
-<?php require_once(__DIR__ . "/views/home_new.php"); ?>
+<?php 
+// Include home_new.php - this is the main content
+$homeNewPath = __DIR__ . "/views/home_new.php";
+if (file_exists($homeNewPath)) {
+    require_once($homeNewPath);
+} else {
+    // Fallback if file doesn't exist
+    echo "<div style='padding: 20px; text-align: center;'><h1>Error: home_new.php not found</h1><p>Path: $homeNewPath</p></div>";
+}
+?>
 <script>
     // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
