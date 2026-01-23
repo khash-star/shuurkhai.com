@@ -1,7 +1,7 @@
 <?php
 /**
  * Admin directory index.php
- * This file should be placed in: ~/public_html/shuurkhai_git/admin/index.php
+ * This file should be placed in: ~/public_html/shuurkhai/admin/index.php
  * 
  * Redirects to the main admin page
  */
@@ -24,9 +24,9 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) {
 // Redirect based on admin status
 if ($is_admin) {
     // Redirect to main admin page
-    header('Location: /shuurkhai_git/admin/online?action=all');
+    header('Location: /shuurkhai/admin/online?action=all');
 } else {
     // Redirect to login page
-    header('Location: /shuurkhai_git/login');
+    header('Location: /shuurkhai/login');
 }
 exit;

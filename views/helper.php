@@ -11,6 +11,7 @@ if (file_exists($composerAutoload)) {
 } else {
     // Fallback: manual require if composer not installed
     require_once(__DIR__ . '/../lib/Database.php');
+    require_once(__DIR__ . '/../lib/Cache.php');
     require_once(__DIR__ . '/../lib/Helpers.php');
 }
 

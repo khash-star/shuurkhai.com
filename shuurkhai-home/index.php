@@ -17,7 +17,7 @@ require_once(__DIR__ . "/../views/helper.php");
 <html lang="mn">
 <head>
     <!-- Base URL for relative paths - Production path -->
-    <base href="/shuurkhai_git/">
+    <base href="/shuurkhai/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shuurkhai - Америк барааг Монголд</title>
@@ -182,7 +182,7 @@ require_once(__DIR__ . "/../views/helper.php");
                 { label: 'Давуу тал', value: 'Хурдан, найдвартай' }
             ],
             actionText: 'Үнийн тооцоо',
-            actionUrl: '/shuurkhai_git/calculator'
+            actionUrl: '/shuurkhai/calculator'
         },
         sea: {
             icon: 'ship',
@@ -195,7 +195,7 @@ require_once(__DIR__ . "/../views/helper.php");
                 { label: 'Давуу тал', value: 'Хямд үнэ' }
             ],
             actionText: 'Үнийн тооцоолол',
-            actionUrl: '/shuurkhai_git/calculator?type=sea'
+            actionUrl: '/shuurkhai/calculator?type=sea'
         }
     };
 

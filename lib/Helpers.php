@@ -142,10 +142,16 @@ class Helpers
     {
         $cacheKey = 'setting_' . (is_int($idOrShortname) ? 'id_' : 'name_') . $idOrShortname;
         
-        // Try to get from cache first
-        $cached = Cache::get($cacheKey);
-        if ($cached !== null) {
-            return (string)$cached;
+        // Try to get from cache first (if Cache class is available)
+        if (class_exists('Shuurkhai\Core\Cache')) {
+            try {
+                $cached = Cache::get($cacheKey);
+                if ($cached !== null) {
+                    return (string)$cached;
+                }
+            } catch (\Exception $e) {
+                // Cache error, continue to database
+            }
         }
         
         // Fetch from database
@@ -163,8 +169,14 @@ class Helpers
         
         $value = $data ? (string)($data['value'] ?? '') : '';
         
-        // Cache for 1 hour
-        Cache::set($cacheKey, $value, 3600);
+        // Cache for 1 hour (if Cache class is available)
+        if (class_exists('Shuurkhai\Core\Cache')) {
+            try {
+                Cache::set($cacheKey, $value, 3600);
+            } catch (\Exception $e) {
+                // Cache error, ignore
+            }
+        }
         
         return $value;
     }

@@ -19,14 +19,14 @@
                     <div id="google_translate_element" style="display: none; position: absolute; left: -9999px;"></div>
                 </div>
                 <!-- Logo -->
-                <a href="/shuurkhai_git/" class="flex items-center gap-3 hover:scale-105 transition-transform" style="margin-top: 12px;">
-                    <img src="/shuurkhai_git/images/logo.png" alt="Shuurkhai Logo" class="h-11 w-auto object-contain">
+                <a href="/shuurkhai/" class="flex items-center gap-3 hover:scale-105 transition-transform" style="margin-top: 12px;">
+                    <img src="/shuurkhai/images/logo.png" alt="Shuurkhai Logo" class="h-11 w-auto object-contain">
                     <span class="text-xl font-bold text-slate-900">www.SHUURKHAI.com</span>
                 </a>
 
                 <!-- Desktop Navigation -->
                 <div class="hidden lg:flex items-center gap-8" style="margin-top: 12px;">
-                    <a href="/shuurkhai_git/" class="flex items-center gap-1 font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">Нүүр</a>
+                    <a href="/shuurkhai/" class="flex items-center gap-1 font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">Нүүр</a>
                     <div class="relative group">
                         <a href="javascript:void(0);" class="flex items-center gap-1 font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">
                             Үйлчилгээ
@@ -57,13 +57,13 @@
                                     </div>
                                     <span class="font-medium text-slate-700">Далайн карго</span>
                                 </button>
-                                <a href="/shuurkhai_git/login" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <a href="/shuurkhai/login" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors">
                                     <div class="w-10 h-10 rounded-lg bg-[#1e3a5f]/5 flex items-center justify-center">
                                         <i data-lucide="package" class="w-5 h-5 text-[#1e3a5f]"></i>
                                     </div>
                                     <span class="font-medium text-slate-700">Онлайн захиалга</span>
                                 </a>
-                                <a href="/shuurkhai_git/shop" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors">
+                                <a href="/shuurkhai/shop" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-50 transition-colors">
                                     <div class="w-10 h-10 rounded-lg bg-[#1e3a5f]/5 flex items-center justify-center">
                                         <i data-lucide="store" class="w-5 h-5 text-[#1e3a5f]"></i>
                                     </div>
@@ -72,27 +72,21 @@
                             </div>
                         </div>
                     </div>
-                    <a href="/shuurkhai_git/faqs" class="font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">ТУСЛАМЖ</a>
-                    <a href="/shuurkhai_git/contact.php" class="font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">Холбоо барих</a>
+                    <a href="/shuurkhai/faqs" class="font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">ТУСЛАМЖ</a>
+                    <a href="/shuurkhai/contact.php" class="font-medium transition-colors text-slate-700 hover:text-[#1e3a5f]">Холбоо барих</a>
                 </div>
 
                 <!-- CTA Buttons -->
                 <div class="hidden lg:flex items-center gap-4" style="margin-top: 12px;">
-                    <a href="/shuurkhai_git/login" class="px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2" title="Нэвтрэх">
+                    <a href="/shuurkhai/login" class="px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2" title="Нэвтрэх">
                         <i data-lucide="user" class="w-4 h-4"></i>
                         Нэвтрэх
                     </a>
-                    <a href="/shuurkhai_git/calculator" class="px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
+                    <a href="/shuurkhai/calculator" class="px-4 py-2 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2">
                         <i data-lucide="calculator" class="w-4 h-4"></i>
                         Үнэ тооцоолох
                     </a>
-                    <?php
-                    // Check if user is logged in as admin
-                    $is_admin = isset($_SESSION['logged']) && $_SESSION['logged'] === true && 
-                                (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == 0 || 
-                                 (isset($_SESSION['name']) && !empty($_SESSION['name'])));
-                    ?>
-                    <a href="<?= $is_admin ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/login' ?>" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 rounded-xl shadow-sm transition-colors inline-block">
+                    <a href="/shuurkhai/user/login" class="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2 rounded-xl shadow-sm transition-colors inline-block">
                         Захиалах
                     </a>
                 </div>
@@ -110,7 +104,7 @@
         <div class="bg-white/95 backdrop-blur-xl border-t border-slate-100 shadow-xl">
             <div class="max-w-7xl mx-auto px-4 py-6">
                 <div class="space-y-2">
-                    <a href="/shuurkhai_git/" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">Нүүр</a>
+                    <a href="/shuurkhai/" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">Нүүр</a>
                     <div class="ml-4 mt-1 space-y-1">
                         <?php
                         // Check if user is logged in as admin
@@ -126,33 +120,27 @@
                             <i data-lucide="ship" class="w-4 h-4 text-[#1e3a5f]"></i>
                             Далайн карго
                         </button>
-                        <a href="/shuurkhai_git/shop" class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
+                        <a href="/shuurkhai/shop" class="flex items-center gap-3 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">
                             <i data-lucide="store" class="w-4 h-4 text-[#1e3a5f]"></i>
                             Бүх дэлгүүр
                         </a>
                     </div>
-                    <a href="/shuurkhai_git/faqs" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">ТУСЛАМЖ</a>
-                    <a href="/shuurkhai_git/contact.php" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">Холбоо барих</a>
+                    <a href="/shuurkhai/faqs" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">ТУСЛАМЖ</a>
+                    <a href="/shuurkhai/contact.php" class="block px-4 py-3 rounded-xl text-slate-700 font-medium hover:bg-slate-50 transition-colors">Холбоо барих</a>
                 </div>
                 <div class="mt-6 pt-6 border-t border-slate-100 space-y-3">
                     <!-- Google Translate -->
                     <div id="google_translate_element_mobile" style="display: block; width: 100%; margin-bottom: 12px;"></div>
                     
-                    <a href="/shuurkhai_git/login" class="block w-full text-center px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" title="Нэвтрэх">
+                    <a href="/shuurkhai/login" class="block w-full text-center px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors" title="Нэвтрэх">
                         <i data-lucide="user" class="w-4 h-4 inline mr-2"></i>
                         Нэвтрэх
                     </a>
-                    <a href="/shuurkhai_git/calculator" class="block w-full text-center px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors">
+                    <a href="/shuurkhai/calculator" class="block w-full text-center px-4 py-2 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors">
                         <i data-lucide="calculator" class="w-4 h-4 inline mr-2"></i>
                         Үнэ тооцоолох
                     </a>
-                    <?php
-                    // Check if user is logged in as admin
-                    $is_admin_mobile_btn = isset($_SESSION['logged']) && $_SESSION['logged'] === true && 
-                                          (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == 0 || 
-                                           (isset($_SESSION['name']) && !empty($_SESSION['name'])));
-                    ?>
-                    <a href="<?= $is_admin_mobile_btn ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/login' ?>" class="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white rounded-xl py-2 inline-block text-center">
+                    <a href="/shuurkhai/user/login" class="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2d5a8f] text-white rounded-xl py-2 inline-block text-center">
                         Захиалах
                     </a>
                 </div>
@@ -200,7 +188,7 @@
                         $is_valid_link = true;
                     } elseif (strlen($slide_link) > 1) {
                         // If it's a relative path, make it absolute from root
-                        $slide_link = '/shuurkhai_git/' . ltrim($slide_link, '/');
+                        $slide_link = '/shuurkhai/' . ltrim($slide_link, '/');
                         $is_valid_link = true;
                     }
                 }
@@ -263,12 +251,12 @@
                 }
                 ?>
                 <?php if ($is_admin): ?>
-                <a href="/shuurkhai_git/admin/shops.php" class="text-slate-700 hover:text-slate-900 font-semibold text-sm group flex items-center gap-1" title="Админ дээрх дэлгүүрүүдийг засварлах">
+                <a href="/shuurkhai/admin/shops.php" class="text-slate-700 hover:text-slate-900 font-semibold text-sm group flex items-center gap-1" title="Админ дээрх дэлгүүрүүдийг засварлах">
                     Бүгдийг харах
                     <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </a>
                 <?php else: ?>
-                <a href="/shuurkhai_git/shop" class="text-slate-700 hover:text-slate-900 font-semibold text-sm group flex items-center gap-1">
+                <a href="/shuurkhai/shop" class="text-slate-700 hover:text-slate-900 font-semibold text-sm group flex items-center gap-1">
                     Бүгдийг харах
                     <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </a>
@@ -602,11 +590,11 @@
                                                (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == 0 || 
                                                 (isset($_SESSION['name']) && !empty($_SESSION['name'])));
                         ?>
-                        <a href="<?= $is_admin_cta_section ? '/shuurkhai_git/admin/online?action=all' : '/shuurkhai_git/login' ?>" class="bg-gradient-to-r from-slate-900 to-slate-700 text-white hover:from-slate-800 hover:to-slate-600 px-8 py-6 text-base rounded-2xl shadow-lg group transition-all hover:scale-105 inline-block text-center">
+                        <a href="<?= $is_admin_cta_section ? '/shuurkhai/admin/online?action=all' : '/shuurkhai/login' ?>" class="bg-gradient-to-r from-slate-900 to-slate-700 text-white hover:from-slate-800 hover:to-slate-600 px-8 py-6 text-base rounded-2xl shadow-lg group transition-all hover:scale-105 inline-block text-center">
                             Бараа захиалах
                             <i data-lucide="arrow-right" class="w-5 h-5 inline ml-2 group-hover:translate-x-1 transition-transform"></i>
                         </a>
-                        <a href="/shuurkhai_git/contact.php" class="border-2 border-slate-300 text-slate-700 bg-white/50 backdrop-blur-sm hover:bg-white/70 px-8 py-6 text-base rounded-2xl shadow-md transition-all hover:scale-105 inline-block text-center">
+                        <a href="/shuurkhai/contact.php" class="border-2 border-slate-300 text-slate-700 bg-white/50 backdrop-blur-sm hover:bg-white/70 px-8 py-6 text-base rounded-2xl shadow-md transition-all hover:scale-105 inline-block text-center">
                             Холбогдох
                         </a>
                     </div>
@@ -658,7 +646,7 @@
                 <!-- Brand Column -->
                 <div class="col-span-2 md:col-span-4 lg:col-span-1">
                     <div class="flex items-center gap-3 mb-6">
-                        <img src="/shuurkhai_git/images/logo.png" alt="Shuurkhai Logo" class="h-12 w-auto object-contain">
+                        <img src="/shuurkhai/images/logo.png" alt="Shuurkhai Logo" class="h-12 w-auto object-contain">
                         <span class="text-2xl font-bold">www.SHUURKHAI.com</span>
                     </div>
 
@@ -702,10 +690,10 @@
                                                    (isset($_SESSION['customer_id']) && $_SESSION['customer_id'] == 0 || 
                                                     (isset($_SESSION['name']) && !empty($_SESSION['name'])));
                         ?>
-                        <li><a href="<?= $is_admin_footer_services ? '/shuurkhai_git/admin/orders' : '/shuurkhai_git/about' ?>" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Агаарын карго <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
-                        <li><a href="<?= $is_admin_footer_services ? '/shuurkhai_git/admin/container' : '/shuurkhai_git/about' ?>" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Далайн карго <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
-                        <li><a href="/shuurkhai_git/shop" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Онлайн дэлгүүр <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
-                        <li><a href="/shuurkhai_git/shop" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Үнийн мэдээлэл <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
+                        <li><a href="<?= $is_admin_footer_services ? '/shuurkhai/admin/orders' : '/shuurkhai/about' ?>" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Агаарын карго <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
+                        <li><a href="<?= $is_admin_footer_services ? '/shuurkhai/admin/container' : '/shuurkhai/about' ?>" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Далайн карго <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
+                        <li><a href="/shuurkhai/shop" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Онлайн дэлгүүр <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
+                        <li><a href="/shuurkhai/shop" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Үнийн мэдээлэл <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
                     </ul>
                 </div>
 
@@ -750,13 +738,13 @@
                 <div>
                     <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Компани</h3>
                     <ul class="space-y-3">
-                        <li><a href="/shuurkhai_git/about" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Бидний тухай <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
-                        <li><a href="/shuurkhai_git/faqs" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Түгээмэл асуулт <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
-                        <li><a href="/shuurkhai_git/contact.php" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Холбоо барих <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
+                        <li><a href="/shuurkhai/about" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Бидний тухай <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
+                        <li><a href="/shuurkhai/faqs" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Түгээмэл асуулт <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
+                        <li><a href="/shuurkhai/contact.php" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Холбоо барих <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
                         <?php if (function_exists('settings')): ?>
                         <li><a href="<?= htmlspecialchars(settings('privacy_url') ?: 'privacy') ?>" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Нууцлалын бодлого <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
                         <?php else: ?>
-                        <li><a href="/shuurkhai_git/privacy" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Нууцлалын бодлого <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
+                        <li><a href="/shuurkhai/privacy" class="text-slate-400 hover:text-white transition-colors inline-flex items-center gap-1 group">Нууцлалын бодлого <i data-lucide="arrow-up-right" class="w-3 h-3 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all"></i></a></li>
                         <?php endif; ?>
                     </ul>
                 </div>
@@ -821,7 +809,7 @@
                         <?php if (function_exists('settings')): ?>
                         <a href="<?= htmlspecialchars(settings('privacy_url') ?: 'privacy') ?>" class="text-sm text-slate-500 hover:text-white transition-colors">Нууцлалын бодлого</a>
                         <?php else: ?>
-                        <a href="/shuurkhai_git/privacy" class="text-sm text-slate-500 hover:text-white transition-colors">Нууцлалын бодлого</a>
+                        <a href="/shuurkhai/privacy" class="text-sm text-slate-500 hover:text-white transition-colors">Нууцлалын бодлого</a>
                         <?php endif; ?>
                     </div>
                 </div>

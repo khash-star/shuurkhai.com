@@ -60,7 +60,8 @@ if (!function_exists('sanitize_input')) {
                 $input = filter_var($input, FILTER_SANITIZE_URL);
                 break;
             default:
-                $input = filter_var($input, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+                // FILTER_SANITIZE_STRING is deprecated in PHP 8.1+, use htmlspecialchars instead
+                $input = htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
         }
         
         return trim($input);

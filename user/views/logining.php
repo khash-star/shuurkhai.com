@@ -1,10 +1,10 @@
 <?php
    ob_start();
    session_start();
-   require_once("../config.php"); 
+   require_once(__DIR__ . "/../../config.php"); 
    require_once("helper.php");
-   require_once("../lib/security.php"); // Security functions
-   require_once("../lib/csrf_helper.php"); // CSRF protection
+   require_once(__DIR__ . "/../../lib/security.php"); // Security functions
+   require_once(__DIR__ . "/../../lib/csrf_helper.php"); // CSRF protection
 
    if(isset($_POST["login_remember"])) {
       unset($_COOKIE['login_remember']);
@@ -68,13 +68,27 @@
       else 
       {
          // Password verification - password_hash ашиглах (backward compatibility)
-         $sql = "SELECT name,customer_id,avatar,tel,address_city,password,password_hash FROM customer WHERE username='".$username_escaped."' LIMIT 1";
+         // Check if password_hash column exists
+         $has_password_hash = false;
+         $check_column_sql = "SHOW COLUMNS FROM customer LIKE 'password_hash'";
+         $check_result = mysqli_query($conn, $check_column_sql);
+         if ($check_result && mysqli_num_rows($check_result) > 0) {
+            $has_password_hash = true;
+         }
+         
+         // Build SQL query conditionally
+         if ($has_password_hash) {
+            $sql = "SELECT name,customer_id,avatar,tel,address_city,password,password_hash FROM customer WHERE username='".$username_escaped."' LIMIT 1";
+         } else {
+            $sql = "SELECT name,customer_id,avatar,tel,address_city,password FROM customer WHERE username='".$username_escaped."' LIMIT 1";
+         }
+         
          $result = mysqli_query($conn,$sql);
          if ($result && mysqli_num_rows($result)==1)
          {
             $data = mysqli_fetch_array($result);
             $stored_password = $data["password"] ?? '';
-            $stored_password_hash = $data["password_hash"] ?? '';
+            $stored_password_hash = $has_password_hash ? ($data["password_hash"] ?? '') : '';
             
             // Password verify - password_hash байвал түүнийг ашиглах, үгүй бол хуучин password-тэй харьцуулах
             $password_valid = false;
@@ -86,7 +100,7 @@
                $password_valid = ($password == $stored_password || md5($password) == $stored_password);
                
                // Хэрэв хуучин password зөв байвал шинэ password_hash үүсгэж хадгалах
-               if ($password_valid && function_exists('hash_password')) {
+               if ($password_valid && function_exists('hash_password') && $has_password_hash) {
                   $new_hash = hash_password($password);
                   $new_hash_escaped = mysqli_real_escape_string($conn, $new_hash);
                   $update_hash_sql = "UPDATE customer SET password_hash = '$new_hash_escaped' WHERE username='".$username_escaped."' LIMIT 1";

@@ -1,7 +1,7 @@
 <?php
 /**
  * Login 500 алдаа шалгах debug хуудас
- * Production: https://shuurkhai.com/shuurkhai_git/login_debug.php
+ * Production: https://shuurkhai.com/shuurkhai/login_debug.php
  * Ажиллуулсны дараа устгана уу (аюулгүй байдлын үүднээс)
  */
 
@@ -83,4 +83,4 @@ if (isset($conn)) {
 
 echo "\n=== End debug ===\n";
 echo "</pre>\n";
-echo "<p><a href='/shuurkhai_git/'>Нүүр</a> | <a href='/shuurkhai_git/login'>Login</a></p>\n";
+echo "<p><a href='/shuurkhai/'>Нүүр</a> | <a href='/shuurkhai/login'>Login</a></p>\n";

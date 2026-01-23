@@ -1,7 +1,7 @@
 <?php require_once("config.php");?>
 <?php require_once("views/helper.php");?>
 <?php require_once("views/init.php");?>
-<?php require_once("lib/csrf_helper.php"); // CSRF protection
+<?php require_once(__DIR__ . "/../lib/csrf_helper.php"); // CSRF protection ?>
     <link href="assets/css/authentication/form-1.css" rel="stylesheet" type="text/css" />
     <!-- END GLOBAL MANDATORY STYLES -->
     <link rel="stylesheet" type="text/css" href="assets/css/forms/theme-checkbox-radio.css">
@@ -78,7 +78,41 @@
             </div>
         </div>
         <div class="form-image">
-            <div class="l-image">
+            <div class="l-image" id="login-video-container">
+                <?php
+                // Get YouTube video URL from settings
+                $youtube_url = '';
+                if (function_exists('settings')) {
+                    $youtube_url = settings('youtube_video') ?? settings('youtube') ?? '';
+                }
+                
+                // Extract YouTube video ID
+                $video_id = '';
+                if (!empty($youtube_url)) {
+                    // Pattern for youtube.com/watch?v=VIDEO_ID
+                    if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/', $youtube_url, $matches)) {
+                        $video_id = $matches[1];
+                    }
+                }
+                
+                if (!empty($video_id)) {
+                    // Store video ID in data attribute for JavaScript
+                    ?>
+                    <div id="youtube-placeholder" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #002868; display: flex; align-items: center; justify-content: center;">
+                        <div style="color: white; font-size: 14px;">Ачааллаж байна...</div>
+                    </div>
+                    <iframe 
+                        id="youtube-video" 
+                        data-video-id="<?php echo htmlspecialchars($video_id); ?>"
+                        frameborder="0" 
+                        allow="autoplay; encrypted-media" 
+                        allowfullscreen
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; opacity: 0; transition: opacity 0.5s;">
+                    </iframe>
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,40,104,0.3), rgba(0,40,104,0.7)); pointer-events: none; z-index: 1;"></div>
+                    <?php
+                }
+                ?>
             </div>
         </div>
     </div>
@@ -90,6 +124,118 @@
     
     <!-- END GLOBAL MANDATORY SCRIPTS -->
     <script src="assets/js/authentication/form-1.js"></script>
+    
+    <script>
+    // Stable YouTube video loading - always loads consistently
+    (function() {
+        var youtubeIframe = document.getElementById('youtube-video');
+        var placeholder = document.getElementById('youtube-placeholder');
+        
+        if (!youtubeIframe) {
+            return;
+        }
+        
+        var videoId = youtubeIframe.getAttribute('data-video-id');
+        if (!videoId) {
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+            return;
+        }
+        
+        // Build YouTube embed URL with all necessary parameters
+        var embedUrl = 'https://www.youtube.com/embed/' + videoId + 
+            '?autoplay=1' +
+            '&mute=1' +
+            '&loop=1' +
+            '&playlist=' + videoId +
+            '&controls=0' +
+            '&showinfo=0' +
+            '&rel=0' +
+            '&iv_load_policy=3' +
+            '&enablejsapi=1' +
+            '&origin=' + encodeURIComponent(window.location.origin);
+        
+        var isLoaded = false;
+        var loadTimeout = null;
+        
+        function showVideo() {
+            if (isLoaded) {
+                return;
+            }
+            isLoaded = true;
+            youtubeIframe.style.opacity = '1';
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+        }
+        
+        function loadVideo() {
+            // Clear any existing timeout
+            if (loadTimeout) {
+                clearTimeout(loadTimeout);
+            }
+            
+            // Always set the src - this ensures it loads on every refresh
+            youtubeIframe.src = embedUrl;
+            
+            // Set up load event listener
+            var loadHandler = function() {
+                showVideo();
+                youtubeIframe.removeEventListener('load', loadHandler);
+            };
+            
+            youtubeIframe.addEventListener('load', loadHandler);
+            
+            // Fallback: show video after 2 seconds even if load event doesn't fire
+            loadTimeout = setTimeout(function() {
+                if (!isLoaded) {
+                    showVideo();
+                }
+            }, 2000);
+            
+            // Additional check: if iframe content is accessible
+            setTimeout(function() {
+                try {
+                    if (youtubeIframe.contentWindow && !isLoaded) {
+                        showVideo();
+                    }
+                } catch (e) {
+                    // Cross-origin, that's fine - rely on load event
+                }
+            }, 1500);
+        }
+        
+        // Load video immediately when script runs
+        loadVideo();
+        
+        // Also ensure it loads when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadVideo);
+        } else {
+            // DOM already ready, but ensure video loads
+            setTimeout(loadVideo, 100);
+        }
+        
+        // Handle page visibility - reload if page becomes visible
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden && !isLoaded) {
+                loadVideo();
+            }
+        });
+        
+        // Preload YouTube iframe API for better compatibility
+        if (!window.YT && !window.YTConfig) {
+            var tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            tag.async = true;
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            if (firstScriptTag && firstScriptTag.parentNode) {
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            }
+        }
+    })();
+    </script>
 
 </body>
 </html>

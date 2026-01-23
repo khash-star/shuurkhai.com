@@ -1,6 +1,6 @@
 DirectoryIndex index.php
 RewriteEngine On
-RewriteBase /shuurkhai_git/
+RewriteBase /shuurkhai/
 
 # --- STOP rewriting if real file or directory ---
 RewriteCond %{REQUEST_FILENAME} -f [OR]
