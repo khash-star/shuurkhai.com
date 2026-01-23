@@ -7,18 +7,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Include config.php (same as home-test.php structure)
 // Production server has config.php in parent directory
-if (file_exists(__DIR__ . "/../config.php")) {
-    require_once(__DIR__ . "/../config.php");
-} elseif (file_exists(__DIR__ . "/config.php")) {
-    require_once(__DIR__ . "/config.php");
-}
-
-// Include helper.php (same as home-test.php structure)
-if (file_exists(__DIR__ . "/../views/helper.php")) {
-    require_once(__DIR__ . "/../views/helper.php");
-} elseif (file_exists(__DIR__ . "/views/helper.php")) {
-    require_once(__DIR__ . "/views/helper.php");
-}
+require_once(__DIR__ . "/../config.php");
+require_once(__DIR__ . "/../views/helper.php");
 
 // Note: We don't include views/init.php here because this page uses Tailwind CSS
 // instead of the old site's CSS framework
@@ -143,16 +133,7 @@ if (file_exists(__DIR__ . "/../views/helper.php")) {
     </style>
 </head>
 <body class="min-h-screen bg-white">
-<?php 
-// Include home_new.php - this is the main content
-$homeNewPath = __DIR__ . "/views/home_new.php";
-if (file_exists($homeNewPath)) {
-    require_once($homeNewPath);
-} else {
-    // Fallback if file doesn't exist
-    echo "<div style='padding: 20px; text-align: center;'><h1>Error: home_new.php not found</h1><p>Path: $homeNewPath</p></div>";
-}
-?>
+<?php require_once(__DIR__ . "/views/home_new.php"); ?>
 <script>
     // Initialize Lucide icons
     if (typeof lucide !== 'undefined') {
