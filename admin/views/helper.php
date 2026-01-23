@@ -389,7 +389,7 @@ if (! function_exists ('proxy2'))
 
 				switch ($parameter)
 				{
-					case "name": return $data["name;break"];
+					case "name": return $data["name"]; break;
 					case "surname":return $data["surname"]; break;
 					case "address":return $data["address"]; break;
 					case "tel":return $data["tel"]; break;

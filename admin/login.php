@@ -1,7 +1,7 @@
 <?php
-    require_once("config.php");
-    require_once("views/helper.php");
-    require_once("views/init.php");
+    require_once(__DIR__ . "/../config.php");
+    require_once(__DIR__ . "/views/helper.php");
+    require_once(__DIR__ . "/views/init.php");
 ?>
 <body style="margin:0px;">
     <div class="main-wrapper" >
