@@ -37,17 +37,19 @@
                         <h5 class="filter-heading  text-center text-lg-left">Ангилал</h5>
                         <ul>
                             <?php
-                            $sql = "SELECT * FROM shops_category ORDER BY dd";
-                            $result = mysqli_query($conn,$sql);
+                            // SQL Injection-ээс хамгаалах - Prepared Statements
+                            $result = mysqli_query($conn, "SELECT * FROM shops_category ORDER BY dd");
+                            // Энэ query нь user input ашиглахгүй, гэхдээ prepared statement ашиглах нь зөв
+                            // Гэхдээ ORDER BY дээр prepared statement ашиглах хэцүү тул энэ нь зөв байна
                             if ($result) {
                                 while ($data = mysqli_fetch_array($result))
                                 {
-                                    if ($data && is_array($data)) {
-                                        $category_id = isset($data["id"]) ? $data["id"] : '';
-                                        $category_name = isset($data["name"]) ? htmlspecialchars($data["name"]) : '';
-                                        $category_count = isset($data["count"]) ? $data["count"] : '0';
+                                    if (is_array($data)) {
+                                        $category_id = $data["id"] ?? '';
+                                        $category_name = htmlspecialchars((string)($data["name"] ?? ''));
+                                        $category_count = $data["count"] ?? '0';
                                         ?>
-                                        <li><a href="shop?category=<?php echo htmlspecialchars($category_id);?>"><?php echo $category_name;?> </a><span>(<?php echo htmlspecialchars($category_count);?>)</span></li>
+                                        <li><a href="shop?category=<?php echo htmlspecialchars((string)$category_id);?>"><?php echo $category_name;?> </a><span>(<?php echo htmlspecialchars((string)$category_count);?>)</span></li>
                                         <?php
                                     }
                                 }
@@ -70,16 +72,23 @@
                         <section class="featured-items padding-bottom" id="featured-items">
                         <div class="row">
                             <?php
-                            $sql = "SELECT * FROM shops";
-                            if (isset($_GET["category"]) && !empty($_GET["category"])) {
-                                $category = mysqli_real_escape_string($conn, $_GET["category"]);
-                                $sql .= " WHERE category = '".$category."'";
+                            // SQL Injection-ээс хамгаалах - Prepared Statements
+                            if (isset($_GET["category"]) && $_GET["category"] !== '') {
+                                $category_int = (int) $_GET["category"];
+                                $stmt = mysqli_prepare($conn, "SELECT * FROM shops WHERE category = ?");
+                                if ($stmt) {
+                                    mysqli_stmt_bind_param($stmt, "i", $category_int);
+                                    mysqli_stmt_execute($stmt);
+                                    $result = mysqli_stmt_get_result($stmt);
+                                    mysqli_stmt_close($stmt);
+                                } else {
+                                    $result = false;
+                                }
+                            } else {
+                                $result = mysqli_query($conn, "SELECT * FROM shops");
                             }
-                            $result = mysqli_query($conn,$sql);
                             if ($result) {
-                                while ($data = mysqli_fetch_array($result))
-                                {
-                                    if ($data && is_array($data)) {
+                                while (($data = mysqli_fetch_array($result)) && is_array($data)) {
                                         ?>
                                 <div class="col-12 col-md-6 col-lg-4 text-center wow slideInUp">
                                     <div class="featured-item-card">
@@ -104,7 +113,6 @@
                                     </div>
                                 </div>
                                 <?php
-                                    }
                                 }
                             }
                             ?>

@@ -55,12 +55,13 @@
                                 $result = mysqli_query($conn,$sql);
                                 if ($result && mysqli_num_rows($result) > 0) {
                                     while ($data = mysqli_fetch_array($result)) {
-                                        if ($data && is_array($data)) {
-                                            $thumb = isset($data["thumb"]) ? htmlspecialchars(fix_image_path($data["thumb"])) : '';
-                                            $title = isset($data["title"]) ? htmlspecialchars($data["title"]) : '';
-                                            $category_name = isset($data["category_name"]) ? htmlspecialchars($data["category_name"]) : '';
-                                            $timestamp = isset($data["timestamp"]) ? substr($data["timestamp"],0,10) : '';
-                                            $id = isset($data["id"]) ? $data["id"] : '';
+                                        if (is_array($data)) {
+                                            $thumb = htmlspecialchars(fix_image_path($data["thumb"] ?? ''));
+                                            $title = htmlspecialchars((string)($data["title"] ?? ''));
+                                            $category_name = htmlspecialchars((string)($data["category_name"] ?? ''));
+                                            $ts = $data["timestamp"] ?? '';
+                                            $timestamp = is_string($ts) ? substr($ts, 0, 10) : '';
+                                            $id = $data["id"] ?? '';
                                             ?>
                                             <div class="single_blog">
                                                 <div class="single_img">
@@ -98,12 +99,13 @@
                                 $result = mysqli_query($conn,$sql);
                                 if ($result && mysqli_num_rows($result) > 0) {
                                     $data = mysqli_fetch_array($result);
-                                    if ($data && is_array($data)) {
-                                        $category_name = isset($data["category_name"]) ? htmlspecialchars($data["category_name"]) : '';
-                                        $title = isset($data["title"]) ? htmlspecialchars($data["title"]) : '';
-                                        $timestamp = isset($data["timestamp"]) ? substr($data["timestamp"],0,10) : '';
-                                        $image = isset($data["image"]) ? htmlspecialchars(fix_image_path($data["image"])) : '';
-                                        $content = isset($data["content"]) ? $data["content"] : '';
+                                    if (is_array($data)) {
+                                        $category_name = htmlspecialchars((string)($data["category_name"] ?? ''));
+                                        $title = htmlspecialchars((string)($data["title"] ?? ''));
+                                        $ts = $data["timestamp"] ?? '';
+                                        $timestamp = is_string($ts) ? substr($ts, 0, 10) : '';
+                                        $image = htmlspecialchars(fix_image_path($data["image"] ?? ''));
+                                        $content = $data["content"] ?? '';
                                         ?>
                                         <div class="detail_blog">
                                             <div class="blog_detail">
