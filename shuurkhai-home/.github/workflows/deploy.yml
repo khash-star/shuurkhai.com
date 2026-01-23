@@ -21,4 +21,24 @@ jobs:
           password: ${{ secrets.CPANEL_FTP_PASSWORD }}
           # Үндсэн public_html хавтас руу шууд хуулна
           server-dir: public_html/
+          local-dir: ./
           dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.github/**
+            **/.vscode/**
+            **/.idea/**
+            **/*.md
+            **/.env*
+            **/package*.json
+            **/vite.config.js
+            **/tailwind.config.js
+            **/postcss.config.js
+            **/eslint.config.js
+            **/jsconfig.json
+            **/components.json
+            **/src/**
+            **/public/**
+            **/dist/**
