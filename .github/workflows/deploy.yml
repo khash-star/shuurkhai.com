@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 60  # 60 минут timeout
     
     steps:
       - name: Checkout code
@@ -29,3 +30,29 @@ jobs:
             **/*.cache
             **/.DS_Store
             **/Thumbs.db
+            **/backup/**
+            **/*.zip
+            **/*.part*
+            **/shu/**
+            **/branch/org/**
+            **/branch/assets/**
+            **/api/google/**
+            **/gaali_api/**
+            **/shi/**
+            **/shuurkhai-home.zip
+            **/*.md
+            **/.github/**
+            **/composer.json
+            **/composer.lock
+            **/php.ini
+            **/phpinfo.php
+            **/deploy.php
+            **/fix_*.php
+            **/check_*.php
+            **/create_*.php
+            **/migrate_*.php
+            **/add_*.php
+            **/index_*.php
+            **/helper.php
+            **/layout-styles.css
+            **/app-ads.txt
