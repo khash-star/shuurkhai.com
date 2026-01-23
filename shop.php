@@ -73,27 +73,19 @@
                         <section class="featured-items padding-bottom" id="featured-items">
                         <div class="row">
                             <?php
-                            // SQL Injection-ээс хамгаалах - Prepared Statements
+                            $sql = "SELECT * FROM shops";
+
                             if (isset($_GET["category"]) && $_GET["category"] !== '') {
-                                $category_int = (int) $_GET["category"];
-                                $stmt = mysqli_prepare($conn, "SELECT * FROM shops WHERE category = ?");
-                                if ($stmt) {
-                                    mysqli_stmt_bind_param($stmt, "i", $category_int);
-                                    mysqli_stmt_execute($stmt);
-                                    $result = mysqli_stmt_get_result($stmt);
-                                    mysqli_stmt_close($stmt);
-                                } else {
-                                    $result = false;
-                                    error_log("shop.php prepare failed: " . mysqli_error($conn));
-                                }
-                            } else {
-                                $result = mysqli_query($conn, "SELECT * FROM shops");
-                                if (!$result) {
-                                    error_log("shop.php shops SQL error: " . mysqli_error($conn));
-                                }
+                                $category = mysqli_real_escape_string($conn, $_GET["category"]);
+                                $sql .= " WHERE category = '$category'";
                             }
-                            if ($result) {
-                                while (($data = mysqli_fetch_array($result)) && is_array($data)) {
+
+                            $result = mysqli_query($conn, $sql);
+                            if (!$result) {
+                                die("SQL ERROR: " . mysqli_error($conn));
+                            }
+
+                            while ($data = mysqli_fetch_array($result)) {
                                         ?>
                                 <div class="col-12 col-md-6 col-lg-4 text-center wow slideInUp">
                                     <div class="featured-item-card">
