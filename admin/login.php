@@ -20,7 +20,7 @@
                                 <?php //$_COOKIE["login_remember"];?>
                                 <div class="col-md-8 pl-md-0">
                                     <div class="auth-form-wrapper px-4 py-5">
-                                        <a href="index" class="noble-ui-logo d-block mb-2"><img src="assets/images/logo.png"></a>
+                                        <a href="index" class="noble-ui-logo d-block mb-2"><img src="/shuurkhai_git/admin/assets/images/logo.png"></a>
                                         <form method="post" action="views/logining">
                                         <div class="form-group">
                                             <label for="exampleInputEmail1">Нэвтрэх нэр</label>
@@ -58,13 +58,13 @@
 	</div>
 
 	<!-- core:js -->
-	<script src="assets/vendors/core/core.js"></script>
+	<script src="/shuurkhai_git/admin/assets/vendors/core/core.js"></script>
 	<!-- endinject -->
   <!-- plugin js for this page -->
 	<!-- end plugin js for this page -->
 	<!-- inject:js -->
-	<script src="assets/vendors/feather-icons/feather.min.js"></script>
-	<script src="assets/js/template.js"></script>
+	<script src="/shuurkhai_git/admin/assets/vendors/feather-icons/feather.min.js"></script>
+	<script src="/shuurkhai_git/admin/assets/js/template.js"></script>
 	<!-- endinject -->
   <!-- custom js for this page -->
 	<!-- end custom js for this page -->
