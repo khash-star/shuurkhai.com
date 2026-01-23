@@ -2,22 +2,9 @@
 ob_start();
 @date_default_timezone_set("Asia/Ulaanbaatar");
 
-
-$dbhost = 'localhost:3306';
-
-$dbuser = 'root';
-$dbpass = '';
-$dbname = 'shuurkhai';
-
-
-
-
-$conn = mysqli_connect($dbhost, $dbuser, $dbpass);
-if (!$conn) {
-    die("Database connection failed: " . mysqli_connect_error());
-}
-mysqli_set_charset($conn,'utf8');
-mysqli_select_db($conn,$dbname);// (($dbname,$conn);
+// Include root config.php for database connection
+// This ensures we use the same database configuration with environment variable support
+require_once(__DIR__ . "/../config.php");
 
 //GLOBAL VARIABLES
 $g_title="Шуурхай админ";
