@@ -39,8 +39,9 @@
                             <?php
                             // SQL Injection-ээс хамгаалах - Prepared Statements
                             $result = mysqli_query($conn, "SELECT * FROM shops_category ORDER BY dd");
-                            // Энэ query нь user input ашиглахгүй, гэхдээ prepared statement ашиглах нь зөв
-                            // Гэхдээ ORDER BY дээр prepared statement ашиглах хэцүү тул энэ нь зөв байна
+                            if (!$result) {
+                                error_log("shop.php shops_category SQL error: " . mysqli_error($conn));
+                            }
                             if ($result) {
                                 while ($data = mysqli_fetch_array($result))
                                 {
@@ -83,9 +84,13 @@
                                     mysqli_stmt_close($stmt);
                                 } else {
                                     $result = false;
+                                    error_log("shop.php prepare failed: " . mysqli_error($conn));
                                 }
                             } else {
                                 $result = mysqli_query($conn, "SELECT * FROM shops");
+                                if (!$result) {
+                                    error_log("shop.php shops SQL error: " . mysqli_error($conn));
+                                }
                             }
                             if ($result) {
                                 while (($data = mysqli_fetch_array($result)) && is_array($data)) {

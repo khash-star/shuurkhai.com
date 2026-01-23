@@ -52,7 +52,10 @@
                             <?php
                             if (isset($conn) && $conn) {
                                 $sql = "SELECT news.*, news_category.name category_name FROM news LEFT JOIN news_category ON news.category = news_category.id ORDER BY timestamp DESC LIMIT 20";
-                                $result = mysqli_query($conn,$sql);
+                                $result = mysqli_query($conn, $sql);
+                                if (!$result) {
+                                    error_log("news.php list SQL error: " . mysqli_error($conn));
+                                }
                                 if ($result && mysqli_num_rows($result) > 0) {
                                     while ($data = mysqli_fetch_array($result)) {
                                         if (is_array($data)) {
@@ -96,7 +99,10 @@
                             if (isset($conn) && $conn && isset($news_id)) {
                                 $news_id = mysqli_real_escape_string($conn, $news_id);
                                 $sql = "SELECT news.*, news_category.name category_name FROM news LEFT JOIN news_category ON news.category = news_category.id WHERE news.id='$news_id'";
-                                $result = mysqli_query($conn,$sql);
+                                $result = mysqli_query($conn, $sql);
+                                if (!$result) {
+                                    error_log("news.php detail SQL error: " . mysqli_error($conn));
+                                }
                                 if ($result && mysqli_num_rows($result) > 0) {
                                     $data = mysqli_fetch_array($result);
                                     if (is_array($data)) {
