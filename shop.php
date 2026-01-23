@@ -73,6 +73,11 @@
                         <section class="featured-items padding-bottom" id="featured-items">
                         <div class="row">
                             <?php
+                            // Database connection check
+                            if (!isset($conn) || !$conn) {
+                                die("Database connection error. Please check config.php");
+                            }
+
                             $sql = "SELECT * FROM shops";
 
                             if (isset($_GET["category"]) && $_GET["category"] !== '') {
@@ -82,6 +87,7 @@
 
                             $result = mysqli_query($conn, $sql);
                             if (!$result) {
+                                error_log("shop.php SQL ERROR: " . mysqli_error($conn) . " | Query: " . $sql);
                                 die("SQL ERROR: " . mysqli_error($conn));
                             }
 
@@ -110,7 +116,6 @@
                                     </div>
                                 </div>
                                 <?php
-                                }
                             }
                             ?>
 
