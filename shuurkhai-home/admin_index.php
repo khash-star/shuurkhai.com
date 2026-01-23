@@ -24,9 +24,9 @@ if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) {
 // Redirect based on admin status
 if ($is_admin) {
     // Redirect to main admin page
-    header('Location: /shuurkhai/admin/online?action=all');
+    header('Location: /admin/online?action=all');
 } else {
     // Redirect to login page
-    header('Location: /shuurkhai/login');
+    header('Location: /login');
 }
 exit;

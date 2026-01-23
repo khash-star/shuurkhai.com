@@ -7,7 +7,7 @@ session_start();
 
 // ✅ 1) POST биш бол шууд буцаа (хамгийн дээр)
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header("Location: /shuurkhai/admin/login.php");
+    header("Location: /admin/login.php");
     exit;
 }
 
@@ -24,7 +24,7 @@ if (isset($_POST["login_remember"])) {
 
 // ✅ empty check
 if (!isset($_POST["username"], $_POST["password"])) {
-    header("Location: /shuurkhai/admin/login.php?error=empty");
+    header("Location: /admin/login.php?error=empty");
     exit;
 }
 
@@ -39,10 +39,10 @@ if ($username == settings(1) && $password == settings(2)) {
     $_SESSION['logged'] = true;
 
     // ✅ амжилттай login → dashboard
-    header("Location: /shuurkhai/admin/dashboard.php");
+    header("Location: /admin/dashboard.php");
     exit;
 }
 
 // ❌ буруу нууц үг
-header("Location: /shuurkhai/admin/login.php?error=wrong");
+header("Location: /admin/login.php?error=wrong");
 exit;
