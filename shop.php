@@ -1,24 +1,44 @@
 <?php
-// Error reporting for debugging
+// Error reporting for debugging - MUST be first
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
+ini_set('log_errors', 1);
 
-// Include required files with error checking
-if (!file_exists("config.php")) {
-    die("Error: config.php file not found");
-}
-require_once("config.php");
+// Start output buffering to catch any errors
+ob_start();
 
-if (!file_exists("views/helper.php")) {
-    die("Error: views/helper.php file not found");
-}
-require_once("views/helper.php");
+try {
+    // Include required files with error checking
+    if (!file_exists("config.php")) {
+        throw new Exception("config.php file not found");
+    }
+    require_once("config.php");
 
-if (!file_exists("views/init.php")) {
-    die("Error: views/init.php file not found");
+    if (!file_exists("views/helper.php")) {
+        throw new Exception("views/helper.php file not found");
+    }
+    require_once("views/helper.php");
+
+    if (!file_exists("views/init.php")) {
+        throw new Exception("views/init.php file not found");
+    }
+    require_once("views/init.php");
+    
+    // Check if database connection exists
+    if (!isset($conn) || !$conn) {
+        throw new Exception("Database connection not established. Error: " . (isset($conn) ? mysqli_connect_error() : "Connection variable not set"));
+    }
+    
+} catch (Exception $e) {
+    ob_end_clean();
+    http_response_code(500);
+    die("FATAL ERROR: " . htmlspecialchars($e->getMessage()) . "<br>File: " . htmlspecialchars($e->getFile()) . "<br>Line: " . $e->getLine());
+} catch (Error $e) {
+    ob_end_clean();
+    http_response_code(500);
+    die("FATAL PHP ERROR: " . htmlspecialchars($e->getMessage()) . "<br>File: " . htmlspecialchars($e->getFile()) . "<br>Line: " . $e->getLine());
 }
-require_once("views/init.php");
 ?>
 
 <link href="assets/css/range-slider.css" rel="stylesheet">
