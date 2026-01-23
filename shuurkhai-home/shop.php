@@ -1,43 +1,71 @@
 <?php
-// Error reporting for debugging - MUST be first
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-ini_set('log_errors', 1);
+// CRITICAL: Error reporting MUST be first, before any output
+@ini_set('display_errors', 1);
+@ini_set('display_startup_errors', 1);
+@error_reporting(E_ALL);
 
-// Start output buffering to catch any errors
-ob_start();
+// Immediate error output
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        echo "<!DOCTYPE html><html><head><title>PHP Fatal Error</title></head><body>";
+        echo "<h1>PHP Fatal Error</h1>";
+        echo "<p><strong>Message:</strong> " . htmlspecialchars($error['message']) . "</p>";
+        echo "<p><strong>File:</strong> " . htmlspecialchars($error['file']) . "</p>";
+        echo "<p><strong>Line:</strong> " . $error['line'] . "</p>";
+        echo "</body></html>";
+    }
+});
+
+// Start output immediately to catch early errors
+echo "<!-- Shop.php starting -->\n";
 
 try {
-    // Include required files with error checking
-    if (!file_exists("config.php")) {
-        throw new Exception("config.php file not found");
+    // Check files exist with absolute paths
+    $base_dir = __DIR__;
+    
+    if (!file_exists($base_dir . "/config.php")) {
+        throw new Exception("config.php not found in: " . $base_dir);
     }
-    require_once("config.php");
+    require_once($base_dir . "/config.php");
 
-    if (!file_exists("views/helper.php")) {
-        throw new Exception("views/helper.php file not found");
+    if (!file_exists($base_dir . "/views/helper.php")) {
+        throw new Exception("views/helper.php not found in: " . $base_dir);
     }
-    require_once("views/helper.php");
+    require_once($base_dir . "/views/helper.php");
 
-    if (!file_exists("views/init.php")) {
-        throw new Exception("views/init.php file not found");
+    if (!file_exists($base_dir . "/views/init.php")) {
+        throw new Exception("views/init.php not found in: " . $base_dir);
     }
-    require_once("views/init.php");
+    require_once($base_dir . "/views/init.php");
     
     // Check if database connection exists
-    if (!isset($conn) || !$conn) {
-        throw new Exception("Database connection not established. Error: " . (isset($conn) ? mysqli_connect_error() : "Connection variable not set"));
+    if (!isset($conn)) {
+        throw new Exception("Database connection variable \$conn is not set");
+    }
+    if (!$conn) {
+        $error = mysqli_connect_error();
+        throw new Exception("Database connection failed: " . ($error ? $error : "Unknown error"));
     }
     
 } catch (Exception $e) {
-    ob_end_clean();
     http_response_code(500);
-    die("FATAL ERROR: " . htmlspecialchars($e->getMessage()) . "<br>File: " . htmlspecialchars($e->getFile()) . "<br>Line: " . $e->getLine());
+    echo "<!DOCTYPE html><html><head><title>Error</title></head><body>";
+    echo "<h1>FATAL ERROR</h1>";
+    echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . "</p>";
+    echo "<p><strong>Line:</strong> " . $e->getLine() . "</p>";
+    echo "</body></html>";
+    exit;
 } catch (Error $e) {
-    ob_end_clean();
     http_response_code(500);
-    die("FATAL PHP ERROR: " . htmlspecialchars($e->getMessage()) . "<br>File: " . htmlspecialchars($e->getFile()) . "<br>Line: " . $e->getLine());
+    echo "<!DOCTYPE html><html><head><title>PHP Error</title></head><body>";
+    echo "<h1>PHP FATAL ERROR</h1>";
+    echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+    echo "<p><strong>File:</strong> " . htmlspecialchars($e->getFile()) . "</p>";
+    echo "<p><strong>Line:</strong> " . $e->getLine() . "</p>";
+    echo "</body></html>";
+    exit;
 }
 ?>
 
