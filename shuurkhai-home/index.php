@@ -1,14 +1,85 @@
-<?php 
+<?php
+// CRITICAL: Error reporting MUST be first, before any output
+@ini_set('display_errors', 1);
+@ini_set('display_startup_errors', 1);
+@error_reporting(E_ALL);
+
+// Session path-ийг /tmp болгож засах - MUST be before session_start()
+@ini_set('session.save_path', '/tmp');
+
+// Immediate error output
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        echo "<!DOCTYPE html><html><head><title>PHP Fatal Error</title></head><body style='font-family: Arial; padding: 20px;'>";
+        echo "<h1>PHP Fatal Error</h1>";
+        echo "<p><strong>Message:</strong> " . htmlspecialchars($error['message']) . "</p>";
+        echo "<p><strong>File:</strong> " . htmlspecialchars($error['file']) . "</p>";
+        echo "<p><strong>Line:</strong> " . $error['line'] . "</p>";
+        echo "</body></html>";
+    }
+});
+
+// Start output immediately to catch early errors
+echo "<!-- Index.php starting -->\n";
+
 // Main entry point - displays new home page
 // Start session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+try {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+} catch (Exception $e) {
+    die("Session Error: " . htmlspecialchars($e->getMessage()));
 }
 
-// Include config.php (same as home-test.php structure)
-// Production server has config.php in parent directory
-require_once(__DIR__ . "/../config.php");
-require_once(__DIR__ . "/../views/helper.php");
+// Include config.php - check multiple possible locations
+$config_paths = [
+    __DIR__ . "/config.php",           // Same directory (production)
+    __DIR__ . "/../config.php",        // Parent directory (local)
+];
+
+$config_loaded = false;
+foreach ($config_paths as $path) {
+    if (file_exists($path)) {
+        try {
+            require_once($path);
+            $config_loaded = true;
+            break;
+        } catch (Exception $e) {
+            die("Config Error: " . htmlspecialchars($e->getMessage()) . " in " . htmlspecialchars($path));
+        } catch (Error $e) {
+            die("Config PHP Error: " . htmlspecialchars($e->getMessage()) . " in " . htmlspecialchars($path));
+        }
+    }
+}
+
+if (!$config_loaded) {
+    die("<!DOCTYPE html><html><head><title>Config Error</title></head><body style='font-family: Arial; padding: 20px;'>" .
+        "<h1>Config File Not Found</h1>" .
+        "<p>Error: config.php file not found.</p>" .
+        "<p>Please create config.php in the same directory as index.php</p>" .
+        "<p>Searched paths:</p><ul>" .
+        "<li>" . htmlspecialchars($config_paths[0]) . "</li>" .
+        "<li>" . htmlspecialchars($config_paths[1]) . "</li>" .
+        "</ul></body></html>");
+}
+
+// Check if database connection exists
+if (!isset($conn)) {
+    die("<!DOCTYPE html><html><head><title>Database Error</title></head><body style='font-family: Arial; padding: 20px;'>" .
+        "<h1>Database Connection Variable Not Set</h1>" .
+        "<p>The \$conn variable is not set. Please check config.php file.</p>" .
+        "</body></html>");
+}
+
+try {
+    require_once(__DIR__ . "/views/helper.php");
+} catch (Exception $e) {
+    die("Helper Error: " . htmlspecialchars($e->getMessage()));
+} catch (Error $e) {
+    die("Helper PHP Error: " . htmlspecialchars($e->getMessage()));
+}
 
 // Note: We don't include views/init.php here because this page uses Tailwind CSS
 // instead of the old site's CSS framework
