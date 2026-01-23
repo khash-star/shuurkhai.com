@@ -1,6 +1,25 @@
-<?php require_once("config.php"); ?>
-<?php require_once("views/helper.php"); ?>
-<?php require_once("views/init.php"); ?>
+<?php
+// Error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
+// Include required files with error checking
+if (!file_exists("config.php")) {
+    die("Error: config.php file not found");
+}
+require_once("config.php");
+
+if (!file_exists("views/helper.php")) {
+    die("Error: views/helper.php file not found");
+}
+require_once("views/helper.php");
+
+if (!file_exists("views/init.php")) {
+    die("Error: views/init.php file not found");
+}
+require_once("views/init.php");
+?>
 
 <link href="assets/css/range-slider.css" rel="stylesheet">
 
@@ -32,13 +51,15 @@
                         <ul>
                             <?php
                             // Query-г MariaDB-д зориулж засав
-                            $result = mysqli_query($conn, "SELECT * FROM `shops_category` ORDER BY `dd` ASC");
-                            if ($result) {
-                                while ($data = mysqli_fetch_array($result)) {
-                                    $category_id = $data["id"] ?? '';
-                                    $category_name = htmlspecialchars((string)($data["name"] ?? ''));
-                                    $category_count = $data["count"] ?? '0';
-                                    echo '<li><a href="shop?category='.urlencode($category_id).'">'.$category_name.'</a> <span>('.$category_count.')</span></li>';
+                            if (isset($conn) && $conn) {
+                                $result = mysqli_query($conn, "SELECT * FROM `shops_category` ORDER BY `dd` ASC");
+                                if ($result) {
+                                    while ($data = mysqli_fetch_array($result)) {
+                                        $category_id = $data["id"] ?? '';
+                                        $category_name = htmlspecialchars((string)($data["name"] ?? ''));
+                                        $category_count = $data["count"] ?? '0';
+                                        echo '<li><a href="shop?category='.urlencode($category_id).'">'.$category_name.'</a> <span>('.$category_count.')</span></li>';
+                                    }
                                 }
                             }
                             ?>
@@ -53,7 +74,10 @@
                         <section class="featured-items padding-bottom" id="featured-items">
                             <div class="row">
                                 <?php
-                                if (!$conn) { die("DB Error"); }
+                                // Database connection check
+                                if (!isset($conn) || !$conn) {
+                                    die("Database connection error. Please check config.php");
+                                }
 
                                 // SQL Query-г Backticks ашиглан MariaDB-д нийцтэй болгов
                                 $sql = "SELECT * FROM `shops`";
@@ -65,7 +89,8 @@
 
                                 $result = mysqli_query($conn, $sql);
                                 if (!$result) {
-                                    echo "SQL Error: " . mysqli_error($conn);
+                                    error_log("shop.php SQL ERROR: " . mysqli_error($conn) . " | Query: " . $sql);
+                                    echo "<div class='alert alert-danger'>SQL Error: " . htmlspecialchars(mysqli_error($conn)) . "</div>";
                                 } else {
                                     while ($data = mysqli_fetch_array($result)) {
                                         ?>
